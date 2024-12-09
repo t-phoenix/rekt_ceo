@@ -59,6 +59,7 @@
 }
 
 @media screen and (max-width: 800px){
+    
     .story-box{
         flex-direction: column;
     }
@@ -80,6 +81,7 @@
 }
 
 @media screen and (max-width: 380px) {
+    
     .story-content-size{
         font-size: 10px;
     }
