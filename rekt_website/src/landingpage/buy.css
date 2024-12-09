@@ -1,0 +1,132 @@
+.buy-section{
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+}
+
+.buy-box{
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0%;
+    width: 100%;
+    height: 80vh;
+    
+    justify-items: center;
+    align-items: center;
+}
+
+.buy-card{
+    height: 70%;
+    width: 80%;
+    padding-block: 2%;
+    padding-inline: 4%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    align-items: center;
+    backdrop-filter: blur(50px);
+    border-radius: 16px;
+    box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2), 0 20px 20px 0 rgba(0, 0, 0, 0.19);
+    text-align: center;
+}
+
+.buy-card h1{
+    font-size: 900;
+}
+
+.item-1{
+    grid-row: 1 ;
+    grid-column: 1 ;
+  }
+  .item-2{
+    grid-row: 1;
+    grid-column: 2;
+  }
+  .item-3{
+    grid-row: 2 ;
+    grid-column: 1;
+  }
+  .item-4{
+    grid-row: 2;
+    grid-column: 2;
+  }
+
+  .row-box{
+    display: flex;
+    flex-direction: row;
+  }
+
+  .button-margin{
+    margin-inline: 2%;
+    width: 200px;
+  }
+  .icon-box{
+    border-radius: 50%;
+    color: var(--color-white);
+    background-color: var(--color-red);
+    box-shadow: 4px 6px 16px 0 var(--color-blue);
+
+    position:fixed;
+    bottom: -10px;
+    left: -10px;
+    padding: 3%;
+  }
+  .card-icon{
+    
+  }
+
+
+@media screen and (max-width: 1200px){
+    .buy-box{
+        display: grid;
+        grid-template-columns: repeat(1, 1fr);
+        gap: 2%;
+    }
+    .buy-card{
+        height: 100%;
+    }
+    .item-1{
+        grid-row: 1 ;
+        grid-column: 1 ;
+      }
+      .item-2{
+        grid-row: 2;
+        grid-column: 1;
+      }
+      .item-3{
+        grid-row: 3 ;
+        grid-column: 1;
+      }
+      .item-4{
+        grid-row: 4;
+        grid-column: 1;
+      }
+      button{
+        width: 240px;
+      }
+}
+
+
+
+@media screen and (max-width: 800px){
+    .buy-card{
+        width: 90%;
+        padding-block: 4%;
+    }
+    .buy-card h1{
+        font-size: 12px;
+    }
+    .buy-card p{
+        font-size: 8px;
+    }
+    .button-margin{
+        width: 120px;
+        font-size: 12px;
+        padding-inline: 8px;
+        padding-block: 8px;
+    }
+}
