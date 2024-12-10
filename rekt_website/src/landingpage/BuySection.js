@@ -1,6 +1,6 @@
 import React from "react";
-import "./intro.css";
-import "./buy.css";
+import "./styles/intro.css";
+import "./styles/buy.css";
 import penthouse2 from "../creatives/penthouse2.jpg";
 
 import { MdRocketLaunch, MdShoppingCart, MdSwapHoriz, MdAccountBox } from "react-icons/md";

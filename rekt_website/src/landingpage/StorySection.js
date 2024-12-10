@@ -1,7 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import "./intro.css";
-import "./story.css";
+import "./styles/intro.css";
+import "./styles/story.css";
 import ceo_office from "../creatives/ceo_office.jpg";
 
 

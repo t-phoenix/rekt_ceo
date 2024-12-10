@@ -1,0 +1,31 @@
+.banner-container {
+    width: 100%;
+    overflow: hidden;
+    white-space: nowrap;
+    position: relative;
+    background-color: #f8f8f8;
+    border: 1px solid #ddd;
+  }
+  
+  .banner-content {
+    display: inline-flex;
+    animation: scroll-left 15s linear infinite;
+  }
+  
+  .banner-item {
+    padding: 10px 20px;
+    font-size: 20px;
+    color: #333;
+    white-space: nowrap;
+    font-weight: 700;
+  }
+  
+  /* Keyframes for scrolling animation */
+  @keyframes scroll-left {
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(-20%);
+    }
+  }

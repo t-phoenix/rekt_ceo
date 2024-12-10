@@ -1,24 +1,28 @@
 export const navlinks = [
   
   {
-    name: 'ABOUT',
-    link: '/about'
+    name: 'STORY',
+    link: '/story'
   },
   {
     name: 'HOW TO BUY',
     link: '/buy'
   },
   {
-    name: 'STORY',
-    link: '/story'
-  },
-  {
-    name: 'PFP GENERATOR',
-    link: '/pfp'
+    name: 'ROADMAP',
+    link: '/roadmap'
   },
   {
     name: 'REKTNOMICS',
     link: '/rektnomics'
+  },
+  {
+    name: 'PFP',
+    link: '/pfp'
+  },
+  {
+    name: 'MEMES',
+    link: '/memes'
   },
   {
     name: 'FAQ',
