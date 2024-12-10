@@ -20,6 +20,7 @@ import {
 export default function Rektnomics(){
     return(
         <section
+        id="rektnomics"
         style={{ backgroundImage: `url(${neon_penthouse})` }}
         className="rektnomics-section"
       >

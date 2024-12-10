@@ -17,7 +17,7 @@ import Roadmap from "./Roadmap";
 import Rektnomics from "./Rektnomics";
 import Banner from "../components/Banner";
 import { faqData } from "../constants/faqData";
-import { MdLanguage, } from "react-icons/md";
+import { MdCopyright, MdLanguage, } from "react-icons/md";
 import { FaTwitter} from "react-icons/fa"
 
 
@@ -44,6 +44,7 @@ export default function Introduction() {
   return (
     <div>
       <section
+        id="welcome"
         style={{ backgroundImage: `url(${penthouse})` }}
         className="landing-section"
       >
@@ -63,13 +64,13 @@ export default function Introduction() {
 
       <StorySection />
 
-      <BuySection />
+      <BuySection  />
 
       <Roadmap />
 
-      <Rektnomics />
+      <Rektnomics  />
 
-      <section className="landing-section">
+      <section id="faq" className="landing-section">
         <h1 className="section-title">FAQ</h1>
         <div className="faq-content-box">
             {faqData.map((data)=>(
@@ -84,7 +85,7 @@ export default function Introduction() {
             <div className="link-icon-box">
                 <MdLanguage size={42}/>
             </div>
-            <div className="link-icon-box">
+            <div className="link-icon-box" >
                 <FaTwitter  size={42}/>
             </div>
             <div className="link-icon-box">
@@ -93,6 +94,10 @@ export default function Introduction() {
             <div className="link-icon-box">
                 <img className="link-icon-image" src={raydium} alt="pump fun" />
             </div>
+        </div>
+        <div className="end-box">
+            <p>DISCLAIMER: $CEO is a meme coin created for fun with absolutely no intrinsic value or any expectation of financial return. The token for entertainment purposes only and we take zero responsibility for the value of this token. $CEO is inspired by @MustStopMurad to be the king of meme coins.</p>
+            <p style={{marginBlock: '2%', display:'flex', flexDirection: 'row', alignItems:'center', justifyContent: 'center'}}>2024 <MdCopyright size={16}/> MemesAfterDark. All right reserved.</p>
         </div>
         {/* ,{
           question: "What are official project links ?",

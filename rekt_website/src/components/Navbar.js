@@ -1,32 +1,85 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { navlinks } from "../constants/navlinks";
 import "./header.css";
-import { useNavigate } from "react-router-dom";
-import {motion} from 'framer-motion';
+import { Link as RouterLink, useLocation, useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
 
-export default function Navbar({setShow}){
-    const navigate = useNavigate();
-    const [selectedLink, setSelectedLink] = React.useState('/')
+export default function Navbar({ setShow }) {
+  const navigate = useNavigate();
+  const location = useLocation();
 
-    return(
-        <div className="links-container">
-            {navlinks.map((navlink) => (
-              <div
-                key={navlink.name}
-                className="links-style"
-                onClick={() => {
-                  setShow(false)
-                  setSelectedLink(navlink.link)
-                  navigate(navlink.link);
-                }}
-              >
-                <p>{navlink.name}</p>
-              </div>
-            ))}
-          </div>
-    )
+  const [scrollTarget, setScrollTarget] = useState(null);
+
+  // Effect to handle scrolling after navigation
+  useEffect(() => {
+    if (scrollTarget && location.pathname === "/") {
+      const section = document.getElementById(scrollTarget);
+      if (section) {
+        section.scrollIntoView({ behavior: "smooth" });
+      }
+      // Reset scroll target after scrolling
+      setScrollTarget(null);
+    }
+  }, [scrollTarget, location]);
+
+  // Function to handle smooth scrolling
+  const scrollToSection = (sectionId) => {
+    if (location.pathname !== "/") {
+      setScrollTarget(sectionId);
+      navigate("/");
+    } else {
+      const section = document.getElementById(sectionId);
+      if (section) {
+        section.scrollIntoView({ behavior: "smooth" });
+      }
+    }
+  };
+
+  return (
+    <nav className="links-container">
+      {/* Links to landing page sections */}
+
+      <div onClick={() => scrollToSection("story")} className="links-style">
+        STORY
+      </div>
+      <div onClick={() => scrollToSection("buyceo")} className="links-style">
+        HOW TO BUY
+      </div>
+      <div onClick={() => scrollToSection("roadmap")} className="links-style">
+        ROADMAP
+      </div>
+      <div
+        onClick={() => scrollToSection("rektnomics")}
+        className="links-style"
+      >
+        REKTNOMICS
+      </div>
+
+      {/* Links to other pages */}
+      <div
+        className="links-style"
+        onClick={() => {
+          navigate("/pfp");
+        }}
+      >
+        PFP
+      </div>
+      <div
+        onClick={() => {
+          navigate("/memes");
+        }}
+        className="links-style"
+      >
+        MEMES
+      </div>
+
+      {/* Link to Landing Page Section */}
+      <div onClick={() => scrollToSection("faq")} className="links-style">
+        FAQ
+      </div>
+    </nav>
+  );
 }
-
 
 // className={selectedLink==navlink.link? "selected-link":"links-style"}
 // whileHover={{ scale: 1.1 }}

@@ -2,19 +2,19 @@ export const navlinks = [
   
   {
     name: 'STORY',
-    link: '/story'
+    link: '/#story'
   },
   {
     name: 'HOW TO BUY',
-    link: '/buy'
+    link: '#buyceo'
   },
   {
     name: 'ROADMAP',
-    link: '/roadmap'
+    link: '#roadmap'
   },
   {
     name: 'REKTNOMICS',
-    link: '/rektnomics'
+    link: '#rektnomics'
   },
   {
     name: 'PFP',
@@ -26,7 +26,7 @@ export const navlinks = [
   },
   {
     name: 'FAQ',
-    link: '/faq'
+    link: '#faq'
   },
   
 

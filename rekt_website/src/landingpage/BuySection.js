@@ -9,6 +9,7 @@ import { MdRocketLaunch, MdShoppingCart, MdSwapHoriz, MdAccountBox } from "react
 export default function BuySection(){
     return(
         <section
+        id="buyceo"
         style={{ backgroundImage: `url(${penthouse2})` }}
         className="buy-section"
       >

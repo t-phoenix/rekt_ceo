@@ -13,7 +13,7 @@ import waterfall_garden from "../creatives/ai_image/waterfall_garden.jpg";
 
 export default function Roadmap(){
     return(
-        <section className="roadmap-section">
+        <section id="roadmap" className="roadmap-section">
         <h1
           className="section-title"
           style={{ marginTop: "8", marginBottom: "2%" }}

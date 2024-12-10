@@ -7,7 +7,7 @@ import ceo_office from "../creatives/ceo_office.jpg";
 
 export default function StorySection(){
     return(
-        <section className="story-section">
+        <section id="story" className="story-section">
         <h1 className="section-title">STORY</h1>
         <div className="story-box">
           <img src={ceo_office} alt="story" className="image-div" />

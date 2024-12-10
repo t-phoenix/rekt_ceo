@@ -30,7 +30,7 @@
     padding: 4%;
     border-radius: 8px;
     box-shadow: 4px 4px var(--color-white);
-    color: var(--color-yellow);
+    color: var(--color-black);
     transition: 0.6s;
 }
 .link-icon-box:hover{
@@ -41,4 +41,9 @@
 .link-icon-image{
     height: 40px;
     width: 50px;
+}
+
+.end-box{
+    margin-block: 4%;
+    width: 60%;
 }
