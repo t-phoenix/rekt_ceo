@@ -17,21 +17,21 @@ function App() {
 
   const [isMobile, setIsMobile] = useState(false);
 
-  useEffect(() => {
-    // Detect screen width or use a user-agent check
-    const handleResize = () => {
-      setIsMobile(window.innerWidth <= 992); // Adjust breakpoint as needed
-    };
+  // useEffect(() => {
+  //   // Detect screen width or use a user-agent check
+  //   const handleResize = () => {
+  //     setIsMobile(window.innerWidth <= 992); // Adjust breakpoint as needed
+  //   };
 
-    // Initial check
-    handleResize();
+  //   // Initial check
+  //   handleResize();
 
-    // Add event listener for window resize
-    window.addEventListener("resize", handleResize);
+  //   // Add event listener for window resize
+  //   window.addEventListener("resize", handleResize);
 
-    // Cleanup event listener on unmount
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
+  //   // Cleanup event listener on unmount
+  //   return () => window.removeEventListener("resize", handleResize);
+  // }, []);
 
   return (
     <>

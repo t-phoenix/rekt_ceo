@@ -65,8 +65,8 @@ input:focus{
   outline: none;
 }
 
-@media all and (max-width: 600px) {
+/* @media all and (max-width: 600px) {
   .body{
     margin-top: 4vh;
   }
-}
+} */

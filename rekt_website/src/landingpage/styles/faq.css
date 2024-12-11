@@ -13,15 +13,38 @@
     padding-block: 1.6%;
     padding-left: 4%;
     margin-block: 1%;
+    word-wrap: break-word;
 }
 
 .link-container{
     display: flex;
     flex-direction: row;
-    justify-content: center;
+    align-items: center;
+    justify-content: space-between;
+    width: 90%;
+    padding: 0 32px 0 32px;
+}
+
+@media screen and (min-width: 768px) {
+    .link-container {
+        width: 60%;
+        margin: 0 auto;
+    }
+}
+
+@media screen and (min-width: 1024px) {
+    .link-container {
+        width: 35%;
+    }
+}
+
+@media screen and (min-width: 1440px) {
+    .link-container {
+        width: 30%;
+    }
 }
 .link-icon-box{ 
-    margin-inline: 16%;
+    /* margin-inline: 16%; */
     background-color: var(--color-red);
     display: flex;
     flex-direction: column;
@@ -45,5 +68,5 @@
 
 .end-box{
     margin-block: 4%;
-    width: 60%;
+    padding: 0 32px 0 32px;
 }
