@@ -8,6 +8,7 @@ import Introduction from "./landingpage/Introduction";
 import Header from "./components/Header";
 
 import penthouse from "./creatives/penthouse.jpeg";
+import ProfileNFT from "./pages/ProfileNFT";
 
 
 function App() {
@@ -54,6 +55,7 @@ function App() {
           <div className="body">
             <Routes>
               <Route path="/" element={<Introduction />} />
+              <Route path="/pfp" element={<ProfileNFT />}/>
               {/* <Route path="/swap" element={<Fund />} />
                   <Route path="/mint" element={<DemoApp />} />
                   <Route path="/analytics" element={<Analytics />}/> */}
@@ -87,6 +89,7 @@ const styles = {
     padding: "20px",
     maxWidth: "400px",
     backdropFilter: "blur(50px)",
+    backgroundColor: '#010001',
     border: "1px solid #ddd",
     borderRadius: "8px",
     boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",

@@ -32,7 +32,8 @@ button {
   margin-block: 10px;
   padding-block: 12px;
   padding-inline: 24px;
-  background-color: var(--background-color-primary);
+  background-color: var(--color-red);
+  color: var(--color-white);
   box-shadow: 4px 4px 0px 2px var(--color-blue);
   display: flex;
   flex-direction: row;
