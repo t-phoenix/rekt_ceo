@@ -169,7 +169,12 @@
 }
 
 @media screen and (max-width: 380px){
+  .rekt-image{
+    height: 30vh;
+    width: 80%;
+    
+  }
     .rektnomics-box{
-        justify-items: left;
+        justify-items: center;
     }
 }
