@@ -5,8 +5,11 @@ import ceo from "../creatives/rekt_ceo_ambassador.png";
 import { layers } from "../constants/layers";
 
 import rektcoin from "../creatives/pfp/rekt_coin.png";
+import { MdDownload, MdShuffle } from "react-icons/md";
+import html2canvas from "html2canvas";
 
 export default function ProfileNFT() {
+    const [connected, setConnected] = useState(false)
   const [currentIndex, setCurrentIndex] = useState(1); // Start with the second item as the current
   const items = [
     "Background",
@@ -19,6 +22,7 @@ export default function ProfileNFT() {
   ];
 
   const [selectedLayer, setSelectedLayer] = useState([0, 0, 0, 0, 0, 0, 0]);
+  const limits = [3, 6, 3, 5, 3, 6, 7]; // Maximum random value for each index
 
   const scrollLeft = () => {
     if (currentIndex > 0) {
@@ -41,7 +45,28 @@ export default function ProfileNFT() {
     console.log("Updated Layer:", selectedLayer);
   }
 
-  //   const translateX = -currentIndex * 100;
+  const downloadImage = async () => {
+    const compositeElement = document.getElementById("composite-container");
+    if (compositeElement) {
+      const canvas = await html2canvas(compositeElement);
+      const image = canvas.toDataURL("image/png");
+      const link = document.createElement("a");
+      link.href = image;
+      link.download = "rekt_ceo.png";
+      link.click();
+    }
+  };
+
+  const randomiseLayers = () => {
+    const randomized = selectedLayer.map((_, index) =>
+        Math.floor(Math.random() * (limits[index] + 1))
+      );
+      setSelectedLayer(randomized);
+  }
+
+  function handleMint(){
+    
+  }
 
   return (
     <div style={{ marginTop: "10vh", width: "100vw" }}>
@@ -49,6 +74,7 @@ export default function ProfileNFT() {
         Mint Your Unique $CEO PFP NFT
       </h1>
       <div className="pfp-box">
+        {/* INSTRUCTIONS */}
         <div className="pfp-instructions">
           <h1>Instructions</h1>
           <p className="pfp-instruct-point">Buy some $CEO</p>
@@ -56,28 +82,40 @@ export default function ProfileNFT() {
           <p className="pfp-instruct-point">MINT PFP NFT using $CEO</p>
           <p className="pfp-instruct-point">Share on Social Media</p>
         </div>
-        <div className="pfp-image">
-          {selectedLayer.slice(0, 4).map((layerelement, index) => (
+        {/* PFP LAYER IMAGE */}
+        <div className="pfp-image-box">
+          <div id="composite-container" className="pfp-image">
+            {selectedLayer.slice(0, 4).map((layerelement, index) => (
+              <img
+                src={layers[index][layerelement]}
+                alt="layer pfp"
+                className="composite-layer"
+              />
+            ))}
             <img
-              src={layers[index][layerelement]}
-              alt="layer pfp"
+              src={rektcoin}
+              alt="rektcoin layer"
               className="composite-layer"
             />
-          ))}
-          <img
-            src={rektcoin}
-            alt="rektcoin layer"
-            className="composite-layer"
-          />
 
-          {selectedLayer.slice(4, 9).map((layerelement, index) => (
-            <img
-              src={layers[index + 4][layerelement]}
-              alt="layer pfp"
-              className="composite-layer"
-            />
-          ))}
+            {selectedLayer.slice(4, 9).map((layerelement, index) => (
+              <img
+                src={layers[index + 4][layerelement]}
+                alt="layer pfp"
+                className="composite-layer"
+              />
+            ))}
+          </div>
+          <div className="mint-button-box">
+            {/* <p>Layers:{selectedLayer}</p> */}
+            <div style={{textAlign: 'left', marginLeft: '0%'}}>
+                <p><strong>Price:</strong> 20,000 $CEO</p>
+                <p><strong>Supply:</strong> 23/ 999</p>
+            </div>
+            {connected ? <button style={{width: '40%', display:'flex', flexDirection: 'column'}} onClick={handleMint}><h3>Mint</h3> <p style={{fontSize: '12px'}}>Balance:  284,323,422 $CEO</p></button> : <button onClick={()=>setConnected(true)}>Connect Wallet To Mint</button>}
+          </div>
         </div>
+        {/* PFP OPTIONS */}
         <div className="pfp-options">
           <h1>Options</h1>
 
@@ -126,8 +164,31 @@ export default function ProfileNFT() {
               />
             ))}
           </div>
+
+          {/* BUTTONS */}
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "row",
+              marginBlock: "8%",
+              justifyContent: "space-evenly",
+            }}
+          >
+            <button onClick={downloadImage}>
+              Download <MdDownload />
+            </button>
+            <button onClick={randomiseLayers}>
+              Randomise <MdShuffle />
+            </button>
+          </div>
         </div>
       </div>
+      {/* <div style={{marginTop: '2%', marginBottom: '4%',display:'flex', flexDirection:'column', justifyContent:'center', alignItems:'center'}}>
+        <p>Layers:{selectedLayer}</p>
+        <p>Balance: 23,323,682 $CEO</p>
+        <p>Supply: 23/ 999</p>
+        <button>Connect Wallet To Mint</button>
+      </div> */}
     </div>
   );
 }
