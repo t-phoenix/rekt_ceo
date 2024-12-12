@@ -34,7 +34,7 @@
   font-size: 32px;
   font-weight: 700;
 
-  color: var(--color-red)
+  color: var(--color-yellow)
 }
 
 .icon-title {
@@ -157,7 +157,7 @@
     align-items: center;
   }
   .title {
-    color: var(--background-color-primary);
+    color: var(--color-red);
   }
   .icon-title {
     color: var(--color-white);
