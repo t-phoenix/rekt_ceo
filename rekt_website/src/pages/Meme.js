@@ -13,7 +13,7 @@ export default function Meme() {
   );
   const [text1, setText1] = useState("Top Text");
   const [text2, setText2] = useState("Bottom Text");
-  const [textColor, setTextColor] = useState("#fff");
+  const [textColor, setTextColor] = useState("#000");
 
   const colorOptions = ["#000", "#fff", "#e7255e", "#fcd25a"];
 

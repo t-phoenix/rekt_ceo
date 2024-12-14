@@ -46,7 +46,7 @@
     position: relative;
     /* width: 100%; */
     width: 500px;
-    height: 450px;
+    max-height: 580px;
     border: 2px solid #ccc;
     margin: 20px auto;
     object-fit: cover;

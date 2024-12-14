@@ -49,13 +49,13 @@ export default function Roadmap(){
             }}
             className="roadmap-card road-4"
           >
-            <h1>4. Fund Clubhouse</h1>
+            <h1>4. Fund Clubhouse/ Party Box</h1>
           </div>
           <div
             style={{ backgroundImage: `url(${neon_mist})` }}
             className="roadmap-card road-5"
           >
-            <h1>5. Fund Party Box</h1>
+            <h1>5. Earn by becoming LP on Raydium </h1>
           </div>
           <div
             style={{
@@ -64,7 +64,7 @@ export default function Roadmap(){
             }}
             className="roadmap-card road-6"
           >
-            <h1>6. Fund Investment Box</h1>
+            <h1>6. Fund Investment Box </h1>
           </div>
           <div
             style={{

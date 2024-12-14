@@ -1,7 +1,12 @@
-import BG1 from "../creatives/ai_image/aiimage.jpg";
-import BG2 from "../creatives/ai_image/bioluminescent.jpg";
-import BG3 from "../creatives/ai_image/cyber_forest.jpg";
-import BG4 from "../creatives/ai_image/floating_gardens.jpg";
+import BG1 from "../creatives/backgrounds/BG_1.png";
+import BG2 from "../creatives/backgrounds/BG_2.jpg";
+import BG3 from "../creatives/backgrounds/BG_3.jpg";
+import BG4 from "../creatives/backgrounds/BG_4.jpg";
+import BG5 from "../creatives/backgrounds/BG_5.jpg";
+import BG6 from "../creatives/backgrounds/BG_6.jpeg";
+import BG7 from "../creatives/backgrounds/BG_7.jpg";
+
+
 
 import hoodie1 from "../creatives/pfp/hoodie/hoodie1.png";
 import hoodie2 from "../creatives/pfp/hoodie/hoodie2.png";
@@ -47,7 +52,7 @@ import usdc from "../creatives/pfp/coins/usdc.png";
 
 
 export const layers = [
-    [BG1, BG2, BG3, BG4], 
+    [BG1, BG2, BG3, BG4, BG5, BG6, BG7], 
     [hoodie1, hoodie2, hoodie3, hoodie4, hoodie5, hoodie6, hoodie7], 
     [pant1, pant2, pant3, pant4],
     [shoe1, shoe2, shoe3, shoe4, shoe5, shoe6],

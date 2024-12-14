@@ -113,6 +113,7 @@ export default function ProfileNFT() {
               <p className="pfp-instruct-point">Build your PFP</p>
               <p className="pfp-instruct-point">MINT PFP NFT using $CEO</p>
               <p className="pfp-instruct-point">Share on Social Media</p>
+              <p className="pfp-instruct-point">Use as your Twitter Profile Picture</p>
             </div>
             {/* PFP LAYER IMAGE */}
             <div className="pfp-image-box">
