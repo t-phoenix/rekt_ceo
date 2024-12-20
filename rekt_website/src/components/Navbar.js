@@ -72,6 +72,14 @@ export default function Navbar({ setShow }) {
       >
         MEMES
       </div>
+      {/* <div
+        onClick={() => {
+          navigate("/chat");
+        }}
+        className="links-style"
+      >
+        CHAT
+      </div> */}
 
       {/* Link to Landing Page Section */}
       <div onClick={() => scrollToSection("faq")} className="links-style">

@@ -10,6 +10,7 @@ import Header from "./components/Header";
 import penthouse from "./creatives/penthouse.jpeg";
 import ProfileNFT from "./pages/ProfileNFT";
 import Meme from "./pages/Meme";
+import Chat from "./pages/Chat";
 
 
 function App() {
@@ -58,6 +59,7 @@ function App() {
               <Route path="/" element={<Introduction />} />
               <Route path="/pfp" element={<ProfileNFT />}/>
               <Route path="/memes" element={<Meme />}/>
+              {/* <Route path="/chat" element={<Chat />}/> */}
             </Routes>
           </div>
         </div>

@@ -70,8 +70,8 @@ export default function Introduction() {
 
       <Rektnomics  />
 
-      <section id="faq" className="landing-section">
-        <h1 className="section-title">FAQ</h1>
+      <section id="faq" className="faq-section">
+        <h1 className="faq-title">FAQ</h1>
         <div className="faq-content-box">
             {faqData.map((data)=>(
                 <div className="faq-card">
