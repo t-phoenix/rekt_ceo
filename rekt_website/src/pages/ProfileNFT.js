@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, FC, useMemo } from "react";
 import "./pfp.css";
 import ceo from "../creatives/rekt_ceo_ambassador.png";
 
@@ -9,9 +9,53 @@ import { MdDownload, MdShuffle } from "react-icons/md";
 import html2canvas from "html2canvas";
 import { styles } from "./mobileStyle";
 
+// WEB3 SOLANA
+import { createUmi } from "@metaplex-foundation/umi-bundle-defaults";
+import { walletAdapterIdentity } from "@metaplex-foundation/umi-signer-wallet-adapters";
+import { useWallet } from "@solana/wallet-adapter-react";
+
+// import {
+//   ConnectionProvider,
+//   WalletProvider,
+// } from "@solana/wallet-adapter-react";
+// import { WalletAdapterNetwork } from "@solana/wallet-adapter-base";
+//import { PhantomWalletAdapter, SolflareWalletAdapter  } from '@solana/wallet-adapter-wallets';
+import {
+  WalletModalProvider,
+  WalletDisconnectButton,
+  WalletMultiButton,
+} from "@solana/wallet-adapter-react-ui";
+import { clusterApiUrl } from "@solana/web3.js";
+import "@solana/wallet-adapter-react-ui/styles.css";
+
+
 export default function ProfileNFT() {
   const [connected, setConnected] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+
+  // // The network can be set to 'devnet', 'testnet', or 'mainnet-beta'.
+  // const network = WalletAdapterNetwork.Devnet;
+
+  // // You can also provide a custom RPC endpoint.
+  // const endpoint = useMemo(() => clusterApiUrl(network), [network]);
+
+  // const wallets = useMemo(
+  //   () => [],
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  //   [network]
+  // );
+
+  const wallet = useWallet();
+  console.log("Wallet pubkey:", wallet.publicKey);
+
+  // Use the RPC endpoint of your choice.
+  const umi = createUmi(
+    "https://solana-devnet.g.alchemy.com/v2/8fB9RHW65lCGqnRxrELgw5y0yYEOFvu6"
+  );
+
+  // // Register Wallet Adapter to Umi
+  umi.use(walletAdapterIdentity(wallet));
+  console.log("UMI: ", umi);
 
   useEffect(() => {
     // Detect screen width or use a user-agent check
@@ -87,10 +131,10 @@ export default function ProfileNFT() {
 
   return (
     <>
-      {isMobile ? (
+      {isMobile || !isMobile ? (
         <div style={styles.overlay}>
           <div style={styles.messageBox}>
-            <h1 style={styles.heading}>We're Optimizing for Mobile!</h1>
+            <h1 style={styles.heading}>We're Launching Soon!</h1>
             <p style={styles.message}>
               This website is currently designed for desktop view only. Please
               switch to a desktop device for the best experience.
@@ -101,147 +145,166 @@ export default function ProfileNFT() {
           </div>
         </div>
       ) : (
-        <div style={{ marginTop: "10vh", width: "100vw" }}>
-          <h1 style={{ marginBlock: "4%" }} className="section-title">
-            Mint Your Unique $CEO PFP NFT
-          </h1>
-          <div className="pfp-box">
-            {/* INSTRUCTIONS */}
-            <div className="pfp-instructions">
-              <h1>Instructions</h1>
-              <p className="pfp-instruct-point">Buy some $CEO</p>
-              <p className="pfp-instruct-point">Build your PFP</p>
-              <p className="pfp-instruct-point">MINT PFP NFT using $CEO</p>
-              <p className="pfp-instruct-point">Share on Social Media</p>
-              <p className="pfp-instruct-point">Use as your Twitter Profile Picture</p>
-            </div>
-            {/* PFP LAYER IMAGE */}
-            <div className="pfp-image-box">
-              <div id="composite-container" className="pfp-image">
-                {selectedLayer.slice(0, 4).map((layerelement, index) => (
-                  <img
-                    src={layers[index][layerelement]}
-                    alt="layer pfp"
-                    className="composite-layer"
-                  />
-                ))}
-                <img
-                  src={rektcoin}
-                  alt="rektcoin layer"
-                  className="composite-layer"
-                />
-
-                {selectedLayer.slice(4, 9).map((layerelement, index) => (
-                  <img
-                    src={layers[index + 4][layerelement]}
-                    alt="layer pfp"
-                    className="composite-layer"
-                  />
-                ))}
-              </div>
-              <div className="mint-button-box">
-                {/* <p>Layers:{selectedLayer}</p> */}
-                <div style={{ textAlign: "left", marginLeft: "0%" }}>
-                  <p>
-                    <strong>Price:</strong> 20,000 $CEO
-                  </p>
-                  <p>
-                    <strong>Supply:</strong> 23/ 999
+        // <ConnectionProvider endpoint={endpoint}>
+        //   <WalletProvider wallets={wallets} autoConnect>
+        <WalletModalProvider>
+            <div style={{ marginTop: "10vh", width: "100vw" }}>
+              <h1 style={{ marginBlock: "2%" }} className="section-title">
+                Mint Your Unique $CEO PFP NFT
+              </h1>
+              
+              <div className="pfp-box">
+                {/* INSTRUCTIONS */}
+                <div className="pfp-instructions">
+                  <h1>Instructions</h1>
+                  <p className="pfp-instruct-point">Buy some $CEO</p>
+                  <p className="pfp-instruct-point">Build your PFP</p>
+                  <p className="pfp-instruct-point">MINT PFP NFT using $CEO</p>
+                  <p className="pfp-instruct-point">Share on Social Media</p>
+                  <p className="pfp-instruct-point">
+                    Use as your Twitter Profile Picture
                   </p>
                 </div>
-                {connected ? (
-                  <button
+                {/* PFP LAYER IMAGE */}
+                <div className="pfp-image-box">
+                  <div id="composite-container" className="pfp-image">
+                    {selectedLayer.slice(0, 4).map((layerelement, index) => (
+                      <img
+                        src={layers[index][layerelement]}
+                        alt="layer pfp"
+                        className="composite-layer"
+                      />
+                    ))}
+                    <img
+                      src={rektcoin}
+                      alt="rektcoin layer"
+                      className="composite-layer"
+                    />
+
+                    {selectedLayer.slice(4, 9).map((layerelement, index) => (
+                      <img
+                        src={layers[index + 4][layerelement]}
+                        alt="layer pfp"
+                        className="composite-layer"
+                      />
+                    ))}
+                  </div>
+                  <div className="mint-button-box">
+                    {/* <p>Layers:{selectedLayer}</p> */}
+                    <div style={{ textAlign: "left", marginLeft: "0%" }}>
+                      <p>
+                        <strong>Price:</strong> 20,000 $CEO
+                      </p>
+                      <p>
+                        <strong>Supply:</strong> 23/ 999
+                      </p>
+                      <p><strong>Balance:</strong> 284,323,422 $CEO</p>
+                    </div>
+                    
+                    <div style={{width: '100%', display: 'flex', flexDirection: 'row', justifyContent: 'space-around'}}>
+                    <WalletMultiButton />
+                    
+                    {wallet.publicKey ? (
+                      <button
+                        style={{
+                          width: "50%",
+                          display: "flex",
+                          flexDirection: "column",
+                        }}
+                        onClick={handleMint}
+                      >
+                        <h3>Mint</h3>{" "}
+                        <p style={{ fontSize: "12px" }}>
+                          
+                        </p>
+                      </button>
+                    ) : (
+                      <></>
+                      // <button onClick={() => setConnected(true)} >
+                      //   Connect Wallet To Mint
+                      // </button>
+                    )}
+                    </div>
+                  </div>
+                </div>
+                {/* PFP OPTIONS */}
+                <div className="pfp-options">
+                  <h1>Options</h1>
+
+                  {/* NAVBAR - PFP OPTIONS */}
+                  <div className="option-navbar">
+                    <button
+                      className="scroll-button"
+                      onClick={scrollLeft}
+                      disabled={currentIndex === 0}
+                    >
+                      &lt;
+                    </button>
+
+                    <div className="options">
+                      <div className="option left">
+                        {currentIndex > 0 ? items[currentIndex - 1] : ""}
+                      </div>
+                      <div className="option current">
+                        {items[currentIndex]}
+                      </div>
+                      <div className="option right">
+                        {currentIndex < items.length - 1
+                          ? items[currentIndex + 1]
+                          : ""}
+                      </div>
+                    </div>
+
+                    <button
+                      className="scroll-button"
+                      onClick={scrollRight}
+                      disabled={currentIndex === items.length - 1}
+                    >
+                      &gt;
+                    </button>
+                  </div>
+
+                  {/* PFP IMAGES */}
+                  {/* USE LAYER2 similiar to layer for better view*/}
+                  <div className="option-layers-box">
+                    {layers[currentIndex].map((layer, layerindex) => (
+                      <img
+                        key={layerindex}
+                        src={layer}
+                        alt="layer"
+                        className={
+                          selectedLayer[currentIndex] === layerindex
+                            ? "selected-option-layer"
+                            : "option-layer"
+                        }
+                        onClick={() => updateLayer(layerindex)}
+                      />
+                    ))}
+                  </div>
+
+                  {/* BUTTONS */}
+                  <div
                     style={{
-                      width: "40%",
                       display: "flex",
-                      flexDirection: "column",
+                      flexDirection: "row",
+                      marginBlock: "8%",
+                      justifyContent: "space-evenly",
                     }}
-                    onClick={handleMint}
                   >
-                    <h3>Mint</h3>{" "}
-                    <p style={{ fontSize: "12px" }}>
-                      Balance: 284,323,422 $CEO
-                    </p>
-                  </button>
-                ) : (
-                  <button onClick={() => setConnected(true)}>
-                    Connect Wallet To Mint
-                  </button>
-                )}
-              </div>
-            </div>
-            {/* PFP OPTIONS */}
-            <div className="pfp-options">
-              <h1>Options</h1>
-
-              {/* NAVBAR - PFP OPTIONS */}
-              <div className="option-navbar">
-                <button
-                  className="scroll-button"
-                  onClick={scrollLeft}
-                  disabled={currentIndex === 0}
-                >
-                  &lt;
-                </button>
-
-                <div className="options">
-                  <div className="option left">
-                    {currentIndex > 0 ? items[currentIndex - 1] : ""}
-                  </div>
-                  <div className="option current">{items[currentIndex]}</div>
-                  <div className="option right">
-                    {currentIndex < items.length - 1
-                      ? items[currentIndex + 1]
-                      : ""}
+                    <button onClick={downloadImage}>
+                      Download <MdDownload />
+                    </button>
+                    <button onClick={randomiseLayers}>
+                      Randomise <MdShuffle />
+                    </button>
                   </div>
                 </div>
-
-                <button
-                  className="scroll-button"
-                  onClick={scrollRight}
-                  disabled={currentIndex === items.length - 1}
-                >
-                  &gt;
-                </button>
-              </div>
-
-              {/* PFP IMAGES */}
-              {/* USE LAYER2 similiar to layer for better view*/}
-              <div className="option-layers-box">
-                {layers[currentIndex].map((layer, layerindex) => (
-                  <img
-                    key={layerindex}
-                    src={layer}
-                    alt="layer"
-                    className={
-                      selectedLayer[currentIndex] === layerindex
-                        ? "selected-option-layer"
-                        : "option-layer"
-                    }
-                    onClick={() => updateLayer(layerindex)}
-                  />
-                ))}
-              </div>
-
-              {/* BUTTONS */}
-              <div
-                style={{
-                  display: "flex",
-                  flexDirection: "row",
-                  marginBlock: "8%",
-                  justifyContent: "space-evenly",
-                }}
-              >
-                <button onClick={downloadImage}>
-                  Download <MdDownload />
-                </button>
-                <button onClick={randomiseLayers}>
-                  Randomise <MdShuffle />
-                </button>
               </div>
             </div>
-          </div>
-        </div>
+            
+            </WalletModalProvider>
+        //   </WalletProvider>
+        // </ConnectionProvider>
       )}
     </>
   );

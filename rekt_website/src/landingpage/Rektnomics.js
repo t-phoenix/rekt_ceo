@@ -47,7 +47,7 @@ export default function Rektnomics(){
             </div>
             <div className="rekt-info-card">
               <h1>Contract Address</h1>
-              <p style={{overflowWrap: 'break-word'}}>madHpjRn6bd8t78Rsy7NuSuNwWa2HU8ByPobZprHbHv</p>
+              <p style={{overflowWrap: 'break-word'}}>TBD</p>
             </div>
             <button style={{ backgroundColor: "#e7255e", color: "#ffffff" }}>
               BUY $CEO

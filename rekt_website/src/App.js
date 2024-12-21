@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import "./App.css";
 
 import { Route, Routes } from "react-router-dom";
@@ -11,6 +11,10 @@ import penthouse from "./creatives/penthouse.jpeg";
 import ProfileNFT from "./pages/ProfileNFT";
 import Meme from "./pages/Meme";
 import Chat from "./pages/Chat";
+import { ConnectionProvider, WalletProvider } from "@solana/wallet-adapter-react";
+
+import { WalletAdapterNetwork } from "@solana/wallet-adapter-base";
+import { clusterApiUrl } from "@solana/web3.js";
 
 
 function App() {
@@ -18,6 +22,19 @@ function App() {
   console.log("chain:", chain);
 
   const [isMobile, setIsMobile] = useState(false);
+
+  // The network can be set to 'devnet', 'testnet', or 'mainnet-beta'.
+  const network = WalletAdapterNetwork.Devnet;
+
+  // You can also provide a custom RPC endpoint.
+  const endpoint = useMemo(() => clusterApiUrl(network), [network]);
+
+  const wallets = useMemo(
+    () => [],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [network]
+  );
+
 
   // useEffect(() => {
   //   // Detect screen width or use a user-agent check
@@ -51,6 +68,8 @@ function App() {
     //       </div>
     //     </div>
     //   ) : (
+      <ConnectionProvider endpoint={endpoint}>
+          <WalletProvider wallets={wallets} autoConnect>
         <div className="App">
           <Header />
 
@@ -63,6 +82,8 @@ function App() {
             </Routes>
           </div>
         </div>
+        </WalletProvider>
+        </ConnectionProvider>
     //   )}
     // </>
   );
