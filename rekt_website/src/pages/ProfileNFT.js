@@ -136,11 +136,11 @@ export default function ProfileNFT() {
           <div style={styles.messageBox}>
             <h1 style={styles.heading}>We're Launching Soon!</h1>
             <p style={styles.message}>
-              This website is currently designed for desktop view only. Please
-              switch to a desktop device for the best experience.
+              This website is currently under rapid development. Please
+              wait a bit for the best experience.
             </p>
             <p style={styles.message}>
-              We're working on a mobile-friendly version, coming soon!
+              We're working on a friendly version, coming soon!
             </p>
           </div>
         </div>
