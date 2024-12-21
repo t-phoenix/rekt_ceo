@@ -33,18 +33,6 @@ export default function ProfileNFT() {
   const [connected, setConnected] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
-  // // The network can be set to 'devnet', 'testnet', or 'mainnet-beta'.
-  // const network = WalletAdapterNetwork.Devnet;
-
-  // // You can also provide a custom RPC endpoint.
-  // const endpoint = useMemo(() => clusterApiUrl(network), [network]);
-
-  // const wallets = useMemo(
-  //   () => [],
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  //   [network]
-  // );
-
   const wallet = useWallet();
   console.log("Wallet pubkey:", wallet.publicKey);
 

@@ -55,7 +55,7 @@ export default function Introduction() {
             <li>🎉 No KOL</li>
             <li>🐶 No Bullshit</li>
           </ul>
-          <button style={{ width: "220px" }}>BUY $CEO</button>
+          <button style={{ width: "220px" }}>LAUNCHING SOON</button>
         </div>
         <img src={ambassador} alt="ambassador" className="ambassador-image" />
       </section>
