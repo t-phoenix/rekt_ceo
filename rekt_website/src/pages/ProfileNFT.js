@@ -119,7 +119,7 @@ export default function ProfileNFT() {
 
   return (
     <>
-      {isMobile || !isMobile ? (
+      {isMobile ? (
         <div style={styles.overlay}>
           <div style={styles.messageBox}>
             <h1 style={styles.heading}>We're Launching Soon!</h1>

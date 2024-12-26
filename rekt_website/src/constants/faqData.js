@@ -3,7 +3,7 @@ export const faqData = [{
     answer: "$CEO on SOLANA Blockchain"
   },{
     question: "What's Token Contract Address ?",
-    answer: "madHpjRn6bd8t78Rsy7NuSuNwWa2HU8ByPobZprHbHv"
+    answer: "TBD"
   },{
     question: "What's the vision of Rekt CEO?",
     answer: "Rekt CEO is an initiative to create a brand with web3 community. We're solving What to do problem of crypto coins, where you can do so much with your $ceo coin."
