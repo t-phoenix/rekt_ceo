@@ -61,4 +61,24 @@ export const layers = [
     [btc, doge, eth, pepe, pump, rekt, shiba, usdc]
 ]
 
+export const layerNames = [
+    ["BG1", "BG2", "BG3", "BG4", "BG5", "BG6", "BG7"], 
+    ["Hoodie1", "Hoodie2", "Hoodie3", "Hoodie4", "Hoodie5", "Hoodie6", "Hoodie7"], 
+    ["Pant1", "Pant2", "Pant3", "Pant4"],
+    ["Shoe1", "Shoe2", "Shoe3", "Shoe4", "Shoe5", "Shoe6"],
+    ["Skin1", "Skin2", "Skin3", "Skin4"],
+    ["Face1", "Face2", "Face3", "Face4", "Face5", "Face6", "Face7"],
+    ["btc", "doge", "eth", "pepe", "pump" , "rekt", "shiba", "usdc"]
+]
+
 // BUILD SIMILIAR FOR LAYER OPTIONS VIEW
+
+export const items = [
+    "Background",
+    "Hoodie",
+    "Pants",
+    "Shoes",
+    "Skin",
+    "Face",
+    "Coin",
+  ];

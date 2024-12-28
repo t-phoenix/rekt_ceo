@@ -1,10 +1,9 @@
 import React, { useEffect, useState, FC, useMemo } from "react";
 import "./pfp.css";
-import ceo from "../creatives/rekt_ceo_ambassador.png";
+// import ceo from "../creatives/rekt_ceo_ambassador.png";
 
-import { layers } from "../constants/layers";
+import { layerNames, layers } from "../constants/layers";
 
-import rektcoin from "../creatives/pfp/rekt_coin.png";
 import { MdDownload, MdShuffle } from "react-icons/md";
 import html2canvas from "html2canvas";
 import { styles } from "./mobileStyle";
@@ -13,25 +12,37 @@ import { styles } from "./mobileStyle";
 import { createUmi } from "@metaplex-foundation/umi-bundle-defaults";
 import { walletAdapterIdentity } from "@metaplex-foundation/umi-signer-wallet-adapters";
 import { useWallet } from "@solana/wallet-adapter-react";
-
-// import {
-//   ConnectionProvider,
-//   WalletProvider,
-// } from "@solana/wallet-adapter-react";
-// import { WalletAdapterNetwork } from "@solana/wallet-adapter-base";
-//import { PhantomWalletAdapter, SolflareWalletAdapter  } from '@solana/wallet-adapter-wallets';
+// import { mplTokenMetadata } from '@metaplex-foundation/mpl-token-metadata'
 import {
   WalletModalProvider,
   WalletDisconnectButton,
   WalletMultiButton,
 } from "@solana/wallet-adapter-react-ui";
-import { clusterApiUrl } from "@solana/web3.js";
+// import { clusterApiUrl } from "@solana/web3.js";
 import "@solana/wallet-adapter-react-ui/styles.css";
 
 
+import LayerImage from "./page_components/LayerImage";
+import LayerNavbar from "./page_components/LayerNavbar";
+import LayerOptions from "./page_components/LayerOptions";
+
+import { dataURLtoFile, uploadFile, uploadJSON } from "../services/PinataServices";
+import { BASE_JSON } from "../constants/nftMetadata";
+
+
+
 export default function ProfileNFT() {
-  const [connected, setConnected] = useState(false);
+  const [supply, setSupply] = useState(0);  
+  const [imageUri, setImageUri] = useState('');
+  const [metadataJSON, setMetadataJSON] = useState('');
+  const [metadataURI, setMetadataURI] = useState('');
+
   const [isMobile, setIsMobile] = useState(false);
+
+  const [currentIndex, setCurrentIndex] = useState(1); // Start with the second item as the current
+
+  const [selectedLayer, setSelectedLayer] = useState([0, 0, 0, 0, 0, 0, 0]); // BG/ Hoodie / Pants / Shoes/ Skin / Face / Coin
+  const limits = [3, 6, 3, 5, 3, 6, 7]; // Maximum random value for each index
 
   const wallet = useWallet();
   console.log("Wallet pubkey:", wallet.publicKey);
@@ -39,7 +50,7 @@ export default function ProfileNFT() {
   // Use the RPC endpoint of your choice.
   const umi = createUmi(
     "https://solana-devnet.g.alchemy.com/v2/8fB9RHW65lCGqnRxrELgw5y0yYEOFvu6"
-  );
+  )
 
   // // Register Wallet Adapter to Umi
   umi.use(walletAdapterIdentity(wallet));
@@ -61,40 +72,7 @@ export default function ProfileNFT() {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  const [currentIndex, setCurrentIndex] = useState(1); // Start with the second item as the current
-  const items = [
-    "Background",
-    "Hoodie",
-    "Pants",
-    "Shoes",
-    "Skin",
-    "Face",
-    "Coin",
-  ];
-
-  const [selectedLayer, setSelectedLayer] = useState([0, 0, 0, 0, 0, 0, 0]);
-  const limits = [3, 6, 3, 5, 3, 6, 7]; // Maximum random value for each index
-
-  const scrollLeft = () => {
-    if (currentIndex > 0) {
-      setCurrentIndex((prevIndex) => prevIndex - 1);
-    }
-  };
-
-  const scrollRight = () => {
-    if (currentIndex < items.length - 1) {
-      setCurrentIndex((prevIndex) => prevIndex + 1);
-    }
-  };
-
-  function updateLayer(layerindex) {
-    setSelectedLayer((selectedLayer) => {
-      const updatedLayer = [...selectedLayer]; // Create a shallow copy of the array
-      updatedLayer[currentIndex] = layerindex; // Update the specific index
-      return updatedLayer;
-    });
-    console.log("Updated Layer:", selectedLayer);
-  }
+ 
 
   const downloadImage = async () => {
     const compositeElement = document.getElementById("composite-container");
@@ -115,7 +93,90 @@ export default function ProfileNFT() {
     setSelectedLayer(randomized);
   };
 
-  function handleMint() {}
+
+  function handleMint() {
+    
+  }
+
+  async function uploadImage(){
+    const compositeElement = document.getElementById("composite-container");
+    
+    const canvas = await html2canvas(compositeElement);
+    const image = canvas.toDataURL("image/png");
+    
+    const imageFile = dataURLtoFile(image, `rekt_ceo_#${supply+1}.png`);
+
+    try {
+      const result = await uploadFile(imageFile)
+      // RETURNS
+      // IpfsHash, PinSize, TimeStamp
+      console.log("File uploaded to IPFS:", result);
+
+      // Return IPFS link
+      const ipfsLink = `https://${process.env.REACT_APP_GATEWAY_URL}/ipfs/${result.IpfsHash}`;
+      
+      console.log("IPFS Link:", ipfsLink);
+      setImageUri(ipfsLink);
+      return ipfsLink;
+    } catch (error) {
+      return false;
+    }
+    
+
+  }
+
+  async function createMetadata(){
+    console.log("Uploading Image...");
+
+    // const resultIpfs =  await uploadImage();
+
+
+    console.log("Image Metadata...");
+    let item_json = BASE_JSON;
+    item_json.name = item_json.name+`${supply+1}`
+
+    // item_json.image = resultIpfs;
+    // item_json.properties.files[0].uri = resultIpfs;
+    item_json.image = imageUri;
+    item_json.properties.files[0].uri = imageUri;
+
+    console.log("Selected layers: ", selectedLayer);
+    let attribute_list = [
+      { "trait_type": "Hoodie", "value": `${layerNames[1][selectedLayer[1]]}` },
+      { "trait_type": "Pants", "value": `${layerNames[2][selectedLayer[2]]}` },
+      { "trait_type": "Shoes", "value": `${layerNames[3][selectedLayer[3]]}` },
+      { "trait_type": "Rekt Coin", "value": "rekt_coin" },
+      { "trait_type": "Skin", "value": `${layerNames[4][selectedLayer[4]]}` },
+      { "trait_type": "Face", "value": `${layerNames[5][selectedLayer[5]]}` },
+      { "trait_type": "Coin", "value": `${layerNames[6][selectedLayer[6]]}` }
+    ]
+
+    item_json.attributes = attribute_list;
+    console.log("Item Json: ", item_json);
+    setMetadataJSON(item_json);
+    
+  }
+
+
+  async function uploadMetadata(){
+    console.log("MEtadata JSON: ", metadataJSON);
+
+    try {
+      const result = await uploadJSON(metadataJSON)
+      // RETURNS
+      // IpfsHash, PinSize, TimeStamp
+      console.log("File uploaded to IPFS:", result);
+
+      // Return IPFS link
+      const ipfsLink = `https://${process.env.REACT_APP_GATEWAY_URL}/ipfs/${result.IpfsHash}`;
+      
+      console.log("Metadata IPFS Link:", ipfsLink);
+      setMetadataURI(ipfsLink);
+      return ipfsLink;
+    } catch (error) {
+      return false;
+    }
+  }
 
   return (
     <>
@@ -155,28 +216,8 @@ export default function ProfileNFT() {
                 </div>
                 {/* PFP LAYER IMAGE */}
                 <div className="pfp-image-box">
-                  <div id="composite-container" className="pfp-image">
-                    {selectedLayer.slice(0, 4).map((layerelement, index) => (
-                      <img
-                        src={layers[index][layerelement]}
-                        alt="layer pfp"
-                        className="composite-layer"
-                      />
-                    ))}
-                    <img
-                      src={rektcoin}
-                      alt="rektcoin layer"
-                      className="composite-layer"
-                    />
-
-                    {selectedLayer.slice(4, 9).map((layerelement, index) => (
-                      <img
-                        src={layers[index + 4][layerelement]}
-                        alt="layer pfp"
-                        className="composite-layer"
-                      />
-                    ))}
-                  </div>
+                  <LayerImage selectedLayer={selectedLayer}/>
+                  
                   <div className="mint-button-box">
                     {/* <p>Layers:{selectedLayer}</p> */}
                     <div style={{ textAlign: "left", marginLeft: "0%" }}>
@@ -203,15 +244,16 @@ export default function ProfileNFT() {
                       >
                         <h3>Mint</h3>{" "}
                         <p style={{ fontSize: "12px" }}>
-                          
                         </p>
                       </button>
                     ) : (
                       <></>
-                      // <button onClick={() => setConnected(true)} >
-                      //   Connect Wallet To Mint
-                      // </button>
                     )}
+                    <div style={{display:'flex', flexDirection: 'column'}}>
+                      <button onClick={uploadImage}>Upload Image</button>
+                      <button onClick={createMetadata}>Create Metadata</button>
+                      <button onClick={uploadMetadata}>Update Metadata</button>
+                    </div>
                     </div>
                   </div>
                 </div>
@@ -220,55 +262,12 @@ export default function ProfileNFT() {
                   <h1>Options</h1>
 
                   {/* NAVBAR - PFP OPTIONS */}
-                  <div className="option-navbar">
-                    <button
-                      className="scroll-button"
-                      onClick={scrollLeft}
-                      disabled={currentIndex === 0}
-                    >
-                      &lt;
-                    </button>
-
-                    <div className="options">
-                      <div className="option left">
-                        {currentIndex > 0 ? items[currentIndex - 1] : ""}
-                      </div>
-                      <div className="option current">
-                        {items[currentIndex]}
-                      </div>
-                      <div className="option right">
-                        {currentIndex < items.length - 1
-                          ? items[currentIndex + 1]
-                          : ""}
-                      </div>
-                    </div>
-
-                    <button
-                      className="scroll-button"
-                      onClick={scrollRight}
-                      disabled={currentIndex === items.length - 1}
-                    >
-                      &gt;
-                    </button>
-                  </div>
+                  <LayerNavbar currentIndex={currentIndex} setCurrentIndex={setCurrentIndex}/>
 
                   {/* PFP IMAGES */}
                   {/* USE LAYER2 similiar to layer for better view*/}
-                  <div className="option-layers-box">
-                    {layers[currentIndex].map((layer, layerindex) => (
-                      <img
-                        key={layerindex}
-                        src={layer}
-                        alt="layer"
-                        className={
-                          selectedLayer[currentIndex] === layerindex
-                            ? "selected-option-layer"
-                            : "option-layer"
-                        }
-                        onClick={() => updateLayer(layerindex)}
-                      />
-                    ))}
-                  </div>
+                  <LayerOptions currentIndex={currentIndex} selectedLayer={selectedLayer} setSelectedLayer={setSelectedLayer}/>
+                  
 
                   {/* BUTTONS */}
                   <div
