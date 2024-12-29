@@ -26,13 +26,15 @@ import LayerImage from "./page_components/LayerImage";
 import LayerNavbar from "./page_components/LayerNavbar";
 import LayerOptions from "./page_components/LayerOptions";
 
-import { dataURLtoFile, uploadFile, uploadJSON } from "../services/PinataServices";
+import { dataURLtoFile, generateMetadata, uploadImageToIPFS, uploadMetadataToIPFS } from "../services/PinataServices";
 import { BASE_JSON } from "../constants/nftMetadata";
+import { retry } from "../services/PfpHelpers";
 
 
 
 export default function ProfileNFT() {
-  const [supply, setSupply] = useState(0);  
+
+  const [supply, setSupply] = useState(2);  
   const [imageUri, setImageUri] = useState('');
   const [metadataJSON, setMetadataJSON] = useState('');
   const [metadataURI, setMetadataURI] = useState('');
@@ -45,16 +47,14 @@ export default function ProfileNFT() {
   const limits = [3, 6, 3, 5, 3, 6, 7]; // Maximum random value for each index
 
   const wallet = useWallet();
-  console.log("Wallet pubkey:", wallet.publicKey);
+  // console.log("Wallet pubkey:", wallet.publicKey);
 
   // Use the RPC endpoint of your choice.
   const umi = createUmi(
     "https://solana-devnet.g.alchemy.com/v2/8fB9RHW65lCGqnRxrELgw5y0yYEOFvu6"
   )
-
   // // Register Wallet Adapter to Umi
   umi.use(walletAdapterIdentity(wallet));
-  console.log("UMI: ", umi);
 
   useEffect(() => {
     // Detect screen width or use a user-agent check
@@ -98,83 +98,34 @@ export default function ProfileNFT() {
     
   }
 
-  async function uploadImage(){
-    const compositeElement = document.getElementById("composite-container");
-    
-    const canvas = await html2canvas(compositeElement);
-    const image = canvas.toDataURL("image/png");
-    
-    const imageFile = dataURLtoFile(image, `rekt_ceo_#${supply+1}.png`);
-
+  async function uploadPfpData() {
     try {
-      const result = await uploadFile(imageFile)
-      // RETURNS
-      // IpfsHash, PinSize, TimeStamp
-      console.log("File uploaded to IPFS:", result);
+      console.log("Starting the NFT upload process...");
+  
+      // Step 1: Upload Image
+      const imageHash = await retry(() => uploadImageToIPFS(supply), 3, 2000); 
+      console.log("Step 1 Complete: Image Hash ->", imageHash);
 
-      // Return IPFS link
-      const ipfsLink = `https://${process.env.REACT_APP_GATEWAY_URL}/ipfs/${result.IpfsHash}`;
-      
-      console.log("IPFS Link:", ipfsLink);
-      setImageUri(ipfsLink);
-      return ipfsLink;
+      // Step2: Generate Metadata
+      const json_metadata = await generateMetadata(supply, selectedLayer, imageHash);
+      console.log("Step 2 Complete: Metadata Generatioj: ", json_metadata); 
+
+  
+      // Step 3: Upload Metadata
+      const metadataHash = await retry(()=> uploadMetadataToIPFS(json_metadata));
+      console.log("Step 3 Complete: Metadata Hash ->", metadataHash);
+
+      const ipfsLink = `https://${process.env.REACT_APP_GATEWAY_URL}/ipfs/${metadataHash.IpfsHash}`;
+  
+      console.log("NFT Metadata Upload Process Completed Successfully!");
+      console.log("Link:", ipfsLink)
+
+      setSupply(supply+1)
+      // UPDATE METEADATA URI to NFT
+
     } catch (error) {
-      return false;
-    }
-    
-
-  }
-
-  async function createMetadata(){
-    console.log("Uploading Image...");
-
-    // const resultIpfs =  await uploadImage();
-
-
-    console.log("Image Metadata...");
-    let item_json = BASE_JSON;
-    item_json.name = item_json.name+`${supply+1}`
-
-    // item_json.image = resultIpfs;
-    // item_json.properties.files[0].uri = resultIpfs;
-    item_json.image = imageUri;
-    item_json.properties.files[0].uri = imageUri;
-
-    console.log("Selected layers: ", selectedLayer);
-    let attribute_list = [
-      { "trait_type": "Hoodie", "value": `${layerNames[1][selectedLayer[1]]}` },
-      { "trait_type": "Pants", "value": `${layerNames[2][selectedLayer[2]]}` },
-      { "trait_type": "Shoes", "value": `${layerNames[3][selectedLayer[3]]}` },
-      { "trait_type": "Rekt Coin", "value": "rekt_coin" },
-      { "trait_type": "Skin", "value": `${layerNames[4][selectedLayer[4]]}` },
-      { "trait_type": "Face", "value": `${layerNames[5][selectedLayer[5]]}` },
-      { "trait_type": "Coin", "value": `${layerNames[6][selectedLayer[6]]}` }
-    ]
-
-    item_json.attributes = attribute_list;
-    console.log("Item Json: ", item_json);
-    setMetadataJSON(item_json);
-    
-  }
-
-
-  async function uploadMetadata(){
-    console.log("MEtadata JSON: ", metadataJSON);
-
-    try {
-      const result = await uploadJSON(metadataJSON)
-      // RETURNS
-      // IpfsHash, PinSize, TimeStamp
-      console.log("File uploaded to IPFS:", result);
-
-      // Return IPFS link
-      const ipfsLink = `https://${process.env.REACT_APP_GATEWAY_URL}/ipfs/${result.IpfsHash}`;
-      
-      console.log("Metadata IPFS Link:", ipfsLink);
-      setMetadataURI(ipfsLink);
-      return ipfsLink;
-    } catch (error) {
-      return false;
+      console.error("Error during Metadata upload process:", error.message || error);
+      throw error; // Rethrow for further handling if needed
     }
   }
 
@@ -225,7 +176,7 @@ export default function ProfileNFT() {
                         <strong>Price:</strong> 20,000 $CEO
                       </p>
                       <p>
-                        <strong>Supply:</strong> 23/ 999
+                        <strong>Supply:</strong> {supply}/ 999
                       </p>
                       <p><strong>Balance:</strong> 284,323,422 $CEO</p>
                     </div>
@@ -250,9 +201,11 @@ export default function ProfileNFT() {
                       <></>
                     )}
                     <div style={{display:'flex', flexDirection: 'column'}}>
-                      <button onClick={uploadImage}>Upload Image</button>
-                      <button onClick={createMetadata}>Create Metadata</button>
-                      <button onClick={uploadMetadata}>Update Metadata</button>
+                      {/* <button onClick={uploadImage}>Upload Image</button>
+                      <button onClick={createMetadata}>Create Metadata</button> */}
+                      {/* <button onClick={()=>generateMetadata(supply, selectedLayer, imageUri)}>Test GENERATE META</button> */}
+                      <button onClick={handleMint}>Mint NFT</button>
+                      <button onClick={uploadPfpData}>Upload Metadata</button>
                     </div>
                     </div>
                   </div>
