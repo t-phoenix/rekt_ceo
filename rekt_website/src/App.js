@@ -15,6 +15,7 @@ import { ConnectionProvider, WalletProvider } from "@solana/wallet-adapter-react
 
 import { WalletAdapterNetwork } from "@solana/wallet-adapter-base";
 import { clusterApiUrl } from "@solana/web3.js";
+import AdminPage from "./pages/Admin";
 
 
 function App() {
@@ -78,6 +79,7 @@ function App() {
               <Route path="/" element={<Introduction />} />
               <Route path="/pfp" element={<ProfileNFT />}/>
               <Route path="/memes" element={<Meme />}/>
+              <Route path="/admin" element={<AdminPage/>} />
               {/* <Route path="/chat" element={<Chat />}/> */}
             </Routes>
           </div>
