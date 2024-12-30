@@ -2,6 +2,7 @@
   "name": "rekt_website",
   "version": "0.1.0",
   "private": true,
+  "module": "commonjs",
   "dependencies": {
     "@metaplex-foundation/mpl-core": "^1.1.1",
     "@metaplex-foundation/mpl-token-metadata": "^3.3.0",

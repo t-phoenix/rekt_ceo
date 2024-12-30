@@ -2,6 +2,7 @@ import html2canvas from "html2canvas";
 import { PinataSDK } from "pinata-web3";
 import { BASE_JSON } from "../constants/nftMetadata";
 import { layerNames } from "../constants/layers";
+import { dataURLtoFile } from "./PfpHelpers";
 const PinataGroupID = "a7eec897-8758-4741-914e-b14a46034409";
 
 const pinata = new PinataSDK({
@@ -9,19 +10,7 @@ const pinata = new PinataSDK({
   pinataGateway: process.env.REACT_APP_GATEWAY_URL
 })
 
-export function dataURLtoFile(dataUrl, filename) {
-    const arr = dataUrl.split(',');
-    const mime = arr[0].match(/:(.*?);/)[1]; // Extract MIME type
-    const bstr = atob(arr[1]); // Decode base64
-    let n = bstr.length;
-    const u8arr = new Uint8Array(n); // Create a Uint8Array
-    
-    while (n--) {
-      u8arr[n] = bstr.charCodeAt(n); // Populate the array with binary data
-    }
-  
-    return new File([u8arr], filename, { type: mime }); // Create a File object
-  }
+
   
 
   export async function uploadImageToIPFS(supply){
@@ -89,3 +78,36 @@ export function generateMetadata(supply, selectedLayer, imageUri ){
     return result;
     
   }
+
+  // MEANT FOR ProfileNFT.js file
+  // SAVING HERE
+  // async function uploadPfpData() {
+  //   try {
+  //     console.log("Starting the NFT upload process...");
+  
+  //     // Step 1: Upload Image
+  //     const imageHash = await retry(() => uploadImageToIPFS(supply), 3, 2000); 
+  //     console.log("Step 1 Complete: Image Hash ->", imageHash);
+
+  //     // Step2: Generate Metadata
+  //     const json_metadata = await generateMetadata(supply, selectedLayer, imageHash);
+  //     console.log("Step 2 Complete: Metadata Generatioj: ", json_metadata); 
+
+  
+  //     // Step 3: Upload Metadata
+  //     const metadataHash = await retry(()=> uploadMetadataToIPFS(json_metadata));
+  //     console.log("Step 3 Complete: Metadata Hash ->", metadataHash);
+
+  //     const ipfsLink = `https://${process.env.REACT_APP_GATEWAY_URL}/ipfs/${metadataHash.IpfsHash}`;
+  
+  //     console.log("NFT Metadata Upload Process Completed Successfully!");
+  //     console.log("Link:", ipfsLink)
+
+  //     setSupply(supply+1)
+  //     // UPDATE METEADATA URI to NFT
+
+  //   } catch (error) {
+  //     console.error("Error during Metadata upload process:", error.message || error);
+  //     throw error; // Rethrow for further handling if needed
+  //   }
+  // }

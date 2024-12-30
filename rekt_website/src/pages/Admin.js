@@ -10,7 +10,7 @@ import { WalletModalProvider, WalletMultiButton } from "@solana/wallet-adapter-r
 
 //   } from '@metaplex-foundation/mpl-token-metadata'
 //import { mplCandyMachine } from '@metaplex-foundation/mpl-candy-machine'
-import { create } from '@metaplex-foundation/mpl-core-candy-machine'
+// import { create } from '@metaplex-foundation/mpl-core-candy-machine'
 
 //   import { create } from '@metaplex-foundation/mpl-candy-machine'
 
@@ -33,6 +33,15 @@ export default function AdminPage(){
 
     }
 
+    async function testBackend(){
+        const lowercase = "i am not here"
+        fetch(`http://localhost:3001/uppercase/${lowercase}`)
+            .then(res=> res.json())
+            .then(data=> console.log("Response: ", data.message))
+            .catch(err=> console.log("Error: ", err))
+    }
+
+
     return(
         <WalletModalProvider>
 
@@ -42,6 +51,7 @@ export default function AdminPage(){
                 <WalletMultiButton />
 
                 <button onClick={makeCollection}>Create Collection</button>
+                <button onClick={testBackend}>Test Backend</button>
             </div>
         </div>
         </WalletModalProvider>
