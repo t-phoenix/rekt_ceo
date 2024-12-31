@@ -21,18 +21,6 @@ module.exports.uploadImageToPinata = async (req, res) => {
     console.log("File uploaded:", req.file);
 
     const result = uploadImageWithFile(req.file);
-
-    // const fileBuffer = fs.readFileSync(req.file.path);
-    // const fileName = req.file.originalname;
-
-    // console.log("File Name to upload: ", fileName)
-
-    // // Upload file to Pinata
-    // const result = await pinata.upload.file(
-    //     new Blob([fileBuffer]) // Ensure correct Blob type
-    // ).addMetadata({name: fileName}).group(PinataGroupID);
-    // console.log('Pinata Response:', result);
-
     // Cleanup: Remove local file after upload
     fs.unlinkSync(req.file.path);
 

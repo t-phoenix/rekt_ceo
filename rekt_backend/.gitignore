@@ -3,3 +3,6 @@
 
 # prod
 .env
+
+# wallet
+keypair.json

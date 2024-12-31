@@ -28,9 +28,43 @@ export default function AdminPage(){
 
     async function makeCollection(){
         console.log("Creating Collection ...");
-        const collectionMint = generateSigner(umi);
+        // const collectionMint = generateSigner(umi);
         // await create(umi)
+        try {
+            const result = fetch(`http://localhost:3001/createCollection`, {
+                method: "POST"
+            })
+            console.log("Minting Collection Succesful: ", result)
 
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+    async function mintAsset(){
+        console.log("Testing mint");
+        try {
+            const result =  await fetch(`http://localhost:3001/mintNFT`, {
+                method: "POST"
+            })
+            console.log("Minting Asset Succesful: ", result)
+        } catch (error) {
+            console.log(error)
+        }
+
+    }
+
+    async function fetchCollection(){
+        console.log("Fetching Collection");
+        try {
+            const result =  await fetch(`http://localhost:3001/getCollection`, {
+                method: "GET"
+            })
+            console.log("Fetching Collection Succesful: ", result)
+        } catch (error) {
+            console.log(error)
+
+        }
     }
 
     async function testBackend(){
@@ -44,14 +78,15 @@ export default function AdminPage(){
 
     return(
         <WalletModalProvider>
-
         <div style={{marginTop: '14vh'}}>
             <h1>Admin</h1>
             <div style={{display: 'flex', flexDirection: 'column', alignItems:'center'}}>
                 <WalletMultiButton />
 
                 <button onClick={makeCollection}>Create Collection</button>
-                <button onClick={testBackend}>Test Backend</button>
+                <button onClick={mintAsset}>Mint Test Asset</button>
+                {/* <button onClick={testBackend}>Test Backend</button> */}
+                <button onClick={fetchCollection}>Get Collection</button>
             </div>
         </div>
         </WalletModalProvider>

@@ -12,7 +12,7 @@ import { styles } from "./mobileStyle";
 import { createUmi } from "@metaplex-foundation/umi-bundle-defaults";
 import { walletAdapterIdentity } from "@metaplex-foundation/umi-signer-wallet-adapters";
 import { useWallet } from "@solana/wallet-adapter-react";
-import { mplTokenMetadata } from '@metaplex-foundation/mpl-token-metadata'
+// import { mplTokenMetadata } from '@metaplex-foundation/mpl-token-metadata'
 import {
   WalletModalProvider,
   WalletDisconnectButton,
@@ -25,19 +25,19 @@ import LayerImage from "./page_components/LayerImage";
 import LayerNavbar from "./page_components/LayerNavbar";
 import LayerOptions from "./page_components/LayerOptions";
 
-import {
-  generateMetadata,
-  uploadImageToIPFS,
-  uploadMetadataToIPFS,
-} from "../services/PinataServices";
+// import {
+//   generateMetadata,
+//   uploadImageToIPFS,
+//   uploadMetadataToIPFS,
+// } from "../services/PinataServices";
 import { BASE_JSON } from "../constants/nftMetadata";
 import { dataURLtoFile, downloadImage, retry } from "../services/PfpHelpers";
 
 export default function ProfileNFT() {
   const [supply, setSupply] = useState(2);
-  const [imageUri, setImageUri] = useState("");
-  const [metadataJSON, setMetadataJSON] = useState("");
-  const [metadataURI, setMetadataURI] = useState("");
+  // const [imageUri, setImageUri] = useState("");
+  // const [metadataJSON, setMetadataJSON] = useState("");
+  // const [metadataURI, setMetadataURI] = useState("");
 
   const [isMobile, setIsMobile] = useState(false);
 
