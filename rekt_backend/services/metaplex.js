@@ -83,7 +83,7 @@ module.exports.mintNFT = async (req, res) => {
       collection: collection,
       
       name: `Rekt Ceo ${assetSupply + 1}`,
-      uri: "https://example.com/my-asset.json",
+      uri: "https://gray-quintessential-jellyfish-921.mypinata.cloud/ipfs/bafkreigwjgsz3x2jwrcdtuys2bu2idnk7ov67aryrrrhg6cjyxbafwaefy",
       external_url: "https://www.rektceo.club",
       plugins: [
         {

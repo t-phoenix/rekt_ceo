@@ -5,6 +5,7 @@
   "module": "commonjs",
   "dependencies": {
     "@metaplex-foundation/mpl-core": "^1.1.1",
+    "@metaplex-foundation/mpl-core-candy-machine": "^0.2.3",
     "@metaplex-foundation/mpl-token-metadata": "^3.3.0",
     "@metaplex-foundation/umi": "^0.9.2",
     "@metaplex-foundation/umi-bundle-defaults": "^0.9.2",

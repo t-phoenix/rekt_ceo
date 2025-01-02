@@ -13,6 +13,10 @@ import { createUmi } from "@metaplex-foundation/umi-bundle-defaults";
 import { walletAdapterIdentity } from "@metaplex-foundation/umi-signer-wallet-adapters";
 import { useWallet } from "@solana/wallet-adapter-react";
 // import { mplTokenMetadata } from '@metaplex-foundation/mpl-token-metadata'
+// import {
+//   mplCandyMachine,
+//   fetchCandyMachine,
+// } from "@metaplex-foundation/mpl-core-candy-machine";
 import {
   WalletModalProvider,
   WalletDisconnectButton,
@@ -55,6 +59,7 @@ export default function ProfileNFT() {
   );
   // // Register Wallet Adapter to Umi
   umi.use(walletAdapterIdentity(wallet));
+  // umi.use(mplCandyMachine())
 
   useEffect(() => {
     // Detect screen width or use a user-agent check

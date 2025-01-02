@@ -8,6 +8,7 @@ const {PinataSDK} = require('pinata-web3')
 const { uploadMetadata, uploadImageWithFile } = require('./services/pinata')
 require('dotenv').config();
 const { createCollection, createNFTCollection, mintNFT, getCollection } = require('./services/metaplex')
+const { createCandyMachine } = require('./services/candymachine')
 
 
 // APP
@@ -72,7 +73,7 @@ app.post('/uploadImageAndMetadata', upload.single('image'), async (req, res) =>{
 
 //METAPLEX
 app.get('/getCollection', getCollection)
-app.post('/createCollection', createNFTCollection)
+app.post('/createCollection', createCandyMachine)
 app.post('/mintNFT', mintNFT)
 
 // INIT

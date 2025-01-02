@@ -50,6 +50,16 @@
     "@noble/hashes" "^1.2.0"
     merkletreejs "^0.3.9"
 
+"@metaplex-foundation/mpl-core-candy-machine@^0.2.3":
+  version "0.2.3"
+  resolved "https://registry.yarnpkg.com/@metaplex-foundation/mpl-core-candy-machine/-/mpl-core-candy-machine-0.2.3.tgz#5382b1f9d910adddf81f98bd4fda417db1e241be"
+  integrity sha512-bKktDKPLEZjonauSoPdfmEhz9odWzh07AdwMRnDQNDrjVG7JGvU99xK2h91O7P0YDo+bbX8yLGRhHlPRnGp9zg==
+  dependencies:
+    "@metaplex-foundation/mpl-token-metadata" "3.0.0-alpha.27"
+    "@metaplex-foundation/mpl-toolbox" "^0.9.0"
+    "@noble/hashes" "^1.2.0"
+    merkletreejs "^0.3.9"
+
 "@metaplex-foundation/mpl-core@^1.1.1":
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/@metaplex-foundation/mpl-core/-/mpl-core-1.1.1.tgz#f3a61cc647b2cdf461e0403350a7136b90d9d51a"
