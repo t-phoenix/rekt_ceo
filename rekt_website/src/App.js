@@ -2,7 +2,6 @@ import React, { useEffect, useState, useMemo } from "react";
 import "./App.css";
 
 import { Route, Routes } from "react-router-dom";
-import { useNetwork } from "wagmi";
 import { Toaster } from "react-hot-toast";
 import Introduction from "./landingpage/Introduction";
 import Header from "./components/Header";
@@ -19,8 +18,6 @@ import AdminPage from "./pages/Admin";
 
 
 function App() {
-  const { chain } = useNetwork();
-  console.log("chain:", chain);
 
   const [isMobile, setIsMobile] = useState(false);
 

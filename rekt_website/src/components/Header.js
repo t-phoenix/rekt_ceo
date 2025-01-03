@@ -1,7 +1,5 @@
 import React from "react";
 import "./header.css";
-import { Web3Button } from "@web3modal/react";
-import { useAccount, useNetwork } from "wagmi";
 import { useNavigate } from "react-router-dom";
 import { IoMenu } from "react-icons/io5";
 import { useMediaQuery } from "react-responsive";
@@ -11,10 +9,8 @@ import { MdMenu } from "react-icons/md";
 
 
 export default function Header() {
-  const account = useAccount();
-  const { chain } = useNetwork();
+  
   const navigate = useNavigate();
-  console.log("Chain: ", chain);
   const [showMenu, setShowMenu] = React.useState(false);
 
   const isMobile = useMediaQuery({maxWidth: "600px"})
