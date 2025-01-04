@@ -1,0 +1,125 @@
+
+.landing-section {
+    display: flex;
+    flex-direction: column;
+    /* justify-content: center; */
+    align-items: center;
+    width: 100%;
+    height: 84vh;
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    margin-top: 12vh;
+    /* box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19); */
+
+}
+
+.landing-main-div{
+    height: 50%;
+    width: 50%;
+    backdrop-filter: blur(50px);
+    border-radius: 16px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    margin-top: 8%;
+}
+
+.landing-title{
+    font-size: 100px;
+    color: var(--color-red);
+    margin-block: 4px;
+}
+
+.section-title{
+    font-size: 80px;
+    color: var(--color-red);
+    text-shadow: 2px 2px var(--color-blue);
+    margin-top: 4%;
+    margin-bottom: 2%;
+    z-index: 2;
+}
+
+.landing-subtitle{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: center;
+    width: 80%;
+    font-weight:700;
+    font-size: 24px;
+    margin-block: 36px;
+    color: var(--color-white);
+}
+
+.ambassador-image{
+    position: absolute;
+    height: 600px;
+    width: 800px;
+    z-index: 1;
+    left: -80px;
+    top: 54vh;
+}
+
+.faq-section {
+    display: flex;
+    flex-direction: column;
+    /* justify-content: center; */
+    align-items: center;
+    width: 100%;
+    height: 120vh;
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    margin-top: 4vh;
+    /* box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19); */
+
+}
+
+.faq-title{
+    font-size: 80px;
+    color: var(--color-red);
+    text-shadow: 2px 2px var(--color-blue);
+    margin-top: 6%;
+    margin-bottom: 2%;
+    z-index: 2;
+}
+
+
+
+/* FOR MOBILE AND TABLET */
+@media screen and (max-width: 992px) {
+    .landing-main-div{
+        width: 90%;
+        height: 60%;
+    }
+    .ambassador-image{
+        top: 80vh;
+        left: -80px;
+        height: 300px;
+        width: 400px;
+    }
+    
+}
+
+/* FOR MOBILE */
+@media screen and (max-width: 600px){
+    .landing-main-div{
+        height: 60%;
+            backdrop-filter: blur(100px);
+    }
+    .landing-title{
+        font-size: 60px;
+        color: var(--color-yellow);
+    }
+    .landing-subtitle{
+        width: 60%;
+        flex-direction: column;
+        align-items: start;
+    }
+    .section-title{
+        font-size: 48px;
+    }
+}
