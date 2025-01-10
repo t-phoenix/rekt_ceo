@@ -4,14 +4,15 @@ import React, { useMemo } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Header from "./components/Header";
 import Introduction from "./landingpage/Introduction";
-import ProfileNFT from "./pages/pfp";
-import Meme from "./pages/memes";
+import ProfileNFT from "./pages/ProfileNFT";
 import {
   ConnectionProvider,
   WalletProvider,
 } from "@solana/wallet-adapter-react";
 import { WalletAdapterNetwork } from "@solana/wallet-adapter-base";
 import { clusterApiUrl } from "@solana/web3.js";
+import Meme from "./pages/memes";
+import AdminPage from "./pages/Admin";
 
 export default function Home() {
   // The network can be set to 'devnet', 'testnet', or 'mainnet-beta'.
@@ -33,14 +34,16 @@ export default function Home() {
           <div className="App">
             <Header />
 
-            <div className="body">
+            <div className="body" suppressHydrationWarning>
+              {typeof window === 'undefined' ? null : 
               <Routes>
                 <Route path="/" element={<Introduction />} />
                 <Route path="/pfp" element={<ProfileNFT />} />
                 <Route path="/memes" element={<Meme />} />
-                {/* <Route path="/admin" element={<AdminPage/>} /> */}
+                <Route path="/admin" element={<AdminPage/>} />
                 {/* <Route path="/chat" element={<Chat />}/> */}
               </Routes>
+              }
             </div>
           </div>
         </WalletProvider>

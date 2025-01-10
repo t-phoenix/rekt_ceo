@@ -1,7 +1,6 @@
 "use client"
 import React, { useEffect, useState, FC, useMemo } from "react";
 import "./pfp.css";
-// import ceo from "../creatives/rekt_ceo_ambassador.png";
 
 import { layerNames, layers } from "../constants/layers";
 
@@ -13,11 +12,11 @@ import { styles } from "./mobileStyle";
 import { createUmi } from "@metaplex-foundation/umi-bundle-defaults";
 import { walletAdapterIdentity } from "@metaplex-foundation/umi-signer-wallet-adapters";
 import { useWallet } from "@solana/wallet-adapter-react";
-// import { mplTokenMetadata } from '@metaplex-foundation/mpl-token-metadata'
-// import {
-//   mplCandyMachine,
-//   fetchCandyMachine,
-// } from "@metaplex-foundation/mpl-core-candy-machine";
+import { mplTokenMetadata } from '@metaplex-foundation/mpl-token-metadata'
+import {
+  mplCandyMachine,
+  fetchCandyMachine,
+} from "@metaplex-foundation/mpl-core-candy-machine";
 import {
   WalletModalProvider,
   WalletDisconnectButton,
@@ -40,9 +39,6 @@ import { dataURLtoFile, downloadImage, retry } from "../services/PfpHelpers";
 
 export default function ProfileNFT() {
   const [supply, setSupply] = useState(2);
-  // const [imageUri, setImageUri] = useState("");
-  // const [metadataJSON, setMetadataJSON] = useState("");
-  // const [metadataURI, setMetadataURI] = useState("");
 
   const [isMobile, setIsMobile] = useState(false);
 
@@ -60,7 +56,7 @@ export default function ProfileNFT() {
   );
   // // Register Wallet Adapter to Umi
   umi.use(walletAdapterIdentity(wallet));
-  // umi.use(mplCandyMachine())
+  umi.use(mplCandyMachine())
 
   useEffect(() => {
     // Detect screen width or use a user-agent check
@@ -175,15 +171,9 @@ export default function ProfileNFT() {
                 <div className="mint-button-box">
                   {/* <p>Layers:{selectedLayer}</p> */}
                   <div style={{ textAlign: "left", marginLeft: "0%" }}>
-                    <p>
-                      <strong>Price:</strong> 20,000 $CEO
-                    </p>
-                    <p>
-                      <strong>Supply:</strong> {supply}/ 999
-                    </p>
-                    <p>
-                      <strong>Balance:</strong> 284,323,422 $CEO
-                    </p>
+                    <p><strong>Price:</strong> 20,000 $CEO</p>
+                    <p><strong>Supply:</strong> {supply}/ 999</p>
+                    <p><strong>Balance:</strong> 284,323,422 $CEO</p>
                   </div>
 
                   <div
@@ -196,7 +186,7 @@ export default function ProfileNFT() {
                   >
                     <WalletMultiButton />
 
-                    {wallet.publicKey ? (
+                    {/* {wallet.publicKey ? (
                       <button
                         style={{
                           width: "50%",
@@ -209,7 +199,7 @@ export default function ProfileNFT() {
                       </button>
                     ) : (
                       <></>
-                    )}
+                    )} */}
                     <div style={{ display: "flex", flexDirection: "column" }}>
                       {/* <button onClick={uploadImage}>Upload Image</button>
                       <button onClick={createMetadata}>Create Metadata</button> */}

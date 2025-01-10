@@ -170,11 +170,10 @@ export default function ProfileNFT() {
                 </p>
               </div>
               {/* PFP LAYER IMAGE */}
-              <div className="pfp-image-box">
+              {/* <div className="pfp-image-box">
                 <LayerImage selectedLayer={selectedLayer} />
 
                 <div className="mint-button-box">
-                  {/* <p>Layers:{selectedLayer}</p> */}
                   <div style={{ textAlign: "left", marginLeft: "0%" }}>
                     <p>
                       <strong>Price:</strong> 20,000 $CEO
@@ -212,15 +211,13 @@ export default function ProfileNFT() {
                       <></>
                     )}
                     <div style={{ display: "flex", flexDirection: "column" }}>
-                      {/* <button onClick={uploadImage}>Upload Image</button>
-                      <button onClick={createMetadata}>Create Metadata</button> */}
-                      {/* <button onClick={()=>generateMetadata(supply, selectedLayer, imageUri)}>Test GENERATE META</button> */}
+                      
                       <button onClick={uploadMetadata}>Server + Pinata Upload</button>
                       <button onClick={handleMint}>Mint NFT</button>
                     </div>
                   </div>
                 </div>
-              </div>
+              </div> */}
               {/* PFP OPTIONS */}
               <div className="pfp-options">
                 <h1>Options</h1>
