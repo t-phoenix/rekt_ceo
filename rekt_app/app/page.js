@@ -11,8 +11,8 @@ import {
 } from "@solana/wallet-adapter-react";
 import { WalletAdapterNetwork } from "@solana/wallet-adapter-base";
 import { clusterApiUrl } from "@solana/web3.js";
-import Meme from "./pages/memes";
 import AdminPage from "./pages/Admin";
+import Meme from "./pages/Memes";
 
 export default function Home() {
   // The network can be set to 'devnet', 'testnet', or 'mainnet-beta'.

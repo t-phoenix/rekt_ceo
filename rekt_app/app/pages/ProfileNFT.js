@@ -51,9 +51,7 @@ export default function ProfileNFT() {
   // console.log("Wallet pubkey:", wallet.publicKey);
 
   // Use the RPC endpoint of your choice.
-  const umi = createUmi(
-    "https://solana-devnet.g.alchemy.com/v2/8fB9RHW65lCGqnRxrELgw5y0yYEOFvu6"
-  );
+  const umi = createUmi(process.env.NEXT_PUBLIC_SOLANA_DEVNET_URL);
   // // Register Wallet Adapter to Umi
   umi.use(walletAdapterIdentity(wallet));
   umi.use(mplCandyMachine())
