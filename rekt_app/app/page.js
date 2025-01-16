@@ -12,7 +12,7 @@ import {
 import { WalletAdapterNetwork } from "@solana/wallet-adapter-base";
 import { clusterApiUrl } from "@solana/web3.js";
 import AdminPage from "./pages/Admin";
-import Meme from "./pages/Memes";
+import Memes from "./pages/Memes";
 
 export default function Home() {
   // The network can be set to 'devnet', 'testnet', or 'mainnet-beta'.
@@ -39,7 +39,7 @@ export default function Home() {
               <Routes>
                 <Route path="/" element={<Introduction />} />
                 <Route path="/pfp" element={<ProfileNFT />} />
-                <Route path="/memes" element={<Meme />} />
+                <Route path="/memes" element={<Memes />} />
                 <Route path="/admin" element={<AdminPage/>} />
                 {/* <Route path="/chat" element={<Chat />}/> */}
               </Routes>

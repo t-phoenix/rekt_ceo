@@ -8,7 +8,7 @@ import { MdDownload } from "react-icons/md";
 import { styles } from "./mobileStyle";
 import Image from "next/image";
 
-export default function Meme() {
+export default function Memes() {
   const [selectedTemplate, setSelectedTemplate] = useState(
     memeTemplates[0].src
   );
