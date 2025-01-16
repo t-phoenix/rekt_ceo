@@ -15,11 +15,11 @@ import { walletAdapterIdentity } from "@metaplex-foundation/umi-signer-wallet-ad
 
 
 //SOLANA
-import { useWallet } from "@solana/wallet-adapter-react";
-import {
-  WalletModalProvider,
-  WalletMultiButton,
-} from "@solana/wallet-adapter-react-ui";
+// import { useWallet } from "@solana/wallet-adapter-react";
+// import {
+//   WalletModalProvider,
+//   WalletMultiButton,
+// } from "@solana/wallet-adapter-react-ui";
 
 //MPL
 import {
@@ -72,7 +72,11 @@ export async function makeCollection(umi) {
         collectionMint: collectionMint.publicKey,
         collectionUpdateAuthority: umi.identity,
         tokenStandard: TokenStandard.NonFungible,
-        sellerFeeBasisPoints: 500, // 5%
+        sellerFeeBasisPoints: {
+            basisPoints: 500n,
+            identifier: "%",
+            decimals: 2,
+          }, // 5%
         itemsAvailable: 5,
         creators: [
           {
@@ -89,9 +93,21 @@ export async function makeCollection(umi) {
           uriLength: 40,
           isSequential: true,
         }),
-        guards: some({
-          botTax: some({ lamports: sol(0.01), lastInstruction: true }),
-        }),
+        // guards: {
+        //   botTax: { lamports: sol(0.01), lastInstruction: true },
+        // },
+        groups: [
+            {
+              label: "early",
+              guards: {
+                solPayment: some({
+                  lamports: sol(0.01),
+                  destination: umi.identity.publicKey,
+                }),
+                botTax: some({ lamports: sol(1), lastInstruction: true }),
+              },
+            },
+          ],
       });
       await tx.sendAndConfirm(umi);
 
@@ -148,41 +164,100 @@ export async function makeCollection(umi) {
   }
 
 
- export async function updateCollectionGuard(umi) {
-    console.log("Updating Colletion Guard...");
-    const candyMachinePublicKey = publicKey(CandyMachineAddr);
+//  export async function updateCollectionGuard(umi) {
+//     console.log("Updating Colletion Guard...");
+//     const candyMachinePublicKey = publicKey(CandyMachineAddr);
 
-    try {
-      const candyMachine = await fetchCandyMachine(umi, candyMachinePublicKey);
-      const candyGuard = await fetchCandyGuard(umi, candyMachine.mintAuthority);
-      console.log("Candy Guard: ", candyGuard);
+//     try {
+//       const candyMachine = await fetchCandyMachine(umi, candyMachinePublicKey);
+//       const candyGuard = await fetchCandyGuard(umi, candyMachine.mintAuthority);
+//       console.log("Candy Guard: ", candyGuard);
 
-      const tx = await updateCandyGuard(umi, {
-        candyGuard: candyGuard.publicKey,
-        guards: {
-          ...candyGuard.guards,
-          botTax: some({ lamports: sol(1), lastInstruction: true }),
-        },
-      }).sendAndConfirm(umi);
-      console.log("Transaction: ", tx);
-    } catch (error) {
-      console.log("Error: ", error);
-    }
-  }
+//       const tx = await updateCandyGuard(umi, {
+//         candyGuard: candyGuard.publicKey,
+//         guards: {
+//           ...candyGuard.guards,
+//           botTax: some({ lamports: sol(1), lastInstruction: true }),
+//         },
+//       }).sendAndConfirm(umi);
+//       console.log("Transaction: ", tx);
+//     } catch (error) {
+//       console.log("Error: ", error);
+//     }
+//   }
 
  export async function deleteCandyMachineAndGuard(umi) {
     console.log("Deleting Candy Machine And Candy Guard");
     const candyMachine = await fetchCandyMachine(umi, CandyMachineAddr);
 
     try {
-      await deleteCandyMachine(umi, {
+      const txCandy = await deleteCandyMachine(umi, {
         candyMachine: candyMachine.publicKey,
       }).sendAndConfirm(umi);
 
-      await deleteCandyGuard(umi, {
+      const txGuard = await deleteCandyGuard(umi, {
         candyGuard: candyMachine.mintAuthority,
       }).sendAndConfirm(umi);
+      console.log("Deleted Programs sucessfully", txCandy, txGuard)
     } catch (error) {
       console.log("Error deleting: ", error);
     }
   }
+
+
+ export async function mintAsset(umi) {
+    console.log("Testing mint");
+    try {
+      const nftMint = generateSigner(umi);
+      const candyMachineAccount = await fetchCandyMachine(umi, publicKey(CandyMachineAddr));
+      console.log("Candy Machine: ", candyMachineAccount)
+      
+      const trx = await transactionBuilder()
+        .add(setComputeUnitLimit(umi, { units: 800_000 }))
+        .add(mintV2(umi, {
+              candyMachine: publicKey(candyMachineAccount.publicKey),
+              nftMint,
+              collectionMint: publicKey(candyMachineAccount.collectionMint),
+              collectionUpdateAuthority: publicKey(candyMachineAccount.authority),
+              group: some("early"),
+              mintArgs: {
+                solPayment: some({destination: publicKey(umi.identity.publicKey) })
+              }
+            })
+          )
+          .sendAndConfirm(umi)
+         // .sendAndConfirm(umi, {send: { skipPreflight: true}})
+  
+
+        
+        console.log("Mint trx: ", mintTransaction)
+
+
+    } catch (error) {
+      console.log("Mint Error", error);
+    }
+  }
+
+  
+ export async function insertItems(umi){
+    console.log("Inserting Items...");
+    try {
+        const candyMachine = await fetchCandyMachine(umi, CandyMachineAddr);
+        const trx = await addConfigLines(umi, {
+            candyMachine: candyMachine.publicKey,
+            index: candyMachine.itemsLoaded,
+            configLines: [
+              { name: '1', uri: '1.json' },
+              { name: '2', uri: '2.json' },
+              { name: '3', uri: '3.json' },
+              { name: '4', uri: '4.json' },
+              { name: '5', uri: '5.json' },
+            ],
+          }).sendAndConfirm(umi)
+
+          console.log("Inserting Trx: ", trx)
+    } catch (error) {
+        console.log("Inserting item error: ", error)
+    }
+  }
+  
