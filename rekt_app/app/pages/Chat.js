@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import "./chat.css";
+import "../styles/chat.css";
 import { MdAddBox } from "react-icons/md";
 
 export default function Chat(){
@@ -27,7 +27,7 @@ export default function Chat(){
                     <MdAddBox size={36}/>
                 </div>
                 {proposals.map((item, index)=>(
-                    <p className={proposal===index?"selected-proposal-button":"proposal-button"} onClick={()=>setProposal(index)}>{item}</p>
+                    <p key={index} className={proposal===index?"selected-proposal-button":"proposal-button"} onClick={()=>setProposal(index)}>{item}</p>
                 ))}
 
                 

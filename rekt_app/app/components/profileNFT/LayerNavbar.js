@@ -1,6 +1,6 @@
 import React from "react";
 import { items } from "../../constants/layers";
-import "../pfp.css";
+import "../../styles//pfp.css";
 
 
 export default function LayerNavbar({currentIndex, setCurrentIndex}){

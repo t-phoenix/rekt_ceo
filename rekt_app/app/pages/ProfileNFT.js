@@ -1,12 +1,12 @@
 "use client"
 import React, { useEffect, useState, FC, useMemo } from "react";
-import "./pfp.css";
+import "../styles/pfp.css";
 
 import { layerNames, layers } from "../constants/layers";
 
 import { MdDownload, MdShuffle } from "react-icons/md";
 import html2canvas from "html2canvas";
-import { styles } from "./mobileStyle";
+import { styles } from "../styles/mobileStyle";
 
 // WEB3 SOLANA
 import { createUmi } from "@metaplex-foundation/umi-bundle-defaults";
@@ -25,9 +25,9 @@ import {
 // import { clusterApiUrl } from "@solana/web3.js";
 import "@solana/wallet-adapter-react-ui/styles.css";
 
-import LayerImage from "./page_components/LayerImage";
-import LayerNavbar from "./page_components/LayerNavbar";
-import LayerOptions from "./page_components/LayerOptions";
+import LayerImage from "../components/profileNFT/LayerImage";
+import LayerNavbar from "../components/profileNFT/LayerNavbar";
+import LayerOptions from "../components/profileNFT/LayerOptions";
 
 // import {
 //   generateMetadata,

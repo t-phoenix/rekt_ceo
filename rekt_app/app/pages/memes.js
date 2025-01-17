@@ -1,11 +1,11 @@
 import React, { useEffect, useRef, useState } from "react";
 import html2canvas from "html2canvas";
-import "./meme.css";
+import "../styles/meme.css";
 import { memeTemplates } from "../constants/memeData";
 
 import { FaTwitter } from "react-icons/fa";
 import { MdDownload } from "react-icons/md";
-import { styles } from "./mobileStyle";
+import { styles } from "../styles/mobileStyle";
 import Image from "next/image";
 
 export default function Memes() {

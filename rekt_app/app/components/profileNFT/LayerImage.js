@@ -1,7 +1,7 @@
 import React from "react"
 import rektcoin from "../../creatives/pfp/rekt_coin.png";
 import { layers } from "../../constants/layers";
-import "../pfp.css";
+import "../../styles/pfp.css";
 import Image from "next/image";
 
 
