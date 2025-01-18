@@ -38,7 +38,7 @@ import { BASE_JSON } from "../constants/nftMetadata";
 import { dataURLtoFile, downloadImage, retry } from "../services/PfpHelpers";
 
 export default function ProfileNFT() {
-  const [supply, setSupply] = useState(2);
+  const [supply, setSupply] = useState(0);
   // const [imageUri, setImageUri] = useState("");
   // const [metadataJSON, setMetadataJSON] = useState("");
   // const [metadataURI, setMetadataURI] = useState("");
@@ -173,6 +173,8 @@ export default function ProfileNFT() {
               <div className="pfp-image-box">
                 <LayerImage selectedLayer={selectedLayer} />
 
+                <h2 style={{marginTop: '4%'}}>( NEW ART COMING SOON )</h2>
+
                 <div className="mint-button-box">
                   <div style={{ textAlign: "left", marginLeft: "0%" }}>
                     <p>
@@ -182,9 +184,11 @@ export default function ProfileNFT() {
                       <strong>Supply:</strong> {supply}/ 999
                     </p>
                     <p>
-                      <strong>Balance:</strong> 284,323,422 $CEO
+                      <strong>Balance:</strong> -- $CEO
                     </p>
                   </div>
+
+                  <button style={{marginTop: '4%'}} onClick={handleMint}>Mint NFT (Soon)</button>
 
                   {/* <div
                     style={{
@@ -213,7 +217,7 @@ export default function ProfileNFT() {
                     <div style={{ display: "flex", flexDirection: "column" }}>
                       
                       <button onClick={uploadMetadata}>Server + Pinata Upload</button>
-                      <button onClick={handleMint}>Mint NFT</button>
+                      
                     </div>
                   </div> */}
                 </div>

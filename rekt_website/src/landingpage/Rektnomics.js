@@ -50,7 +50,7 @@ export default function Rektnomics(){
               <p style={{overflowWrap: 'break-word'}}>TBD</p>
             </div>
             <button style={{ backgroundColor: "#e7255e", color: "#ffffff" }}>
-              BUY $CEO
+              BUY $CEO (Soon)
             </button>
           </div>
 

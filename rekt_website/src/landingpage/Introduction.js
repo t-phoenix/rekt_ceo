@@ -9,6 +9,7 @@ import penthouse from "../creatives/penthouse.jpeg";
 import ambassador from "../creatives/rekt_ceo_ambassador.png";
 import pumpfun from "../creatives/socials/pump.png";
 import raydium from "../creatives/socials/raydium.png";
+import memedepot from "../creatives/socials/memedepot.png"
 
 import BuySection from "./BuySection";
 import StorySection from "./StorySection";
@@ -17,12 +18,15 @@ import Roadmap from "./Roadmap";
 import Rektnomics from "./Rektnomics";
 import Banner from "../components/Banner";
 import { faqData } from "../constants/faqData";
-import { MdCopyright, MdLanguage, } from "react-icons/md";
+import { MdCopyright, MdLanguage, MdMail, MdMailOutline, } from "react-icons/md";
 import { FaTwitter} from "react-icons/fa"
 
 
 export default function Introduction() {
   const navigate = useNavigate();
+
+  const tweetUrl = "https://x.com/rekt_ceo"
+  const pitchDeckLink = "https://gray-quintessential-jellyfish-921.mypinata.cloud/ipfs/bafybeifnvoe54ijactevaz7upynenmdzwngkhwg7qyxkjhnsl3l6i2m5r4"
 
   const bannerItems = [
     "Rekt $CEO",
@@ -55,7 +59,10 @@ export default function Introduction() {
             <li>🎉 No KOL</li>
             <li>🐶 No Bullshit</li>
           </ul>
-          <button style={{ width: "220px" }}>LAUNCHING SOON</button>
+          <div style={{display: 'flex', flexDirection: 'row', justifyContent: 'space-around', width: '70%'}}>
+            <button style={{ width: "220px" }}>LAUNCHING SOON</button>
+            <button style={{}} onClick={() => window.open(pitchDeckLink, "_blank")}>PITCH DECK</button>
+          </div>
         </div>
         <img src={ambassador} alt="ambassador" className="ambassador-image" />
       </section>
@@ -82,10 +89,10 @@ export default function Introduction() {
 
         </div>
         <div className="link-container">
-            <div className="link-icon-box">
-                <MdLanguage size={42}/>
+            <div className="link-icon-box" onClick={() => window.location.href = `mailto:contact@rektceo.club`}>
+                <MdMail size={42}/>
             </div>
-            <div className="link-icon-box" >
+            <div className="link-icon-box" onClick={() => window.open(tweetUrl, "_blank")} >
                 <FaTwitter  size={42}/>
             </div>
             <div className="link-icon-box">
@@ -97,7 +104,7 @@ export default function Introduction() {
         </div>
         <div className="end-box">
             <p>DISCLAIMER: $CEO is a meme coin created for fun with absolutely no intrinsic value or any expectation of financial return. The token for entertainment purposes only and we take zero responsibility for the value of this token. $CEO is inspired by @MustStopMurad to be the king of meme coins.</p>
-            <p style={{marginBlock: '2%', display:'flex', flexDirection: 'row', alignItems:'center', justifyContent: 'center'}}>2024 <MdCopyright size={16}/> MemesAfterDark. All right reserved.</p>
+            <p style={{marginBlock: '2%', display:'flex', flexDirection: 'row', alignItems:'center', justifyContent: 'center'}}>2024 <MdCopyright size={16}/> RektCeo. All right reserved.</p>
         </div>
         {/* ,{
           question: "What are official project links ?",

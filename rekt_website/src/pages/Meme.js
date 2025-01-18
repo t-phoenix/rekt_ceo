@@ -182,7 +182,7 @@ export default function Meme() {
                   Share <FaTwitter />{" "}
                 </button>
               </div>
-              <button>Mint Meme NFT</button>
+              <button>Mint Meme NFT (Soon)</button>
             </div>
           </div>
 
@@ -246,6 +246,8 @@ export default function Meme() {
               ))}
             </div>
           </div>
+
+          <p style={{marginBottom: '4%'}}>New Meme Templates Coming Soon</p>
         </div>
       )}
     </>

@@ -6,6 +6,7 @@ import ceo_office from "../creatives/ceo_office.jpg";
 
 
 export default function StorySection(){
+    const navigate = useNavigate();
     return(
         <section id="story" className="story-section">
         <h1 className="section-title">STORY</h1>
@@ -56,7 +57,10 @@ export default function StorySection(){
               point—don’t let it define you. Trust your gut, back yourself, and
               enjoy the ride.
             </h1>
-            <button style={{ marginTop: "6%"}}>CREATE YOUR PFP </button>
+            <div style={{display: 'flex', flexDirection: 'row', justifyContent: 'space-around', width: '70%'}}>
+              <button style={{ marginTop: "6%"}} onClick={() => navigate("/pfp")}>MAKE YOUR PFP</button>
+              <button style={{ marginTop: "6%"}} onClick={() => navigate("/memes")}>CREATE MEME</button>
+            </div>
           </div>
         </div>
       </section>

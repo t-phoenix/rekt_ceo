@@ -4,9 +4,16 @@ import "./styles/buy.css";
 import penthouse2 from "../creatives/penthouse2.jpg";
 
 import { MdRocketLaunch, MdShoppingCart, MdSwapHoriz, MdAccountBox } from "react-icons/md";
+import { useNavigate } from "react-router-dom";
 
 
 export default function BuySection(){
+    const navigate = useNavigate();
+
+    const phantomLink = "https://phantom.com/en-GB"
+    const solflareLink = "https://solflare.com/"
+    const getSolanaGuide = "https://medium.com/@rameshmagarrr/how-to-deposit-funds-to-your-phantom-wallet-2831d4fb49aa"
+
     return(
         <section
         id="buyceo"
@@ -16,14 +23,14 @@ export default function BuySection(){
         <h1 className="section-title" style={{color: "#fcd25a"}}>HOW TO BUY</h1>
         <div className="buy-box">
           <div className="buy-card item-1">
-            <h1>1. Download Phantom or Solflare Wallet</h1>
+            <h1>1. Download Phantom OR Solflare Wallet</h1>
             <p>
               Download and install the Phantom Wallet either from the app store
               on your phone or as a browser extension for desktop.
             </p>
             <div className="row-box">
-              <button className="button-margin">GET PHANTOM</button>
-              <button className="button-margin">GET SOLFLARE</button>
+              <button className="button-margin" onClick={() => window.open(phantomLink, "_blank")}>GET PHANTOM</button>
+              <button className="button-margin" onClick={() => window.open(solflareLink, "_blank")}>GET SOLFLARE</button>
             </div>
             <div className="icon-box">
                 <MdRocketLaunch className="card-icon" size={32} />
@@ -35,7 +42,7 @@ export default function BuySection(){
               Purchase $SOL from an exchange or bridge $SOL and send it to your
               Phantom wallet
             </p>
-            <button>GET SOLANA</button>
+            <button onClick={() => window.open(getSolanaGuide, "_blank")}>GET SOLANA</button>
             <div className="icon-box">
                 <MdShoppingCart className="card-icon" size={32} />
             </div>
@@ -63,7 +70,7 @@ export default function BuySection(){
             </p>
             <div className="row-box">
               <button className="button-margin">ADD $CEO</button>
-              <button className="button-margin">MINT PFP</button>
+              <button className="button-margin" onClick={() => navigate("/pfp")}>MINT PFP</button>
             </div>
             <div className="icon-box">
                 <MdAccountBox className="card-icon" size={32} />
