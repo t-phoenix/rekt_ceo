@@ -3,7 +3,7 @@ import penthouse from "../creatives/penthouse.jpeg";
 
 export const styles = {
     overlay: {
-      backgroundImage: `url(${penthouse})`,
+      backgroundImage: `url(${penthouse.src})`,
       position: "fixed",
       top: 0,
       left: 0,

@@ -1,16 +1,19 @@
+"use client";
 import React, { useEffect, useState } from "react";
 import "./header.css";
-import { useLocation, useNavigate } from "react-router-dom";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 
 export default function Navbar({ setShow }) {
-  const navigate = useNavigate();
-  const location = useLocation();
+  const router = useRouter();
+  const pathName = usePathname();
 
   const [scrollTarget, setScrollTarget] = useState(null);
 
   // Effect to handle scrolling after navigation
   useEffect(() => {
-    if (scrollTarget && location.pathname === "/") {
+    if (scrollTarget && pathName === "/") {
       const section = document.getElementById(scrollTarget);
       if (section) {
         section.scrollIntoView({ behavior: "smooth" });
@@ -18,13 +21,13 @@ export default function Navbar({ setShow }) {
       // Reset scroll target after scrolling
       setScrollTarget(null);
     }
-  }, [scrollTarget, location]);
+  }, [scrollTarget, pathName]);
 
   // Function to handle smooth scrolling
   const scrollToSection = (sectionId) => {
-    if (location.pathname !== "/") {
+    if (pathName !== "/") {
       setScrollTarget(sectionId);
-      navigate("/");
+      router.push("/");
     } else {
       const section = document.getElementById(sectionId);
       if (section) {
@@ -54,30 +57,18 @@ export default function Navbar({ setShow }) {
       </div>
 
       {/* Links to other pages */}
-      <div
-        className="links-style"
-        onClick={() => {
-          navigate("/pfp");
-        }}
-      >
-        PFP
-      </div>
-      <div
-        onClick={() => {
-          navigate("/memes");
-        }}
-        className="links-style"
-      >
+      <Link href={"ProfileNFT"} className="links-style" style={{ textDecoration: "none" }}>
+         PFP
+      </Link>
+
+      <Link href={"Memes"} className="links-style" style={{ textDecoration: "none" }}>
         MEMES
+      </Link>
+      <div className="links-style">
+        <Link href={"Admin"} style={{ textDecoration: "none" }}>
+          Admin
+        </Link>
       </div>
-      {/* <div
-        onClick={() => {
-          navigate("/chat");
-        }}
-        className="links-style"
-      >
-        CHAT
-      </div> */}
 
       {/* Link to Landing Page Section */}
       <div onClick={() => scrollToSection("faq")} className="links-style">
@@ -86,7 +77,3 @@ export default function Navbar({ setShow }) {
     </nav>
   );
 }
-
-// className={selectedLink==navlink.link? "selected-link":"links-style"}
-// whileHover={{ scale: 1.1 }}
-// whileTap={{scale: 0.9}}

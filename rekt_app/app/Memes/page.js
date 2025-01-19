@@ -1,3 +1,4 @@
+"use client"
 import React, { useEffect, useRef, useState } from "react";
 import html2canvas from "html2canvas";
 import "../styles/meme.css";
@@ -7,8 +8,9 @@ import { FaTwitter } from "react-icons/fa";
 import { MdDownload } from "react-icons/md";
 import { styles } from "../styles/mobileStyle";
 import Image from "next/image";
+import Header from "../components/Header";
 
-export default function Memes() {
+export default function Page() {
   const [selectedTemplate, setSelectedTemplate] = useState(
     memeTemplates[0].src
   );
@@ -24,20 +26,31 @@ export default function Memes() {
 
   const [isMobile, setIsMobile] = useState(false);
 
-  useEffect(() => {
-    // Detect screen width or use a user-agent check
-    const handleResize = () => {
-      setIsMobile(window.innerWidth <= 992); // Adjust breakpoint as needed
-    };
+//   useEffect(() => {
+//     // Detect screen width or use a user-agent check
+//     const handleResize = () => {
+//       setIsMobile(window.innerWidth <= 992); // Adjust breakpoint as needed
+//     };
 
-    // Initial check
-    handleResize();
+//     // Initial check
+//     handleResize();
 
-    // Add event listener for window resize
-    window.addEventListener("resize", handleResize);
+//     // Add event listener for window resize
+//     window.addEventListener("resize", handleResize);
 
-    // Cleanup event listener on unmount
-    return () => window.removeEventListener("resize", handleResize);
+//     // Cleanup event listener on unmount
+//     return () => window.removeEventListener("resize", handleResize);
+//   }, []);
+useEffect(() => {
+    // Ensure it only runs in the browser (Next.js SSR fix)
+    if (typeof window !== "undefined") {
+      const handleResize = () => {
+        setIsMobile(window.innerWidth <= 992);
+      };
+      handleResize();
+      window.addEventListener("resize", handleResize);
+      return () => window.removeEventListener("resize", handleResize);
+    }
   }, []);
 
   const dragText = (e, ref) => {
@@ -101,6 +114,9 @@ export default function Memes() {
   };
 
   return (
+    <div className="App">
+
+    <Header />
     <>
       {isMobile ? (
         <div style={styles.overlay}>
@@ -250,5 +266,6 @@ export default function Memes() {
         </div>
       )}
     </>
+    </div>
   );
 }

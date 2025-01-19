@@ -1,16 +1,18 @@
+"use client"
 import React from "react";
 import "./header.css";
-import { useNavigate } from "react-router-dom";
+// import { useNavigate } from "react-router-dom";
 import { IoMenu } from "react-icons/io5";
 import { useMediaQuery } from "react-responsive";
 import Navbar from "./Navbar";
 // import CiLogo from "../assets/CiLogo.png"
 import { MdMenu } from "react-icons/md";
+import Link from "next/link";
 
 
 export default function Header() {
   
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   const [showMenu, setShowMenu] = React.useState(false);
 
   const isMobile = useMediaQuery({maxWidth: "600px"})
@@ -29,7 +31,7 @@ export default function Header() {
           <div className="nav-burger" onClick={openNavBar}>
             {<MdMenu size={40}/>}
           </div>
-          <div className="title-container" onClick={() => {navigate("/"); setShowMenu(false);}}>
+          <div className="title-container">
           {/* <img src={CiLogo} style={{width: '30px'}} alt="Crypto Index Logo"/> */}
             <h2 className="title">REKT CEO</h2>
             <p className="icon-title">by EquiLabs</p>
@@ -39,11 +41,13 @@ export default function Header() {
         // FOR LAPTOP
         <div className="header-container">
           {/* <img src={CiLogo} style={{height: '48px'}} alt="logo" onClick={() => {navigate("/"); setShowMenu(false);}}/> */}
-          <div className="title-container" onClick={() => {navigate("/"); setShowMenu(false);}}>
+          <Link href="/" style={{textDecoration: 'none'}}>
+          <div className="title-container">
             <h2 className="title">REKT CEO</h2>
             <p className="icon-title">by EquiLabs</p>
 
           </div>
+          </Link>
           {<Navbar setShow={setShowMenu}/>} 
         </div>
       )}
