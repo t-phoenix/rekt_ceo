@@ -5,10 +5,10 @@ import Header from "./components/Header";
 
 import Image from "next/image";
 import Banner from "./components/Banner";
-import StorySection from "./landingpage/StorySection";
-import BuySection from "./landingpage/BuySection";
-import Roadmap from "./landingpage/Roadmap";
-import Rektnomics from "./landingpage/Rektnomics";
+import StorySection from "./landingPage/StorySection";
+import BuySection from "./landingPage/BuySection";
+import Roadmap from "./landingPage/Roadmap";
+import Rektnomics from "./landingPage/Rektnomics";
 import { MdCopyright, MdLanguage } from "react-icons/md";
 import { FaTwitter } from "react-icons/fa";
 
