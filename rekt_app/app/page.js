@@ -5,10 +5,10 @@ import Header from "./components/Header";
 
 import Image from "next/image";
 import Banner from "./components/Banner";
-import StorySection from "./landingPage/StorySection";
-import BuySection from "./landingPage/BuySection";
-import Roadmap from "./landingPage/Roadmap";
-import Rektnomics from "./landingPage/Rektnomics";
+import StorySection from "./landing/StorySection";
+import BuySection from "./landing/BuySection";
+import Roadmap from "./landing/Roadmap";
+import Rektnomics from "./landing/Rektnomics";
 import { MdCopyright, MdLanguage } from "react-icons/md";
 import { FaTwitter } from "react-icons/fa";
 
@@ -16,11 +16,11 @@ import penthouse from "./creatives/penthouse.jpeg";
 import ambassador from "./creatives/rekt_ceo_ambassador.png";
 import pumpfun from "./creatives/socials/pump.png";
 import raydium from "./creatives/socials/raydium.png";
-import { bannerItems } from "./constants/landingPage";
+import { bannerItems } from "./constants/landing";
 import { faqData } from "./constants/faqData";
 
-import "./landingPage/styles/intro.css";
-import "./landingPage/styles/faq.css";
+import "./landing/styles/intro.css";
+import "./landing/styles/faq.css";
 
 export default function Page() {
   
