@@ -16,7 +16,7 @@ import penthouse from "./creatives/penthouse.jpeg";
 import ambassador from "./creatives/rekt_ceo_ambassador.png";
 import pumpfun from "./creatives/socials/pump.png";
 import raydium from "./creatives/socials/raydium.png";
-import { bannerItems } from "./constants/landing";
+import { bannerItems } from "./constants/landingPage";
 import { faqData } from "./constants/faqData";
 
 import "./landing/styles/intro.css";
