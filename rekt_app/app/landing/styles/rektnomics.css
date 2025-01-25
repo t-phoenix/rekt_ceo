@@ -112,7 +112,6 @@
         height: 90%;
         width: 80%;
         grid-row: 2;
-    
       }
       .rekt-utility{
         height: 90%;
@@ -137,8 +136,8 @@
       }
     .rektnomics-box {
         width: 90%;
-        height: 90%;
-        margin-inline: 5%;
+        height: 100%;
+        margin-inline: 2%;
         margin-block: 8%;
         display: grid;
         grid-template-columns: repeat(1, 1fr);
@@ -149,19 +148,29 @@
       }
       .rekt-image{
         height: 80%;
-        width: 80%;
+        width: 100%;
         
       }
       .rekt-info{
-        height: 80%;
-        width: 80%;
-        
-
+        height: 100%;
+        width: 90%;
+        display: flex;
+        flex-direction: column;
+        justify-content: start;
+      }
+      .rekt-info h1{
+        margin-block: 4px;
+      }
+      .rekt-info p{
+        margin-block: 4px;
       }
       .rekt-utility{
-        height: 100%;
-        width: 80%;
+        height: 90%;
+        width: 100%;
 
+      }
+      .rekt-utility-div p {
+        margin-block: 4px;
       }
       .rekt-utility-box{
         padding-inline: 16%;

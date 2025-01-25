@@ -19,9 +19,17 @@ export const creator2 = "i5aYkss3KteP5pirwCSmxpeyZCzbxuiNi6rdgZYi9kj"
 //export const coreCandyMachineAddr = "3pYVMnY4onX1NSyfRugap6QCxsRkKcHjzghfqMY6iKxx";
 // export const coreCandyGuardAddr = "";
 
-export const coreCollectionNFTAddr = "3pnKEsX96jB2JtfzZEnmYFCx8sh5HcGD3udDnDE6SqrU";
-export const coreCandyMachineAddr = "HrJqY8LHvFMCvszhki8ntzarxE91ji2PAj8wPK6vKY5w";
-export const coreCandyGuardAddr = "CBLcwXP5gtqcQybtCmGZ76isSduwXCtJNcFnXjgsRtRq"
+// 7 Asset
+// export const coreCollectionNFTAddr = "3pnKEsX96jB2JtfzZEnmYFCx8sh5HcGD3udDnDE6SqrU";
+// export const coreCandyMachineAddr = "HrJqY8LHvFMCvszhki8ntzarxE91ji2PAj8wPK6vKY5w";
+// export const coreCandyGuardAddr = "CBLcwXP5gtqcQybtCmGZ76isSduwXCtJNcFnXjgsRtRq"
+
+
+export const coreCollectionNFTAddr = "3DFGt26GHmEutin6S4ExEAYT1HvyH5EeshmsP8GTevV7";
+export const coreCandyMachineAddr = "HBLcd4Bs8UNRdxT2KxEKkZDa2RRyJRytZ8sMu3d4DSa7";
+export const coreCandyGuardAddr = ""
+
+
 
 //Collection//
 //1//2okz3hAVnk8wCT12bXSjhA1XnqrZs2ShqcW7eV8LyHAz

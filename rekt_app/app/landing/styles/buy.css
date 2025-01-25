@@ -114,9 +114,14 @@
 
 
 @media screen and (max-width: 800px){
+    .buy-box{
+      grid-template-columns: repeat(1, 1fr);
+      
+      gap: 20px;
+    }
     .buy-card{
-        width: 90%;
-        padding-block: 4%;
+        width: 80%;
+        padding-block: 0%;
     }
     .buy-card h1{
         font-size: 12px;

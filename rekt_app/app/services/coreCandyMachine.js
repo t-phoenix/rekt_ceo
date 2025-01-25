@@ -16,7 +16,7 @@ import {
 //MPL CORE AND CANDY MACHINE
 import { findAssociatedTokenPda, setComputeUnitLimit } from "@metaplex-foundation/mpl-toolbox";
 import { addCollectionPlugin, addCollectionPluginV1, addPluginV1, createCollection, createCollectionV1, fetchAsset, fetchCollection, ruleSet, update, updateCollectionPluginV1 } from "@metaplex-foundation/mpl-core";
-import { addConfigLines, create, fetchCandyGuard, fetchCandyMachine, mintV1, route } from "@metaplex-foundation/mpl-core-candy-machine";
+import { addConfigLines, create, deleteCandyMachine, fetchCandyGuard, fetchCandyMachine, mintV1, route } from "@metaplex-foundation/mpl-core-candy-machine";
 //CONSTANTS
 import { coreCandyMachineAddr, coreCollectionNFTAddr, creator1, creator2, treasury, USDTDevnetAddr } from "../constants/metaplex";
 
@@ -30,27 +30,19 @@ export async function createCoreCollectionNFT(umi){
         //MPL CORE COLLECTION
         const collectionSigner = generateSigner(umi)
 
-        await createCollectionV1(umi, {
+        await createCollection(umi, {
           collection: collectionSigner,
           name: 'Rekt Ceo PFP Collection',
           uri: 'https://gray-quintessential-jellyfish-921.mypinata.cloud/ipfs/bafkreiftdt25xg2hl3zv75rl2vz2cjl4b6lyxy6tx6wxoyhzfbsea47rwe',
-          plugins: [
-            {
-              type: 'Royalties',
-              basisPoints: 900n,
-              creators: [
-                {
-                  address: creator1,
-                  percentage: 40,
-                },
-                {
-                  address: creator2,
-                  percentage: 60,
-                },
-              ],
-              ruleSet:ruleSet('None'), // Compatibility rule set
-            },
-          ],
+          plugins:[{
+            type:'Royalties',
+            basisPoints:900,
+            creators:[
+                {address: creator1, percentage: 40},
+                {address: creator2, percentage: 60}
+            ],
+            ruleSet:ruleSet("None"),
+        }]
         }).sendAndConfirm(umi)
 
         console.log("Collection NFT: ", collectionSigner.publicKey);
@@ -83,39 +75,39 @@ export async function createCoreCandyMachine(umi){
             candyMachine,
             collection: publicKey(coreCollectionNFTAddr),
             collectionUpdateAuthority: umi.identity,
-            itemsAvailable: 7,
+            itemsAvailable: 1000,
             authority: umi.identity.publicKey,
             guards: {
-              botTax: some({ lamports: sol(1), lastInstruction: true }),
-              mintLimit: some({ id: 1, limit: 2 }),
+              botTax: some({ lamports: sol(0.5), lastInstruction: true }),
+              mintLimit: some({ id: 1, limit: 5 }),
             },
             groups: [
               {
                 label: 'early',
                 guards: {
                     tokenPayment: some({
-                        amount: 10000000n,
+                        amount: 10000000n, //10USDT
                         mint: publicKey(USDTDevnetAddr),
                         destinationAta: findAssociatedTokenPda(umi, {
                           mint: publicKey(USDTDevnetAddr),
                           owner: umi.identity.publicKey,
                         })[0],
                     }),
-                  allocation: some({ id: 1, limit: 3 }),
+                  allocation: some({ id: 1, limit: 10 }),
                 },
               },
               {
                 label: 'late',
                 guards: {
                     tokenPayment: some({
-                        amount: 20000000n,
+                        amount: 20000000n, //20USDT
                         mint: publicKey(USDTDevnetAddr),
                         destinationAta: findAssociatedTokenPda(umi, {
                           mint: publicKey(USDTDevnetAddr),
                           owner: umi.identity.publicKey,
                         })[0],
                     }),
-                  allocation: some({ id: 2, limit: 3 }),
+                  allocation: some({ id: 2, limit: 10 }),
                 },
               },
             ],
@@ -151,6 +143,7 @@ export async function fetchCoreCandyMachine(umi){
 
         const collection = await fetchCollection(umi, coreCollectionNFTAddr);
         console.log("Core Collection: ", collection);
+        return coreCandyMachine
     } catch (error) {
         console.log("error while fetching collection: ", error)
     }
@@ -201,13 +194,16 @@ export async function insertItemsInCoreCandyMachine(umi){
             candyMachine: coreCandyMachine.publicKey,
             index: coreCandyMachine.itemsLoaded,
             configLines: [
-              { name: '3', uri: 'bafkreiftdt25xg2hl3zv75rl2vz2cjl4b6lyxy6tx6wxoyhzfbsea47rwe' },
-              { name: '4', uri: 'bafkreiftdt25xg2hl3zv75rl2vz2cjl4b6lyxy6tx6wxoyhzfbsea47rwe' },
-              { name: '5', uri: 'bafkreiftdt25xg2hl3zv75rl2vz2cjl4b6lyxy6tx6wxoyhzfbsea47rwe' },
-              { name: '6', uri: 'bafkreiftdt25xg2hl3zv75rl2vz2cjl4b6lyxy6tx6wxoyhzfbsea47rwe' },
-              { name: '7', uri: 'bafkreiftdt25xg2hl3zv75rl2vz2cjl4b6lyxy6tx6wxoyhzfbsea47rwe' },
-              { name: '8', uri: 'bafkreiftdt25xg2hl3zv75rl2vz2cjl4b6lyxy6tx6wxoyhzfbsea47rwe' },
-              { name: '9', uri: 'bafkreiftdt25xg2hl3zv75rl2vz2cjl4b6lyxy6tx6wxoyhzfbsea47rwe' },
+              { name: '11', uri: 'bafkreiftdt25xg2hl3zv75rl2vz2cjl4b6lyxy6tx6wxoyhzfbsea47rwe' },
+              { name: '12', uri: 'bafkreiftdt25xg2hl3zv75rl2vz2cjl4b6lyxy6tx6wxoyhzfbsea47rwe' },
+              { name: '13', uri: 'bafkreiftdt25xg2hl3zv75rl2vz2cjl4b6lyxy6tx6wxoyhzfbsea47rwe' },
+              { name: '14', uri: 'bafkreiftdt25xg2hl3zv75rl2vz2cjl4b6lyxy6tx6wxoyhzfbsea47rwe' },
+              { name: '15', uri: 'bafkreiftdt25xg2hl3zv75rl2vz2cjl4b6lyxy6tx6wxoyhzfbsea47rwe' },
+              { name: '16', uri: 'bafkreiftdt25xg2hl3zv75rl2vz2cjl4b6lyxy6tx6wxoyhzfbsea47rwe' },
+              { name: '17', uri: 'bafkreiftdt25xg2hl3zv75rl2vz2cjl4b6lyxy6tx6wxoyhzfbsea47rwe' },
+              { name: '18', uri: 'bafkreiftdt25xg2hl3zv75rl2vz2cjl4b6lyxy6tx6wxoyhzfbsea47rwe' },
+              { name: '19', uri: 'bafkreiftdt25xg2hl3zv75rl2vz2cjl4b6lyxy6tx6wxoyhzfbsea47rwe' },
+              { name: '20', uri: 'bafkreiftdt25xg2hl3zv75rl2vz2cjl4b6lyxy6tx6wxoyhzfbsea47rwe' },
             ],
           }).sendAndConfirm(umi)
 
@@ -216,6 +212,8 @@ export async function insertItemsInCoreCandyMachine(umi){
         console.log("Inserting item error: ", error)
     }
   }
+  
+
 
 
   export async function mintCoreAsset(umi, group){
@@ -248,16 +246,21 @@ export async function insertItemsInCoreCandyMachine(umi){
           .sendAndConfirm(umi)
 
           console.log("Mint Transaction : ", asset.publicKey, mintTx)
+          return {
+            nftAddress: asset.publicKey,
+            mintTrxn: mintTx
+          }
         
     } catch (error) {
         console.log("Minting Failed: ", error)
+        return error
     }
   }
 
-  export async function updateAssetMetadata(umi){
+  export async function updateAssetMetadata(umi, assetAddr, metadataUri){
     console.log("Updating Asset Metadata ...")
-    const assetAddr = '2VRFSssaPKYv71iq75vA97DtHR8EYzKtWfnkzRUSZQAj'; // Change Asset 
-    const metadataUri = 'bafkreibjj6gi7xyfgu52z7c2df53mz4emz6z3xfysxnytnvviamtwkiena' // Change Metadata 
+    // const assetAddr = '2VRFSssaPKYv71iq75vA97DtHR8EYzKtWfnkzRUSZQAj'; // Change Asset 
+    // const metadataUri = 'bafkreibjj6gi7xyfgu52z7c2df53mz4emz6z3xfysxnytnvviamtwkiena' // Change Metadata 
 
 
     const assetId = publicKey(assetAddr);
@@ -276,8 +279,10 @@ export async function insertItemsInCoreCandyMachine(umi){
           }).sendAndConfirm(umi)
 
           console.log("Updating Transaction: ",tx)
+          return tx
     } catch (error) {
-        console.log("Error updating asset: "), error
+        console.log("Error updating asset: ",error);
+        return error 
     }
     // { name: '3', uri: 'bafkreieuamujjsiquvw5fvhczwy27sq3inf3tk3yngpwa3cwilljkco37e' },
     // { name: '4', uri: 'bafkreies2qld523v2i2zixinaawt3mlxpxy263kvcoiomt3wlkkx5bltbm' },
@@ -324,14 +329,33 @@ export async function insertItemsInCoreCandyMachine(umi){
   }
 
 
+  export async function deleteCoreCandyMachine(umi) {
+    console.log("Deleting Candy Machine And Candy Guard");
+    const candyMachine = await fetchCandyMachine(umi, coreCandyMachineAddr);
+
+    try {
+      const txCandy = await deleteCandyMachine(umi, {
+        candyMachine: candyMachine.publicKey,
+      }).sendAndConfirm(umi);
+
+      // const txGuard = await deleteCandyGuard(umi, {
+      //   candyGuard: candyMachine.mintAuthority,
+      // }).sendAndConfirm(umi);
+      console.log("Deleted Programs sucessfully", txCandy)
+    } catch (error) {
+      console.log("Error deleting: ", error);
+    }
+  }
+
+
   export async function testFunction(umi){
-    const tokenPda = findAssociatedTokenPda(umi, {
-        mint: publicKey(USDTDevnetAddr),
-        owner: umi.identity.publicKey,
-      }
-    )
-    console.log("Token PDA: ", tokenPda)
-    // const uint8arrayKey = Uint8Array.from([29,11,128,182,90,219,106,27,40,97,96,67,224,133,91,126,24,19,241,103,191,197,151,38,118,14,89,223,216,42,124,255,10,133,253,112,26,123,239,227,216,200,137,103,177,43,51,228,117,254,249,4,206,24,72,255,248,243,93,181,17,214,137,32])
-    // const signer =  bs58.encode(uint8arrayKey)
-    // console.log("PrivateKey : ", signer);
+    // const tokenPda = findAssociatedTokenPda(umi, {
+    //     mint: publicKey(USDTDevnetAddr),
+    //     owner: umi.identity.publicKey,
+    //   }
+    // )
+    // console.log("Token PDA: ", tokenPda)
+    const uint8arrayKey = Uint8Array.from([29,11,128,182,90,219,106,27,40,97,96,67,224,133,91,126,24,19,241,103,191,197,151,38,118,14,89,223,216,42,124,255,10,133,253,112,26,123,239,227,216,200,137,103,177,43,51,228,117,254,249,4,206,24,72,255,248,243,93,181,17,214,137,32])
+    const signer =  bs58.encode(uint8arrayKey)
+    console.log("PrivateKey : ", signer);
   } 

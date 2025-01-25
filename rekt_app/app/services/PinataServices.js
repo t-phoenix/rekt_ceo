@@ -6,28 +6,36 @@ import { dataURLtoFile } from "./PfpHelpers";
 const PinataGroupID = "a7eec897-8758-4741-914e-b14a46034409";
 
 const pinata = new PinataSDK({
-  pinataJwt: process.env.REACT_APP_PINATA_JWT,
-  pinataGateway: process.env.REACT_APP_GATEWAY_URL,
+  pinataJwt: process.env.NEXT_PUBLIC_PINATA_JWT,
+  pinataGateway: process.env.NEXT_PUBLIC_GATEWAY_URL,
 });
 
 export async function uploadImageToIPFS(supply) {
-  const compositeElement = document.getElementById("composite-container");
+  try {
+    const compositeElement = document.getElementById("composite-container");
 
-  const canvas = await html2canvas(compositeElement);
-  const image = canvas.toDataURL("image/png");
+    const canvas = await html2canvas(compositeElement);
+    const image = canvas.toDataURL("image/png");
 
-  const file = dataURLtoFile(image, `Rekt Ceo #${supply + 1}.png`);
+    const fileName = `Rekt CEO #${supply + 1}.png`;
+    const file = dataURLtoFile(image, fileName);
 
-  const result = await pinata.upload.file(file).group(PinataGroupID);
+    const result = await pinata.upload
+      .file(new Blob([file]))
+      .addMetadata({ name: fileName })
+      .group(PinataGroupID);
 
-  // RETURNS
-  // IpfsHash, PinSize, TimeStamp
-  console.log("File uploaded to IPFS:", result);
+    // RETURNS
+    // IpfsHash, PinSize, TimeStamp
+    console.log("File uploaded to IPFS/ Pinate:", result);
 
-  // Return IPFS link
-  const ipfsLink = `https://${process.env.REACT_APP_GATEWAY_URL}/ipfs/${result.IpfsHash}`;
-  //   console.log("IPFS Link:", ipfsLink);
-  return ipfsLink;
+    // Return IPFS link
+    const ipfsLink = `https://${process.env.NEXT_PUBLIC_GATEWAY_URL}/ipfs/${result.IpfsHash}`;
+    //   console.log("IPFS Link:", ipfsLink);
+    return ipfsLink;
+  } catch (error) {
+    console.error("Error uploading file:", error);
+  }
 }
 
 export function generateMetadata(supply, selectedLayer, imageUri) {
@@ -60,19 +68,23 @@ export function generateMetadata(supply, selectedLayer, imageUri) {
 }
 
 export async function uploadMetadataToIPFS(metadataJSON) {
-  console.log("Metadata JSON: ", metadataJSON);
+  try {
+    console.log("Metadata JSON: ", metadataJSON);
 
-  // RETURNS
-  // IpfsHash, PinSize, TimeStamp
-  const result = await pinata.upload
-    .json(metadataJSON)
-    .addMetadata({
-      name: `${metadataJSON.name}.json`,
-    })
-    .group(PinataGroupID);
+    // RETURNS
+    // IpfsHash, PinSize, TimeStamp
+    const result = await pinata.upload
+      .json(metadataJSON)
+      .addMetadata({
+        name: `${metadataJSON.name}.json`,
+      })
+      .group(PinataGroupID);
 
-  // console.log("Metadata IPFS Link:", ipfsLink);
-  return result;
+    console.log("Pinata Service IPFS Link:", result);
+    return result;
+  } catch (error) {
+    console.log("Error Upploading Metadata: ", error);
+  }
 }
 
 // MEANT FOR ProfileNFT.js file

@@ -1,6 +1,6 @@
 export const BASE_IMAGE_URL = "ipfs://";
 export const EXTERNAL_URL = "https://www.rektceo.club/";
-export const BASE_NAME = "Rekt Ceo #";
+export const BASE_NAME = "Rekt CEO #";
 export const DESCRIPTION =
   "Own the chaos, wear the crown—Rekt CEO PFP, where degenerates become legends.";
 export const PROPERTIES = {

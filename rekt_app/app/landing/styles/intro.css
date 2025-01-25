@@ -105,8 +105,8 @@
 /* FOR MOBILE */
 @media screen and (max-width: 600px){
     .landing-main-div{
-        height: 60%;
-            backdrop-filter: blur(100px);
+        height: 74%;
+        backdrop-filter: blur(100px);
     }
     .landing-title{
         font-size: 60px;
@@ -114,10 +114,17 @@
     }
     .landing-subtitle{
         width: 60%;
+        font-size: 18px;
         flex-direction: column;
         align-items: start;
     }
     .section-title{
         font-size: 48px;
+    }
+    .ambassador-image{
+        top: 70vh;
+        left: -140px;
+        height: 300px;
+        width: 400px;
     }
 }

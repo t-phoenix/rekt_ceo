@@ -76,6 +76,7 @@
     }
     .story-content-size{
         font-size: 12px;
+        margin-block: 0px;
     }
 }
 
