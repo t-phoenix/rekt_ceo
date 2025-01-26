@@ -1,3 +1,4 @@
+"use server"
 /**
  * Retry utility function
  * @param {Function} fn - The async function to retry

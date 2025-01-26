@@ -1,3 +1,4 @@
+"use server"
 import html2canvas from "html2canvas";
 import { PinataSDK } from "pinata-web3";
 import { BASE_JSON } from "../constants/nftMetadata";

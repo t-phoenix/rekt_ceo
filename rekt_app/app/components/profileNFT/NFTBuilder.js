@@ -86,6 +86,11 @@ export default function NFTBuilder() {
 //     })();
 //   }, [umi]);
 
+  useEffect(()=>{
+    randomiseLayers();
+  },[])
+
+
   const randomiseLayers = () => {
     const randomized = selectedLayer.map((_, index) =>
       Math.floor(Math.random() * (limits[index] + 1))
