@@ -28,7 +28,7 @@ code {
   --color-offblack: #232E21;
   --color-red: #e7255e;
   --color-blue: #52959d;
-  --color-yellow: #fcd25a;
+  --color-yellow: #F8C826;
   --color-magenta: #3B1C32;
   --color-purple: #D7B8F3;
   --color-green: #51A3A3;
@@ -38,6 +38,8 @@ code {
   --background-color-third: #D81E5B;
   --color-first: #D7B8F3;
   --color-second: #51A3A3;
+
+  --color-blue-primary: #04a9ff;
   
   --body-font: "Montserrat", sans-serif;
   --second-font: "Dancing Script", cursive;

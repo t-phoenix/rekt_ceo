@@ -1,8 +1,0 @@
-# dependencies
-/node_modules
-
-# prod
-.env
-
-# wallet
-keypair.json

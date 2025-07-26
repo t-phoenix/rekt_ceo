@@ -5,11 +5,25 @@
     position: relative;
     background-color: #f8f8f8;
     border: 1px solid #ddd;
+    /* Ensure smooth scrolling performance */
+    will-change: transform;
   }
   
   .banner-content {
     display: inline-flex;
-    animation: scroll-left 15s linear infinite;
+    /* Remove default animation - controlled by JavaScript */
+    will-change: transform;
+    /* Ensure no wrapping */
+    flex-wrap: nowrap;
+    /* Smooth transitions */
+    transition: none;
+  }
+  
+  .banner-content.banner-animate {
+    animation: scroll-left linear infinite;
+    /* Ensure animation never pauses */
+    animation-play-state: running;
+    animation-fill-mode: none;
   }
   
   .banner-item {
@@ -18,14 +32,31 @@
     color: #333;
     white-space: nowrap;
     font-weight: 700;
+    /* Ensure consistent sizing */
+    flex-shrink: 0;
+    /* Performance optimization */
+    will-change: auto;
   }
   
-  /* Keyframes for scrolling animation */
+  /* Keyframes for perpetual scrolling */
   @keyframes scroll-left {
     0% {
       transform: translateX(0);
     }
     100% {
-      transform: translateX(-20%);
+      /* Move exactly one-third since we have 3 sets of items */
+      transform: translateX(-33.333333%);
     }
+  }
+  
+  /* Reduce motion for accessibility */
+  @media (prefers-reduced-motion: reduce) {
+    .banner-content.banner-animate {
+      animation-duration: 60s !important;
+    }
+  }
+  
+  /* Pause on hover for better UX */
+  .banner-container:hover .banner-content.banner-animate {
+    animation-play-state: paused;
   }
