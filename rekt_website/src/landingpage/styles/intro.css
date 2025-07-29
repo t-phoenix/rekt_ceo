@@ -15,8 +15,8 @@
 }
 
 .landing-main-div{
-    height: 50%;
-    width: 50%;
+    height: 60%;
+    width: 70%;
     backdrop-filter: blur(50px);
     border-radius: 16px;
     display: flex;
@@ -121,7 +121,7 @@
     height: 600px;
     width: 800px;
     z-index: 1;
-    left: -80px;
+    left: -200px;
     top: 44vh;
 }
 
@@ -132,13 +132,13 @@
 @media screen and (max-width: 992px) {
     .landing-main-div{
         width: 90%;
-        height: 60%;
+        height: 70%;
     }
     .ambassador-image{
-        top: 80vh;
+        top: 60vh;
         left: -80px;
-        height: 300px;
-        width: 400px;
+        height: 400px;
+        width: 500px;
     }
     
 }
@@ -146,7 +146,7 @@
 /* FOR MOBILE */
 @media screen and (max-width: 600px){
     .landing-main-div{
-        height: 60%;
+        height: 70%;
             backdrop-filter: blur(100px);
     }
     .landing-title{
@@ -166,5 +166,11 @@
     }
     .section-title{
         font-size: 48px;
+    }
+    .ambassador-image{
+        top: 70vh;
+        left: -80px;
+        height: 300px;
+        width: 400px;
     }
 }

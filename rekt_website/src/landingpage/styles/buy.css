@@ -18,7 +18,7 @@
     gap: 1.5rem;
     padding: 0 2rem;
     max-width: 1400px;
-    margin: 4em auto;
+    margin: 1em auto;
     align-items:flex-start;
     justify-content: flex-start;
 }
@@ -33,6 +33,7 @@
     gap: 0.75rem;
     justify-content: center;
     padding-top: 2rem;
+    margin-top: 2rem;
 }
 
 .steps-column .section-title{
@@ -288,7 +289,7 @@
         flex-direction: column;
         height: auto;
         gap: 0.75rem;
-        padding: 0 0.75rem;
+        padding: 0 1.6rem;
         margin: 0.75em auto;
     }
     
