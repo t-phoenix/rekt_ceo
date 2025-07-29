@@ -32,11 +32,74 @@
     color: var(--color-red);
 }
 
+/* Beautiful gradient for the dollar sign */
+.dollar-gradient {
+    /* Fallback for browsers that don't support background-clip: text */
+    color: var(--color-yellow);
+    
+    background: linear-gradient(
+        45deg,
+        var(--color-yellow),
+        var(--color-blue-primary),
+        var(--color-purple),
+        var(--color-yellow),
+        var(--color-blue-primary)
+    );
+    background-size: 400% 400%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: dollarShift 2.5s ease infinite;
+    font-weight: 900;
+}
+
+/* Only apply transparent color if browser supports background-clip */
+@supports (-webkit-background-clip: text) or (background-clip: text) {
+    .dollar-gradient {
+        color: transparent;
+    }
+}
+
+/* Keyframe for the dollar gradient animation */
+@keyframes dollarShift {
+    0% {
+        background-position: 0% 50%;
+        filter: drop-shadow(0 0 18px var(--color-purple));
+    }
+    20% {
+        background-position: 25% 50%;
+        filter: drop-shadow(0 0 20px var(--color-blue-primary));
+    }
+    40% {
+        background-position: 50% 50%;
+        filter: drop-shadow(0 0 22px var(--color-purple));
+    }
+    60% {
+        background-position: 75% 50%;
+        filter: drop-shadow(0 0 20px var(--color-blue-primary));
+    }
+    80% {
+        background-position: 100% 50%;
+        filter: drop-shadow(0 0 19px var(--color-purple));
+    }
+    100% {
+        background-position: 0% 50%;
+        filter: drop-shadow(0 0 18px var(--color-purple));
+    }
+}
+
+/* Reduce motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+    .dollar-gradient {
+        animation-duration: 8s;
+    }
+}
+
 .section-title{
     font-size: 80px;
     color: var(--color-red);
     text-shadow: 2px 2px var(--color-blue);
-    margin-top: 8%;
+    margin-top: 2%;
     margin-bottom: 2%;
     z-index: 2;
 }
@@ -59,7 +122,7 @@
     width: 800px;
     z-index: 1;
     left: -80px;
-    top: 54vh;
+    top: 44vh;
 }
 
 
@@ -89,6 +152,12 @@
     .landing-title{
         font-size: 60px;
         color: var(--color-yellow);
+    }
+    
+    /* Mobile optimization for dollar gradient */
+    .dollar-gradient {
+        animation-duration: 2s; /* Snappy and energetic on mobile */
+        filter: drop-shadow(0 0 12px rgba(248, 200, 38, 0.5)); /* Vibrant glow for mobile */
     }
     .landing-subtitle{
         width: 60%;

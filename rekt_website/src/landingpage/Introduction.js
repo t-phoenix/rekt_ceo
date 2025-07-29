@@ -54,15 +54,19 @@ export default function Introduction() {
         className="landing-section"
       >
         <div className="landing-main-div">
-          <h1 className="landing-title">REKT $CEO</h1>
+          <h1 className="landing-title">REKT <span className="dollar-gradient">$</span>CEO</h1>
           <ul className="landing-subtitle">
-            <li><MdRocketLaunch style={{color: "var(--color-red)"}} /> No Insider</li>
-            <li><MdCelebration style={{color: "var(--color-yellow)"}} /> No KOL</li>
-            <li><FaDog style={{color: "var(--color-blue-primary)"}} /> No Bullshit</li>
+            <li style={{display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '4px'}}><MdRocketLaunch style={{color: "var(--color-purple)"}} size={32} /> No Insider</li>
+            <li style={{display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '4px'}}><MdCelebration style={{color: "var(--color-yellow)"}} size={32} /> No KOL</li>
+            <li style={{display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '4px'}}><FaDog style={{color: "var(--color-blue-primary)"}} size={32} /> No Bullshit</li>
           </ul>
-          <div style={{display: 'flex', flexDirection: 'row', justifyContent: 'space-around', width: '70%'}}>
-            <button style={{ width: "220px" }} onClick={() => window.open(pitchDeckLink, "_blank")}>LAUNCHING SOON</button>
-            <button style={{}} onClick={() => window.open(pitchDeckLink, "_blank")}>PITCH DECK</button>
+          <div className="story-buttons">
+              <button className="story-btn primary" onClick={() => navigate("/pfp")}>
+                  LAUNCHING SOON
+              </button>
+              <button className="story-btn secondary" onClick={() => navigate("/memes")}>
+                  CREATE MEME
+              </button>
           </div>
         </div>
         <img src={ambassador} alt="ambassador" className="ambassador-image" />

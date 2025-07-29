@@ -32,7 +32,7 @@ export default function Header() {
           <div className="title-container" onClick={() => {navigate("/"); setShowMenu(false);}}>
           {/* <img src={CiLogo} style={{width: '30px'}} alt="Crypto Index Logo"/> */}
             <h2 className="title">REKT CEO</h2>
-            <p className="icon-title">by EquiLabs</p>
+            <p className="icon-title">Be Your Own CEO</p>
           </div>
         </div>
       ) : (
@@ -41,7 +41,7 @@ export default function Header() {
           {/* <img src={CiLogo} style={{height: '48px'}} alt="logo" onClick={() => {navigate("/"); setShowMenu(false);}}/> */}
           <div className="title-container" onClick={() => {navigate("/"); setShowMenu(false);}}>
             <h2 className="title">REKT CEO</h2>
-            <p className="icon-title">by EquiLabs</p>
+            <p className="icon-title">Be Your Own CEO</p>
 
           </div>
           {<Navbar setShow={setShowMenu}/>} 

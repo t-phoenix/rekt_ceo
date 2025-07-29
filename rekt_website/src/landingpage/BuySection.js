@@ -20,7 +20,7 @@ export default function BuySection(){
         style={{ backgroundImage: `url(${penthouse2})` }}
         className="buy-section"
       >
-        <h1 className="section-title" style={{color: "#fcd25a"}}>HOW TO BUY</h1>
+        <h1 className="section-title" style={{color: 'var(--color-yellow)'}}>HOW TO BUY</h1>
         <div className="buy-box">
           <div className="buy-card item-1">
             <h1>1. Download Phantom OR Solflare Wallet</h1>
