@@ -1,0 +1,544 @@
+/* Right Column - Swap Interface */
+.swap-column{
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 0rem;
+    max-width: 450px;
+    width: 100%;
+}
+
+.swap-column .section-title{
+    margin-bottom: 1rem;
+    text-align: center;
+    font-size: 2.5rem;
+    color: var(--color-yellow);
+}
+
+.swap-interface{
+    width: 100%;
+    max-width: 380px;
+    background: rgba(59, 28, 50, 0.95);
+    backdrop-filter: blur(20px);
+    border-radius: 16px;
+    padding: 1.25rem;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    height: fit-content;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.swap-interface:hover{
+    transform: translateY(-2px);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+}
+
+.swap-header{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.swap-title{
+    color: #cccbcb;
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+.close-button{
+    background: none;
+    border: none;
+    color: #cccbcb;
+    cursor: pointer;
+    padding: 0.25rem;
+    border-radius: 50%;
+    transition: background-color 0.2s;
+}
+
+.close-button:hover{
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.swap-section{
+    margin-bottom: 0.75rem;
+}
+
+.swap-input-container{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+    padding: 0.75rem;
+    margin-bottom: 0.25rem;
+    transition: background-color 0.2s ease;
+}
+
+.swap-input-container:hover{
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.amount-display{
+    flex: 1;
+}
+
+.amount-input{
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.4rem;
+    font-weight: bold;
+    width: 100%;
+    outline: none;
+}
+
+.amount-display-output{
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    margin-left: 0.5rem;
+}
+
+.amount-output{
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1.4rem;
+  font-weight: bold;
+  width: 100%;
+  outline: none;
+}
+
+.usd-value{
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+    color: #cccbcb;
+    font-size: 0.9rem;
+    margin-top: 0.2rem;
+    margin-left: 0.5rem;
+    align-items: start;
+}
+
+.price-impact{
+    color: #e7255e;
+    font-size: 0.9rem;
+    margin-top: 0.2rem;
+}
+
+.token-selector{
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+    padding: 0.6rem 1.4rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.token-selector:hover{
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.token-icon{
+    position: relative;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.bnb-icon{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.ceo-icon{
+    color: white;
+    font-size: 0.6rem;
+    font-weight: bold;
+}
+
+.ceo-logo{
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    border-radius: 50%;
+}
+
+.network-indicator{
+    position: absolute;
+    bottom: -4px;
+    right: -4px;
+    width: 13px;
+    height: 13px;
+    background: #000000;
+    border-radius: 50%;
+    border: 0.5px solid rgba(59, 28, 50, 0.95);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.token-name{
+    color: white;
+    font-weight: 500;
+    font-size: 1rem;
+}
+
+.balance-info{
+    color: #e7255e;
+    font-size: 0.85rem;
+    margin-left: 0.4rem;
+}
+
+.swap-direction{
+    display: flex;
+    justify-content: center;
+    margin: 0.75rem 0;
+}
+
+.swap-arrow-button{
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.2s;
+    box-shadow: 0 4px 4px rgba(254, 254, 254, 0.3);
+}
+
+.swap-arrow-button:hover{
+    background: rgba(255, 255, 255, 0.2);
+    transform: scale(1.05);
+}
+
+.show-more-section{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.4rem;
+    color: #cccbcb;
+    font-size: 0.9rem;
+    cursor: pointer;
+    padding: 0.4rem;
+    border-radius: 6px;
+    transition: background-color 0.2s;
+}
+
+.show-more-section:hover{
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.rotated{
+    transform: rotate(180deg);
+}
+
+.transaction-details{
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+    padding: 0.6rem;
+    margin: 0.6rem 0;
+}
+
+.detail-row{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.detail-row:last-child{
+    margin-bottom: 0;
+}
+
+.detail-label{
+    display: flex;
+    align-items: center;
+    gap: 0.2rem;
+    color: #cccbcb;
+    font-size: 0.9rem;
+}
+
+.detail-value{
+    color: white;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 0.2rem;
+}
+
+.network-icon{
+    width: 10px;
+    height: 10px;
+    background: #04a9ff;
+    border-radius: 2px;
+}
+
+.swap-button{
+    width: 100%;
+    background: linear-gradient(135deg, #D81E5B, #e7255e);
+    border: none;
+    border-radius: 10px;
+    color: white;
+    font-weight: bold;
+    font-size: 1.1rem;
+    padding: 0.75rem;
+    cursor: pointer;
+    transition: transform 0.2s, background 0.2s;
+    margin: 0.75rem 0;
+}
+
+.swap-button:hover{
+    transform: translateY(-1px);
+    background: linear-gradient(135deg, #e7255e, #D81E5B);
+}
+
+.fee-display{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    color: #cccbcb;
+    font-size: 0.85rem;
+}
+
+.fee-icon{
+    width: 10px;
+    height: 10px;
+    background: #cccbcb;
+    border-radius: 2px;
+}
+
+/* Ultra-wide screens (1400px and above) */
+@media screen and (min-width: 1400px) {
+    .swap-column {
+        max-width: 600px;
+    }
+    
+    .swap-interface {
+        max-width: 450px;
+        padding: 1.5rem;
+    }
+    
+    .swap-column .section-title {
+        font-size: 3rem;
+    }
+    
+    .amount-input,
+    .amount-output {
+        font-size: 1.6rem;
+    }
+    
+    .swap-button {
+        font-size: 1.2rem;
+        padding: 0.85rem;
+    }
+}
+
+/* Laptop screens (992px - 1399px) */
+@media screen and (max-width: 1399px) and (min-width: 992px) {
+    .swap-column {
+        max-width: 420px;
+    }
+    
+    .swap-interface {
+        max-width: 400px;
+    }
+}
+
+/* Tablet screens (768px - 991px) */
+@media screen and (max-width: 991px) and (min-width: 768px) {
+    .swap-column {
+        order: 1;
+        max-width: 500px;
+        width: 100%;
+    }
+    
+    .swap-interface {
+        max-width: 450px;
+        width: 100%;
+        padding: 1rem;
+    }
+    
+    .swap-column .section-title {
+        font-size: 1.8rem;
+    }
+    
+    .amount-input,
+    .amount-output {
+        font-size: 1.2rem;
+    }
+    
+    .swap-button {
+        font-size: 1rem;
+        padding: 0.7rem;
+    }
+}
+
+/* Mobile screens (up to 767px) */
+@media screen and (max-width: 767px) {
+    .swap-column {
+        order: 1;
+        max-width: 100%;
+        width: 100%;
+    }
+    
+    .swap-interface {
+        max-width: 100%;
+        width: 100%;
+        padding: 0.75rem;
+        border-radius: 12px;
+    }
+    
+    .swap-column .section-title {
+        font-size: 1.4rem;
+        margin-bottom: 0.75rem;
+    }
+    
+    .swap-header {
+        margin-bottom: 0.75rem;
+    }
+    
+    .swap-title {
+        font-size: 0.9rem;
+    }
+    
+    .swap-input-container {
+        padding: 0.5rem;
+        border-radius: 8px;
+    }
+    
+    .amount-input,
+    .amount-output {
+        font-size: 1rem;
+    }
+    
+    .usd-value,
+    .price-impact {
+        font-size: 0.8rem;
+    }
+    
+    .token-selector {
+        padding: 0.3rem 0.5rem;
+        gap: 0.3rem;
+    }
+    
+    .token-name {
+        font-size: 0.85rem;
+    }
+    
+    .balance-info {
+        font-size: 0.75rem;
+    }
+    
+    .swap-arrow-button {
+        width: 28px;
+        height: 28px;
+    }
+    
+    .show-more-section {
+        font-size: 0.8rem;
+        padding: 0.3rem;
+    }
+    
+    .transaction-details {
+        padding: 0.5rem;
+        margin: 0.5rem 0;
+    }
+    
+    .detail-label,
+    .detail-value {
+        font-size: 0.8rem;
+    }
+    
+    .swap-button {
+        font-size: 0.9rem;
+        padding: 0.6rem;
+        margin: 0.6rem 0;
+    }
+}
+
+/* High DPI Displays */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    .swap-interface {
+        backdrop-filter: blur(40px);
+    }
+}
+
+/* Reduced Motion for Accessibility */
+@media (prefers-reduced-motion: reduce) {
+    .swap-interface {
+        transition: none;
+    }
+    
+    .swap-interface:hover {
+        transform: none;
+    }
+    
+    .swap-arrow-button {
+        transition: none;
+    }
+    
+    .swap-arrow-button:hover {
+        transform: none;
+    }
+    
+    .swap-button {
+        transition: none;
+    }
+    
+    .swap-button:hover {
+        transform: none;
+    }
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+    .swap-interface {
+        background: rgba(59, 28, 50, 0.98);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+    }
+}
+
+/* Print Styles */
+@media print {
+    .swap-interface {
+        background: white !important;
+        border: 1px solid #ccc !important;
+        box-shadow: none !important;
+    }
+    
+    .swap-button {
+        background: #f0f0f0 !important;
+        color: black !important;
+        border: 1px solid #ccc !important;
+    }
+    
+    .amount-input,
+    .amount-output {
+        color: black !important;
+    }
+    
+    .token-name {
+        color: black !important;
+    }
+} 
