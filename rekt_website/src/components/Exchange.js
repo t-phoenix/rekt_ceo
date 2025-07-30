@@ -40,10 +40,8 @@ export default function Exchange() {
                   </div>
                 </div>
                 <span className="token-name">BNB</span>
-                {/* <MdKeyboardArrowDown size={16} /> */}
             </div>
           </div>
-          {/* <div className="balance-info">Balance: {"2.56 BNB"}</div> */}
         </div>
 
         {/* Swap Direction */}
@@ -68,7 +66,6 @@ export default function Exchange() {
                 </div>
               </div>
               <span className="token-name">CEO</span>
-              {/* <MdKeyboardArrowDown size={16} /> */}
             </div>
           </div>
         </div>
@@ -108,7 +105,7 @@ export default function Exchange() {
 
         {/* Action Button */}
         <button className="swap-button">
-          Connect Wallet
+          Launching Soon
         </button>
       </div>
     </div>

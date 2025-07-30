@@ -2,6 +2,7 @@ import React from "react";
 import "./styles/intro.css";
 import "./styles/roadmap.css";
 
+import neon_penthouse from "../creatives/neon_penthouse.jpg";
 
 import aiimage from "../creatives/ai_image/aiimage.jpg";
 import bioluminescent from "../creatives/ai_image/bioluminescent.jpg";
@@ -13,7 +14,7 @@ import waterfall_garden from "../creatives/ai_image/waterfall_garden.jpg";
 
 export default function Roadmap(){
     return(
-        <section id="roadmap" className="roadmap-section">
+        <section id="roadmap" className="roadmap-section" style={{ backgroundImage: `url(${neon_penthouse})` }}>
         <h1
           className="section-title"
           style={{ marginTop: "8", marginBottom: "2%" }}

@@ -1,6 +1,5 @@
-import React, { useEffect, useRef, useState } from "react";
+import React from "react";
 import { useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
 import "./styles/intro.css";
 import "./styles/faq.css";
 
@@ -13,12 +12,11 @@ import memedepot from "../creatives/socials/memedepot.png"
 
 import BuySection from "./BuySection";
 import StorySection from "./StorySection";
-
+import { Pienomics } from "./Pienomics";
 import Roadmap from "./Roadmap";
-import Rektnomics from "./Rektnomics";
 import Banner from "../components/Banner";
 import { faqData } from "../constants/faqData";
-import { MdCopyright, MdLanguage, MdMail, MdMailOutline, MdRocketLaunch, MdCelebration } from "react-icons/md";
+import { MdCopyright, MdMail, MdRocketLaunch, MdCelebration } from "react-icons/md";
 import { FaTwitter} from "react-icons/fa"
 import { FaDog } from "react-icons/fa";
 
@@ -78,9 +76,9 @@ export default function Introduction() {
 
       <BuySection  />
 
-      <Roadmap />
+      <Pienomics />
 
-      <Rektnomics  />
+      <Roadmap />
 
       <section id="faq" className="faq-section">
         <h1 className="faq-title">FAQ</h1>
@@ -111,10 +109,6 @@ export default function Introduction() {
             <p>DISCLAIMER: $CEO is a meme coin created for fun with absolutely no intrinsic value or any expectation of financial return. The token for entertainment purposes only and we take zero responsibility for the value of this token. $CEO is inspired by @MustStopMurad to be the king of meme coins.</p>
             <p style={{marginBlock: '2%', display:'flex', flexDirection: 'row', alignItems:'center', justifyContent: 'center'}}>2024 <MdCopyright size={16}/> RektCeo. All right reserved.</p>
         </div>
-        {/* ,{
-          question: "What are official project links ?",
-          answer: `Website: https:www.rektceo.club Twitter: @rekt_ceo  Pump.fun: link Raydium: link`
-        } */}
         
       </section>
 

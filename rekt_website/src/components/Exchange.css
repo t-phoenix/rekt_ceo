@@ -3,11 +3,12 @@
     flex: 1;
     display: flex;
     flex-direction: column;
-    justify-content: flex-start;
+    justify-content: center;
     align-items: center;
     gap: 0rem;
     max-width: 450px;
     width: 100%;
+    height: 100%;
 }
 
 .swap-column .section-title{
@@ -15,6 +16,8 @@
     text-align: center;
     font-size: 2.5rem;
     color: var(--color-yellow);
+    align-self: flex-start;
+    width: 100%;
 }
 
 .swap-interface{
@@ -331,7 +334,9 @@
 /* Ultra-wide screens (1400px and above) */
 @media screen and (min-width: 1400px) {
     .swap-column {
-        max-width: 600px;
+        max-width: 700px;
+        justify-content: center;
+        align-items: center;
     }
     
     .swap-interface {
@@ -341,6 +346,8 @@
     
     .swap-column .section-title {
         font-size: 3rem;
+        align-self: flex-start;
+        margin-bottom: 2.5rem;
     }
     
     .amount-input,
@@ -357,11 +364,18 @@
 /* Laptop screens (992px - 1399px) */
 @media screen and (max-width: 1399px) and (min-width: 992px) {
     .swap-column {
-        max-width: 420px;
+        max-width: 600px;
+        justify-content: center;
+        align-items: center;
     }
     
     .swap-interface {
-        max-width: 400px;
+        max-width: 380px;
+    }
+    
+    .swap-column .section-title {
+        align-self: flex-start;
+        margin-bottom: 2rem;
     }
 }
 
