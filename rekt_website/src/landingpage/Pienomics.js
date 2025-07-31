@@ -158,16 +158,7 @@ const FallingToken = ({ delay }) => (
   </div>
 );
 
-const Cloud = ({ size, delay }) => (
-  <div 
-    className={`pienomics-cloud ${size}`}
-    style={{
-      top: `${Math.random() * 80}%`,
-      animationDelay: `${delay}s`,
-      animationDuration: `${15 + Math.random() * 10}s`
-    }}
-  />
-);
+
 
 const Star = ({ delay }) => (
   <div 
@@ -394,11 +385,6 @@ export const Pienomics = () => {
   return (
     <div className="pienomics-section">
       {/* Background elements */}
-      <div className="pienomics-cloud large" style={{ top: '10%', animationDelay: '0s' }} />
-      <div className="pienomics-cloud medium" style={{ top: '20%', animationDelay: '5s' }} />
-      <div className="pienomics-cloud large" style={{ top: '30%', animationDelay: '10s' }} />
-      <div className="pienomics-cloud small" style={{ top: '40%', animationDelay: '15s' }} />
-      <div className="pienomics-cloud medium" style={{ top: '50%', animationDelay: '20s' }} />
 
       {/* Falling tokens */}
       {fallingTokens.map((token, index) => (

@@ -347,29 +347,7 @@
 }
 
 /* Background elements */
-.pienomics-cloud {
-  position: absolute;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.1));
-  border-radius: 50%;
-  opacity: 0.6;
-  animation: cloudDrift 20s linear infinite;
-  z-index: 1;
-}
 
-.pienomics-cloud.large {
-  width: 8rem;
-  height: 5rem;
-}
-
-.pienomics-cloud.medium {
-  width: 6rem;
-  height: 4rem;
-}
-
-.pienomics-cloud.small {
-  width: 4rem;
-  height: 2.5rem;
-}
 
 .pienomics-falling-token {
   position: absolute;
@@ -398,14 +376,7 @@
   }
 }
 
-@keyframes cloudDrift {
-  0% {
-    transform: translateX(-100vw);
-  }
-  100% {
-    transform: translateX(100vw);
-  }
-}
+
 
 @keyframes fallingToken {
   0% {
@@ -1080,20 +1051,7 @@
   }
   
   /* Adjust cloud sizes for mobile */
-  .pienomics-cloud.large {
-    width: 6rem;
-    height: 4rem;
-  }
   
-  .pienomics-cloud.medium {
-    width: 4rem;
-    height: 3rem;
-  }
-  
-  .pienomics-cloud.small {
-    width: 3rem;
-    height: 2rem;
-  }
   
   /* Adjust falling tokens for mobile */
   .pienomics-falling-token {
@@ -1318,7 +1276,6 @@
 
 /* Print styles */
 @media print {
-  .pienomics-cloud,
   .pienomics-falling-token,
   .pienomics-star {
     display: none;

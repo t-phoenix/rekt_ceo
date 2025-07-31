@@ -9,6 +9,121 @@
     align-items: center;
 }
 
+/* Cloud Animation */
+.story-cloud {
+    position: absolute;
+    background: linear-gradient(135deg, #87CEEB, #B0E0E6, #E0F6FF);
+    opacity: 0.95;
+    animation: cloudDrift 20s linear infinite;
+    z-index: 0;
+    border-radius: 50px;
+    box-shadow: 
+        inset 0 0 30px rgba(255, 255, 255, 0.4),
+        0 0 15px rgba(135, 206, 235, 0.3),
+        0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.story-cloud.large {
+    width: 120px;
+    height: 80px;
+    border-radius: 60px 60px 40px 40px;
+    box-shadow: 
+        inset 0 0 30px rgba(255, 255, 255, 0.4),
+        0 0 15px rgba(135, 206, 235, 0.3),
+        0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.story-cloud.medium {
+    width: 90px;
+    height: 60px;
+    border-radius: 45px 45px 30px 30px;
+    box-shadow: 
+        inset 0 0 25px rgba(255, 255, 255, 0.4),
+        0 0 12px rgba(135, 206, 235, 0.3),
+        0 3px 6px rgba(0, 0, 0, 0.1);
+}
+
+.story-cloud.small {
+    width: 60px;
+    height: 40px;
+    border-radius: 30px 30px 20px 20px;
+    box-shadow: 
+        inset 0 0 15px rgba(255, 255, 255, 0.4),
+        0 0 8px rgba(135, 206, 235, 0.3),
+        0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Cloud shape variations using pseudo-elements */
+.story-cloud::before,
+.story-cloud::after {
+    content: '';
+    position: absolute;
+    background: linear-gradient(135deg, #87CEEB, #B0E0E6, #E0F6FF);
+    border-radius: 50%;
+    box-shadow: 
+        inset 0 0 20px rgba(255, 255, 255, 0.3),
+        0 0 10px rgba(135, 206, 235, 0.2);
+}
+
+
+
+.story-cloud.large::before {
+    width: 60px;
+    height: 60px;
+    top: -20px;
+    left: 20px;
+    border-radius: 60px 60px 40px 40px;
+}
+
+.story-cloud.large::after {
+    width: 50px;
+    height: 50px;
+    top: -15px;
+    right: 15px;
+    border-radius: 50px 50px 30px 30px;
+}
+
+.story-cloud.medium::before {
+    width: 45px;
+    height: 45px;
+    top: -15px;
+    left: 15px;
+    border-radius: 45px 45px 30px 30px;
+}
+
+.story-cloud.medium::after {
+    width: 35px;
+    height: 35px;
+    top: -10px;
+    right: 10px;
+    border-radius: 35px 35px 25px 25px;
+}
+
+.story-cloud.small::before {
+    width: 30px;
+    height: 30px;
+    top: -10px;
+    left: 10px;
+    border-radius: 30px 30px 20px 20px;
+}
+
+.story-cloud.small::after {
+    width: 25px;
+    height: 25px;
+    top: -8px;
+    right: 8px;
+    border-radius: 25px 25px 15px 15px;
+}
+
+@keyframes cloudDrift {
+    0% {
+        transform: translateX(-100vw);
+    }
+    100% {
+        transform: translateX(100vw);
+    }
+}
+
 .story-container {
     max-width: 1400px;
     margin: 0 auto;
@@ -106,6 +221,8 @@
 /* Narrative Section */
 .story-narrative {
     color: var(--color-white);
+    position: relative;
+    z-index: 2;
 }
 
 .story-paragraph {
@@ -113,6 +230,8 @@
     opacity: 0;
     transform: translateX(-20px);
     transition: all 0.5s ease;
+    position: relative;
+    z-index: 2;
 }
 
 .story-paragraph.animate-in {
@@ -127,6 +246,13 @@
     margin: 0 0 15px 0;
     line-height: 1.3;
     letter-spacing: -0.5px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+    mix-blend-mode: multiply;
+    backdrop-filter: contrast(1.2) brightness(0.9);
+    padding: 2px 4px;
+    border-radius: 4px;
+    /* Fallback for browsers that don't support backdrop-filter */
+    background: rgba(0, 0, 0, 0.4);
 }
 
 .story-paragraph p {
@@ -137,12 +263,26 @@
     text-align: justify;
     text-justify: inter-word;
     max-width: 95%;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 2.9);
+    mix-blend-mode: multiply;
+    backdrop-filter: contrast(0.3) brightness(0.5);
+    padding: 1px 2px;
+    border-radius: 2px;
+    /* Fallback for browsers that don't support backdrop-filter */
+    background: rgba(0, 0, 0, 0.3);
 }
 
 .rekt-text {
     color: var(--color-red);
     font-weight: 700;
     font-size: 20px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.9);
+    mix-blend-mode: multiply;
+    backdrop-filter: contrast(1.4) brightness(0.7);
+    padding: 1px 3px;
+    border-radius: 3px;
+    /* Fallback for browsers that don't support backdrop-filter */
+    background: rgba(0, 0, 0, 0.5);
 }
 
 .story-conclusion {
@@ -151,6 +291,8 @@
     background: rgba(255, 255, 255, 0.03);
     border-radius: 10px;
     border-left: 3px solid var(--color-yellow);
+    position: relative;
+    z-index: 2;
 }
 
 .story-conclusion p {
@@ -159,6 +301,13 @@
     font-weight: 600;
     line-height: 1.3;
     margin: 0;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.9);
+    mix-blend-mode: multiply;
+    backdrop-filter: contrast(1.3) brightness(0.8);
+    padding: 1px 2px;
+    border-radius: 2px;
+    /* Fallback for browsers that don't support backdrop-filter */
+    background: rgba(0, 0, 0, 0.3);
 }
 
 /* Story Points */
@@ -172,6 +321,8 @@
     background: rgba(255, 255, 255, 0.02);
     border-radius: 12px;
     border: 1px solid rgba(255, 255, 255, 0.05);
+    position: relative;
+    z-index: 2;
 }
 
 .story-point {
@@ -230,6 +381,13 @@
     font-weight: 600;
     color: var(--color-white);
     line-height: 1.1;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.9);
+    mix-blend-mode: multiply;
+    backdrop-filter: contrast(1.3) brightness(0.8);
+    padding: 1px 2px;
+    border-radius: 2px;
+    /* Fallback for browsers that don't support backdrop-filter */
+    background: rgba(0, 0, 0, 0.3);
 }
 
 /* Visual Section */
@@ -503,6 +661,8 @@
     opacity: 0;
     transform: translateY(20px);
     transition: all 0.8s ease;
+    position: relative;
+    z-index: 2;
 }
 
 .community-text.animate-in {
@@ -528,6 +688,13 @@
     margin: 0 0 10px 0;
     text-align: center;
     max-width: 350px;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.9);
+    mix-blend-mode: multiply;
+    backdrop-filter: contrast(1.3) brightness(0.8);
+    padding: 1px 2px;
+    border-radius: 2px;
+    /* Fallback for browsers that don't support backdrop-filter */
+    background: rgba(0, 0, 0, 0.3);
 }
 
 .click-hint {
@@ -582,6 +749,8 @@
     background: rgba(255, 255, 255, 0.02);
     border-radius: 12px;
     border: 1px solid rgba(255, 255, 255, 0.05);
+    position: relative;
+    z-index: 2;
 }
 
 .story-footer.animate-in {
@@ -596,6 +765,13 @@
     font-style: italic;
     line-height: 1.4;
     text-align: center;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.9);
+    mix-blend-mode: multiply;
+    backdrop-filter: contrast(1.3) brightness(0.8);
+    padding: 1px 2px;
+    border-radius: 2px;
+    /* Fallback for browsers that don't support backdrop-filter */
+    background: rgba(0, 0, 0, 0.3);
 }
 
 .story-buttons {
@@ -640,6 +816,19 @@
     background: #ffd700;
     transform: translateY(-2px);
     box-shadow: 0 6px 20px rgba(248, 200, 38, 0.4);
+}
+
+/* Backdrop-filter support detection */
+@supports (backdrop-filter: blur(1px)) {
+    .story-paragraph p,
+    .story-highlight,
+    .rekt-text,
+    .story-point span,
+    .community-text p,
+    .trust-message,
+    .story-conclusion p {
+        background: none;
+    }
 }
 
 /* Mobile Responsiveness */
@@ -740,6 +929,68 @@
     .icon-background svg {
         width: 50%;
         height: 50%;
+    }
+    
+    /* Adjust cloud sizes for mobile */
+    .story-cloud.large {
+        width: 80px;
+        height: 55px;
+        border-radius: 40px;
+    }
+    
+    .story-cloud.medium {
+        width: 60px;
+        height: 40px;
+        border-radius: 30px;
+    }
+    
+    .story-cloud.small {
+        width: 40px;
+        height: 25px;
+        border-radius: 20px;
+    }
+    
+    /* Adjust cloud pseudo-elements for mobile */
+    .story-cloud.large::before {
+        width: 40px;
+        height: 40px;
+        top: -15px;
+        left: 15px;
+    }
+    
+    .story-cloud.large::after {
+        width: 35px;
+        height: 35px;
+        top: -10px;
+        right: 10px;
+    }
+    
+    .story-cloud.medium::before {
+        width: 30px;
+        height: 30px;
+        top: -10px;
+        left: 10px;
+    }
+    
+    .story-cloud.medium::after {
+        width: 25px;
+        height: 25px;
+        top: -8px;
+        right: 8px;
+    }
+    
+    .story-cloud.small::before {
+        width: 20px;
+        height: 20px;
+        top: -8px;
+        left: 8px;
+    }
+    
+    .story-cloud.small::after {
+        width: 15px;
+        height: 15px;
+        top: -5px;
+        right: 5px;
     }
     
     /* Adjust bubble positions for mobile */
@@ -888,6 +1139,22 @@
     .icon-background svg {
         width: 45%;
         height: 45%;
+    }
+    
+    /* Adjust cloud sizes for small mobile */
+    .story-cloud.large {
+        width: 4rem;
+        height: 3rem;
+    }
+    
+    .story-cloud.medium {
+        width: 3rem;
+        height: 2rem;
+    }
+    
+    .story-cloud.small {
+        width: 2rem;
+        height: 1.5rem;
     }
     
     .story-container {

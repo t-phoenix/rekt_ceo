@@ -8,6 +8,17 @@ import { FiTrendingUp, FiHeart, FiUsers, FiZap, FiGift, FiShield, FiTarget, FiSt
 import { MdRocket, MdBusiness, MdDiamond, MdStar, MdCelebration, MdTrendingUp, MdSecurity, MdLightbulb, MdEmojiEvents, MdFavorite } from "react-icons/md";
 import { BiRocket, BiParty, BiTargetLock, BiGift } from "react-icons/bi";
 
+const Cloud = ({ size, delay }) => (
+  <div 
+    className={`story-cloud ${size}`}
+    style={{
+      top: `${Math.random() * 80}%`,
+      animationDelay: `${delay}s`,
+      animationDuration: `${15 + Math.random() * 10}s`
+    }}
+  />
+);
+
 
 export default function StorySection(){
     const navigate = useNavigate();
@@ -148,6 +159,13 @@ export default function StorySection(){
 
     return(
         <section id="story" className="story-section-modern" ref={sectionRef}>
+            {/* Background cloud elements */}
+            <div className="story-cloud large" style={{ top: '10%', animationDelay: '0s' }} />
+            <div className="story-cloud medium" style={{ top: '30%', animationDelay: '-2s' }} />
+            <div className="story-cloud large" style={{ top: '50%', animationDelay: '-10s' }} />
+            <div className="story-cloud small" style={{ top: '70%', animationDelay: '-6s' }} />
+            <div className="story-cloud medium" style={{ top: '90%', animationDelay: '-14s' }} />
+            
             <div className="story-container">
                 <h1 className="section-title">STORY</h1>
                 {/* <div className="story-underline" data-animate="underline" data-delay="200"></div> */}
@@ -172,7 +190,7 @@ export default function StorySection(){
 
                             <div className={`story-paragraph ${visibleElements.para4 ? 'animate-in' : ''}`} 
                                  data-animate="para4" data-delay="1000">
-                                <p>But I wasn't done. I doubled down, learned the game, and stopped chasing every moonshot. I found projects with purpose, a strong community, and real vibes.</p>
+                                <p>But I wasn't done. I doubled down, learned the game, and stopped chasing every moonshot. I found project with purpose, a strong community, and real vibes.</p>
                             </div>
 
                             <div className={`story-paragraph story-conclusion ${visibleElements.conclusion ? 'animate-in' : ''}`} 
