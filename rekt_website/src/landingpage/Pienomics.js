@@ -383,7 +383,7 @@ export const Pienomics = () => {
   const activeData = selectedChart !== null ? chartConfigs[selectedChart].data[selectedSlice || 0] : null;
 
   return (
-    <div className="pienomics-section">
+    <div id="pienomics" className="pienomics-section">
       {/* Background elements */}
 
       {/* Falling tokens */}

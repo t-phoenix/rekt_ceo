@@ -9,6 +9,7 @@ export default function Navbar({ setShow }) {
   const location = useLocation();
 
   const [scrollTarget, setScrollTarget] = useState(null);
+  const [activeSection, setActiveSection] = useState("");
 
   // Effect to handle scrolling after navigation
   useEffect(() => {
@@ -21,6 +22,41 @@ export default function Navbar({ setShow }) {
       setScrollTarget(null);
     }
   }, [scrollTarget, location]);
+
+  // Effect to handle scroll spy functionality
+  useEffect(() => {
+    if (location.pathname !== "/") {
+      setActiveSection("");
+      return;
+    }
+
+    const handleScroll = () => {
+      const sections = ["story", "buyceo", "roadmap", "pienomics", "faq"];
+      const scrollPosition = window.scrollY + window.innerHeight / 3;
+
+      for (let i = sections.length - 1; i >= 0; i--) {
+        const section = document.getElementById(sections[i]);
+        if (section) {
+          const sectionTop = section.offsetTop;
+          const sectionHeight = section.offsetHeight;
+          
+          if (scrollPosition >= sectionTop && scrollPosition < sectionTop + sectionHeight) {
+            setActiveSection(sections[i]);
+            break;
+          }
+        }
+      }
+    };
+
+    // Initial check
+    handleScroll();
+
+    // Add scroll listener
+    window.addEventListener("scroll", handleScroll);
+    
+    // Cleanup
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [location.pathname]);
 
   // Function to handle smooth scrolling
   const scrollToSection = (sectionId) => {
@@ -35,29 +71,39 @@ export default function Navbar({ setShow }) {
     }
   };
 
+  // Function to get the appropriate CSS class for nav items
+  const getNavItemClass = (sectionId) => {
+    if (location.pathname === "/" && activeSection === sectionId) {
+      return "links-style selected-link";
+    }
+    return "links-style";
+  };
+
   return (
     <nav className="links-container">
       {/* Links to landing page sections */}
 
-      <div onClick={() => scrollToSection("story")} className="links-style">
+      <div onClick={() => scrollToSection("story")} className={getNavItemClass("story")}>
         STORY
       </div>
-      <div onClick={() => scrollToSection("buyceo")} className="links-style">
+      <div onClick={() => scrollToSection("buyceo")} className={getNavItemClass("buyceo")}>
         HOW TO BUY
       </div>
-      <div onClick={() => scrollToSection("roadmap")} className="links-style">
-        ROADMAP
-      </div>
+      
       <div
-        onClick={() => scrollToSection("rektnomics")}
-        className="links-style"
+        onClick={() => scrollToSection("pienomics")}
+        className={getNavItemClass("pienomics")}
       >
         REKTNOMICS
       </div>
 
+      <div onClick={() => scrollToSection("roadmap")} className={getNavItemClass("roadmap")}>
+        ROADMAP
+      </div>
+
       {/* Links to other pages */}
       <div
-        className="links-style"
+        className={location.pathname === "/pfp" ? "links-style selected-link" : "links-style"}
         onClick={() => {
           navigate("/pfp");
         }}
@@ -68,7 +114,7 @@ export default function Navbar({ setShow }) {
         onClick={() => {
           navigate("/memes");
         }}
-        className="links-style"
+        className={location.pathname === "/memes" ? "links-style selected-link" : "links-style"}
       >
         MEMES
       </div>
@@ -82,7 +128,7 @@ export default function Navbar({ setShow }) {
       </div> */}
 
       {/* Link to Landing Page Section */}
-      <div onClick={() => scrollToSection("faq")} className="links-style">
+      <div onClick={() => scrollToSection("faq")} className={getNavItemClass("faq")}>
         FAQ
       </div>
     </nav>

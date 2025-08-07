@@ -109,7 +109,7 @@
     flex-direction: row;
     justify-content: space-around;
     align-items: center;
-    width: 80%;
+    width: 60%;
     font-weight:700;
     font-size: 24px;
     margin-block: 36px;
@@ -134,6 +134,9 @@
         width: 90%;
         height: 70%;
     }
+    .landing-subtitle{
+        max-width: 100%;
+    }
     .ambassador-image{
         top: 60vh;
         left: -80px;
@@ -146,12 +149,13 @@
 /* FOR MOBILE */
 @media screen and (max-width: 600px){
     .landing-main-div{
-        height: 70%;
-            backdrop-filter: blur(100px);
+        height: 72%;
+        backdrop-filter: blur(10px);
     }
     .landing-title{
-        font-size: 60px;
-        color: var(--color-yellow);
+        padding-inline: 4%;
+        font-size: 48px;
+        color: var(--color-red);
     }
     
     /* Mobile optimization for dollar gradient */
@@ -161,15 +165,21 @@
     }
     .landing-subtitle{
         width: 60%;
+        display: flex;
         flex-direction: column;
         align-items: start;
+        justify-content: center;
+        gap: 10px;
+        padding-left: 4%;
+        color: var(--color-black);
+        
     }
     .section-title{
         font-size: 48px;
     }
     .ambassador-image{
         top: 70vh;
-        left: -80px;
+        left: -100px;
         height: 300px;
         width: 400px;
     }

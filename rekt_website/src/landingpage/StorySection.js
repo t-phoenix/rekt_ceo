@@ -25,6 +25,18 @@ export default function StorySection(){
     const [visibleElements, setVisibleElements] = useState({});
     const [hoveredPoint, setHoveredPoint] = useState(null);
     
+    const handleButtonClick = (route, event) => {
+        // Add click animation class
+        const button = event.target;
+        button.classList.add('clicked');
+        
+        // Remove the class after animation completes
+        setTimeout(() => {
+            button.classList.remove('clicked');
+            navigate(route);
+        }, 500);
+    };
+    
     // Available crypto brands for bubbles
     const brands = ["btc","eth","usdt","bnb","sol","usdc","ada","avax","trx","doge","link","matic","etc","dai","uni","fil","stx","ldo","zil","1inch","aave","akt","atom","bal","busd","cake","comp","cosm","dodo","tfuel","grt","hbar","paxg","qtum","ray","sia","snx","storj","sushi"];
     
@@ -204,10 +216,10 @@ export default function StorySection(){
                             <p className="trust-message">Trust your gut, back yourself, and enjoy the ride.</p>
                             
                             <div className="story-buttons">
-                                <button className="story-btn primary" onClick={() => navigate("/pfp")}>
+                                <button className="story-btn primary" onClick={(e) => handleButtonClick("/pfp", e)}>
                                     MAKE YOUR PFP
                                 </button>
-                                <button className="story-btn secondary" onClick={() => navigate("/memes")}>
+                                <button className="story-btn secondary" onClick={(e) => handleButtonClick("/memes", e)}>
                                     CREATE MEME
                                 </button>
                             </div>

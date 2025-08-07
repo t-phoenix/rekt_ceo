@@ -27,6 +27,18 @@ export default function Introduction() {
   const tweetUrl = "https://x.com/rekt_ceo"
   const pitchDeckLink = "https://gray-quintessential-jellyfish-921.mypinata.cloud/ipfs/bafybeifnvoe54ijactevaz7upynenmdzwngkhwg7qyxkjhnsl3l6i2m5r4"
 
+  const handleButtonClick = (route, event) => {
+    // Add click animation class
+    const button = event.target;
+    button.classList.add('clicked');
+    
+    // Remove the class after animation completes
+    setTimeout(() => {
+      button.classList.remove('clicked');
+      navigate(route);
+    }, 500);
+  };
+
   const bannerItems = [
     "Rekt $CEO",
     "@rekt_ceo",
@@ -59,10 +71,10 @@ export default function Introduction() {
             <li style={{display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '4px'}}><FaDog style={{color: "var(--color-blue-primary)"}} size={32} /> No Bullshit</li>
           </ul>
           <div className="story-buttons">
-              <button className="story-btn primary" onClick={() => navigate("/pfp")}>
+              <button className="story-btn primary" onClick={(e) => handleButtonClick("/pfp", e)}>
                   LAUNCHING SOON
               </button>
-              <button className="story-btn secondary" onClick={() => navigate("/memes")}>
+              <button className="story-btn secondary" onClick={(e) => handleButtonClick("/memes", e)}>
                   CREATE MEME
               </button>
           </div>

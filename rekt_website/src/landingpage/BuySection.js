@@ -20,6 +20,7 @@ export default function BuySection(){
         style={{ backgroundImage: `url(${penthouse2})` }}
         className="buy-section"
       >
+        <h1 className="section-title" style={{color: 'var(--color-yellow)', fontSize: '4rem'}}>HOW TO BUY</h1>
         <div className="buy-container">
           {/* Left Column - Step Cards */}
           <div className="steps-column">
@@ -48,7 +49,8 @@ export default function BuySection(){
                 </p>
               </div>
               <div className="button-section">
-                <button onClick={() => window.open(getBnbGuide, "_blank")}>GET BNB</button>
+                <button className="button-margin" onClick={() => window.open(getBnbGuide, "_blank")}>GET BNB</button>
+                <button className="button-margin" onClick={() => window.open(getBnbGuide, "_blank")}>GET USDC</button>
               </div>
               <div className="icon-box">
                   <MdShoppingCart className="card-icon" size={32} />
@@ -88,10 +90,10 @@ export default function BuySection(){
           </div>
 
           {/* Right Column - Swap Interface */}
-          <div className="swap-column">
-            <h1 className="section-title" style={{color: 'var(--color-yellow)', fontSize: '4rem'}}>HOW TO BUY</h1>
+          {/* <div className="swap-column">
+            
             <Exchange />
-          </div>
+          </div> */}
         </div>
       </section>
     )
