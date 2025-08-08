@@ -93,6 +93,7 @@
 
 .end-box{
     margin-block: 4%;
-    width: 68%;
-    padding: 0 32px 0 32px;
+    width: 90%;
+    padding: 0 0px 0 0px;
+    text-justify: inter-word;
 }

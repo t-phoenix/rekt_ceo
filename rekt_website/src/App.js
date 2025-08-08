@@ -5,6 +5,7 @@ import { Route, Routes } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 import Introduction from "./landingpage/Introduction";
 import Header from "./components/Header";
+import CustomCursor from "./components/CustomCursor";
 
 import penthouse from "./creatives/penthouse.jpeg";
 import ProfileNFT from "./pages/ProfileNFT";
@@ -69,6 +70,7 @@ function App() {
       <ConnectionProvider endpoint={endpoint}>
           <WalletProvider wallets={wallets} autoConnect>
         <div className="App">
+          <CustomCursor />
           <Header />
 
           <div className="body">
