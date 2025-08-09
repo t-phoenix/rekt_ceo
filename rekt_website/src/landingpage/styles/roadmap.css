@@ -1,79 +1,929 @@
-.roadmap-section{
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    width: 100%;
-    height: 100vh;
-    background-position: center;
+/* Roadmap Section Base */
+.roadmap-section {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  background-position: center;
   background-size: cover;
   background-repeat: no-repeat;
-  overflow:visible;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.3s ease;
+  /* Add top margin to account for fixed header */
+  margin-top: 12vh;
 }
 
-.roadmap-box{
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 4px;
-    width: 100%;
-    height: 70vh;
-    justify-items: center;
-    align-items: center;
-    margin-block: 4%;
+.roadmap-section.in-viewport {
+  z-index: 1;
 }
 
-.roadmap-card{
-    height: 70%;
-    width: 80%;
-    padding-block: 2%;
-    padding-inline: 4%;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    backdrop-filter: blur(10px);
-    border-radius: 16px;
-    box-shadow: 6px 6px 12px 2px var(--color-blue), 0 20px 20px 0 rgba(0, 0, 0, 0.19);
-    transition: 0.4s;
-}
-.roadmap-card:hover{
-    scale: 1.1;
-    transition: 0.4s;
-}
-.roadmap-card h1{
-    backdrop-filter: blur(50px);
-    border-radius: 16px;
-    padding-inline: 16px;
-    padding-block: 32px;
-    text-align: center;
-    color: var(--color-yellow);
-    text-shadow: 2px 2px var(--color-blue);
+/* Direction-based enhancements */
+.roadmap-section[data-scroll-direction="up"] .monitors-container {
+  transition: opacity 0.3s ease;
 }
 
+.roadmap-section[data-scroll-direction="down"] .monitors-container {
+  transition: opacity 0.5s ease;
+}
+
+.roadmap-container {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  max-width: 1920px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+/* Title */
+.roadmap-title {
+  position: absolute;
+  top: 5%;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: clamp(2rem, 5vw, 4rem);
+  font-weight: 900;
+  color: #ffff00;
+  text-shadow: 
+    0 0 20px #ff00ff,
+    0 0 40px #ff00ff,
+    2px 2px 4px rgba(0,0,0,0.8);
+  letter-spacing: 0.1em;
+  z-index: 2;
+  animation: titleGlow 2s ease-in-out infinite alternate;
+}
+
+@keyframes titleGlow {
+  from { text-shadow: 0 0 20px #ff00ff, 0 0 40px #ff00ff, 2px 2px 4px rgba(0,0,0,0.8); }
+  to { text-shadow: 0 0 30px #00ffff, 0 0 60px #00ffff, 2px 2px 4px rgba(0,0,0,0.8); }
+}
+
+/* Scroll Progress Bar */
+.scroll-progress-bar {
+  position: absolute;
+  top: 50%;
+  left: 2rem;
+  transform: translateY(-50%);
+  width: 4px;
+  height: 200px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 2px;
+  z-index: 2;
+  overflow: visible;
+}
+
+.scroll-progress-fill {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background: linear-gradient(180deg, #00ffff, #ff00ff);
+  border-radius: 2px;
+  box-shadow: 0 0 10px currentColor;
+}
+
+.velocity-indicator {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 20px;
+  height: 20px;
+  background: radial-gradient(circle, #00ffff, transparent);
+  border-radius: 50%;
+  pointer-events: none;
+  transition: opacity 0.3s ease, transform 0.1s ease;
+}
+
+/* Monitors Container */
+.monitors-container {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 90%;
+  max-width: 1400px;
+  height: 60%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 2%;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+
+.monitors-container.active {
+  opacity: 1;
+}
+
+/* Individual Monitors */
+.monitor {
+  position: relative;
+  flex: 1;
+  height: 100%;
+  max-height: 400px;
+  transform: perspective(1000px) rotateY(0deg);
+  transition: transform 0.3s ease;
+}
+
+.monitor-left {
+  flex: 0.8;
+  transform: perspective(1000px) rotateY(5deg);
+}
+
+.monitor-center {
+  flex: 1.2;
+  transform: perspective(1000px) rotateY(0deg) scale(1.1);
+  z-index: 2;
+}
+
+.monitor-right {
+  flex: 0.8;
+  transform: perspective(1000px) rotateY(-5deg);
+}
+
+/* Monitor Screen */
+.monitor-screen {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(0,20,40,0.9) 100%);
+  border: 2px solid #00ffff;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 
+    inset 0 0 50px rgba(0,255,255,0.1),
+    0 0 30px rgba(0,255,255,0.5);
+  animation: monitorFlicker 4s infinite;
+}
+
+@keyframes monitorFlicker {
+  0%, 100% { opacity: 1; }
+  92% { opacity: 0.98; }
+  94% { opacity: 1; }
+}
+
+/* Monitor Content */
+.monitor-content {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  color: #00ffff;
+  font-family: 'Courier New', monospace;
+  z-index: 2;
+}
+
+/* Monitor Glow Effect */
+.monitor-glow {
+  position: absolute;
+  top: -20px;
+  left: -20px;
+  right: -20px;
+  bottom: -20px;
+  background: radial-gradient(ellipse at center, rgba(0,255,255,0.3) 0%, transparent 70%);
+  filter: blur(20px);
+  z-index: -1;
+  animation: glowPulse 3s ease-in-out infinite;
+}
+
+@keyframes glowPulse {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
+
+/* Left Monitor - Status Display */
+.status-display {
+  width: 100%;
+  text-align: center;
+}
+
+/* Hide mobile status display on larger screens by default */
+.mobile-status {
+  display: none;
+}
+
+.status-title {
+  font-size: clamp(0.8rem, 1.5vw, 1.2rem);
+  margin-bottom: 1rem;
+  color: #ffffff;
+  letter-spacing: 0.2em;
+  opacity: 0.8;
+}
+
+.status-indicator {
+  font-size: clamp(1rem, 2vw, 1.5rem);
+  font-weight: bold;
+  margin-bottom: 1.5rem;
+  letter-spacing: 0.1em;
+  animation: statusPulse 2s ease-in-out infinite;
+}
+
+@keyframes statusPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+.progress-bar {
+  width: 100%;
+  height: 10px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 5px;
+  overflow: hidden;
+  margin-bottom: 0.5rem;
+  border: 1px solid rgba(0,255,255,0.3);
+}
+
+.progress-fill {
+  height: 100%;
+  transition: width 0.5s ease;
+  box-shadow: 0 0 10px currentColor;
+}
+
+.progress-text {
+  font-size: clamp(0.7rem, 1vw, 0.9rem);
+  opacity: 0.8;
+  margin-top: 0.5rem;
+}
+
+.milestone-dots {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 2rem;
+  flex-wrap: wrap;
+}
+
+.dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  border: 1px solid rgba(0,255,255,0.3);
+}
+
+.dot.active {
+  box-shadow: 0 0 20px currentColor;
+  transition: transform 0.2s ease;
+}
+
+/* Center Monitor - Main Content */
+.milestone-main {
+  text-align: center;
+  z-index: 2;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  width: 100%;
+}
+
+.milestone-number {
+  font-size: clamp(0.8rem, 1.2vw, 1rem);
+  color: #ff00ff;
+  letter-spacing: 0.3em;
+  margin-bottom: 0.5rem;
+  opacity: 0.9;
+}
+
+.milestone-title {
+  font-size: clamp(1.5rem, 3vw, 2.5rem);
+  font-weight: bold;
+  margin-bottom: 1rem;
+  background: linear-gradient(45deg, #00ffff, #ff00ff, #ffff00);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-shadow: 0 0 30px rgba(0,255,255,0.5);
+  animation: titleShift 3s ease-in-out infinite;
+}
+
+@keyframes titleShift {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+
+.milestone-description {
+  font-size: clamp(0.9rem, 1.5vw, 1.2rem);
+  color: rgba(255,255,255,0.9);
+  margin-bottom: 2rem;
+  line-height: 1.6;
+}
+
+/* CTA Button Base */
+.cta-button {
+  position: relative;
+  padding: 1rem 2rem;
+  border-radius: 6px;
+  font-weight: 700;
+  font-size: clamp(0.9rem, 1.2vw, 1.1rem);
+  letter-spacing: 0.1em;
+  cursor: pointer;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+}
+
+/* Red Button (odd milestones) */
+.cta-button-red {
+  background: var(--background-color-third);
+  border: 2px solid var(--color-red);
+  color: var(--color-white);
+  box-shadow: 0 4px 15px rgba(216, 30, 91, 0.3);
+}
+
+.cta-button-red:hover {
+  background: var(--color-red);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(216, 30, 91, 0.4);
+}
+
+/* Yellow Button (even milestones) */
+.cta-button-yellow {
+  background: var(--color-yellow);
+  border: 2px solid var(--color-yellow);
+  color: var(--color-black);
+  box-shadow: 0 4px 15px rgba(248, 200, 38, 0.3);
+}
+
+.cta-button-yellow:hover {
+  background: #ffd700;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(248, 200, 38, 0.4);
+}
+
+.cta-button:active {
+  transform: translateY(0);
+}
+
+.cta-text {
+  position: relative;
+  z-index: 2;
+}
+
+.cta-glow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle, rgba(255,255,255,0.8) 0%, transparent 70%);
+  transform: translate(-50%, -50%) scale(0);
+  transition: transform 0.5s ease;
+}
+
+.cta-button:hover .cta-glow {
+  transform: translate(-50%, -50%) scale(2);
+}
+
+/* Grid Background */
+.grid-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0.1;
+  pointer-events: none;
+}
+
+.grid-lines {
+  width: 100%;
+  height: 100%;
+  background-image: 
+    linear-gradient(0deg, #00ffff 1px, transparent 1px),
+    linear-gradient(90deg, #00ffff 1px, transparent 1px);
+  background-size: 20px 20px;
+  animation: gridMove 10s linear infinite;
+}
+
+@keyframes gridMove {
+  0% { transform: translate(0, 0); }
+  100% { transform: translate(20px, 20px); }
+}
+
+/* Right Monitor - Timeline */
+.timeline-display {
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  position: relative;
+}
+
+.timeline-display::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 2px;
+  height: 100%;
+  background: linear-gradient(180deg, 
+    rgba(255,255,255,0.1) 0%, 
+    rgba(0,255,255,0.3) 50%, 
+    rgba(255,255,255,0.1) 100%);
+  z-index: 1;
+}
+
+.timeline-title {
+  font-size: clamp(0.8rem, 1.5vw, 1.2rem);
+  margin-bottom: 1rem;
+  color: #ffffff;
+  letter-spacing: 0.2em;
+  opacity: 0.9;
+  text-align: center;
+  text-shadow: 0 0 10px rgba(255,255,255,0.5);
+  font-weight: 600;
+}
+
+.timeline-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.timeline-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.30rem;
+  border-left: 2px solid rgba(255,255,255,0.2);
+  transition: all 0.3s ease;
+  position: relative;
+  opacity: 0.6;
+  background: rgba(0,0,0,0.3);
+  border-radius: 0 8px 8px 0;
+  backdrop-filter: blur(5px);
+  border: 1px solid rgba(255,255,255,0.1);
+}
+
+.timeline-item.active {
+  border-left-color: var(--status-color, #00ffff);
+  background: rgba(var(--status-color-rgb, 0, 255, 255), 0.15);
+  opacity: 1;
+  transform: scale(1.02);
+  box-shadow: 0 0 20px rgba(var(--status-color-rgb, 0, 255, 255), 0.3);
+  border: 1px solid rgba(var(--status-color-rgb, 0, 255, 255), 0.5);
+}
+
+.timeline-item.completed {
+  opacity: 0.9;
+  border-left-color: var(--status-color, #00ff00);
+  background: rgba(var(--status-color-rgb, 0, 255, 0), 0.1);
+  position: relative;
+  box-shadow: 0 0 15px rgba(var(--status-color-rgb, 0, 255, 0), 0.2);
+  border: 1px solid rgba(var(--status-color-rgb, 0, 255, 0), 0.3);
+}
+
+.timeline-item.completed::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -2px;
+  width: 2px;
+  height: 100%;
+  background: var(--status-color, #00ff00);
+  box-shadow: 0 0 8px var(--status-color, #00ff00);
+  opacity: 0.8;
+}
+
+.timeline-marker {
+  width: 12px;
+  height: 12px;
+  background: rgba(255,255,255,0.4);
+  border-radius: 50%;
+  position: absolute;
+  left: -7px;
+  transition: all 0.3s ease;
+  border: 2px solid rgba(255,255,255,0.6);
+}
+
+.timeline-item.active .timeline-marker {
+  background: var(--status-color, #00ffff);
+  box-shadow: 0 0 20px var(--status-color, #00ffff);
+  animation: markerPulse 1s ease-in-out infinite;
+  transform: scale(1.2);
+  border-color: var(--status-color, #00ffff);
+}
+
+.timeline-item.completed .timeline-marker {
+  background: var(--status-color, #00ff00);
+  box-shadow: 0 0 15px var(--status-color, #00ff00);
+  border-color: var(--status-color, #00ff00);
+}
+
+@keyframes markerPulse {
+  0%, 100% { transform: scale(1.3); }
+  50% { transform: scale(1.6); }
+}
+
+@keyframes timelineItemActivate {
+  0% { 
+    transform: translateX(-10px);
+    opacity: 0.6;
+  }
+  100% { 
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.timeline-item.active {
+  animation: timelineItemActivate 0.5s ease-out;
+}
+
+.timeline-content {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  font-size: clamp(0.7rem, 1vw, 0.9rem);
+}
+
+.timeline-phase {
+  color: #ff00ff;
+  font-weight: bold;
+  transition: color 0.3s ease;
+  background: rgba(255,0,255,0.1);
+  border-radius: 4px;
+  border: 1px solid rgba(255,0,255,0.3);
+}
+
+.timeline-name {
+  color: rgba(255,255,255,0.9);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: color 0.3s ease;
+  font-weight: 500;
+}
+
+.timeline-item.active .timeline-phase {
+  color: var(--status-color, #00ffff);
+  text-shadow: 0 0 5px var(--status-color, #00ffff);
+  background: rgba(var(--status-color-rgb, 0, 255, 255), 0.2);
+  border-color: var(--status-color, #00ffff);
+}
+
+.timeline-item.active .timeline-name {
+  color: rgba(255,255,255,1);
+  text-shadow: 0 0 3px rgba(255,255,255,0.5);
+  font-weight: 600;
+}
+
+.timeline-item.completed .timeline-phase {
+  color: var(--status-color, #00ff00);
+  opacity: 0.9;
+  background: rgba(var(--status-color-rgb, 0, 255, 0), 0.15);
+  border-color: var(--status-color, #00ff00);
+}
+
+.timeline-item.completed .timeline-name {
+  color: rgba(255,255,255,0.95);
+  font-weight: 500;
+}
+
+/* Hover effects for timeline items */
+.timeline-item:hover {
+  transform: translateX(5px);
+  background: rgba(255,255,255,0.08);
+  transition: all 0.2s ease;
+}
+
+.timeline-item.active:hover {
+  transform: translateX(5px) scale(1.02);
+  background: rgba(var(--status-color-rgb, 0, 255, 255), 0.2);
+}
+
+.timeline-item.completed:hover {
+  transform: translateX(5px);
+  background: rgba(var(--status-color-rgb, 0, 255, 0), 0.15);
+}
+
+/* Scroll Indicator */
+.scroll-indicator {
+  position: absolute;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
+  animation: bounce 2s ease-in-out infinite;
+  transition: all 0.3s ease;
+}
+
+.roadmap-section.in-viewport .scroll-indicator {
+  animation: none;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateX(-50%) translateY(0); }
+  50% { transform: translateX(-50%) translateY(10px); }
+}
+
+.scroll-text {
+  font-size: 0.9rem;
+  color: rgba(0, 0, 0, 0.6);
+  letter-spacing: 0.2em;
+  margin-bottom: 0.5rem;
+  font-weight: 900;
+}
+
+.scroll-arrow {
+  font-size: 1.5rem;
+  color: #00ffff;
+  animation: arrowGlow 2s ease-in-out infinite;
+  transition: transform 0.3s ease;
+}
+
+.roadmap-section[data-scroll-direction="up"] .scroll-arrow {
+  transform: rotate(180deg);
+}
+
+@keyframes arrowGlow {
+  0%, 100% { text-shadow: 0 0 10px rgba(0,255,255,0.5); }
+  50% { text-shadow: 0 0 20px rgba(0,255,255,1); }
+}
+
+/* Custom Scrollbar for Timeline */
+.timeline-display::-webkit-scrollbar {
+  width: 4px;
+}
+
+.timeline-display::-webkit-scrollbar-track {
+  background: rgba(255,255,255,0.1);
+}
+
+.timeline-display::-webkit-scrollbar-thumb {
+  background: #00ffff;
+  border-radius: 2px;
+}
+
+/* Responsive Design */
 @media screen and (max-width: 1200px) {
-    .roadmap-box{
-        grid-template-columns: repeat(3, 1fr);
-    }
-    .roadmap-card{
+  .monitors-container {
+    width: 95%;
+    height: 70%;
+  }
+  
+  .monitor-left,
+  .monitor-right {
+    display: none;
+  }
+  
+  .monitor-center {
+    flex: 1;
+    transform: none;
+    max-height: 500px;
+  }
 
-    }
+  /* Add status display to center monitor for mobile/tablet */
+  .monitor-center .monitor-content {
+    position: relative;
+  }
+
+  .monitor-center .status-display {
+    position: static;
+    background: rgba(0, 0, 0, 0.8);
+    padding: 1rem;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    margin: 1.5rem auto;
+    min-width: 200px;
+    max-width: 300px;
+    align-self: center;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  }
+
+  .monitor-center .status-display .status-title {
+    font-size: 0.8rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .monitor-center .status-display .status-indicator {
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .monitor-center .status-display .progress-bar {
+    height: 6px;
+    margin-bottom: 0.5rem;
+  }
+
+  .monitor-center .status-display .progress-text {
+    font-size: 0.7rem;
+  }
+
+  .monitor-center .status-display .milestone-dots {
+    display: none; /* Hide dots on mobile to save space */
+  }
+
+  /* Show mobile status display on tablet/mobile */
+  .mobile-status {
+    display: block !important;
+  }
+  
+  .roadmap-title {
+    top: 3%;
+  }
+  
+  .scroll-progress-bar {
+    left: 1rem;
+    height: 150px;
+  }
 }
 
-@media screen and (max-width: 800px) {
-    .roadmap-box{
-        grid-template-columns: repeat(2, 1fr);
-        gap: 2px;
-    }
-    .roadmap-card{
-        width: 90%;
-        height: 80%;
-    }
-    .roadmap-card h1{
-        padding-inline: 8px;
-        padding-block: 16px;
-        font-size: 16px;
-    }
+@media screen and (max-width: 768px) {
+  .roadmap-container {
+    padding: 1rem;
+  }
+  
+  .monitors-container {
+    width: 100%;
+    height: 60%;
+    position: relative;
+    transform: none;
+    top: auto;
+    left: auto;
+    margin-top: 4rem;
+  }
+  
+  .monitor-center {
+    height: 100%;
+    max-height: none;
+  }
+  
+  .monitor-screen {
+    border-radius: 4px;
+  }
+  
+  .monitor-content {
+    padding: 1rem;
+  }
+  
+  .milestone-title {
+    font-size: 1.8rem;
+  }
+  
+  .cta-button {
+    padding: 0.8rem 1.5rem;
+    font-size: 0.9rem;
+  }
+  
+  .scroll-indicator {
+    bottom: 1rem;
+  }
+  
+  .scroll-progress-bar {
+    top: auto;
+    bottom: 20%;
+    left: 50%;
+    transform: translateX(-50%) rotate(90deg);
+    width: 100px;
+    height: 4px;
+  }
+  
+  /* Mobile timeline enhancements */
+  .timeline-display::before {
+    display: none; /* Remove vertical line on mobile */
+  }
+  
+  .timeline-item {
+    border-left: none; /* Remove left border on mobile */
+    background: rgba(0,0,0,0.5);
+    border-radius: 8px;
+    margin-bottom: 0.5rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    border: 1px solid rgba(255,255,255,0.15);
+    padding: 1rem;
+  }
+  
+  .timeline-item.active {
+    background: rgba(var(--status-color-rgb, 0, 255, 255), 0.25);
+    box-shadow: 0 4px 20px rgba(var(--status-color-rgb, 0, 255, 255), 0.4);
+    border: 1px solid rgba(var(--status-color-rgb, 0, 255, 255), 0.6);
+  }
+  
+  .timeline-item.completed {
+    background: rgba(var(--status-color-rgb, 0, 255, 0), 0.2);
+    box-shadow: 0 2px 15px rgba(var(--status-color-rgb, 0, 255, 0), 0.3);
+    border: 1px solid rgba(var(--status-color-rgb, 0, 255, 0), 0.4);
+  }
+  
+  .timeline-item.completed::after {
+    display: none; /* Remove completed line indicator on mobile */
+  }
+  
+  .timeline-marker {
+    position: relative;
+    left: 0;
+    margin-right: 0.75rem;
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255,255,255,0.8);
+  }
+  
+  .timeline-content {
+    margin-left: 0;
+    flex: 1;
+    gap: 0.75rem;
+  }
+  
+  .timeline-phase {
+    font-size: 0.9rem;
+    padding: 0.3rem 0.6rem;
+    background: rgba(255,0,255,0.15);
+    border: 1px solid rgba(255,0,255,0.4);
+  }
+  
+  .timeline-name {
+    font-size: 0.95rem;
+    flex: 1;
+    font-weight: 500;
+  }
 }
 
+@media screen and (max-width: 480px) {
+  .roadmap-title {
+    font-size: 1.5rem;
+    top: 2%;
+  }
+  
+  .monitors-container {
+    height: 70%;
+    margin-top: 3rem;
+  }
+  
+  .milestone-title {
+    font-size: 1.4rem;
+  }
+  
+  .milestone-description {
+    font-size: 0.9rem;
+  }
+  
+  .cta-button {
+    padding: 0.7rem 1.2rem;
+    font-size: 0.85rem;
+  }
+  
+  /* Small mobile timeline optimizations */
+  .timeline-item {
+    padding: 1rem;
+    margin-bottom: 0.75rem;
+  }
+  
+  .timeline-marker {
+    width: 18px;
+    height: 18px;
+  }
+  
+  .timeline-content {
+    gap: 0.5rem;
+  }
+  
+  .timeline-phase {
+    font-size: 0.85rem;
+    padding: 0.25rem 0.5rem;
+  }
+  
+  .timeline-name {
+    font-size: 0.9rem;
+  }
+  
+  .timeline-list {
+    gap: 0.5rem;
+  }
+}
 
+/* Ultra-wide screens */
+@media screen and (min-width: 1921px) {
+  .roadmap-container {
+    max-width: 2400px;
+  }
+  
+  .monitors-container {
+    max-width: 1800px;
+  }
+  
+  .monitor {
+    max-height: 500px;
+  }
+}
 
+/* Accessibility - Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

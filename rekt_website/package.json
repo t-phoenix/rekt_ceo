@@ -26,6 +26,7 @@
     "ethers": "^5",
     "form-data": "^4.0.0",
     "framer-motion": "10.12.17",
+    "gsap": "^3.13.0",
     "html2canvas": "^1.4.1",
     "node-fetch": "2.6.1",
     "pinata-web3": "^0.5.4",
