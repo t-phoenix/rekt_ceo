@@ -1,58 +1,261 @@
 .faq-section {
     display: flex;
     flex-direction: column;
-    /* justify-content: center; */
     align-items: center;
     width: 100%;
-    height: 100vh;
+    min-height: 100vh;
     background-position: center;
     background-size: cover;
     background-repeat: no-repeat;
     margin-top: 4vh;
-    /* box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19); */
-
+    position: relative;
+    overflow: hidden;
 }
 
-.faq-title{
+/* Animated background overlay */
+.faq-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+        135deg,
+        rgba(59, 28, 50, 0.85) 0%,
+        rgba(215, 184, 243, 0.1) 25%,
+        rgba(81, 163, 163, 0.1) 50%,
+        rgba(231, 37, 94, 0.1) 75%,
+        rgba(59, 28, 50, 0.85) 100%
+    );
+    z-index: 1;
+    animation: backgroundShift 8s ease-in-out infinite;
+}
+
+/* Additional overlay for better text readability */
+.faq-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(
+        circle at center,
+        transparent 0%,
+        rgba(59, 28, 50, 0.3) 50%,
+        rgba(59, 28, 50, 0.7) 100%
+    );
+    z-index: 1;
+    pointer-events: none;
+}
+
+@keyframes backgroundShift {
+    0%, 100% { opacity: 0.85; }
+    50% { opacity: 0.95; }
+}
+
+/* Floating particles effect */
+.faq-section::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: 
+        radial-gradient(2px 2px at 20px 30px, var(--color-purple), transparent),
+        radial-gradient(2px 2px at 40px 70px, var(--color-yellow), transparent),
+        radial-gradient(1px 1px at 90px 40px, var(--color-blue-primary), transparent),
+        radial-gradient(1px 1px at 130px 80px, var(--color-red), transparent),
+        radial-gradient(2px 2px at 160px 30px, var(--color-purple), transparent);
+    background-repeat: repeat;
+    background-size: 200px 100px;
+    animation: particleFloat 20s linear infinite;
+    opacity: 0.3;
+    z-index: 1;
+    pointer-events: none;
+}
+
+@keyframes particleFloat {
+    0% { transform: translateY(0px); }
+    100% { transform: translateY(-100px); }
+}
+
+.faq-title {
     font-size: 80px;
-    color: var(--color-red);
-    text-shadow: 2px 2px var(--color-blue);
+    background: linear-gradient(
+        45deg,
+        var(--color-red),
+        var(--color-yellow),
+        var(--color-purple),
+        var(--color-blue-primary)
+    );
+    background-size: 300% 300%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
     margin-top: 6%;
     margin-bottom: 2%;
     z-index: 2;
+    position: relative;
+    animation: titleGlow 3s ease-in-out infinite;
+    text-shadow: 0 0 30px rgba(231, 37, 94, 0.5);
+    filter: drop-shadow(0 0 20px rgba(215, 184, 243, 0.3));
 }
 
+@keyframes titleGlow {
+    0%, 100% { 
+        background-position: 0% 50%;
+        filter: drop-shadow(0 0 20px rgba(215, 184, 243, 0.3));
+    }
+    50% { 
+        background-position: 100% 50%;
+        filter: drop-shadow(0 0 30px rgba(231, 37, 94, 0.6));
+    }
+}
 
-.faq-content-box{
+.faq-content-box {
     display: flex;
     flex-direction: column;
     align-items: center;
     text-align: left;
     margin-bottom: 4%;
+    width: 90%;
+    max-width: 800px;
+    z-index: 2;
+    position: relative;
 }
 
-.faq-card{
-    width: 80%;
-    border-style: solid;
-    padding-block: 1.6%;
-    padding-left: 4%;
-    margin-block: 1%;
+/* Enhanced card animations */
+.faq-card {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(20px);
+    border: 2px solid transparent;
+    border-radius: 16px;
+    padding: 2rem;
+    margin-block: 1rem;
     word-wrap: break-word;
+    color: var(--color-black);
+    position: relative;
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    animation: cardFloat 0.6s ease-out forwards;
+    opacity: 0;
+    transform: translateY(30px);
+    cursor: pointer;
 }
 
-.link-container{
+.faq-card:nth-child(1) { animation-delay: 0.1s; }
+.faq-card:nth-child(2) { animation-delay: 0.2s; }
+.faq-card:nth-child(3) { animation-delay: 0.3s; }
+.faq-card:nth-child(4) { animation-delay: 0.4s; }
+.faq-card:nth-child(5) { animation-delay: 0.5s; }
+
+@keyframes cardFloat {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.faq-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.1),
+        transparent
+    );
+    transition: left 0.6s ease;
+}
+
+.faq-card:hover {
+    transform: translateY(-8px) scale(1.02);
+    border-color: var(--color-purple);
+    box-shadow: 
+        0 20px 40px rgba(0, 0, 0, 0.4),
+        0 0 0 4px rgba(215, 184, 243, 0.2),
+        0 0 30px rgba(215, 184, 243, 0.3);
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.faq-card:hover::before {
+    left: 100%;
+}
+
+/* Add a subtle pulse animation to cards */
+.faq-card:active {
+    transform: translateY(-4px) scale(0.98);
+    transition: all 0.1s ease;
+}
+
+.faq-card h1 {
+    color: var(--color-yellow);
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    text-shadow: 0 0 10px rgba(248, 200, 38, 0.5);
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.faq-card:hover h1 {
+    color: var(--color-red);
+    text-shadow: 0 0 15px rgba(231, 37, 94, 0.6);
+}
+
+.faq-card h1::after {
+    content: '?';
+    position: absolute;
+    right: -20px;
+    top: 0;
+    color: var(--color-purple);
+    font-size: 1.2rem;
+    opacity: 0;
+    transform: scale(0) rotate(180deg);
+    transition: all 0.3s ease;
+}
+
+.faq-card:hover h1::after {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+}
+
+.faq-card p {
+    color: var(--color-black);
+    line-height: 1.6;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    font-weight: 600;
+}
+
+.faq-card:hover p {
+    color: var(--color-black);
+}
+
+.link-container {
     display: flex;
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
     width: 90%;
-    padding: 0 32px 0 32px;
+    max-width: 600px;
+    padding: 0 32px;
+    margin: 2rem 0;
+    z-index: 2;
+    position: relative;
 }
 
 @media screen and (min-width: 768px) {
     .link-container {
         width: 60%;
-        margin: 0 auto;
+        margin: 2rem auto;
     }
 }
 
@@ -67,33 +270,225 @@
         width: 30%;
     }
 }
-.link-icon-box{ 
-    /* margin-inline: 16%; */
-    background-color: var(--color-red);
+
+/* Enhanced link icon animations */
+.link-icon-box {
+    background: var(--color-red);
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-items: center;
-    padding: 2%;
-    border-radius: 8px;
-    box-shadow: 4px 4px var(--color-white);
-    color: var(--color-black);
-    transition: 0.6s;
-    margin-inline: 2%;
-}
-.link-icon-box:hover{
-  transition: 0.4s;
-  box-shadow: 0px 0px 0px var(--color-white);
-  transform: translate(4px, 4px);
-}
-.link-icon-image{
-    height: 40px;
-    width: 50px;
+    justify-content: center;
+    padding: 1.5rem;
+    border-radius: 16px;
+    box-shadow: 
+        0 8px 16px rgba(0, 0, 0, 0.3),
+        0 0 0 2px rgba(255, 255, 255, 0.1);
+    color: var(--color-white);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    margin-inline: 1%;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    animation: iconFloat 2s ease-in-out infinite;
 }
 
-.end-box{
+.link-icon-box:nth-child(1) { animation-delay: 0s; }
+.link-icon-box:nth-child(2) { animation-delay: 0.5s; }
+.link-icon-box:nth-child(3) { animation-delay: 1s; }
+.link-icon-box:nth-child(4) { animation-delay: 1.5s; }
+
+@keyframes iconFloat {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+}
+
+.link-icon-box::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+        45deg,
+        transparent,
+        rgba(255, 255, 255, 0.2),
+        transparent
+    );
+    transform: translateX(-100%);
+    transition: transform 0.6s ease;
+}
+
+.link-icon-box:hover {
+    transform: translateY(-12px) scale(1.1);
+    box-shadow: 
+        0 20px 40px rgba(0, 0, 0, 0.4),
+        0 0 0 4px rgba(215, 184, 243, 0.3),
+        0 0 30px rgba(215, 184, 243, 0.5);
+    background: var(--color-yellow);
+}
+
+.link-icon-box:hover::before {
+    transform: translateX(100%);
+}
+
+/* Neon glow effect for icons */
+.link-icon-box svg {
+    transition: all 0.3s ease;
+    filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.3));
+}
+
+.link-icon-box:hover svg {
+    transform: scale(1.2) rotate(5deg);
+    filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.6));
+}
+
+.link-icon-image {
+    height: 40px;
+    width: 50px;
+    transition: all 0.3s ease;
+    filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.3));
+}
+
+.link-icon-box:hover .link-icon-image {
+    transform: scale(1.2) rotate(5deg);
+    filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.6));
+}
+
+/* Enhanced end box with neon effect */
+.end-box {
     margin-block: 4%;
     width: 90%;
-    padding: 0 0px 0 0px;
-    text-justify: inter-word;
+    max-width: 800px;
+    padding: 2rem;
+    text-align: center;
+    z-index: 2;
+    position: relative;
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(20px);
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    animation: endBoxGlow 4s ease-in-out infinite;
+    transition: all 0.3s ease;
+}
+
+.end-box:hover {
+    border-color: var(--color-purple);
+    box-shadow: 
+        0 0 20px rgba(215, 184, 243, 0.4),
+        0 0 40px rgba(215, 184, 243, 0.2);
+}
+
+@keyframes endBoxGlow {
+    0%, 100% { 
+        box-shadow: 0 0 20px rgba(215, 184, 243, 0.2);
+    }
+    50% { 
+        box-shadow: 0 0 30px rgba(231, 37, 94, 0.3);
+    }
+}
+
+.end-box p {
+    color: var(--color-white);
+    line-height: 1.6;
+    margin-bottom: 1rem;
+    transition: all 0.3s ease;
+}
+
+.end-box p:last-child {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    color: var(--color-yellow);
+    font-weight: 600;
+}
+
+.end-box p:last-child svg {
+    transition: all 0.3s ease;
+    filter: drop-shadow(0 0 8px rgba(248, 200, 38, 0.5));
+}
+
+.end-box:hover p:last-child svg {
+    transform: rotate(360deg);
+    filter: drop-shadow(0 0 15px rgba(248, 200, 38, 0.8));
+}
+
+/* Add a subtle bounce animation to the entire section */
+.faq-section {
+    animation: sectionBounce 0.8s ease-out;
+}
+
+@keyframes sectionBounce {
+    0% {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Responsive adjustments */
+@media screen and (max-width: 768px) {
+    .faq-title {
+        font-size: 60px;
+        margin-top: 8%;
+    }
+    
+    .faq-card {
+        padding: 1.5rem;
+        margin-block: 0.8rem;
+    }
+    
+    .link-container {
+        flex-wrap: wrap;
+        gap: 1rem;
+        justify-content: center;
+    }
+    
+    .link-icon-box {
+        margin-inline: 0.5rem;
+        padding: 1rem;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .faq-title {
+        font-size: 48px;
+        margin-top: 10%;
+    }
+    
+    .faq-card {
+        padding: 1rem;
+        margin-block: 0.6rem;
+    }
+    
+    .link-container {
+        width: 95%;
+        padding: 0 16px;
+    }
+    
+    .end-box {
+        padding: 1.5rem;
+        width: 95%;
+    }
+}
+
+/* Accessibility improvements */
+@media (prefers-reduced-motion: reduce) {
+    .faq-card,
+    .link-icon-box,
+    .faq-title,
+    .end-box {
+        animation: none;
+        transition: none;
+    }
+    
+    .faq-card:hover,
+    .link-icon-box:hover {
+        transform: none;
+    }
 }

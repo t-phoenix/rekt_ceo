@@ -2,7 +2,6 @@ import React from "react";
 import "./styles/intro.css";
 import "./styles/buy.css";
 import penthouse2 from "../creatives/penthouse2.jpg";
-import Exchange from "../components/Exchange";
 
 import { MdRocketLaunch, MdShoppingCart, MdSwapHoriz, MdAccountBox } from "react-icons/md";
 import { useNavigate } from "react-router-dom";
@@ -90,10 +89,6 @@ export default function BuySection(){
           </div>
 
           {/* Right Column - Swap Interface */}
-          {/* <div className="swap-column">
-            
-            <Exchange />
-          </div> */}
         </div>
       </section>
     )

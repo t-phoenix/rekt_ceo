@@ -4,6 +4,7 @@ import "./styles/intro.css";
 import "./styles/faq.css";
 
 import penthouse from "../creatives/penthouse.jpeg";
+import ceo_office from "../creatives/ceo_office2.jpg";
 import ambassador from "../creatives/rekt_ceo_ambassador.png";
 import pumpfun from "../creatives/socials/pump.png";
 import raydium from "../creatives/socials/raydium.png";
@@ -19,6 +20,7 @@ import { faqData } from "../constants/faqData";
 import { MdCopyright, MdMail, MdRocketLaunch, MdCelebration } from "react-icons/md";
 import { FaTwitter} from "react-icons/fa"
 import { FaDog } from "react-icons/fa";
+import Exchange from "./Exchange";
 
 
 export default function Introduction() {
@@ -92,16 +94,18 @@ export default function Introduction() {
 
       <Roadmap />
 
-      <section id="faq" className="faq-section">
-        <h1 className="faq-title">FAQ</h1>
+      <Exchange />
+
+      <section id="faq" className="faq-section" style={{ backgroundImage: `url(${ceo_office})` }}>
+        <div className="faq-overlay"></div>
+        <h1 className="section-title" style={{color: 'var(--color-yellow)'}}>FAQ</h1>
         <div className="faq-content-box">
-            {faqData.map((data)=>(
-                <div className="faq-card">
+            {faqData.map((data, index) => (
+                <div key={index} className="faq-card" data-aos="fade-up" data-aos-delay={index * 100}>
                     <h1>{data.question}</h1>
                     <p>{data.answer}</p>
                 </div>
             ))}
-
         </div>
         <div className="link-container">
             <div className="link-icon-box" onClick={() => window.location.href = `mailto:contact@rektceo.club`}>
@@ -110,11 +114,11 @@ export default function Introduction() {
             <div className="link-icon-box" onClick={() => window.open(tweetUrl, "_blank")} >
                 <FaTwitter  size={42}/>
             </div>
-            <div className="link-icon-box">
+            <div className="link-icon-box" onClick={() => window.open("https://pump.fun", "_blank")}>
                 <img className="link-icon-image" src={pumpfun} alt="pump fun" />
             </div>
-            <div className="link-icon-box">
-                <img className="link-icon-image" src={raydium} alt="pump fun" />
+            <div className="link-icon-box" onClick={() => window.open("https://raydium.io", "_blank")}>
+                <img className="link-icon-image" src={raydium} alt="raydium" />
             </div>
         </div>
         <div className="end-box">
