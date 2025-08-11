@@ -8,7 +8,6 @@ import ceo_office from "../creatives/ceo_office2.jpg";
 import ambassador from "../creatives/rekt_ceo_ambassador.png";
 import pumpfun from "../creatives/socials/pump.png";
 import raydium from "../creatives/socials/raydium.png";
-import memedepot from "../creatives/socials/memedepot.png"
 
 
 import BuySection from "./BuySection";
@@ -27,7 +26,7 @@ export default function Introduction() {
   const navigate = useNavigate();
 
   const tweetUrl = "https://x.com/rekt_ceo"
-  const pitchDeckLink = "https://gray-quintessential-jellyfish-921.mypinata.cloud/ipfs/bafybeifnvoe54ijactevaz7upynenmdzwngkhwg7qyxkjhnsl3l6i2m5r4"
+  // const pitchDeckLink = "https://gray-quintessential-jellyfish-921.mypinata.cloud/ipfs/bafybeifnvoe54ijactevaz7upynenmdzwngkhwg7qyxkjhnsl3l6i2m5r4"
 
   const handleButtonClick = (route, event) => {
     // Add click animation class

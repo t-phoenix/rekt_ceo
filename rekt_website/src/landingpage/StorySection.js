@@ -4,21 +4,7 @@ import "./styles/intro.css";
 import "./styles/story.css";
 import rektceologo from "../creatives/Rekt_logo_illustration.png";
 import Icon from "react-crypto-icons";
-import { FiTrendingUp, FiHeart, FiUsers, FiZap, FiGift, FiShield, FiTarget, FiStar } from "react-icons/fi";
-import { MdRocket, MdBusiness, MdDiamond, MdStar, MdCelebration, MdTrendingUp, MdSecurity, MdLightbulb, MdEmojiEvents, MdFavorite } from "react-icons/md";
-import { BiRocket, BiParty, BiTargetLock, BiGift } from "react-icons/bi";
-
-const Cloud = ({ size, delay }) => (
-  <div 
-    className={`story-cloud ${size}`}
-    style={{
-      top: `${Math.random() * 80}%`,
-      animationDelay: `${delay}s`,
-      animationDuration: `${15 + Math.random() * 10}s`
-    }}
-  />
-);
-
+import { FiTrendingUp, FiHeart, FiUsers } from "react-icons/fi";
 
 export default function StorySection(){
     const navigate = useNavigate();

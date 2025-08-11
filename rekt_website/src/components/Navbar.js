@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { navlinks } from "../constants/navlinks";
 import "./header.css";
-import { Link as RouterLink, useLocation, useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
+import { useLocation, useNavigate } from "react-router-dom";
 
 export default function Navbar({ setShow }) {
   const navigate = useNavigate();

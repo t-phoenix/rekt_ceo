@@ -104,6 +104,8 @@ export default function Roadmap() {
 
   // Intersection Observer for viewport detection
   useEffect(() => {
+    const currentSectionRef = sectionRef.current;
+    
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -117,8 +119,8 @@ export default function Roadmap() {
           setIsInViewport(viewportCoverage > 0.3);
           
           // Store section boundaries
-          if (sectionRef.current) {
-            const sectionRect = sectionRef.current.getBoundingClientRect();
+          if (currentSectionRef) {
+            const sectionRect = currentSectionRef.getBoundingClientRect();
             sectionTopRef.current = window.scrollY + sectionRect.top;
             sectionBottomRef.current = window.scrollY + sectionRect.bottom;
           }
@@ -138,13 +140,13 @@ export default function Roadmap() {
       }
     );
 
-    if (sectionRef.current) {
-      observer.observe(sectionRef.current);
+    if (currentSectionRef) {
+      observer.observe(currentSectionRef);
     }
 
     return () => {
-      if (sectionRef.current) {
-        observer.unobserve(sectionRef.current);
+      if (currentSectionRef) {
+        observer.unobserve(currentSectionRef);
       }
     };
   }, []);
@@ -178,8 +180,8 @@ export default function Roadmap() {
       const sectionHeight = rect.height;
       
       // How far through the section have we scrolled?
-      const scrollThroughSection = Math.max(0, -rect.top+140);
-      const maxScrollThrough = Math.max(sectionHeight - windowHeight, sectionHeight * 0.18);
+      const scrollThroughSection = Math.max(0, -rect.top+160);
+      const maxScrollThrough = Math.max(sectionHeight - windowHeight, sectionHeight * 0.16);
       
       if (maxScrollThrough > 0) {
         // Calculate progress as percentage through the section
@@ -187,8 +189,8 @@ export default function Roadmap() {
         progressRef.current = Math.max(0, Math.min(100, rawProgress));
       } else {
         // Section fits in viewport, use intersection-based progress
-        const visibleHeight = Math.min(rect.bottom, windowHeight) - Math.max(rect.top, 0);
-        const visibilityRatio = visibleHeight / sectionHeight;
+        //const visibleHeight = Math.min(rect.bottom, windowHeight) - Math.max(rect.top, 0);
+        //const visibilityRatio = visibleHeight / sectionHeight;
         
         if (rect.top <= 0 && rect.bottom >= windowHeight) {
           // Fully in view

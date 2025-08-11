@@ -1,7 +1,6 @@
 import React from "react";
 import "./header.css";
 import { useNavigate } from "react-router-dom";
-import { IoMenu } from "react-icons/io5";
 import { useMediaQuery } from "react-responsive";
 import Navbar from "./Navbar";
 // import CiLogo from "../assets/CiLogo.png"
@@ -13,7 +12,6 @@ export default function Header() {
   const navigate = useNavigate();
   const [showMenu, setShowMenu] = React.useState(false);
 
-  const isMobile = useMediaQuery({maxWidth: "600px"})
   const isTab = useMediaQuery({ maxWidth: "992px" });
 
   function openNavBar(){

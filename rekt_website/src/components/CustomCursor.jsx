@@ -1,26 +1,7 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { motion, useSpring } from "framer-motion";
-import Icon from "react-crypto-icons";
 import rektLogo from "../creatives/Rekt_logo_illustration.png";
 import "./customCursor.css";
-
-const isInteractiveElement = (element) => {
-  if (!element) return false;
-  const tagName = element.tagName?.toLowerCase();
-  if (
-    tagName === "a" ||
-    tagName === "button" ||
-    tagName === "input" ||
-    tagName === "select" ||
-    tagName === "textarea"
-  ) {
-    return true;
-  }
-  const role = element.getAttribute?.("role");
-  if (role && ["button", "link", "tab", "switch"].includes(role)) return true;
-  if (element.closest?.("[data-cursor='hover']")) return true;
-  return false;
-};
 
 function CustomCursor() {
   const [isCoarsePointer, setIsCoarsePointer] = useState(false);
@@ -34,7 +15,6 @@ function CustomCursor() {
 
   const size = 40; // outer ring size (px)
   const centerOffset = -size / 10;
-  const lastPointerEvent = useRef({ x: 0, y: 0 });
 
   useEffect(() => {
     const coarse = window.matchMedia && window.matchMedia("(pointer: coarse)").matches;
@@ -45,7 +25,6 @@ function CustomCursor() {
     }
 
     const handlePointerMove = (event) => {
-      lastPointerEvent.current = { x: event.clientX, y: event.clientY };
       x.set(event.clientX - centerOffset);
       y.set(event.clientY - centerOffset);
       if (!isVisible) {

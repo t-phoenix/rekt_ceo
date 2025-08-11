@@ -452,7 +452,7 @@ export const Pienomics = () => {
             <div className="pienomics-info-card">
               <div className="pienomics-info-header">
                 <div className="pienomics-info-left">
-                  <div className="pienomics-info-icon">{chartConfigs[selectedChart].title === "$CEO Token" && "💎" || chartConfigs[selectedChart].title === "Treasury USDC" && "🏦" || chartConfigs[selectedChart].title === "Treasury $CEO" && "🎯"}</div>
+                  <div className="pienomics-info-icon">{(chartConfigs[selectedChart].title === "$CEO Token" && "💎") || (chartConfigs[selectedChart].title === "Treasury USDC" && "🏦") || (chartConfigs[selectedChart].title === "Treasury $CEO" && "🎯")}</div>
                 </div>
                 <div className="pienomics-info-right">
                   <h3 className="pienomics-info-title">
