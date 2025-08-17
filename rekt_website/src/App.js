@@ -9,6 +9,7 @@ import CustomCursor from "./components/CustomCursor";
 import ProfileNFT from "./pages/ProfileNFT";
 import Meme from "./pages/Meme";
 import AdminPage from "./pages/Admin";
+import MemeGen from "./pages/MemeGen";
 
 
 function App() {
@@ -22,7 +23,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Introduction />} />
           <Route path="/pfp" element={<ProfileNFT />}/>
-          <Route path="/memes" element={<Meme />}/>
+          <Route path="/memes" element={<MemeGen />}/>
           <Route path="/admin" element={<AdminPage/>} />
           {/* <Route path="/chat" element={<Chat />}/> */}
         </Routes>
