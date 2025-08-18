@@ -10,15 +10,17 @@ import penthouse from "./creatives/penthouse.jpeg";
 import ProfileNFT from "./pages/ProfileNFT";
 import Meme from "./pages/Meme";
 import Chat from "./pages/Chat";
-import { ConnectionProvider, WalletProvider } from "@solana/wallet-adapter-react";
+import {
+  ConnectionProvider,
+  WalletProvider,
+} from "@solana/wallet-adapter-react";
 
 import { WalletAdapterNetwork } from "@solana/wallet-adapter-base";
 import { clusterApiUrl } from "@solana/web3.js";
 import AdminPage from "./pages/Admin";
-
+import { Analytics } from "@vercel/analytics/react";
 
 function App() {
-
   const [isMobile, setIsMobile] = useState(false);
 
   // The network can be set to 'devnet', 'testnet', or 'mainnet-beta'.
@@ -32,7 +34,6 @@ function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [network]
   );
-
 
   // useEffect(() => {
   //   // Detect screen width or use a user-agent check
@@ -66,28 +67,27 @@ function App() {
     //       </div>
     //     </div>
     //   ) : (
-      <ConnectionProvider endpoint={endpoint}>
-          <WalletProvider wallets={wallets} autoConnect>
+    <ConnectionProvider endpoint={endpoint}>
+      <WalletProvider wallets={wallets} autoConnect>
         <div className="App">
+          <Analytics />
           <Header />
 
           <div className="body">
             <Routes>
               <Route path="/" element={<Introduction />} />
-              <Route path="/pfp" element={<ProfileNFT />}/>
-              <Route path="/memes" element={<Meme />}/>
-              <Route path="/admin" element={<AdminPage/>} />
+              <Route path="/pfp" element={<ProfileNFT />} />
+              <Route path="/memes" element={<Meme />} />
+              <Route path="/admin" element={<AdminPage />} />
               {/* <Route path="/chat" element={<Chat />}/> */}
             </Routes>
           </div>
         </div>
-        </WalletProvider>
-        </ConnectionProvider>
+      </WalletProvider>
+    </ConnectionProvider>
     //   )}
     // </>
   );
 }
-
-
 
 export default App;
