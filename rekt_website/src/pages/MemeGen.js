@@ -3,6 +3,7 @@ import "./memeGen.css";
 import "../landingpage/styles/story.css";
 import InteractiveGlow from "../components/InteractiveGlow.js";
 import { categorizedMemeTemplates, memeCategories } from "../constants/memeData";
+import { exportNodeToPng } from "../utils/exportImage";
 import { FaInstagram, FaReddit } from "react-icons/fa";
 import { FaXTwitter } from "react-icons/fa6";
 import { SiFarcaster } from "react-icons/si";
@@ -555,7 +556,7 @@ const MemeGen = () => {
                     ↩️ Reset
                   </button>
                   <button
-                    onClick={() => showToast("Export coming soon!")}
+                    onClick={() => exportNodeToPng(stageRef.current, "rekt_ceo_meme.png")}
                     className="story-btn primary"
                   >
                     📥 Download
