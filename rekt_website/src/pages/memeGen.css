@@ -107,7 +107,8 @@
   color: white;
   /* Add top padding to account for fixed header */
   padding-top: 12vh; /* Match header height */
-  overflow: auto;
+  overflow-x: hidden;
+  overflow-y: hidden;
 }
 
 .meme-gen-main {
@@ -120,7 +121,8 @@
   max-height: calc(100vh - 12vh);
   display: flex;
   flex-direction: column;
-  overflow-y: scroll;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 .meme-gen-header {
@@ -196,7 +198,7 @@
   gap: 1.5rem;
   margin-bottom: 1.5rem;
   flex: 1;
-  height: calc(100vh - 22vh);
+  height: calc(100vh - 24vh);
   align-items: start;
 }
 
@@ -231,7 +233,7 @@
 }
 
 .meme-canvas-title {
-  font-size: 1.25rem;
+  font-size: 1.1rem;
   font-weight: 600;
   color: white;
   margin: 0;
@@ -957,12 +959,14 @@
 @media screen and (min-width: 1025px) {
   .meme-gen-container {
     height: 100vh;
-    overflow: hidden;
+    overflow-x: hidden;
+    overflow-y: hidden;
   }
   
   .meme-gen-main {
     height: calc(100vh - 12vh);
-    overflow: hidden;
+    overflow-x: hidden;
+    overflow-y: auto;
   }
   
   .meme-canvas-stage {
