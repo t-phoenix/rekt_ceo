@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-
 import "./styles/intro.css";
 import "./styles/faq.css";
 
@@ -11,6 +10,7 @@ import pumpfun from "../creatives/socials/pump.png";
 import raydium from "../creatives/socials/raydium.png";
 import memedepot from "../creatives/socials/memedepot.png"
 
+
 import BuySection from "./BuySection";
 import StorySection from "./StorySection";
 
@@ -18,8 +18,9 @@ import Roadmap from "./Roadmap";
 import Rektnomics from "./Rektnomics";
 import Banner from "../components/Banner";
 import { faqData } from "../constants/faqData";
-import { MdCopyright, MdLanguage, MdMail, MdMailOutline, } from "react-icons/md";
+import { MdCopyright, MdLanguage, MdMail, MdMailOutline, MdRocketLaunch, MdCelebration } from "react-icons/md";
 import { FaTwitter} from "react-icons/fa"
+import { FaDog } from "react-icons/fa";
 
 
 export default function Introduction() {
@@ -53,14 +54,14 @@ export default function Introduction() {
         className="landing-section"
       >
         <div className="landing-main-div">
-          <h1 className="landing-title">$ REKT CEO</h1>
+          <h1 className="landing-title">REKT $CEO</h1>
           <ul className="landing-subtitle">
-            <li>🚀 No Insider</li>
-            <li>🎉 No KOL</li>
-            <li>🐶 No Bullshit</li>
+            <li><MdRocketLaunch style={{color: "var(--color-red)"}} /> No Insider</li>
+            <li><MdCelebration style={{color: "var(--color-yellow)"}} /> No KOL</li>
+            <li><FaDog style={{color: "var(--color-blue-primary)"}} /> No Bullshit</li>
           </ul>
           <div style={{display: 'flex', flexDirection: 'row', justifyContent: 'space-around', width: '70%'}}>
-            <button style={{ width: "220px" }}>LAUNCHING SOON</button>
+            <button style={{ width: "220px" }} onClick={() => window.open(pitchDeckLink, "_blank")}>LAUNCHING SOON</button>
             <button style={{}} onClick={() => window.open(pitchDeckLink, "_blank")}>PITCH DECK</button>
           </div>
         </div>
