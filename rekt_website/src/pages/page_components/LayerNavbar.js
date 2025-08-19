@@ -1,6 +1,7 @@
 import React from "react";
 import { items } from "../../constants/layers";
 import "../pfp.css";
+import "../../landingpage/styles/story.css";
 
 
 export default function LayerNavbar({currentIndex, setCurrentIndex}){
@@ -20,7 +21,7 @@ export default function LayerNavbar({currentIndex, setCurrentIndex}){
     return (
     <div className="option-navbar">
         <button
-          className="scroll-button"
+          className="scroll-button story-btn primary"
           onClick={scrollLeft}
           disabled={currentIndex === 0}
         >
@@ -42,7 +43,7 @@ export default function LayerNavbar({currentIndex, setCurrentIndex}){
         </div>
 
         <button
-          className="scroll-button"
+          className="scroll-button story-btn primary"
           onClick={scrollRight}
           disabled={currentIndex === items.length - 1}
         >

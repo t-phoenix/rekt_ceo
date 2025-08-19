@@ -1,12 +1,8 @@
 import React, { useEffect, useState } from "react";
 import "./pfp.css";
-// import ceo from "../creatives/rekt_ceo_ambassador.png";
-
-//import { layerNames } from "../constants/layers";
-
+import "../landingpage/styles/story.css";
+import InteractiveGlow from "../components/InteractiveGlow.js";
 import { MdDownload, MdShuffle } from "react-icons/md";
-//import html2canvas from "html2canvas";
-import { styles } from "./mobileStyle";
 
 import LayerImage from "./page_components/LayerImage";
 import LayerNavbar from "./page_components/LayerNavbar";
@@ -19,7 +15,7 @@ export default function ProfileNFT() {
   // const [metadataJSON, setMetadataJSON] = useState("");
   // const [metadataURI, setMetadataURI] = useState("");
 
-  const [isMobile, setIsMobile] = useState(false);
+  const [screenWidth, setScreenWidth] = useState(window.innerWidth);
 
   const [currentIndex, setCurrentIndex] = useState(1); // Start with the second item as the current
 
@@ -27,18 +23,8 @@ export default function ProfileNFT() {
   const limits = [3, 6, 3, 5, 3, 6, 7]; // Maximum random value for each index
 
   useEffect(() => {
-    // Detect screen width or use a user-agent check
-    const handleResize = () => {
-      setIsMobile(window.innerWidth <= 992); // Adjust breakpoint as needed
-    };
-
-    // Initial check
-    handleResize();
-
-    // Add event listener for window resize
+    const handleResize = () => setScreenWidth(window.innerWidth);
     window.addEventListener("resize", handleResize);
-
-    // Cleanup event listener on unmount
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
@@ -99,115 +85,131 @@ export default function ProfileNFT() {
   // }
 
 
-  return (
-    <>
-      {isMobile ? (
-        <div style={styles.overlay}>
-          <div style={styles.messageBox}>
-            <h1 style={styles.heading}>We're Launching Soon!</h1>
-            <p style={styles.message}>
-              This website is currently under rapid development. Please wait a
-              bit for the best experience.
-            </p>
-            <p style={styles.message}>
-              We're working on a friendly version, coming soon!
-            </p>
+  // Show responsive message for small screens to match site theme
+  if (screenWidth < 1200) {
+    return (
+      <div className="responsive-message-container">
+        <div className="responsive-message-card">
+          <div className="responsive-message-icon">💼</div>
+          <h1 className="responsive-message-title">CEO of Responsiveness</h1>
+          <p className="responsive-message-subtitle">
+            This PFP builder is best experienced on desktop. Were brewing a mobile-friendly version.
+          </p>
+          <div className="responsive-message-requirements">
+            <div className="requirement-item">
+              <span className="requirement-icon">📱</span>
+              <span>Current: {screenWidth}px</span>
+            </div>
+            <div className="requirement-item">
+              <span className="requirement-icon">💻</span>
+              <span>Required: 1200px+</span>
+            </div>
           </div>
+          <p className="responsive-message-footer">
+            Switch to a larger screen to mint your ultimate REKT CEO PFP.
+          </p>
         </div>
-      ) : (
-        // <ConnectionProvider endpoint={endpoint}>
+      </div>
+    );
+  }
 
-        <div style={{ marginTop: "10vh", width: "100vw" }}>
-            <h1 style={{ marginBlock: "2%" }} className="section-title">
-              Mint Your Unique $CEO PFP NFT
-            </h1>
+  return (
+    <div className="pfp-gen-container">
+      <InteractiveGlow />
+      <main className="pfp-gen-main">
+        <header className="pfp-gen-header">
+          <h1 className="pfp-gen-title">Mint Your Unique $CEO PFP NFT</h1>
+        </header>
 
-            <div className="pfp-box">
-              {/* INSTRUCTIONS */}
-              <div className="pfp-instructions">
-                <h1>Instructions</h1>
-                <p className="pfp-instruct-point">Buy some $CEO</p>
-                <p className="pfp-instruct-point">Build your PFP</p>
-                <p className="pfp-instruct-point">MINT PFP NFT using $CEO</p>
-                <p className="pfp-instruct-point">Share on Social Media</p>
-                <p className="pfp-instruct-point">
-                  Use as your Twitter Profile Picture
-                </p>
+        <section className="pfp-gen-grid">
+          {/* Left Column: Info & CTA */}
+          <div className="pfp-left-column">
+            <div className="pfp-mint-card">
+              <div className="pfp-mint-header">
+                <h3 className="pfp-mint-title">Mint Info</h3>
               </div>
-              {/* PFP LAYER IMAGE */}
-              <div className="pfp-image-box">
-                <LayerImage selectedLayer={selectedLayer} />
-
-                <h2 style={{marginTop: '4%'}}>( NEW ART COMING SOON )</h2>
-
-                <div className="mint-button-box">
-                  <div style={{ textAlign: "left", marginLeft: "0%" }}>
-                    <p>
-                      <strong>Price:</strong> 20,000 $CEO
-                    </p>
-                    <p>
-                      <strong>Supply:</strong> --/ 999
-                    </p>
-                    <p>
-                      <strong>Balance:</strong> -- $CEO
-                    </p>
+              <div className="pfp-mint-content">
+                <div className="pfp-mint-grid">
+                  <div className="pfp-mint-item">
+                    <div className="pfp-mint-label">Price (CEO)</div>
+                    <div className="pfp-mint-value">20,000</div>
                   </div>
-
-                  <button style={{marginTop: '4%'}} onClick={handleMint}>Mint NFT (Soon)</button>
-
-                  {/* <div
-                    style={{
-                      width: "100%",
-                      display: "flex",
-                      flexDirection: "row",
-                      justifyContent: "space-around",
-                    }}
-                  >
-                    <div style={{ display: "flex", flexDirection: "column" }}>
-                      <button onClick={uploadMetadata}>Server + Pinata Upload</button>
-                    </div>
-                  </div> */}
+                  <div className="pfp-mint-item">
+                    <div className="pfp-mint-label">Supply</div>
+                    <div className="pfp-mint-value">-- / 999</div>
+                  </div>
+                  <div className="pfp-mint-item">
+                    <div className="pfp-mint-label">Your balance (CEO)</div>
+                    <div className="pfp-mint-value">--</div>
+                  </div>
                 </div>
               </div>
-              {/* PFP OPTIONS */}
-              <div className="pfp-options">
-                <h1>Options</h1>
+            </div>
 
-                {/* NAVBAR - PFP OPTIONS */}
-                <LayerNavbar
-                  currentIndex={currentIndex}
-                  setCurrentIndex={setCurrentIndex}
-                />
+            <div className="pfp-subtitle-card">
+              <div className="pfp-subtitle-content">
+                <p className="pfp-gen-subtitle-mint">
+                  Build your flex. Mint your identity. Become the CEO of your timeline.
+                </p>
+              </div>
+            </div>
+          </div>
 
-                {/* PFP IMAGES */}
-                {/* USE LAYER2 similiar to layer for better view*/}
+          {/* Center Column: Preview */}
+          <div className="pfp-canvas-card">
+            <div className="pfp-canvas-header">
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                <h3 className="pfp-canvas-title">PFP Preview</h3>
+                <div className="pfp-canvas-actions">
+                  <button onClick={downloadImage} className="story-btn primary">
+                    <span style={{ marginRight: 6 }}>Download</span> <MdDownload />
+                  </button>
+                  <button onClick={randomiseLayers} className="story-btn secondary">
+                    <span style={{ marginRight: 6 }}>Randomise</span> <MdShuffle />
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div className="pfp-canvas-content">
+              <div className="pfp-canvas-stage has-image">
+                <LayerImage selectedLayer={selectedLayer} />
+              </div>
+              <h4 style={{ marginTop: "0.6rem", opacity: 0.8 }}>(NEW ART COMING SOON)</h4>
+            </div>
+          </div>
+
+          {/* Right Column: Controls */}
+          <div className="pfp-controls-card">
+            <div className="pfp-controls-header">
+              <h3 className="pfp-controls-title">Options</h3>
+            </div>
+            <div className="pfp-controls-content">
+              <div className="pfp-control-group">
+                <LayerNavbar currentIndex={currentIndex} setCurrentIndex={setCurrentIndex} />
+              </div>
+              <div className="pfp-control-group">
                 <LayerOptions
                   currentIndex={currentIndex}
                   selectedLayer={selectedLayer}
                   setSelectedLayer={setSelectedLayer}
                 />
+              </div>
 
-                {/* BUTTONS */}
-                <div
-                  style={{
-                    display: "flex",
-                    flexDirection: "row",
-                    marginBlock: "8%",
-                    justifyContent: "space-evenly",
-                  }}
-                >
-                  <button onClick={downloadImage}>
-                    Download <MdDownload />
-                  </button>
-                  <button onClick={randomiseLayers}>
-                    Randomise <MdShuffle />
+              <div className="pfp-ready-card" style={{ marginTop: "0.6rem" }}>
+                <div className="pfp-ready-header">
+                  <h3 className="pfp-ready-title">Ready?</h3>
+                </div>
+                <div className="pfp-ready-content">
+                  <p className="pfp-ready-text">Mint your PFP NFT using $CEO. Coming soon.</p>
+                  <button onClick={handleMint} className="story-btn secondary" style={{ width: "100%" }}>
+                    Mint NFT (Soon)
                   </button>
                 </div>
               </div>
             </div>
           </div>
-
-      )}
-    </>
+        </section>
+      </main>
+    </div>
   );
 }
