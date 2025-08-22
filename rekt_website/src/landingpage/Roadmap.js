@@ -2,21 +2,29 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 import "./styles/roadmap.css";
 import neon_penthouse from "../creatives/neon_penthouse.jpg";
 
-// Roadmap milestones data
+// Roadmap milestones data: STATUS MAPPING
+// case:  "COMPLETED": return "#00ff00";
+
+// case:  "ACTIVE": return "#00ffff";
+// case:  "IN PROGRESS": return "#ffff00";
+// case:  "ONGOING": return "#00ffff";
+
+// case:  "UPCOMING": return "#ff00ff";
+// case:  "PLANNED": return "#ff6600";
 const milestones = [
   {
     id: 1,
     title: "GET $CEO",
-    status: "COMPLETED",
+    status: "ONGOING",
     description: "Join the revolution",
     cta: "Buy Now",
     ctaLink: "#buy",
-    progress: 100
+    progress: 80
   },
   {
     id: 2,
     title: "MINT PFP",
-    status: "ACTIVE",
+    status: "IN PROGRESS",
     description: "Create your identity",
     cta: "Mint NFT",
     ctaLink: "#pfp",
@@ -29,43 +37,43 @@ const milestones = [
     description: "Spread the culture",
     cta: "Create Meme",
     ctaLink: "#meme",
-    progress: 60
+    progress: 80
   },
   {
     id: 4,
-    title: "FUND CLUBHOUSE",
-    status: "IN PROGRESS",
-    description: "Build the community",
-    cta: "Contribute",
-    ctaLink: "#fund",
-    progress: 45
-  },
-  {
-    id: 5,
     title: "EARN ON RAYDIUM",
     status: "UPCOMING",
     description: "Become LP provider",
     cta: "Learn More",
     ctaLink: "#raydium",
-    progress: 20
+    progress: 0
+  },
+  {
+    id: 5,
+    title: "FUND CLUBHOUSE",
+    status: "UPCOMING",
+    description: "Build the community",
+    cta: "Contribute",
+    ctaLink: "#fund",
+    progress: 30
   },
   {
     id: 6,
-    title: "INVESTMENT BOX",
-    status: "UPCOMING",
-    description: "Fund the future",
-    cta: "Coming Soon",
-    ctaLink: "#invest",
-    progress: 10
-  },
-  {
-    id: 7,
     title: "DAO GOVERNANCE",
     status: "PLANNED",
     description: "Shape the ecosystem",
     cta: "Join Waitlist",
     ctaLink: "#dao",
-    progress: 5
+    progress: 10
+  },
+  {
+    id: 7,
+    title: "INVESTMENT BOX",
+    status: "PLANNED",
+    description: "Invest in the future",
+    cta: "Coming Soon",
+    ctaLink: "#invest",
+    progress: 10
   },
   {
     id: 8,
