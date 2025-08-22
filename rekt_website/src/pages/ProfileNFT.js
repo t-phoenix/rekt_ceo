@@ -2,7 +2,9 @@ import React, { useEffect, useState } from "react";
 import "./pfp.css";
 import "../landingpage/styles/story.css";
 import InteractiveGlow from "../components/InteractiveGlow.js";
+import StickerCard from "./page_components/StickerCard.js";
 import { MdDownload, MdShuffle } from "react-icons/md";
+import SocialShareFooter from "./page_components/SocialShareFooter.js";
 
 import LayerImage from "./page_components/LayerImage";
 import LayerNavbar from "./page_components/LayerNavbar";
@@ -19,23 +21,56 @@ export default function ProfileNFT() {
 
   const [currentIndex, setCurrentIndex] = useState(1); // Start with the second item as the current
 
-  const [selectedLayer, setSelectedLayer] = useState([0, 0, 0, 0, 0, 0, 0]); // BG/ Hoodie / Pants / Shoes/ Skin / Face / Coin
-  const limits = [3, 6, 3, 5, 3, 6, 7]; // Maximum random value for each index
+  const [selectedLayer, setSelectedLayer] = useState([0, 0, 0, 0, 0, 0, 0, 0]); // BG/ Hoodie / Pants / Shoes/ Skin / Face / Jewellery / Coin
+  const limits = [6, 3, 4, 5, 4, 5, 3, 7]; // Maximum random value for each index
 
-  useEffect(() => {
-    const handleResize = () => setScreenWidth(window.innerWidth);
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
+  
 
   const randomiseLayers = () => {
     const randomized = selectedLayer.map((_, index) =>
       Math.floor(Math.random() * (limits[index] + 1))
     );
+    console.log(randomized);
     setSelectedLayer(randomized);
   };
 
+  useEffect(() => {
+    const handleResize = () => setScreenWidth(window.innerWidth);
+    window.addEventListener("resize", handleResize);
+    randomiseLayers();
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   function handleMint() {}
+
+  const handleSocialShare = (platform) => {
+    const shareText = `Check out my Rekt CEO PFP NFT!`;
+    const shareUrl = window.location.href;
+
+    console.log(shareText, shareUrl);
+    
+    switch (platform) {
+      case 'download':
+        downloadImage();
+        break;
+      case 'twitter':
+        window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`, '_blank');
+        break;
+      case 'instagram':
+        // For Instagram, we'd need to download the image first
+        downloadImage();
+        break;
+      case 'farcaster':
+        // Farcaster integration coming soon
+        console.log('Farcaster sharing coming soon!');
+        break;
+      case 'reddit':
+        window.open(`https://reddit.com/submit?url=${encodeURIComponent(shareUrl)}&title=${encodeURIComponent(shareText)}`, '_blank');
+        break;
+      default:
+        break;
+    }
+  };
 
   
 
@@ -132,11 +167,11 @@ export default function ProfileNFT() {
                 <div className="pfp-mint-grid">
                   <div className="pfp-mint-item">
                     <div className="pfp-mint-label">Price (CEO)</div>
-                    <div className="pfp-mint-value">20,000</div>
+                    <div className="pfp-mint-value">Priceless</div>
                   </div>
                   <div className="pfp-mint-item">
                     <div className="pfp-mint-label">Supply</div>
-                    <div className="pfp-mint-value">-- / 999</div>
+                    <div className="pfp-mint-value">-- / 999 only</div>
                   </div>
                   <div className="pfp-mint-item">
                     <div className="pfp-mint-label">Your balance (CEO)</div>
@@ -145,6 +180,18 @@ export default function ProfileNFT() {
                 </div>
               </div>
             </div>
+
+            {/* Sticker Section */}
+            <StickerCard 
+              onAddSticker={(sticker) => {
+                // Handle sticker addition for PFP (placeholder for now)
+                console.log("Sticker added:", sticker);
+              }}
+              onRemoveAllStickers={() => {
+                // Handle sticker removal for PFP (placeholder for now)
+                console.log("All stickers removed");
+              }}
+            />
 
             <div className="pfp-subtitle-card">
               <div className="pfp-subtitle-content">
@@ -161,9 +208,9 @@ export default function ProfileNFT() {
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                 <h3 className="pfp-canvas-title">PFP Preview</h3>
                 <div className="pfp-canvas-actions">
-                  <button onClick={downloadImage} className="story-btn primary">
+                  {/* <button onClick={downloadImage} className="story-btn primary">
                     <span style={{ marginRight: 6 }}>Download</span> <MdDownload />
-                  </button>
+                  </button> */}
                   <button onClick={randomiseLayers} className="story-btn secondary">
                     <span style={{ marginRight: 6 }}>Randomise</span> <MdShuffle />
                   </button>
@@ -174,8 +221,11 @@ export default function ProfileNFT() {
               <div className="pfp-canvas-stage has-image">
                 <LayerImage selectedLayer={selectedLayer} />
               </div>
-              <h4 style={{ marginTop: "0.6rem", opacity: 0.8 }}>(NEW ART COMING SOON)</h4>
             </div>
+
+            {/* Social Share Footer */}
+            <SocialShareFooter onSocialShare={handleSocialShare} />
+            
           </div>
 
           {/* Right Column: Controls */}
@@ -184,6 +234,7 @@ export default function ProfileNFT() {
               <h3 className="pfp-controls-title">Options</h3>
             </div>
             <div className="pfp-controls-content">
+              
               <div className="pfp-control-group">
                 <LayerNavbar currentIndex={currentIndex} setCurrentIndex={setCurrentIndex} />
               </div>
@@ -194,6 +245,7 @@ export default function ProfileNFT() {
                   setSelectedLayer={setSelectedLayer}
                 />
               </div>
+              
 
               <div className="pfp-ready-card" style={{ marginTop: "0.6rem" }}>
                 <div className="pfp-ready-header">

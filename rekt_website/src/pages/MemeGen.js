@@ -2,22 +2,12 @@ import { useRef, useState, useEffect } from "react";
 import "./memeGen.css";
 import "../landingpage/styles/story.css";
 import InteractiveGlow from "../components/InteractiveGlow.js";
+import StickerCard from "./page_components/StickerCard.js";
 import { categorizedMemeTemplates, memeCategories } from "../constants/memeData";
 import { exportNodeToPng } from "../utils/exportImage";
-import { FaInstagram, FaReddit } from "react-icons/fa";
-import { FaXTwitter } from "react-icons/fa6";
-import { SiFarcaster } from "react-icons/si";
+import SocialShareFooter from "./page_components/SocialShareFooter.js";
 
-// Simple sticker configuration using emojis
-const STICKERS = [
-  { id: "brain", name: "Brain", emoji: "🧠", category: "AI" },
-  { id: "bot", name: "Bot", emoji: "🤖", category: "AI" },
-  { id: "rocket", name: "Rocket", emoji: "🚀", category: "AI" },
-  { id: "dollar", name: "Dollar", emoji: "💰", category: "CEO" },
-  { id: "trend", name: "Trend", emoji: "📈", category: "CEO" },
-  { id: "shield", name: "Shield", emoji: "🛡️", category: "CEO" },
-  { id: "ghost", name: "Ghost", emoji: "👻", category: "REKT" },
-];
+
 
 const suggestions = [
   ["WHEN MARKET DIPS", "I BUY THE DIP DIP"],
@@ -80,6 +70,16 @@ const MemeGen = () => {
       categoriesContainer.style.setProperty("--active-index", activeIndex);
     }
   }, [activeCategory]);
+
+  // Initialize with a random meme template on page load
+  useEffect(() => {
+    // Small delay to ensure all templates are loaded
+    const timer = setTimeout(() => {
+      randomizeMemeTemplate();
+    }, 100);
+    
+    return () => clearTimeout(timer);
+  }, []);
 
   // Show responsive message for small screens
   if (screenWidth < 1200) {
@@ -160,6 +160,43 @@ const MemeGen = () => {
     }
   };
 
+  // Function to randomly select a meme template
+  const randomizeMemeTemplate = () => {
+    // Get all available templates from all categories
+    const allTemplates = Object.values(categorizedMemeTemplates).flat();
+    
+    if (allTemplates.length === 0) {
+      showToast("No meme templates available.");
+      return;
+    }
+
+    // Randomly select a template
+    const randomTemplate = allTemplates[Math.floor(Math.random() * allTemplates.length)];
+    
+    // Find which category this template belongs to
+    const templateCategory = Object.keys(categorizedMemeTemplates).find(category =>
+      categorizedMemeTemplates[category].some(template => template.id === randomTemplate.id)
+    );
+
+    // Update the active category and selected template
+    if (templateCategory) {
+      setActiveCategory(templateCategory);
+      setActiveId(null);
+      setActiveTextId(null);
+      setItems([]);
+      setTopText("");
+      setBottomText("");
+      setFont("display");
+      setTextColor("#ffffff");
+      setStrokeColor("#000000");
+      
+      // Apply the random template
+      handleTemplateSelect(randomTemplate.id);
+      
+      showToast(`Randomized to ${randomTemplate.name}!`);
+    }
+  };
+
   const onPickSuggestion = () => {
     const [t, b] = suggestions[Math.floor(Math.random() * suggestions.length)];
     setTopText(t);
@@ -178,7 +215,8 @@ const MemeGen = () => {
         id: `${s.id}-${crypto.randomUUID()}`,
         x: 40 + prev.length * 16,
         y: 40 + prev.length * 16,
-        emoji: s.emoji,
+        image: s.image,
+        name: s.name,
         scale: 1,
         rotation: 0,
       },
@@ -186,11 +224,15 @@ const MemeGen = () => {
   };
 
   const handlePointerDown = (id) => (e) => {
+    e.preventDefault();
+    e.stopPropagation();
     setActiveId(id);
     e.target.setPointerCapture(e.pointerId);
   };
 
   const handleTextPointerDown = (textId) => (e) => {
+    e.preventDefault();
+    e.stopPropagation();
     setActiveTextId(textId);
     e.target.setPointerCapture(e.pointerId);
   };
@@ -280,7 +322,7 @@ const MemeGen = () => {
     // - Dragging northwest (up-left) should decrease size
     // We combine both X and Y movement for intuitive diagonal resizing
     const scaleDelta = (deltaY + deltaX) * 0.003; // Combined movement for natural feel
-    const newScale = Math.max(0.5, Math.min(3, resizeStartScale + scaleDelta));
+    const newScale = Math.max(0.5, Math.min(2, resizeStartScale + scaleDelta));
     
     if (resizeTarget.type === 'text') {
       setTextPositions((prev) => ({
@@ -438,33 +480,7 @@ const MemeGen = () => {
     // }
   };
 
-  // Social share platforms configuration
-  const SOCIAL_PLATFORMS = [
-    {
-      id: 'twitter',
-      name: 'X (Twitter)',
-      icon: FaXTwitter,
-      title: 'Share on X (Twitter)'
-    },
-    {
-      id: 'instagram',
-      name: 'Instagram',
-      icon: FaInstagram,
-      title: 'Share on Instagram'
-    },
-    {
-      id: 'farcaster',
-      name: 'Farcaster',
-      icon: SiFarcaster,
-      title: 'Share on Farcaster'
-    },
-    {
-      id: 'reddit',
-      name: 'Reddit',
-      icon: FaReddit,
-      title: 'Share on Reddit'
-    }
-  ];
+
 
   return (
     <div className="meme-gen-container">
@@ -505,31 +521,10 @@ const MemeGen = () => {
             </div>
 
             {/* Sticker Section */}
-            <div className="meme-sticker-card">
-              <div className="meme-sticker-header">
-                <h3 className="meme-sticker-title">Stickers</h3>
-                <button 
-                  onClick={removeAllStickers} 
-                  className="dustbin-btn"
-                  title="Remove all stickers"
-                >
-                  🗑️
-                </button>
-              </div>
-              <div className="meme-sticker-content">
-                <div className="meme-sticker-grid-simple">
-                  {STICKERS.map((s) => (
-                    <button
-                      key={s.id}
-                      onClick={() => onAddSticker(s)}
-                      className="meme-sticker-btn-simple"
-                    >
-                      {s.emoji}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
+            <StickerCard 
+              onAddSticker={onAddSticker}
+              onRemoveAllStickers={removeAllStickers}
+            />
 
             <div className="meme-subtitle-card">
               <div className="meme-subtitle-content">
@@ -556,10 +551,10 @@ const MemeGen = () => {
                     ↩️ Reset
                   </button>
                   <button
-                    onClick={() => exportNodeToPng(stageRef.current, "rekt_ceo_meme.png")}
+                    onClick={randomizeMemeTemplate}
                     className="story-btn primary"
                   >
-                    📥 Download
+                    🔮 Randomize
                   </button>
                 </div>
               </div>
@@ -567,6 +562,13 @@ const MemeGen = () => {
             <div className="meme-canvas-content">
               <div
                 ref={stageRef}
+                onPointerDown={(e) => {
+                  // If clicking on the canvas itself (not on a sticker or text), release any active drag
+                  if (e.target === e.currentTarget) {
+                    setActiveId(null);
+                    setActiveTextId(null);
+                  }
+                }}
                 onPointerMove={(e) => {
                   handlePointerMove(e);
                   handleResizeMove(e);
@@ -577,6 +579,8 @@ const MemeGen = () => {
                   handleResizeEnd(e);
                   handleRotateEnd(e);
                 }}
+                onDragOver={(e) => e.preventDefault()}
+                onDrop={(e) => e.preventDefault()}
                 className={`meme-canvas-stage ${imageSrc ? "has-image" : ""}`}
                 style={{
                 }}
@@ -632,7 +636,13 @@ const MemeGen = () => {
                       transform: `scale(${it.scale}) rotate(${it.rotation}deg)`
                     }}
                   >
-                    {it.emoji}
+                    <img 
+                      src={it.image} 
+                      alt={it.name}
+                      draggable="false"
+                      onDragStart={(e) => e.preventDefault()}
+                      style={{ width: '60px', height: '60px', objectFit: 'contain' }}
+                    />
                     <button 
                       className="sticker-delete-btn" 
                       onClick={() => removeSticker(it.id)}
@@ -686,20 +696,7 @@ const MemeGen = () => {
               
             </div>
             {/* Social Share Footer */}
-            <div className="meme-social-footer">
-                <div className="social-share-buttons">
-                  {SOCIAL_PLATFORMS.map((platform) => (
-                    <button 
-                      key={platform.id}
-                      className={`social-share-btn`}
-                      onClick={() => handleSocialShare(platform.id)}
-                      title={platform.title}
-                    >
-                      <platform.icon size={24} />
-                    </button>
-                  ))}
-                </div>
-              </div>
+            <SocialShareFooter onSocialShare={handleSocialShare} />
           </div>
 
           {/* Right Column - Controls */}

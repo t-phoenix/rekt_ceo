@@ -48,6 +48,74 @@
     transform: translateY(-2px);
 }
 
+/* Social Share Footer */
+.meme-social-footer {
+  width: 100%;
+  padding: 0rem 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(216, 30, 91, 0.05);
+  border-radius: 0 0 12px 12px;
+}
+
+.social-share-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  width: 100%;
+}
+
+.social-share-btn {
+  border: none;
+  border-radius: 6px;
+  background: var(--color-red);
+  height: 42px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(216, 30, 91, 0.3);
+}
+
+.social-share-btn:hover {
+  background: var(--color-yellow);
+  color: var(--color-black);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(248, 200, 38, 0.4);
+}
+
+.social-share-btn:active {
+  transform: scale(1.1);
+  transition: transform 0.1s ease;
+}
+
+.social-share-btn.clicked {
+  animation: buttonClick 0.5s ease;
+}
+
+@keyframes buttonClick {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(0.96);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.social-share-btn svg {
+  width: 20px;
+  height: 20px;
+}
+
 /* Ensure disabled state overrides primary styling */
 .option-navbar .scroll-button.story-btn.primary:disabled {
     background: #d3d3d3;
@@ -83,7 +151,7 @@
   .option.current {
     font-weight: 900;
     font-size: 18px;
-    color: var(--color-red);  
+    color: var(--color-yellow);  
     opacity: 1;
 
     transform: scale(1); /* Scale up current item */
@@ -234,9 +302,9 @@
 .pfp-gen-main {
     position: relative;
     z-index: 1;
-    max-width: 1400px;
+    max-width: 1600px;
     margin: 0 auto;
-    padding-inline: 0.8rem;
+    padding-inline: 1rem;
     padding-bottom: 1rem;
     max-height: calc(100vh - 12vh);
     display: flex;
@@ -297,7 +365,7 @@
 .pfp-mint-card { height: fit-content; margin-bottom: 0.5rem; }
 .pfp-ready-card { height: fit-content; }
 .pfp-canvas-card { display: flex; flex-direction: column; height: 98%; margin-bottom: 0.6rem; }
-.pfp-controls-card { display: flex; flex-direction: column; height: fit-content; max-height: 98%; }
+.pfp-controls-card { display: flex; flex-direction: column; height: 98%;}
 
 .pfp-mint-header,
 .pfp-ready-header,
@@ -340,7 +408,7 @@
 /* Canvas */
 .pfp-canvas-actions { display: flex; align-items: center; gap: 0.75rem; }
 .pfp-canvas-content { padding: 0.4rem; flex: 1; min-height: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; max-height: 100%; overflow: hidden; }
-.pfp-canvas-stage { margin-top: 0.4rem; position: relative; width: 100%; max-width: 350px; aspect-ratio: 1; border-radius: 12px; border: 2px solid rgba(255, 255, 255, 0.2); background: linear-gradient(135deg, var(--background-color-secondary) 0%, var(--color-magenta) 100%); overflow: hidden; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3); flex-shrink: 0; }
+.pfp-canvas-stage { position: relative; width: 100%; max-width: 450px; aspect-ratio: 1; border-radius: 12px; border: 2px solid rgba(255, 255, 255, 0.2); background: linear-gradient(135deg, var(--background-color-secondary) 0%, var(--color-magenta) 100%); overflow: hidden; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3); flex-shrink: 0; }
 .pfp-canvas-stage.has-image { background-size: contain; background-position: center; }
 
 /* Controls */
@@ -351,5 +419,5 @@
 @media screen and (min-width: 1025px) {
     .pfp-gen-container { height: 100vh; overflow-x: hidden; overflow-y: hidden; }
     .pfp-gen-main { height: calc(100vh - 12vh); overflow-x: hidden; overflow-y: auto; }
-    .pfp-canvas-stage { max-width: min(400px, 30vw); }
+    .pfp-canvas-stage { max-width: min(500px, 35vw); }
 }
