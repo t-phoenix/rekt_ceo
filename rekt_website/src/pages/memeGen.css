@@ -712,6 +712,7 @@
   color: white;
   font-size: 0.875rem;
   transition: all 0.2s ease;
+  width: 100%;
 }
 
 .meme-input:focus {
