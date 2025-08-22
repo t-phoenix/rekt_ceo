@@ -1,0 +1,201 @@
+.provide-liquidity-card {
+  width: 100%;
+  background: rgba(59, 28, 50, 0.95);
+  backdrop-filter: blur(20px);
+  border-radius: 16px;
+  padding: 1.5rem;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.provide-liquidity-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+}
+
+.card-header {
+  margin-bottom: 1.5rem;
+}
+
+.card-title {
+  color: var(--color-yellow, #ffd700);
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin: 0;
+  text-align: center;
+}
+
+.card-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.tabs-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.tabs-list {
+  display: flex;
+  flex-direction: row;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  flex-wrap: nowrap;
+  justify-content: center;
+}
+
+.tab-trigger {
+  background: var(--background-color-third);
+  border: none;
+  border-radius: 6px;
+  padding: 0.4rem 0.8rem;
+  color: var(--color-white);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 0.7rem;
+  font-weight: 700;
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  white-space: nowrap;
+  min-width: 60px;
+  box-shadow: 0 4px 15px rgba(216, 30, 91, 0.3);
+}
+
+.tab-trigger:hover {
+  background: var(--color-red);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(216, 30, 91, 0.4);
+}
+
+.tab-trigger.active {
+  background: var(--color-yellow);
+  color: var(--color-black);
+  box-shadow: 0 4px 15px rgba(248, 200, 38, 0.3);
+}
+
+.tab-content {
+  display: none;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.tab-content.active {
+  display: flex;
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.input-group label {
+  color: #cccbcb;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.amount-input {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 0.75rem;
+  color: white;
+  font-size: 1rem;
+  transition: border-color 0.2s ease;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.amount-input:focus {
+  outline: none;
+  border-color: var(--color-blue, #4a90e2);
+}
+
+.amount-input:read-only {
+  background: rgba(255, 255, 255, 0.02);
+  color: #999;
+  cursor: not-allowed;
+}
+
+.ratio-info {
+  color: #999;
+  font-size: 0.875rem;
+  text-align: center;
+  padding: 0.5rem;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 6px;
+}
+
+.add-liquidity-button {
+  background: var(--background-color-third);
+  color: var(--color-white);
+  border: none;
+  border-radius: 6px;
+  padding: 0.875rem;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(216, 30, 91, 0.3);
+  margin: 0;
+  width: 100%;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.add-liquidity-button:hover {
+  background: var(--color-red);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(216, 30, 91, 0.4);
+}
+
+.add-liquidity-button:active {
+  transform: translateY(0px);
+  box-shadow: 0 2px 10px rgba(216, 30, 91, 0.3);
+}
+
+.pool-info {
+  color: #999;
+  font-size: 0.75rem;
+  text-align: center;
+  line-height: 1.4;
+  margin-top: 1rem;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+} 
+
+/* Ensure cards have consistent sizing */
+.exchange-section .buy-ceo-card,
+.exchange-section .provide-liquidity-card {
+  width: 100%;
+  max-width: 500px;
+  min-height: 400px;
+}
+
+/* Responsive tab button sizing */
+@media (max-width: 480px) {
+  .tabs-list {
+    gap: 0.25rem;
+  }
+  
+  .tab-trigger {
+    padding: 0.3rem 0.6rem;
+    font-size: 0.65rem;
+    min-width: 50px;
+  }
+}
+
+@media (min-width: 481px) and (max-width: 768px) {
+  .tab-trigger {
+    padding: 0.35rem 0.7rem;
+    font-size: 0.7rem;
+    min-width: 55px;
+  }
+} 

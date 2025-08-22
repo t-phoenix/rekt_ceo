@@ -1,0 +1,88 @@
+.cursor-follower {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 50px;
+  height: 50px;
+  pointer-events: none;
+  z-index: 9999; /* above UI */
+  transform-origin: center center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cursor-rekt-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: rektGlow 2.5s ease infinite;
+  border-radius: 100%;
+  width: 50px;
+  height: 50px;
+  overflow: hidden;
+}
+
+.rekt-logo-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 0 2px var(--color-yellow));
+  transition: all 0.3s ease;
+}
+
+/* Keyframe for the REKT logo glow animation */
+@keyframes rektGlow {
+  0% {
+    filter: drop-shadow(0 0 8px var(--color-purple));
+  }
+  20% {
+    filter: drop-shadow(0 0 10px var(--color-blue-primary));
+  }
+  40% {
+    filter: drop-shadow(0 0 12px var(--color-purple));
+  }
+  60% {
+    filter: drop-shadow(0 0 10px var(--color-blue-primary));
+  }
+  80% {
+    filter: drop-shadow(0 0 9px var(--color-purple));
+  }
+  100% {
+    filter: drop-shadow(0 0 8px var(--color-purple));
+  }
+}
+
+/* No hover animations - keeping cursor simple */
+
+/* Touch hint */
+.cursor-hint {
+  position: fixed;
+  left: 1rem;
+  bottom: 1rem;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  filter: drop-shadow(0 0 6px rgba(248, 200, 38, 0.4));
+  animation: rektGlow 2s ease infinite;
+  opacity: 0.85;
+  z-index: 9999;
+  pointer-events: none;
+  background-color: #000000;
+  border-radius: 100%;
+  overflow: hidden;
+}
+
+.hint-logo-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 0 4px var(--color-yellow));
+}
+
+@media (pointer: coarse), (hover: none) {
+  .cursor-follower { display: none; }
+}
+

@@ -15,8 +15,8 @@
 }
 
 .landing-main-div{
-    height: 50%;
-    width: 50%;
+    height: 60%;
+    width: 70%;
     backdrop-filter: blur(50px);
     border-radius: 16px;
     display: flex;
@@ -32,11 +32,74 @@
     color: var(--color-red);
 }
 
+/* Beautiful gradient for the dollar sign */
+.dollar-gradient {
+    /* Fallback for browsers that don't support background-clip: text */
+    color: var(--color-yellow);
+    
+    background: linear-gradient(
+        45deg,
+        var(--color-yellow),
+        var(--color-blue-primary),
+        var(--color-purple),
+        var(--color-yellow),
+        var(--color-blue-primary)
+    );
+    background-size: 400% 400%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: dollarShift 2.5s ease infinite;
+    font-weight: 900;
+}
+
+/* Only apply transparent color if browser supports background-clip */
+@supports (-webkit-background-clip: text) or (background-clip: text) {
+    .dollar-gradient {
+        color: transparent;
+    }
+}
+
+/* Keyframe for the dollar gradient animation */
+@keyframes dollarShift {
+    0% {
+        background-position: 0% 50%;
+        filter: drop-shadow(0 0 18px var(--color-purple));
+    }
+    20% {
+        background-position: 25% 50%;
+        filter: drop-shadow(0 0 20px var(--color-blue-primary));
+    }
+    40% {
+        background-position: 50% 50%;
+        filter: drop-shadow(0 0 22px var(--color-purple));
+    }
+    60% {
+        background-position: 75% 50%;
+        filter: drop-shadow(0 0 20px var(--color-blue-primary));
+    }
+    80% {
+        background-position: 100% 50%;
+        filter: drop-shadow(0 0 19px var(--color-purple));
+    }
+    100% {
+        background-position: 0% 50%;
+        filter: drop-shadow(0 0 18px var(--color-purple));
+    }
+}
+
+/* Reduce motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+    .dollar-gradient {
+        animation-duration: 8s;
+    }
+}
+
 .section-title{
     font-size: 80px;
     color: var(--color-red);
     text-shadow: 2px 2px var(--color-blue);
-    margin-top: 8%;
+    margin-top: 2%;
     margin-bottom: 2%;
     z-index: 2;
 }
@@ -46,7 +109,7 @@
     flex-direction: row;
     justify-content: space-around;
     align-items: center;
-    width: 80%;
+    width: 60%;
     font-weight:700;
     font-size: 24px;
     margin-block: 36px;
@@ -58,8 +121,8 @@
     height: 600px;
     width: 800px;
     z-index: 1;
-    left: -80px;
-    top: 54vh;
+    left: -200px;
+    top: 44vh;
 }
 
 
@@ -69,13 +132,16 @@
 @media screen and (max-width: 992px) {
     .landing-main-div{
         width: 90%;
-        height: 60%;
+        height: 70%;
+    }
+    .landing-subtitle{
+        max-width: 100%;
     }
     .ambassador-image{
-        top: 80vh;
+        top: 60vh;
         left: -80px;
-        height: 300px;
-        width: 400px;
+        height: 400px;
+        width: 500px;
     }
     
 }
@@ -83,19 +149,38 @@
 /* FOR MOBILE */
 @media screen and (max-width: 600px){
     .landing-main-div{
-        height: 60%;
-            backdrop-filter: blur(100px);
+        height: 72%;
+        backdrop-filter: blur(10px);
     }
     .landing-title{
-        font-size: 60px;
-        color: var(--color-yellow);
+        padding-inline: 4%;
+        font-size: 48px;
+        color: var(--color-red);
+    }
+    
+    /* Mobile optimization for dollar gradient */
+    .dollar-gradient {
+        animation-duration: 2s; /* Snappy and energetic on mobile */
+        filter: drop-shadow(0 0 12px rgba(248, 200, 38, 0.5)); /* Vibrant glow for mobile */
     }
     .landing-subtitle{
         width: 60%;
+        display: flex;
         flex-direction: column;
         align-items: start;
+        justify-content: center;
+        gap: 10px;
+        padding-left: 4%;
+        color: var(--color-black);
+        
     }
     .section-title{
         font-size: 48px;
+    }
+    .ambassador-image{
+        top: 70vh;
+        left: -100px;
+        height: 300px;
+        width: 400px;
     }
 }

@@ -1,0 +1,1293 @@
+.pienomics-section {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  min-height: 100vh;
+  background: linear-gradient(135deg, var(--color-magenta) 70%, var(--color-purple) 100%, var(--color-blue) 100%);
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  overflow: hidden;
+  position: relative;
+  z-index: 1;
+}
+
+.pienomics-container {
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 1rem 2rem;
+  position: relative;
+  z-index: 2;
+}
+
+.pienomics-header {
+  text-align: center;
+}
+
+.pienomics-title {
+  font-size: 4rem;
+  font-weight: 700;
+  color: var(--color-white);
+  text-shadow: 2px 2px var(--color-blue);
+  margin-bottom: 0.5rem;
+}
+
+.pienomics-subtitle {
+  font-size: 1.25rem;
+  color: var(--color-offwhite);
+  max-width: 900px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+.pienomics-charts-container {
+  position: relative;
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 2rem;
+  align-items: center;
+  justify-items: center;
+  margin: 2rem 0;
+  min-height: 400px;
+}
+
+.pienomics-chart {
+  position: relative;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  transform: scale(1);
+  z-index: 3;
+  width: 300px;
+  height: 300px;
+  margin: 0;
+}
+
+.pienomics-chart:hover {
+  transform: scale(1.05);
+}
+
+.pienomics-chart.active {
+  transform: scale(1.1);
+}
+
+.pienomics-chart.active .pienomics-chart-header {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.15));
+  border-color: rgba(255, 255, 255, 0.6);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+}
+
+.pienomics-chart.active .chart-header-icon {
+  animation: iconFloat 2s ease-in-out infinite;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.4));
+}
+
+.pienomics-chart.active .chart-header-glow {
+  opacity: 0.3;
+  background: radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.2) 0%, transparent 60%);
+}
+
+.pienomics-chart.large {
+  width: 300px;
+  height: 300px;
+}
+
+.pienomics-chart.medium {
+  width: 200px;
+  height: 200px;
+}
+
+.pienomics-chart-header {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.05));
+  padding: 1rem;
+  border-radius: 16px;
+  backdrop-filter: blur(15px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.pienomics-chart-header:hover {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.25), rgba(255, 255, 255, 0.1));
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+.chart-header-icon {
+  font-size: 2rem;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+  animation: iconFloat 3s ease-in-out infinite;
+}
+
+.chart-header-content {
+  flex: 1;
+  text-align: left;
+}
+
+.pienomics-chart-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--color-white);
+  margin: 0 0 0.25rem 0;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.chart-header-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.chart-subtitle {
+  font-size: 0.75rem;
+  color: var(--color-offwhite);
+  opacity: 0.8;
+  font-weight: 500;
+}
+
+.chart-value {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--color-yellow);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.chart-header-glow {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+.pienomics-chart-header:hover .chart-header-glow {
+  opacity: 1;
+}
+
+@keyframes iconFloat {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-3px);
+  }
+}
+
+.pienomics-chart-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-white);
+  margin-bottom: 0.5rem;
+}
+
+.pienomics-chart-subtitle {
+  font-size: 0.875rem;
+  color: var(--color-offwhite);
+  margin-bottom: 0.25rem;
+}
+
+.pienomics-chart-value {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-yellow);
+}
+
+.pienomics-svg {
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.3));
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 10px;
+}
+
+.pienomics-slice {
+  cursor: pointer;
+  transition: all 0.3s ease;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+}
+
+.pienomics-slice:hover {
+  filter: brightness(1.3) drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+  transform: scale(1.02);
+}
+
+.pienomics-slice-label {
+  font-size: 1rem;
+  font-weight: 700;
+  text-anchor: middle;
+  dominant-baseline: middle;
+  fill: var(--color-white);
+  filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.8));
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.9);
+}
+
+.pienomics-slice-label tspan:first-child {
+  font-size: 1.2rem;
+  filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.8));
+}
+
+.pienomics-slice-label tspan:last-child {
+  font-size: 0.9rem;
+  font-weight: 800;
+  fill: var(--color-yellow);
+  filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.8));
+}
+
+/* Enhanced visibility for chart labels */
+.pienomics-chart:hover .pienomics-slice-label {
+  font-size: 1.1rem;
+}
+
+.pienomics-chart:hover .pienomics-slice-label tspan:first-child {
+  font-size: 1.3rem;
+}
+
+.pienomics-chart:hover .pienomics-slice-label tspan:last-child {
+  font-size: 1rem;
+}
+
+/* Make labels more prominent when chart is active */
+.pienomics-chart.active .pienomics-slice-label {
+  font-size: 1.1rem;
+}
+
+.pienomics-chart.active .pienomics-slice-label tspan:first-child {
+  font-size: 1.3rem;
+}
+
+.pienomics-chart.active .pienomics-slice-label tspan:last-child {
+  font-size: 1rem;
+}
+
+.pienomics-info-panel {
+  position: relative;
+  width: 100%;
+  max-width: 300px;
+  margin: 0rem auto 0;
+  padding: 0 1rem;
+  z-index: 4;
+}
+
+.pienomics-info-card {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(20px);
+  border-radius: 16px;
+  padding: 1rem;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  animation: piePop 0.3s ease-out;
+}
+
+.pienomics-info-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.pienomics-info-left {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pienomics-info-right {
+  flex: 1;
+  text-align: left;
+}
+
+.pienomics-info-icon {
+  font-size: 2.5rem;
+  margin: 0;
+}
+
+.pienomics-info-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--color-white);
+  margin-bottom: 0.4rem;
+}
+
+.pienomics-info-percentage {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--color-yellow);
+  margin-bottom: 0.6rem;
+}
+
+.pienomics-info-description {
+  color: var(--color-offwhite);
+  margin-bottom: 0.75rem;
+  line-height: 1.4;
+}
+
+.pienomics-info-funfact {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 0.6rem;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--color-yellow);
+}
+
+/* Background elements */
+
+
+.pienomics-falling-token {
+  position: absolute;
+  font-size: 1.5rem;
+  pointer-events: none;
+  animation: fallingToken 4s linear infinite;
+  z-index: 2;
+}
+
+.pienomics-star {
+  position: absolute;
+  color: var(--color-yellow);
+  animation: sparkle 3s ease-in-out infinite;
+  z-index: 3;
+}
+
+/* Animations */
+@keyframes piePop {
+  0% {
+    opacity: 0;
+    transform: translateX(-50%) scale(0.8);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(-50%) scale(1);
+  }
+}
+
+
+
+@keyframes fallingToken {
+  0% {
+    transform: translateY(-100px) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(100vh) rotate(360deg);
+    opacity: 0;
+  }
+}
+
+@keyframes sparkle {
+  0%, 100% {
+    opacity: 0.3;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.pienomics-chart {
+  animation: float 3s ease-in-out infinite;
+}
+
+.pienomics-chart.active {
+  animation: float 2s ease-in-out infinite;
+}
+
+/* Token colors */
+.token-community {
+  fill: var(--color-green);
+}
+
+.token-burn {
+  fill: var(--color-red);
+}
+
+.token-liquidity {
+  fill: var(--color-blue);
+}
+
+.token-team {
+  fill: var(--color-purple);
+}
+
+.token-marketing {
+  fill: var(--color-yellow);
+}
+
+/* Responsive design for four device breakpoints */
+
+/* Ultra-wide screens (1440px and above) */
+@media screen and (min-width: 1440px) {
+  .pienomics-container {
+    max-width: 1600px;
+    padding: 2rem 3rem;
+  }
+  
+  .pienomics-title {
+    font-size: 5rem;
+  }
+  
+  .pienomics-subtitle {
+    font-size: 1.5rem;
+    max-width: 1200px;
+  }
+  
+  .pienomics-charts-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 4rem;
+    align-items: center;
+    justify-items: center;
+    margin: 3rem 0;
+    position: relative;
+    height: auto;
+    min-height: 600px;
+  }
+  
+  .pienomics-chart {
+    position: relative;
+    width: 350px;
+    height: 350px;
+    margin: 0;
+  }
+  
+  .pienomics-chart.large {
+    width: 400px;
+    height: 400px;
+    align-self: center;
+  }
+  
+  .pienomics-chart.medium {
+    width: 300px;
+    height: 300px;
+  }
+  
+  /* Adjust Y-axis positioning for side charts */
+  .pienomics-chart:nth-child(1) {
+    align-self: flex-end;
+    margin-bottom: 2rem;
+  }
+  .pienomics-chart:nth-child(2) {
+    align-self: flex-start;
+    margin-top: 0.6rem;
+  }
+  
+  .pienomics-chart:nth-child(3) {
+    align-self: flex-start;
+    margin-top: 6rem;
+  }
+  
+  .pienomics-chart-header {
+    padding: 1.5rem;
+    gap: 1rem;
+  }
+  
+  .chart-header-icon {
+    font-size: 2.5rem;
+  }
+  
+  .pienomics-chart-title {
+    font-size: 1.3rem;
+  }
+  
+  .chart-subtitle {
+    font-size: 0.9rem;
+  }
+  
+  .chart-value {
+    font-size: 1.1rem;
+  }
+  
+  .pienomics-info-panel {
+    position: relative;
+    top: auto;
+    left: auto;
+    transform: none;
+    max-width: 600px;
+    margin: -4rem auto 0;
+    padding: 0 1rem;
+  }
+  
+  .pienomics-info-card {
+    padding: 1.5rem;
+  }
+  
+  .pienomics-info-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 1.5rem;
+    margin-bottom: 0.75rem;
+  }
+  
+  .pienomics-info-left {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .pienomics-info-right {
+    flex: 1;
+    text-align: left;
+  }
+  
+  .pienomics-info-icon {
+    font-size: 3.5rem;
+    margin: 0;
+  }
+  
+  .pienomics-info-title {
+    font-size: 1.3rem;
+  }
+  
+  .pienomics-info-percentage {
+    font-size: 1.8rem;
+  }
+  
+  .pienomics-info-description {
+    font-size: 1rem;
+  }
+  
+  .pienomics-info-funfact {
+    font-size: 0.9rem;
+    padding: 0.8rem;
+  }
+}
+
+/* Laptop screens (1024px - 1439px) */
+@media screen and (min-width: 1024px) and (max-width: 1439px) {
+  .pienomics-container {
+    max-width: 1200px;
+    padding: 1.5rem 2rem;
+  }
+  
+  .pienomics-title {
+    font-size: 4rem;
+  }
+  
+  .pienomics-subtitle {
+    font-size: 1.25rem;
+    max-width: 900px;
+  }
+  
+  .pienomics-charts-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 3rem;
+    align-items: center;
+    justify-items: center;
+    margin: 2rem 0;
+    position: relative;
+    height: auto;
+    min-height: 500px;
+  }
+  
+  .pienomics-chart {
+    position: relative;
+    width: 280px;
+    height: 280px;
+    margin: 0;
+  }
+  
+  .pienomics-chart.large {
+    width: 320px;
+    height: 320px;
+    align-self: center;
+  }
+  
+  .pienomics-chart.medium {
+    width: 240px;
+    height: 240px;
+  }
+  
+  /* Adjust Y-axis positioning for side charts */
+  .pienomics-chart:nth-child(1) {
+    align-self: flex-end;
+    margin-bottom: 1.5rem;
+  }
+  
+  .pienomics-chart:nth-child(3) {
+    align-self: flex-start;
+    margin-top: 1.5rem;
+  }
+  
+  .pienomics-chart-header {
+    padding: 1rem;
+    gap: 0.75rem;
+  }
+  
+  .chart-header-icon {
+    font-size: 2rem;
+  }
+  
+  .pienomics-chart-title {
+    font-size: 1.1rem;
+  }
+  
+  .chart-subtitle {
+    font-size: 0.75rem;
+  }
+  
+  .chart-value {
+    font-size: 0.9rem;
+  }
+  
+  .pienomics-info-panel {
+    position: relative;
+    top: auto;
+    left: auto;
+    transform: none;
+    max-width: 500px;
+    margin: 4.5rem auto 0;
+    padding: 0 1rem;
+  }
+  
+  .pienomics-info-card {
+    padding: 1.25rem;
+  }
+  
+  .pienomics-info-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 0.75rem;
+  }
+  
+  .pienomics-info-left {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .pienomics-info-right {
+    flex: 1;
+    text-align: left;
+  }
+  
+  .pienomics-info-icon {
+    font-size: 2.5rem;
+    margin: 0;
+  }
+  
+  .pienomics-info-title {
+    font-size: 1.1rem;
+  }
+  
+  .pienomics-info-percentage {
+    font-size: 1.3rem;
+  }
+  
+  .pienomics-info-description {
+    font-size: 0.9rem;
+  }
+  
+  .pienomics-info-funfact {
+    font-size: 0.8rem;
+    padding: 0.6rem;
+  }
+}
+
+/* Tablet screens (768px - 1023px) */
+@media screen and (min-width: 768px) and (max-width: 1023px) {
+  .pienomics-container {
+    max-width: 900px;
+    padding: 1rem 1.5rem;
+  }
+  
+  .pienomics-title {
+    font-size: 3rem;
+  }
+  
+  .pienomics-subtitle {
+    font-size: 1.1rem;
+    max-width: 700px;
+  }
+  
+  .pienomics-charts-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2.5rem;
+    align-items: center;
+    justify-items: center;
+    margin: 2rem 0;
+    position: relative;
+    height: auto;
+    min-height: 450px;
+  }
+  
+  .pienomics-chart {
+    position: relative;
+    width: 200px;
+    height: 200px;
+    margin: 0;
+  }
+  
+  .pienomics-chart.large {
+    width: 250px;
+    height: 250px;
+    grid-column: 1 / -1;
+    justify-self: center;
+    margin-bottom: 1rem;
+  }
+  
+  .pienomics-chart.medium {
+    width: 180px;
+    height: 180px;
+  }
+  
+  /* Position side charts further apart to prevent overlap */
+  .pienomics-chart:nth-child(2) {
+    justify-self: start;
+    margin-left: 1rem;
+  }
+  
+  .pienomics-chart:nth-child(3) {
+    justify-self: end;
+    margin-right: 1rem;
+  }
+  
+  .pienomics-chart-header {
+    padding: 0.75rem;
+    gap: 0.5rem;
+  }
+  
+  .chart-header-icon {
+    font-size: 1.5rem;
+  }
+  
+  .pienomics-chart-title {
+    font-size: 1rem;
+  }
+  
+  .chart-subtitle {
+    font-size: 0.7rem;
+  }
+  
+  .chart-value {
+    font-size: 0.8rem;
+  }
+  
+  .pienomics-info-panel {
+    position: relative;
+    top: auto;
+    left: auto;
+    transform: none;
+    max-width: 450px;
+    margin: 8rem auto 0;
+    padding: 0 1rem;
+  }
+  
+  .pienomics-info-card {
+    padding: 1rem;
+  }
+  
+  .pienomics-info-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .pienomics-info-left {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .pienomics-info-right {
+    flex: 1;
+    text-align: left;
+  }
+  
+  .pienomics-info-icon {
+    font-size: 2rem;
+    margin: 0;
+  }
+  
+  .pienomics-info-title {
+    font-size: 1rem;
+  }
+  
+  .pienomics-info-percentage {
+    font-size: 1.1rem;
+  }
+  
+  .pienomics-info-description {
+    font-size: 0.85rem;
+  }
+  
+  .pienomics-info-funfact {
+    font-size: 0.75rem;
+    padding: 0.5rem;
+  }
+  
+  /* Adjust slice labels for better visibility on tablet */
+  .pienomics-slice-label {
+    font-size: 0.9rem;
+  }
+  
+  .pienomics-slice-label tspan:first-child {
+    font-size: 1rem;
+  }
+  
+  .pienomics-slice-label tspan:last-child {
+    font-size: 0.8rem;
+  }
+}
+
+/* Mobile screens (320px - 767px) */
+@media screen and (max-width: 767px) {
+  /* Improve touch targets for mobile */
+  .pienomics-chart {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  .pienomics-slice {
+    cursor: pointer;
+    touch-action: manipulation;
+  }
+  
+  .pienomics-chart-header {
+    cursor: pointer;
+    touch-action: manipulation;
+  }
+  
+  .pienomics-container {
+    max-width: 100%;
+    padding: 0.75rem 1rem;
+  }
+  
+  .pienomics-title {
+    font-size: 2.5rem;
+    margin-bottom: 0.75rem;
+  }
+  
+  .pienomics-subtitle {
+    font-size: 1rem;
+    max-width: 100%;
+    padding: 0 0.5rem;
+  }
+  
+  .pienomics-charts-container {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    align-items: center;
+    margin: 1.5rem 0;
+    position: relative;
+    height: auto;
+    min-height: 700px;
+  }
+  
+  .pienomics-chart {
+    position: relative;
+    width: 200px;
+    height: 200px;
+    margin: 0;
+  }
+  
+  .pienomics-chart.large {
+    width: 220px;
+    height: 220px;
+  }
+  
+  .pienomics-chart.medium {
+    width: 180px;
+    height: 180px;
+  }
+  
+  /* Alternate positioning for mobile - left, right, left */
+  .pienomics-chart:nth-child(1) {
+    align-self: flex-start;
+    margin-left: 1rem;
+  }
+  
+  .pienomics-chart:nth-child(2) {
+    align-self: flex-end;
+    margin-right: 1rem;
+  }
+  
+  .pienomics-chart:nth-child(3) {
+    align-self: flex-start;
+    margin-left: 1rem;
+    margin-bottom: 6rem;
+  }
+  
+  .pienomics-chart-header {
+    padding: 0.5rem;
+    gap: 0.4rem;
+    flex-direction: column;
+    text-align: center;
+    margin-bottom: 0.75rem;
+  }
+  
+  .chart-header-icon {
+    font-size: 1.25rem;
+  }
+  
+  .chart-header-content {
+    text-align: center;
+  }
+  
+  .pienomics-chart-title {
+    font-size: 0.9rem;
+    margin-bottom: 0.2rem;
+  }
+  
+  .chart-subtitle {
+    font-size: 0.65rem;
+  }
+  
+  .chart-value {
+    font-size: 0.75rem;
+  }
+  
+  .pienomics-info-panel {
+    position: relative;
+    top: auto;
+    left: auto;
+    transform: none;
+    max-width: 90%;
+    margin: 1rem auto 0;
+    padding: 0 0.5rem;
+  }
+  
+  .pienomics-info-card {
+    padding: 0.75rem;
+  }
+  
+  .pienomics-info-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+  }
+  
+  .pienomics-info-left {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .pienomics-info-right {
+    flex: 1;
+    text-align: left;
+  }
+  
+  .pienomics-info-icon {
+    font-size: 1.75rem;
+    margin: 0;
+  }
+  
+  .pienomics-info-title {
+    font-size: 0.9rem;
+    margin-bottom: 0.3rem;
+  }
+  
+  .pienomics-info-percentage {
+    font-size: 1rem;
+    margin-bottom: 0.4rem;
+  }
+  
+  .pienomics-info-description {
+    font-size: 0.8rem;
+    margin-bottom: 0.6rem;
+    line-height: 1.3;
+  }
+  
+  .pienomics-info-funfact {
+    font-size: 0.7rem;
+    padding: 0.4rem;
+  }
+  
+  /* Adjust slice labels for mobile */
+  .pienomics-slice-label {
+    font-size: 0.8rem;
+  }
+  
+  .pienomics-slice-label tspan:first-child {
+    font-size: 0.9rem;
+  }
+  
+  .pienomics-slice-label tspan:last-child {
+    font-size: 0.7rem;
+  }
+  
+  /* Reduce hover effects on mobile for better performance */
+  .pienomics-chart:hover {
+    transform: scale(1.02);
+  }
+  
+  .pienomics-chart.active {
+    transform: scale(1.05);
+  }
+  
+  /* Adjust cloud sizes for mobile */
+  
+  
+  /* Adjust falling tokens for mobile */
+  .pienomics-falling-token {
+    font-size: 1.2rem;
+  }
+  
+  /* Adjust stars for mobile */
+  .pienomics-star {
+    font-size: 6px;
+  }
+}
+
+/* Extra small mobile screens (320px - 480px) */
+@media screen and (max-width: 480px) {
+  .pienomics-container {
+    padding: 0.5rem 0.75rem;
+  }
+  
+  .pienomics-title {
+    font-size: 2rem;
+  }
+  
+  .pienomics-subtitle {
+    font-size: 0.9rem;
+  }
+  
+  .pienomics-charts-container {
+    gap: 1.5rem;
+    margin: 1rem 0;
+    min-height: 600px;
+  }
+  
+  .pienomics-chart {
+    width: 160px;
+    height: 160px;
+  }
+  
+  .pienomics-chart.large {
+    width: 180px;
+    height: 180px;
+  }
+  
+  .pienomics-chart.medium {
+    width: 140px;
+    height: 140px;
+  }
+  
+  /* Adjust alternating positioning for smaller screens */
+  .pienomics-chart:nth-child(1) {
+    align-self: flex-start;
+    margin-left: 0.5rem;
+  }
+  
+  .pienomics-chart:nth-child(2) {
+    align-self: flex-end;
+    margin-right: 0.5rem;
+  }
+  
+  .pienomics-chart:nth-child(3) {
+    align-self: flex-start;
+    margin-left: 0.5rem;
+  }
+  
+  .pienomics-chart-header {
+    padding: 0.4rem;
+    gap: 0.3rem;
+  }
+  
+  .chart-header-icon {
+    font-size: 1rem;
+  }
+  
+  .pienomics-chart-title {
+    font-size: 0.8rem;
+  }
+  
+  .chart-subtitle {
+    font-size: 0.6rem;
+  }
+  
+  .chart-value {
+    font-size: 0.7rem;
+  }
+  
+  .pienomics-info-panel {
+    max-width: 100%;
+    padding: 0 0.25rem;
+  }
+  
+  .pienomics-info-card {
+    padding: 0.6rem;
+  }
+  
+  .pienomics-info-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+  }
+  
+  .pienomics-info-left {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .pienomics-info-right {
+    flex: 1;
+    text-align: left;
+  }
+  
+  .pienomics-info-icon {
+    font-size: 1.5rem;
+    margin: 0;
+  }
+  
+  .pienomics-info-title {
+    font-size: 0.8rem;
+  }
+  
+  .pienomics-info-percentage {
+    font-size: 0.9rem;
+  }
+  
+  .pienomics-info-description {
+    font-size: 0.75rem;
+  }
+  
+  .pienomics-info-funfact {
+    font-size: 0.65rem;
+    padding: 0.3rem;
+  }
+  
+  /* Further reduce slice labels for extra small screens */
+  .pienomics-slice-label {
+    font-size: 0.7rem;
+  }
+  
+  .pienomics-slice-label tspan:first-child {
+    font-size: 0.8rem;
+  }
+  
+  .pienomics-slice-label tspan:last-child {
+    font-size: 0.6rem;
+  }
+}
+
+/* Landscape orientation adjustments for mobile */
+@media screen and (max-width: 767px) and (orientation: landscape) {
+  .pienomics-charts-container {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1.5rem;
+    min-height: 350px;
+  }
+  
+  .pienomics-chart {
+    width: 140px;
+    height: 140px;
+  }
+  
+  .pienomics-chart.large {
+    width: 160px;
+    height: 160px;
+  }
+  
+  .pienomics-chart.medium {
+    width: 120px;
+    height: 120px;
+  }
+  
+  /* Reset positioning for landscape */
+  .pienomics-chart:nth-child(1),
+  .pienomics-chart:nth-child(2),
+  .pienomics-chart:nth-child(3) {
+    align-self: center;
+    margin: 0;
+  }
+  
+  .pienomics-info-panel {
+    max-width: 100%;
+    margin-top: 0.5rem;
+  }
+}
+
+/* High DPI displays */
+@media screen and (-webkit-min-device-pixel-ratio: 2), screen and (min-resolution: 192dpi) {
+  .pienomics-slice-label {
+    text-rendering: optimizeLegibility;
+  }
+  
+  .pienomics-chart-header {
+    backdrop-filter: blur(20px);
+  }
+}
+
+/* Reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  .pienomics-chart,
+  .pienomics-chart.active,
+  .chart-header-icon,
+  .pienomics-cloud,
+  .pienomics-falling-token,
+  .pienomics-star {
+    animation: none;
+  }
+  
+  .pienomics-chart:hover,
+  .pienomics-chart.active {
+    transform: none;
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .pienomics-section {
+    background: linear-gradient(135deg, var(--color-magenta) 100%, var(--color-purple) 100%, var(--color-blue) 100%);
+  }
+}
+
+/* Print styles */
+@media print {
+  .pienomics-falling-token,
+  .pienomics-star {
+    display: none;
+  }
+  
+  .pienomics-chart {
+    animation: none;
+    transform: none;
+  }
+  
+  .pienomics-section {
+    background: white;
+    color: black;
+  }
+} 

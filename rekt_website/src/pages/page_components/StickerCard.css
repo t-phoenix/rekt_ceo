@@ -1,0 +1,167 @@
+/* StickerCard Component Styles */
+.sticker-card {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  backdrop-filter: blur(10px);
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  height: fit-content;
+}
+
+.sticker-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.6rem 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.dustbin-btn {
+  background: var(--color-red);
+  border: none;
+  border-radius: 6px;
+  color: var(--color-white);
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 700;
+  padding: 0.5rem;
+  transition: all 0.3s ease;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 0px 0px rgba(216, 30, 91, 0.3);
+}
+
+.dustbin-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border: 2px solid var(--color-red);
+  border-radius: 6px;
+  opacity: 0;
+  transform: scale(1.1);
+  transition: all 0.3s ease;
+  pointer-events: none;
+}
+
+.dustbin-btn:hover {
+  background: var(--color-yellow);
+  transform: scale(1.1);
+}
+
+.dustbin-btn:hover::before {
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+.dustbin-btn:active {
+  transform: scale(1.1);
+  transition: transform 0.1s ease;
+}
+
+.sticker-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: white;
+  margin: 0;
+  font-family: 'Chakra Petch', monospace;
+}
+
+.sticker-content {
+  padding: 1rem;
+  display: flex;
+  justify-content: center;
+}
+
+.sticker-grid-simple {
+  display: flex;
+  flex-direction: row;
+  width: 340px;
+  gap: 0.75rem;
+  padding-bottom: 0.6rem;
+  overflow-x: auto;
+  overflow-y: hidden;
+  white-space: nowrap;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+}
+
+.sticker-btn-simple {
+  height: 100px;
+  width: 100px;
+  padding: 0.2rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.sticker-btn-simple::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.02) 0%, rgba(255, 255, 255, 0.01) 100%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.sticker-btn-simple:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(216, 30, 91, 0.5);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2), 0 0 30px rgba(216, 30, 91, 0.2);
+}
+
+.sticker-btn-simple > * {
+  position: relative;
+  z-index: 1;
+}
+
+@keyframes stickerAdd {
+  0% {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.sticker-btn-simple.adding {
+  animation: stickerAdd 0.3s ease-out;
+}
+
+.sticker-btn-simple.selected {
+  border-color: rgba(216, 30, 91, 1);
+  background: rgba(216, 30, 91, 0.1);
+  box-shadow: 0 0 20px rgba(216, 30, 91, 0.3);
+} 

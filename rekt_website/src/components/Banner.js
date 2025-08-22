@@ -11,7 +11,7 @@ export default function Banner({ items }) {
       // Small delay to ensure DOM is fully rendered
       const timer = setTimeout(() => {
         const contentWidth = bannerRef.current.scrollWidth / 2; // Divide by 2 since content is duplicated
-        const speed = 50; // pixels per second - adjust for desired speed
+        const speed = 150; // pixels per second - adjust for desired speed
         const duration = contentWidth / speed;
         
         setAnimationDuration(Math.max(duration, 10)); // Minimum 10s duration

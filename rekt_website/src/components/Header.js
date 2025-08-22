@@ -1,7 +1,6 @@
 import React from "react";
 import "./header.css";
 import { useNavigate } from "react-router-dom";
-import { IoMenu } from "react-icons/io5";
 import { useMediaQuery } from "react-responsive";
 import Navbar from "./Navbar";
 // import CiLogo from "../assets/CiLogo.png"
@@ -13,7 +12,6 @@ export default function Header() {
   const navigate = useNavigate();
   const [showMenu, setShowMenu] = React.useState(false);
 
-  const isMobile = useMediaQuery({maxWidth: "600px"})
   const isTab = useMediaQuery({ maxWidth: "992px" });
 
   function openNavBar(){
@@ -32,7 +30,7 @@ export default function Header() {
           <div className="title-container" onClick={() => {navigate("/"); setShowMenu(false);}}>
           {/* <img src={CiLogo} style={{width: '30px'}} alt="Crypto Index Logo"/> */}
             <h2 className="title">REKT CEO</h2>
-            <p className="icon-title">by EquiLabs</p>
+            <p className="icon-title">Be Your Own CEO</p>
           </div>
         </div>
       ) : (
@@ -41,7 +39,7 @@ export default function Header() {
           {/* <img src={CiLogo} style={{height: '48px'}} alt="logo" onClick={() => {navigate("/"); setShowMenu(false);}}/> */}
           <div className="title-container" onClick={() => {navigate("/"); setShowMenu(false);}}>
             <h2 className="title">REKT CEO</h2>
-            <p className="icon-title">by EquiLabs</p>
+            <p className="icon-title">Be Your Own CEO</p>
 
           </div>
           {<Navbar setShow={setShowMenu}/>} 
