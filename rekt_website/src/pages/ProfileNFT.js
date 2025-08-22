@@ -22,7 +22,7 @@ export default function ProfileNFT() {
   const [currentIndex, setCurrentIndex] = useState(1); // Start with the second item as the current
 
   const [selectedLayer, setSelectedLayer] = useState([0, 0, 0, 0, 0, 0, 0, 0]); // BG/ Hoodie / Pants / Shoes/ Skin / Face / Jewellery / Coin
-  const limits = [6, 3, 4, 5, 4, 5, 3, 7]; // Maximum random value for each index
+  const limits = [6, 3, 4, 5, 4, 4, 3, 7]; // Maximum random value for each index
 
   
 

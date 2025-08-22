@@ -5,116 +5,150 @@ import './styles/pienomics.css';
 // Main $CEO Token Distribution
 const ceoTokenData = [
   {
-    name: "Community Treats",
-    percentage: 40,
-    color: "token-community",
-    icon: "🎁",
-    description: "Tokens for our amazing community members",
-    funFact: "Every holder gets a slice of the magic pie!"
-  },
-  {
-    name: "Burn Volcano",
-    percentage: 25,
-    color: "token-burn", 
+    name: "Dev Wallet",
+    percentage: 2,
+    color: "token-burn",
     icon: "🔥",
-    description: "Tokens sent to the great beyond",
-    funFact: "These tokens become shooting stars!"
+    description: "Tokens for our launching wallet",
+    funFact: "Dev Wallet Tokens are locked away!"
   },
   {
-    name: "Liquidity Lake",
-    percentage: 20,
+    name: "Team + Advisory",
+    percentage: 2,
+    color: "token-team", 
+    icon: "👨‍💻",
+    description: "Operating team will hold these tokens as founding $CEO holders",
+    funFact: "These tokens will be bought on the bonding curve!"
+  },
+  {
+    name: "Bonding Curve",
+    percentage: 90,
     color: "token-liquidity",
     icon: "💧",
-    description: "Keeping trades smooth as clouds",
-    funFact: "This lake never runs dry!"
+    description: "All tokens will be bought on the bonding curve",
+    funFact: "Transparent, fair price discovery without insider advantage!"
   },
   {
-    name: "Team Castle",
-    percentage: 10,
-    color: "token-team",
-    icon: "🏰",
-    description: "Rewards for the builders",
-    funFact: "Locked away like treasure in the sky!"
-  },
-  {
-    name: "Marketing Magic",
-    percentage: 5,
+    name: "Campaigns",
+    percentage: 4,
     color: "token-marketing",
-    icon: "✨",
-    description: "Spreading the word across the clouds",
+    icon: "💕",
+    description: "Rewards for the bootstaping the community post launch",
     funFact: "Makes rainbows of awareness!"
+  },
+  {
+    name: "Liquidity Pool2",
+    percentage: 2,
+    color: "token-community",
+    icon: "✨",
+    description: "Team launches 2nd pool to increase PAIR support before graduating.",
+    funFact: "$CEO holders can become LP and earn passive income!"
   }
 ];
 
 // Treasury USDC Holdings
 const treasuryUSDCData = [
   {
-    name: "Operations Fund",
-    percentage: 45,
-    color: "token-liquidity",
+    name: "Reward & Ecosystem Incentives ",
+    percentage: 20,
+    color: "token-community",
     icon: "⚙️",
-    description: "Daily operations and maintenance",
+    description: "Drive token utility and reward free cult labour",
     funFact: "Keeps the engines running smoothly!"
   },
   {
-    name: "Development War Chest",
+    name: "Team",
     percentage: 30,
     color: "token-team",
-    icon: "🛠️",
-    description: "Building new features",
-    funFact: "Where innovation is born!"
-  },
-  {
-    name: "Emergency Reserve",
-    percentage: 15,
-    color: "token-burn",
-    icon: "🛡️",
-    description: "Safety net for tough times",
-    funFact: "Our umbrella for rainy days!"
-  },
-  {
-    name: "Partnership Fund",
-    percentage: 10,
-    color: "token-marketing",
     icon: "🤝",
-    description: "Strategic partnerships",
-    funFact: "Building bridges across the metaverse!"
-  }
+    description: "Team will earn once the Phase 1 is succesfull with this piece of pie",
+    funFact: "Building a community is hard work!"
+  },
+  
+  {
+    name: "New Ventures",
+    percentage: 8,
+    color: "token-burn",
+    icon: "🛠️",
+    description: "Incubating community Ideas",
+    funFact: "Where innovation is born, the pool will be increased in future!"
+  },
+  {
+    name: "Liquidity Pool/ Dex",
+    percentage: 30,
+    color: "token-liquidity",
+    icon: "🌴",
+    description: "Critical for maintaining market stability",
+    funFact: "Liquidity Rebalancing!"
+  },
+  
+  {
+    name: "Partnerships & Collab",
+    percentage: 8,
+    color: "token-marketing",
+    icon: "💎",
+    description: "Essential for ecosystem growth and marketing",
+    funFact: "Strateguc partnerships are always welcome to connect!"
+  },
+  {
+    name: "Development Fund",
+    percentage: 4,
+    color: "token-burn",
+    icon: "🏗️",
+    description: "Future Products and innovations",
+    funFact: "We'll build an easy to use DAO tool for everyone (NON TECHNICAL)!"
+  },
 ];
 
 // Treasury $CEO Holdings
 const treasuryCEOData = [
   {
-    name: "Staking Rewards Pool",
+    name: "Rewards & ecosystem Incentives",
     percentage: 50,
     color: "token-community",
     icon: "🎯",
-    description: "Rewards for loyal stakers",
-    funFact: "The more you stake, the more you bake!"
+    description: "Drive token utility and reward free cult labour",
+    funFact: "Keeps the engines running smoothly!"
   },
   {
-    name: "Ecosystem Incentives",
-    percentage: 25,
+    name: "New Ventures",
+    percentage: 10,
     color: "token-marketing",
     icon: "🌱",
-    description: "Growing the ecosystem",
-    funFact: "Planting seeds for the future!"
+    description: "Incubating community Ideas",
+    funFact: "Where innovation is born, the pool will be increased in future!"
   },
   {
-    name: "Governance Treasury",
-    percentage: 15,
+    name: "Development Fund",
+    percentage: 6,
     color: "token-team",
     icon: "🏛️",
-    description: "Community governance decisions",
-    funFact: "The people's voice has power!"
+    description: "Future Products and innovations",
+    funFact: "We'll build an easy to use DAO tool for everyone (NON TECHNICAL)!"
   },
   {
-    name: "Strategic Reserve",
-    percentage: 10,
+    name: "Partnerships & Collab",
+    percentage: 4,
     color: "token-burn",
-    icon: "💎",
-    description: "Long-term strategic moves",
-    funFact: "Diamonds are formed under pressure!"
+    icon: "⚽️",
+    description: "Essential for ecosystem growth and marketing",
+    funFact: "Strateguc partnerships are always welcome to connect!"
+  },
+  {
+    name: "Liquidity Pool/ Dex Reserve",
+    percentage: 20,
+    color: "token-marketing",
+    icon: "💰",
+    description: "Critical for maintaining market stability",
+    funFact: "Liquidity Rebalancing!"
+  },
+  {
+    name: "Team",
+    percentage: 10,
+    color: "token-team",
+    icon: "⛳️",
+    description: "Team will earn once the Phase 1 is succesfull with this piece of pie",
+    funFact: "Building a community is hard work!"
   }
 ];
 
@@ -122,7 +156,7 @@ const chartConfigs = [
   {
     title: "$CEO Token",
     subtitle: "Main Token Distribution",
-    totalValue: "1B $CEO",
+    totalValue: "21M $CEO",
     data: ceoTokenData,
     size: 'large',
     floatDelay: 0
@@ -130,7 +164,7 @@ const chartConfigs = [
   {
     title: "Treasury USDC",
     subtitle: "Stablecoin Holdings",
-    totalValue: "$2.5M USDC",
+    totalValue: "50% of total treasury value",
     data: treasuryUSDCData,
     size: 'medium',
     floatDelay: 1
@@ -138,7 +172,7 @@ const chartConfigs = [
   {
     title: "Treasury $CEO",
     subtitle: "Token Holdings",
-    totalValue: "150M $CEO",
+    totalValue: "50% of total treasury value",
     data: treasuryCEOData,
     size: 'medium',
     floatDelay: 2

@@ -850,7 +850,7 @@ const MemeGen = () => {
                   className="story-btn secondary"
                   style={{ width: '100%' }}
                 >
-                  Mint
+                  Mint (Soon)
                 </button>
               </div>
             </div>

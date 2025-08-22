@@ -162,10 +162,11 @@
   .option-layers-box{
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    grid-template-rows: repeat(3, 1fr);
+    /* grid-template-rows: repeat(3, 1fr); */
     gap: 4%;
     width: 100%;
     height: 100%;
+    margin-bottom: 10%;
     
   }
 
@@ -173,14 +174,14 @@
     border-style: solid;
     box-shadow: -2px -2px 4px var(--color-red);
     border-color: var(--color-red);
-    width: 100%;
-    height: 100%;
+    width: 90%;
+    height: 90%;
     border-radius: 8px;
  }
 
   .option-layer{
-    width: 100%;
-    height: 100%;
+    width: 90%;
+    height: 90%;
     border-radius: 8px;
     box-shadow: 1px 1px 4px var(--color-blue);
     border-color: var(--color-blue);
