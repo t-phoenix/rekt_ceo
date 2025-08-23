@@ -125,17 +125,67 @@ class SharingService {
     try {
       // Create share text
       const shareText = customShareText || this._createShareText(topText, bottomText);
-      const shareUrl = window.location.href;
+      const twitterUrl = `https://x.com/intent/tweet?text=${encodeURIComponent(shareText)}`;
       
-      // Open Twitter compose with text and URL
-      const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`;
-      window.open(twitterUrl, '_blank');
-      
-      // Show instructions for image
-      this._showToast('Tweet opened! Download the image first, then attach it to your tweet.');
+      // If element is provided, try to copy to clipboard
+      if (element) {
+        const clipboardSuccess = await this.copyImageToClipboard(element);
+        
+        if (clipboardSuccess) {
+          // Open Twitter after successful copy
+          window.open(twitterUrl, '_blank');
+          
+          const isMac = navigator.userAgent.includes('Mac');
+          const pasteShortcut = isMac ? 'Cmd+V' : 'Ctrl+V';
+          this._showToast(`✅ Image copied! Paste with ${pasteShortcut} in Twitter`);
+        } else {
+          // Fallback: Download and open Twitter
+          await this.downloadImage(element, 'rekt-ceo-meme');
+          window.open(twitterUrl, '_blank');
+          this._showToast('📥 Image downloaded! Attach it to your tweet.');
+        }
+      } else {
+        // No element, just open Twitter
+        window.open(twitterUrl, '_blank');
+      }
     } catch (error) {
       console.error('Twitter share error:', error);
       this._showToast('Error sharing to Twitter. Please try again.');
+    }
+  }
+  
+  /**
+   * Copy an image to clipboard
+   * @param {Object} element - DOM element to capture
+   * @returns {boolean} Success status
+   */
+  async copyImageToClipboard(element) {
+    try {
+      if (!element) return false;
+      
+      // Check if clipboard API is available
+      if (!navigator.clipboard || !window.ClipboardItem) {
+        console.log('Clipboard API not available');
+        return false;
+      }
+      
+      // Export element as PNG and convert to blob
+      const dataURL = await exportNodeToPng(element);
+      const response = await fetch(dataURL);
+      const blob = await response.blob();
+      
+      // Create clipboard item and write to clipboard
+      const clipboardItem = new ClipboardItem({
+        'image/png': blob
+      });
+      
+      await navigator.clipboard.write([clipboardItem]);
+      console.log('Image copied to clipboard successfully');
+      return true;
+      
+    } catch (error) {
+      console.error('Failed to copy to clipboard:', error);
+      return false;
     }
   }
 
