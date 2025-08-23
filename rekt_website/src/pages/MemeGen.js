@@ -6,6 +6,7 @@ import StickerCard from "./page_components/StickerCard.js";
 import { categorizedMemeTemplates, memeCategories } from "../constants/memeData";
 import { exportNodeToPng } from "../utils/exportImage";
 import SocialShareFooter from "./page_components/SocialShareFooter.js";
+import sharingService from "../services/SharingService.js";
 
 
 
@@ -52,6 +53,11 @@ const MemeGen = () => {
   const [rotateStartX, setRotateStartX] = useState(0);
 
   const stageRef = useRef(null);
+
+  // Initialize sharing service with toast function
+  useEffect(() => {
+    sharingService.setToastFunction(showToast);
+  }, []);
 
   // Check screen width on mount and resize
   useEffect(() => {
@@ -453,33 +459,13 @@ const MemeGen = () => {
     }, 3000);
   };
 
-  const handleSocialShare = (platform) => {
-    const shareText = `Check out my Rekt CEO meme: "${topText}" - "${bottomText}"`;
-    const shareUrl = window.location.href;
-
-    console.log(shareText, shareUrl);
-    
-    // switch (platform) {
-    //   case 'twitter':
-    //     window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`, '_blank');
-    //     break;
-    //   case 'instagram':
-    //     showToast('Copy the meme image and share on Instagram!');
-    //     break;
-    //   case 'farcaster':
-    //     showToast('Share on Farcaster coming soon!');
-    //     break;
-    //   case 'oxppl':
-    //     showToast('Share on 0xPPL coming soon!');
-    //     break;
-    //   case 'reddit':
-    //     window.open(`https://reddit.com/submit?url=${encodeURIComponent(shareUrl)}&title=${encodeURIComponent(shareText)}`, '_blank');
-    //     break;
-    //   default:
-    //     break;
-    // }
+  const handleSocialShare = async (platform) => {
+    await sharingService.handleSocialShare(platform, {
+      canvasRef: stageRef,
+      topText,
+      bottomText
+    });
   };
-
 
 
   return (
@@ -500,7 +486,7 @@ const MemeGen = () => {
             {/* Mint Info */}
             <div className="meme-mint-card">
               <div className="meme-mint-header">
-                <h3 className="meme-mint-title">Mint Info</h3>
+                <h3 className="meme-mint-title">REKT CEO MEME COLLECTION</h3>
               </div>
               <div className="meme-mint-content">
                 <div className="meme-mint-grid">
@@ -510,11 +496,11 @@ const MemeGen = () => {
                   </div>
                   <div className="meme-mint-item">
                     <div className="meme-mint-label">Current supply</div>
-                    <div className="meme-mint-value">4,215</div>
+                    <div className="meme-mint-value">--</div>
                   </div>
                   <div className="meme-mint-item">
                     <div className="meme-mint-label">Current price (CEO)</div>
-                    <div className="meme-mint-value">0.069</div>
+                    <div className="meme-mint-value">priceless</div>
                   </div>
                 </div>
               </div>
@@ -755,7 +741,7 @@ const MemeGen = () => {
                       className="story-btn primary"
                       style={{ width: "100%" }}
                     >
-                      ✨ Suggest
+                      ✨ Suggest (SOON)
                     </button>
                   </div>
                 </div>

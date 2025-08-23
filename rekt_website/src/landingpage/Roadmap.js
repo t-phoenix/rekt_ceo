@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import "./styles/roadmap.css";
 import neon_penthouse from "../creatives/neon_penthouse.jpg";
 
@@ -27,7 +28,7 @@ const milestones = [
     status: "IN PROGRESS",
     description: "Create your identity",
     cta: "Mint NFT",
-    ctaLink: "#pfp",
+    ctaLink: "/pfp",
     progress: 75
   },
   {
@@ -36,12 +37,12 @@ const milestones = [
     status: "ACTIVE",
     description: "Spread the culture",
     cta: "Create Meme",
-    ctaLink: "#meme",
+    ctaLink: "/memes",
     progress: 80
   },
   {
     id: 4,
-    title: "EARN ON RAYDIUM",
+    title: "EARN BY PROVIDING LIQUIDITY",
     status: "UPCOMING",
     description: "Become LP provider",
     cta: "Learn More",
@@ -81,12 +82,13 @@ const milestones = [
     status: "ONGOING",
     description: "Spread the word",
     cta: "Share Now",
-    ctaLink: "https://twitter.com",
+    ctaLink: "#share",
     progress: 50
   }
 ];
 
 export default function Roadmap() {
+  const navigate = useNavigate();
   const [currentMilestone, setCurrentMilestone] = useState(0);
   const [scrollProgress, setScrollProgress] = useState(0);
   const [isVisible, setIsVisible] = useState(false);
@@ -331,10 +333,26 @@ export default function Roadmap() {
     return `${r}, ${g}, ${b}`;
   };
 
-  const handleCTAClick = (link) => {
+  const handleCTAClick = (link, milestoneId) => {
+    // Special handling for X (Twitter) sharing
+    if (milestoneId === 8) {
+      const message = "🚀 Check out @rekt_ceo and join the revolution! \n🎯 Best web3 community ever \n\n🔥 Create memes at rektceo.club/memes\n🌐 Visit rektceo.club\n\n#RektCEO #MemeCoin #Crypto";
+      const encodedMessage = encodeURIComponent(message);
+      
+      // Option 1: Text-only sharing (works immediately)
+      const twitterUrl = `https://x.com/intent/tweet?text=${encodedMessage}`;
+      
+      window.open(twitterUrl, "_blank");
+      return;
+    }
+    
     if (link.startsWith("http")) {
       window.open(link, "_blank");
+    } else if (link.startsWith("/")) {
+      // Handle React Router navigation for internal routes
+      navigate(link);
     } else {
+      // Handle anchor links for same-page navigation
       document.querySelector(link)?.scrollIntoView({ behavior: "smooth" });
     }
   };
@@ -461,7 +479,7 @@ export default function Roadmap() {
 
                   <button 
                     className={`cta-button ${milestones[currentMilestone].id % 2 === 0 ? 'cta-button-yellow' : 'cta-button-red'}`}
-                    onClick={() => handleCTAClick(milestones[currentMilestone].ctaLink)}
+                    onClick={() => handleCTAClick(milestones[currentMilestone].ctaLink, milestones[currentMilestone].id)}
                   >
                     <span className="cta-text">{milestones[currentMilestone].cta}</span>
                   </button>

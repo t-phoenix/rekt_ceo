@@ -1,6 +1,6 @@
 export const faqData = [{
     question: "What Blockchain is $CEO on ?",
-    answer: "$CEO on SOLANA Blockchain"
+    answer: "$CEO on BNB Blockchain"
   },{
     question: "What's Token Contract Address ?",
     answer: "TBD"

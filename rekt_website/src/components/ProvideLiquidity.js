@@ -57,7 +57,7 @@ export default function ProvideLiquidity() {
                 />
               </div>
               <div className="ratio-info">Ratio: {ratio.toLocaleString()} $CEO per {p.split("/")[1]}</div>
-              <button className="add-liquidity-button">Add Liquidity</button>
+              <button className="add-liquidity-button">Add Liquidity (Soon)</button>
             </div>
           ))}
         </div>

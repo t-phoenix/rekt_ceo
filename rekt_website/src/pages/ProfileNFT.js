@@ -11,6 +11,7 @@ import LayerNavbar from "./page_components/LayerNavbar";
 import LayerOptions from "./page_components/LayerOptions";
 
 import { downloadImage } from "../services/PfpHelpers";
+import sharingService from "../services/SharingService.js";
 
 export default function ProfileNFT() {
   // const [imageUri, setImageUri] = useState("");
@@ -41,35 +42,42 @@ export default function ProfileNFT() {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  // Initialize sharing service with toast function
+  useEffect(() => {
+    sharingService.setToastFunction(showToast);
+  }, []);
+
+  const showToast = (message) => {
+    // Simple toast implementation
+    const toast = document.createElement("div");
+    toast.style.cssText = `
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: #333;
+      color: white;
+      padding: 12px 20px;
+      border-radius: 8px;
+      z-index: 1000;
+      animation: slideIn 0.3s ease;
+    `;
+    toast.textContent = message;
+    document.body.appendChild(toast);
+
+    setTimeout(() => {
+      toast.style.animation = "slideOut 0.3s ease";
+      setTimeout(() => document.body.removeChild(toast), 300);
+    }, 3000);
+  };
+
   function handleMint() {}
 
-  const handleSocialShare = (platform) => {
-    const shareText = `Check out my Rekt CEO PFP NFT!`;
-    const shareUrl = window.location.href;
-
-    console.log(shareText, shareUrl);
-    
-    switch (platform) {
-      case 'download':
-        downloadImage();
-        break;
-      case 'twitter':
-        window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`, '_blank');
-        break;
-      case 'instagram':
-        // For Instagram, we'd need to download the image first
-        downloadImage();
-        break;
-      case 'farcaster':
-        // Farcaster integration coming soon
-        console.log('Farcaster sharing coming soon!');
-        break;
-      case 'reddit':
-        window.open(`https://reddit.com/submit?url=${encodeURIComponent(shareUrl)}&title=${encodeURIComponent(shareText)}`, '_blank');
-        break;
-      default:
-        break;
-    }
+  const handleSocialShare = async (platform) => {
+    await sharingService.handleSocialShare(platform, {
+      elementId: 'composite-container',
+      shareText: 'Check out my Rekt CEO PFP NFT!',
+      fileName: 'rekt-ceo-pfp'
+    });
   };
 
   
@@ -161,7 +169,7 @@ export default function ProfileNFT() {
           <div className="pfp-left-column">
             <div className="pfp-mint-card">
               <div className="pfp-mint-header">
-                <h3 className="pfp-mint-title">Mint Info</h3>
+                <h3 className="pfp-mint-title">REKT CEO PFP COLLECTION</h3>
               </div>
               <div className="pfp-mint-content">
                 <div className="pfp-mint-grid">

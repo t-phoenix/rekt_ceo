@@ -62,7 +62,7 @@ export default function BuyCEO() {
               <div className="rate-info">
                 Rate: 1 {t} ≈ {rate.toLocaleString()} $CEO
               </div>
-              <button className="buy-button">Buy $CEO</button>
+              <button className="buy-button">Buy $CEO (Soon)</button>
             </div>
           ))}
         </div>

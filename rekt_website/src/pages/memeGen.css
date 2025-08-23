@@ -447,6 +447,10 @@
 }
 
 /* Platform-specific colors - using story-btn style */
+.social-share-btn.download {
+  background: var(--color-green, #10b981);
+}
+
 .social-share-btn.twitter {
   background: var(--color-red);
 }
@@ -467,13 +471,7 @@
   background: var(--color-red);
 }
 
-/* All buttons use the same hover effect for consistency */
-.social-share-btn:hover {
-  background: var(--color-yellow);
-  color: var(--color-black);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(248, 200, 38, 0.4);
-}
+/* Platform-specific hover effects are defined above */
 
 /* Sticker Styles */
 .meme-sticker {
@@ -1269,4 +1267,23 @@
   .requirement-item {
     justify-content: center;
   }
+}
+
+/* Platform-specific hover effects */
+.social-share-btn.download:hover {
+  background: var(--color-green-hover, #059669);
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+}
+
+.social-share-btn.twitter:hover,
+.social-share-btn.instagram:hover,
+.social-share-btn.farcaster:hover,
+.social-share-btn.oxppl:hover,
+.social-share-btn.reddit:hover {
+  background: var(--color-yellow);
+  color: var(--color-black);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(248, 200, 38, 0.4);
 }

@@ -57,14 +57,14 @@ export default function BuySection(){
             </div>
             <div className="buy-card item-3">
               <div className="content-section">
-                <h1>3. BUY $CEO</h1>
+                <h1>3. BUY $CEO (Soon)</h1>
                 <p>
                   Go to Exchange or Pancakeswap and paste the CEO contract address
                   listed on this website to swap BNB for $CEO or USDC for CEO.
                 </p>
               </div>
               <div className="button-section">
-                <button className="button-margin">EXCHANGE</button>
+                <button className="button-margin ]]">EXCHANGE</button>
                 <button className="button-margin">PANCAKESWAP</button>
               </div>
               <div className="icon-box">
@@ -79,7 +79,7 @@ export default function BuySection(){
                 </p>
               </div>
               <div className="button-section">
-                <button className="button-margin">ADD CEO</button>
+                <button className="button-margin">ADD CEO (Soon)</button>
                 <button className="button-margin" onClick={() => navigate("/pfp")}>MINT PFP</button>
               </div>
               <div className="icon-box">

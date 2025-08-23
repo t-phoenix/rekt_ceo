@@ -6,8 +6,8 @@ import "./styles/faq.css";
 import penthouse from "../creatives/penthouse.jpeg";
 import ceo_office from "../creatives/ceo_office2.jpg";
 import ambassador from "../creatives/rekt_ceo_ambassador.png";
-import pumpfun from "../creatives/socials/pump.png";
-import raydium from "../creatives/socials/raydium.png";
+import zeroXpl from "../creatives/socials/0xppl.png";
+
 
 
 import BuySection from "./BuySection";
@@ -17,7 +17,8 @@ import Roadmap from "./Roadmap";
 import Banner from "../components/Banner";
 import { faqData } from "../constants/faqData";
 import { MdCopyright, MdMail, MdRocketLaunch, MdCelebration } from "react-icons/md";
-import { FaTwitter} from "react-icons/fa"
+import { FaInstagram, FaTwitter} from "react-icons/fa"
+import { SiFarcaster } from "react-icons/si";
 import { FaDog } from "react-icons/fa";
 import Exchange from "./Exchange";
 
@@ -25,7 +26,7 @@ import Exchange from "./Exchange";
 export default function Introduction() {
   const navigate = useNavigate();
 
-  const tweetUrl = "https://x.com/rekt_ceo"
+  const xrektceoUrl = "https://x.com/rekt_ceo"
   // const pitchDeckLink = "https://gray-quintessential-jellyfish-921.mypinata.cloud/ipfs/bafybeifnvoe54ijactevaz7upynenmdzwngkhwg7qyxkjhnsl3l6i2m5r4"
 
   const handleButtonClick = (route, event) => {
@@ -110,15 +111,24 @@ export default function Introduction() {
             <div className="link-icon-box" onClick={() => window.location.href = `mailto:contact@rektceo.club`}>
                 <MdMail size={42}/>
             </div>
-            <div className="link-icon-box" onClick={() => window.open(tweetUrl, "_blank")} >
+            <div className="link-icon-box" onClick={() => window.open(xrektceoUrl, "_blank")} >
                 <FaTwitter  size={42}/>
             </div>
-            <div className="link-icon-box" onClick={() => window.open("https://pump.fun", "_blank")}>
+            <div className="link-icon-box" onClick={() => window.open("https://www.instagram.com/rektceo", "_blank")}>
+              <FaInstagram size={42}/>
+            </div>
+            <div className="link-icon-box" onClick={() => window.open("https://farcaster.xyz/rekt-ceo", "_blank")} >
+              <SiFarcaster size={42}/>
+            </div>
+            {/* <div className="link-icon-box" onClick={() => window.open("https://0xppl.com/rekt_ceo", "_blank")}>
+              <img src={zeroXpl} alt="0xppl/" style={{width: '42px', height: '40px'}} />
+            </div> */}
+            {/* <div className="link-icon-box" onClick={() => window.open("https://pump.fun", "_blank")}>
                 <img className="link-icon-image" src={pumpfun} alt="pump fun" />
             </div>
             <div className="link-icon-box" onClick={() => window.open("https://raydium.io", "_blank")}>
                 <img className="link-icon-image" src={raydium} alt="raydium" />
-            </div>
+            </div> */}
         </div>
         <div className="end-box">
             <p>DISCLAIMER: $CEO is a meme coin created for fun with absolutely no intrinsic value or any expectation of financial return. The token for entertainment purposes only and we take zero responsibility for the value of this token. $CEO is inspired by @MustStopMurad to be the king of meme coins.</p>

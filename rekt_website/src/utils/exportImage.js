@@ -1,6 +1,6 @@
 import html2canvas from "html2canvas";
 
-export async function exportNodeToPng(node, fileName = "meme.png") {
+export async function exportNodeToPng(node) {
   if (!node) return;
 
   const classesToIgnore = new Set([
@@ -53,12 +53,7 @@ export async function exportNodeToPng(node, fileName = "meme.png") {
     });
 
     const dataUrl = canvas.toDataURL("image/png");
-    const link = document.createElement("a");
-    link.href = dataUrl;
-    link.download = fileName;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    return dataUrl;
   } finally {
     // Revert temporary style changes
     if (backgroundImgEl) backgroundImgEl.style.display = originalImgDisplay || "";

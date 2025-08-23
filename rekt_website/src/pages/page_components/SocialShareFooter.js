@@ -38,14 +38,26 @@ const SOCIAL_PLATFORMS = [
 ];
 
 const SocialShareFooter = ({ onSocialShare, className = "" }) => {
+  const handleClick = (platformId, event) => {
+    // Prevent rapid successive clicks
+    const button = event.target.closest('button');
+    if (button) {
+      button.disabled = true;
+      setTimeout(() => {
+        button.disabled = false;
+      }, 1000); // 1 second cooldown
+    }
+    onSocialShare(platformId);
+  };
+
   return (
     <div className={`meme-social-footer ${className}`}>
       <div className="social-share-buttons">
         {SOCIAL_PLATFORMS.map((platform) => (
           <button 
             key={platform.id}
-            className={`social-share-btn`}
-            onClick={() => onSocialShare(platform.id)}
+            className={`social-share-btn ${platform.id}`}
+            onClick={(event) => handleClick(platform.id, event)}
             title={platform.title}
           >
             <platform.icon size={24} />
