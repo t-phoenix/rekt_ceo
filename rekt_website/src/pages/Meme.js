@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import html2canvas from "html2canvas";
 import "./meme.css";
 import { memeTemplates } from "../constants/memeData";
+import sharingService from "../services/SharingService";
 
 import { FaTwitter } from "react-icons/fa";
 import { MdDownload } from "react-icons/md";
@@ -22,6 +23,35 @@ export default function Meme() {
   const text2Ref = useRef(null);
 
   const [isMobile, setIsMobile] = useState(false);
+
+  // Toast notification function
+  const showToast = (message) => {
+    const toast = document.createElement("div");
+    toast.style.cssText = `
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #333;
+      color: white;
+      padding: 12px 24px;
+      border-radius: 8px;
+      z-index: 10000;
+      font-size: 16px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    `;
+    toast.textContent = message;
+    document.body.appendChild(toast);
+    
+    setTimeout(() => {
+      document.body.removeChild(toast);
+    }, 3000);
+  };
+
+  // Initialize sharing service with toast
+  useEffect(() => {
+    sharingService.setToastFunction(showToast);
+  }, []);
 
   useEffect(() => {
     // Detect screen width or use a user-agent check
@@ -81,22 +111,23 @@ export default function Meme() {
   async function handleDownload() {
     const compositeElement = document.getElementById("meme-canvas-container");
     if (compositeElement) {
-      const canvas = await html2canvas(compositeElement);
-      const image = canvas.toDataURL("image/png");
-      const link = document.createElement("a");
-      link.href = image;
-      link.download = "rekt_ceo_meme.png";
-      link.click();
+      await sharingService.downloadImage(compositeElement, "rekt_ceo_meme");
     }
   }
 
   const shareOnTwitter = async () => {
-    const message = encodeURIComponent(
-      "🚀Check out this meme I made! #RektCEO #Meme. 🎉 Follow @rekt_ceo and visit rektceo.club to join the community and have fun."
+    const compositeElement = document.getElementById("meme-canvas-container");
+    if (!compositeElement) return;
+    
+    // Use the sharing service with custom share text
+    const customText = "🚀Check out this meme I made! #RektCEO #Meme. 🎉 Follow @rekt_ceo and visit rektceo.club to join the community and have fun.";
+    
+    await sharingService.shareToTwitter(
+      compositeElement,
+      text1,  // top text
+      text2,  // bottom text
+      customText  // custom share text
     );
-    const tweetUrl = `https://x.com/intent/tweet?text=${message}`;
-    // Open the tweet share window
-    window.open(tweetUrl, "_blank");
   };
 
   return (
