@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { contractService } from '../services/contract.service';
+import { balanceService } from '../services/balance.service';
 import { ApiResponse, UserMintInfo } from '../types';
 
 export class InfoController {
@@ -71,11 +72,61 @@ export class InfoController {
    */
   async getCEOPrice(req: Request, res: Response, next: NextFunction) {
     try {
-      const price = await contractService.getCEOPrice();
+      const [priceRaw, usdcDecimals] = await Promise.all([
+        contractService.getCEOPrice(),
+        contractService.getUSDCDecimals(),
+      ]);
+
+      // Convert raw price to human-readable format
+      const priceFormatted = (Number(priceRaw) / Math.pow(10, usdcDecimals)).toString();
 
       res.json({
         success: true,
-        data: { price },
+        data: { 
+          price: priceFormatted,
+          priceRaw,
+          usdcDecimals,
+        },
+      } as ApiResponse);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
+   * GET /api/info/permit-nonce/:address
+   * Get the permit nonce for an address from the CEO token contract
+   */
+  async getPermitNonce(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { address } = req.params;
+
+      const nonce = await contractService.getPermitNonce(address);
+
+      res.json({
+        success: true,
+        data: { 
+          address,
+          nonce: nonce.toString(),
+        },
+      } as ApiResponse);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
+   * GET /api/info/ceo-balance/:address
+   * Get the CEO token balance for an address
+   */
+  async getCEOBalance(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { address } = req.params;
+      const balanceData = await balanceService.getBalance(address);
+
+      res.json({
+        success: true,
+        data: { address, ...balanceData },
       } as ApiResponse);
     } catch (error) {
       next(error);

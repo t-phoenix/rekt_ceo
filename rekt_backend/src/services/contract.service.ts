@@ -7,11 +7,15 @@ import { PermitSignature, TierInfo } from '../types';
 
 // Import ABIs
 import MinterABI from '../abi/MinterContract.json';
-import NFTCollectionABI from '../abi/NFTCollection.json';
-import CEOTokenABI from '../abi/CEOToken.json';
+
+// ERC20Permit ABI for nonces function
+const ERC20PermitABI = [
+  'function nonces(address owner) view returns (uint256)',
+];
 
 class ContractService {
   private minterContract: ethers.Contract;
+  private ceoTokenContract: ethers.Contract;
 
   constructor() {
     const provider = providerManager.getProvider();
@@ -19,6 +23,12 @@ class ContractService {
     this.minterContract = new ethers.Contract(
       config.minterContractAddress,
       MinterABI,
+      provider
+    );
+
+    this.ceoTokenContract = new ethers.Contract(
+      config.ceoTokenAddress,
+      ERC20PermitABI,
       provider
     );
   }
@@ -30,15 +40,21 @@ class ContractService {
     try {
       const nftTypeEnum = nftType === 'PFP' ? NFTType.PFP : NFTType.MEME;
 
-      const result = await providerManager.executeWithRetry(async () => {
-        return await this.minterContract.getCurrentTierInfo(nftTypeEnum);
-      });
+      // Fetch tier info and decimals in parallel
+      const [result, usdcDecimals, ceoDecimals] = await Promise.all([
+        providerManager.executeWithRetry(async () => {
+          return await this.minterContract.getCurrentTierInfo(nftTypeEnum);
+        }),
+        this.getUSDCDecimals(),
+        this.getCEODecimals(),
+      ]);
 
       return {
         currentSupply: Number(result.currentSupply),
         tierId: Number(result.tierId),
-        priceUSD: result.priceUSD.toString(),
-        priceCEO: result.priceCEO.toString(),
+        priceUSD: ethers.formatUnits(result.priceUSD, usdcDecimals),
+        priceCEO: ethers.formatUnits(result.priceCEO, ceoDecimals),
+        priceCEORaw: result.priceCEO.toString(),
         remainingInTier: Number(result.remainingInTier),
       };
     } catch (error: any) {
@@ -82,7 +98,7 @@ class ContractService {
   }
 
   /**
-   * Get CEO token price from DEX
+   * Get CEO token price from DEX (raw value)
    */
   async getCEOPrice(): Promise<string> {
     try {
@@ -94,6 +110,54 @@ class ContractService {
     } catch (error: any) {
       logger.error('Failed to get CEO price:', error);
       throw new AppError(500, 'Failed to fetch CEO token price');
+    }
+  }
+
+  /**
+   * Get USDC decimals from the minter contract
+   */
+  async getUSDCDecimals(): Promise<number> {
+    try {
+      const decimals = await providerManager.executeWithRetry(async () => {
+        return await this.minterContract.usdcDecimals();
+      });
+
+      return Number(decimals);
+    } catch (error: any) {
+      logger.error('Failed to get USDC decimals:', error);
+      throw new AppError(500, 'Failed to fetch USDC decimals');
+    }
+  }
+
+  /**
+   * Get CEO token decimals from the minter contract
+   */
+  async getCEODecimals(): Promise<number> {
+    try {
+      const decimals = await providerManager.executeWithRetry(async () => {
+        return await this.minterContract.ceoDecimals();
+      });
+
+      return Number(decimals);
+    } catch (error: any) {
+      logger.error('Failed to get CEO decimals:', error);
+      throw new AppError(500, 'Failed to fetch CEO token decimals');
+    }
+  }
+
+  /**
+   * Get permit nonce for an address from the CEO token contract
+   */
+  async getPermitNonce(address: string): Promise<bigint> {
+    try {
+      const nonce = await providerManager.executeWithRetry(async () => {
+        return await this.ceoTokenContract.nonces(address);
+      });
+
+      return BigInt(nonce);
+    } catch (error: any) {
+      logger.error('Failed to get permit nonce:', error);
+      throw new AppError(500, 'Failed to fetch permit nonce');
     }
   }
 

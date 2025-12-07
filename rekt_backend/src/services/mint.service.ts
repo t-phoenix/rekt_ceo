@@ -4,6 +4,7 @@ import { logger } from '../utils/logger';
 import { AppError, PermitSignature } from '../types';
 import { contractService } from './contract.service';
 import { ipfsService } from './ipfs.service';
+import { balanceService } from './balance.service';
 
 class MintService {
   /**
@@ -24,29 +25,42 @@ class MintService {
   }> {
     const { userAddress, nftType, imageData, permitSignature } = task;
 
-    // Step 1: Validate user eligibility
-    logger.info('Checking user eligibility', { user: userAddress, nftType });
-    const canMint = await contractService.canUserMint(userAddress, nftType);
+    // Step 1: Fetch eligibility, tier info, and user balance in parallel
+    logger.info('Validating mint requirements', { user: userAddress, nftType });
+    const [canMint, tierInfo, userBalance] = await Promise.all([
+      contractService.canUserMint(userAddress, nftType),
+      contractService.getCurrentTierInfo(nftType),
+      balanceService.getBalanceRaw(userAddress),
+    ]);
 
     if (!canMint) {
       throw new AppError(403, `Mint limit reached for ${nftType}`);
     }
 
-    // Step 2: Validate permit signature
+    // Step 2: Validate balance and permit requirements
+    const validation = balanceService.validateMintRequirements(
+      userBalance,
+      permitSignature.value,
+      tierInfo.priceCEORaw
+    );
+    if (!validation.valid) {
+      throw new AppError(400, validation.error!);
+    }
+
+    // Step 3: Validate permit signature
     this.validatePermitSignature(permitSignature, userAddress);
 
-    // Step 3: Upload image to IPFS
+    // Step 4: Upload image to IPFS
     logger.info('Uploading image to IPFS', { user: userAddress });
     const imageURI = await ipfsService.uploadImage(
       imageData,
       `${nftType.toLowerCase()}-${Date.now()}.png`
     );
 
-    // Step 4: Get next token ID (approximate)
-    const tierInfo = await contractService.getCurrentTierInfo(nftType);
+    // Step 5: Get next token ID (approximate, reusing tier info)
     const predictedTokenId = tierInfo.currentSupply + 1;
 
-    // Step 5: Generate and upload metadata
+    // Step 6: Generate and upload metadata
     logger.info('Generating metadata', { user: userAddress, tokenId: predictedTokenId });
     const metadata = ipfsService.generateMetadata(
       nftType,
@@ -57,8 +71,8 @@ class MintService {
 
     const metadataURI = await ipfsService.uploadMetadata(metadata);
 
-    // Step 6: Execute mint transaction
-    logger.info('Executing mint transaction', { user: userAddress, nftType });
+    // Step 7: Execute mint transaction
+    logger.info('Executing mint transaction', { user: userAddress, nftType, priceCEO: tierInfo.priceCEO });
     const { txHash, tokenId } = await contractService.mintNFTWithPermit(
       nftType,
       metadataURI,

@@ -53,6 +53,7 @@ export interface TierInfo {
   tierId: number;
   priceUSD: string;
   priceCEO: string;
+  priceCEORaw: string;
   remainingInTier: number;
 }
 

@@ -12,5 +12,11 @@ router.get('/user/:address', (req, res, next) => infoController.getUserInfo(req,
 // GET /api/info/ceo-price
 router.get('/ceo-price', (req, res, next) => infoController.getCEOPrice(req, res, next));
 
+// GET /api/info/permit-nonce/:address
+router.get('/permit-nonce/:address', (req, res, next) => infoController.getPermitNonce(req, res, next));
+
+// GET /api/info/ceo-balance/:address
+router.get('/ceo-balance/:address', (req, res, next) => infoController.getCEOBalance(req, res, next));
+
 export default router;
 
