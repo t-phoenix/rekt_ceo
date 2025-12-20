@@ -1,16 +1,20 @@
 import { SiweMessage } from 'siwe';
-import Redis from 'ioredis';
 import { ethers } from 'ethers';
-import { config } from '../config';
 import { logger } from '../utils/logger';
 import { AppError } from '../types';
 import { generateToken } from '../utils/jwt';
+import { redisManager } from '../utils/redis';
 
 class AuthService {
-  private redis: Redis;
-
-  constructor() {
-    this.redis = new Redis(config.redisUrl);
+  /**
+   * Get Redis client (lazy initialization)
+   */
+  private async getRedis() {
+    const redis = await redisManager.getClient();
+    if (!redis) {
+      throw new AppError(503, 'Redis service unavailable. Please try again later.');
+    }
+    return redis;
   }
 
   /**
@@ -26,8 +30,9 @@ class AuthService {
     const nonce = ethers.hexlify(ethers.randomBytes(16));
 
     // Store in Redis with 5 minute expiry
+    const redis = await this.getRedis();
     const key = `nonce:${address.toLowerCase()}`;
-    await this.redis.setex(key, 300, nonce);
+    await redis.setex(key, 300, nonce);
 
     logger.info('Generated nonce', { address, nonce });
 
@@ -52,15 +57,16 @@ class AuthService {
       const address = siweMessage.address.toLowerCase();
 
       // Check nonce
+      const redis = await this.getRedis();
       const key = `nonce:${address}`;
-      const storedNonce = await this.redis.get(key);
+      const storedNonce = await redis.get(key);
 
       if (!storedNonce || storedNonce !== siweMessage.nonce) {
         throw new AppError(401, 'Invalid or expired nonce');
       }
 
       // Delete nonce (single-use)
-      await this.redis.del(key);
+      await redis.del(key);
 
       // Generate JWT token
       const token = generateToken(address);

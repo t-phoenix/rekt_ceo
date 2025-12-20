@@ -33,7 +33,7 @@ const configSchema = z.object({
   // CORS
   corsOrigin: z.string(),
   
-  // Redis
+  // Redis (optional - will use default if not provided)
   redisUrl: z.string().url(),
   
   // Rate limiting

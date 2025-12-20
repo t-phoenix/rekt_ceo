@@ -1,9 +1,10 @@
 import rateLimit from 'express-rate-limit';
-import RedisStore from 'rate-limit-redis';
-import Redis from 'ioredis';
 import { config } from '../config';
 
-const redis = new Redis(config.redisUrl);
+// Note: Using in-memory store for now to avoid Redis connection issues at startup
+// Redis will be used for nonce storage in auth service, which is more critical
+// Rate limiting with in-memory store works fine for single-instance deployments
+// For multi-instance, consider using Redis store once connection is stable
 
 // General rate limiter
 export const generalLimiter = rateLimit({
@@ -11,10 +12,7 @@ export const generalLimiter = rateLimit({
   max: config.rateLimitMaxRequests,
   standardHeaders: true,
   legacyHeaders: false,
-  store: new RedisStore({
-    // @ts-ignore - Redis types mismatch
-    sendCommand: (...args: string[]) => redis.call(...args),
-  }),
+  // Using default memory store - works fine for single instance
   message: { success: false, error: 'Too many requests, please try again later' },
 });
 
@@ -24,10 +22,6 @@ export const authLimiter = rateLimit({
   max: 10,
   standardHeaders: true,
   legacyHeaders: false,
-  store: new RedisStore({
-    // @ts-ignore - Redis types mismatch
-    sendCommand: (...args: string[]) => redis.call(...args),
-  }),
   message: { success: false, error: 'Too many authentication attempts' },
 });
 
@@ -39,10 +33,6 @@ export const mintLimiter = rateLimit({
   max: 10, // Generous limit - per-user limiting is handled by queue service
   standardHeaders: true,
   legacyHeaders: false,
-  store: new RedisStore({
-    // @ts-ignore - Redis types mismatch
-    sendCommand: (...args: string[]) => redis.call(...args),
-  }),
   message: { success: false, error: 'Too many mint requests, please slow down' },
 });
 

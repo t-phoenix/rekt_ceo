@@ -1,24 +1,10 @@
 import { Router, Request, Response, IRouter } from 'express';
 import { contractService } from '../services/contract.service';
 import { ApiResponse } from '../types';
-import { config } from '../config';
-import Redis from 'ioredis';
 import { providerManager } from '../utils/provider';
+import { redisManager } from '../utils/redis';
 
 const router: IRouter = Router();
-
-// Redis client for health check (reused connection)
-let redis: Redis | null = null;
-
-const getRedis = (): Redis => {
-  if (!redis) {
-    redis = new Redis(config.redisUrl, {
-      maxRetriesPerRequest: 1,
-      retryStrategy: () => null, // Don't retry on health check
-    });
-  }
-  return redis;
-};
 
 // GET /api/health
 router.get('/', async (req: Request, res: Response) => {
@@ -34,9 +20,11 @@ router.get('/', async (req: Request, res: Response) => {
 
   // Check Redis
   try {
-    const redisClient = getRedis();
-    await redisClient.ping();
-    healthStatus.services.redis = 'healthy';
+    const isAvailable = await redisManager.isAvailable();
+    healthStatus.services.redis = isAvailable ? 'healthy' : 'unhealthy';
+    if (!isAvailable) {
+      overallHealthy = false;
+    }
   } catch (error: any) {
     healthStatus.services.redis = 'unhealthy';
     overallHealthy = false;
