@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect } from 'react'
 import { useConnection, useSignTypedData, useWriteContract } from 'wagmi'
-import { waitForTransactionReceipt, getBlock, readContract } from 'wagmi/actions'
+import { getBlock, readContract } from 'wagmi/actions'
 import { config } from '../config/wagmi'
 import { api } from '../services/api'
 import type { TierInfo } from '../services/api'

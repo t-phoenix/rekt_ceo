@@ -1,5 +1,5 @@
 import { http, createConfig } from 'wagmi'
-import { mainnet, sepolia } from 'wagmi/chains'
+import { sepolia } from 'wagmi/chains'
 import { walletConnect, injected, coinbaseWallet } from 'wagmi/connectors'
 
 // Get projectId from https://cloud.walletconnect.com
