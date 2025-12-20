@@ -70,6 +70,7 @@ class MintService {
     );
 
     const metadataURI = await ipfsService.uploadMetadata(metadata);
+    console.log('metadataURI uploading ...', metadataURI);
 
     // Step 7: Execute mint transaction
     logger.info('Executing mint transaction', { user: userAddress, nftType, priceCEO: tierInfo.priceCEO });

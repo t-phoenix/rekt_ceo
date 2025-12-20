@@ -60,7 +60,7 @@ const env = {
   pinataGateway: process.env.PINATA_GATEWAY || 'https://gateway.pinata.cloud',
   jwtSecret: process.env.JWT_SECRET!,
   jwtExpiry: process.env.JWT_EXPIRY || '24h',
-  corsOrigin: process.env.CORS_ORIGIN || 'http://localhost:3001',
+  corsOrigin: process.env.CORS_ORIGIN || process.env.CORS_ORIGIN_2,
   redisUrl: process.env.REDIS_URL || 'redis://localhost:6379',
   rateLimitWindowMs: process.env.RATE_LIMIT_WINDOW_MS || '60000',
   rateLimitMaxRequests: process.env.RATE_LIMIT_MAX_REQUESTS || '100',

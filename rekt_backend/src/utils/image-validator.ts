@@ -2,7 +2,7 @@ import sharp from 'sharp';
 import { AppError } from '../types';
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
-const MIN_DIMENSION = 500;
+const MIN_DIMENSION = 50;
 const MAX_DIMENSION = 4096;
 const ALLOWED_FORMATS = ['png', 'jpg', 'jpeg', 'gif', 'webp'];
 

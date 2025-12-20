@@ -10,6 +10,7 @@ class IPFSService {
   constructor() {
     this.pinata = new PinataSDK({
       pinataJwt: config.pinataJwt,
+      pinataGateway: config.pinataGateway,
     });
   }
 
@@ -26,12 +27,10 @@ class IPFSService {
       // Create file from buffer
       const file = new File([imageBuffer], filename, { type: 'image/png' });
 
-      // Upload to Pinata
-      const upload = await (this.pinata.upload as any).file(file).addMetadata({
-        name: filename,
-      });
+      // Upload to Pinata (new SDK uses upload.public.file)
+      const upload = await this.pinata.upload.public.file(file);
 
-      const ipfsHash = upload.IpfsHash;
+      const ipfsHash = upload.cid;
       const uri = `ipfs://${ipfsHash}`;
 
       logger.info('Image uploaded to IPFS', { uri, hash: ipfsHash });
@@ -41,8 +40,13 @@ class IPFSService {
       if (error instanceof AppError) {
         throw error;
       }
-      logger.error('Failed to upload image to IPFS:', error);
-      throw new AppError(500, 'Failed to upload image to IPFS');
+      logger.error('Failed to upload image to IPFS:', {
+        message: error.message,
+        status: error.status,
+        response: error.response?.data,
+        stack: error.stack,
+      });
+      throw new AppError(500, `Failed to upload image to IPFS: ${error.message}`);
     }
   }
 
@@ -53,12 +57,10 @@ class IPFSService {
     try {
       logger.info('Uploading metadata to IPFS...', { name: metadata.name });
 
-      // Upload to Pinata
-      const upload = await (this.pinata.upload as any).json(metadata).addMetadata({
-        name: `${metadata.name}-metadata`,
-      });
+      // Upload to Pinata (new SDK uses upload.public.json)
+      const upload = await this.pinata.upload.public.json(metadata);
 
-      const ipfsHash = upload.IpfsHash;
+      const ipfsHash = upload.cid;
       const uri = `ipfs://${ipfsHash}`;
 
       logger.info('Metadata uploaded to IPFS', { uri, hash: ipfsHash });

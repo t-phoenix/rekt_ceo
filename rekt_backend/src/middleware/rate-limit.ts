@@ -31,10 +31,12 @@ export const authLimiter = rateLimit({
   message: { success: false, error: 'Too many authentication attempts' },
 });
 
-// Mint endpoints rate limiter (very strict)
+// Mint endpoints rate limiter
+// Note: This uses IP-based limiting as DDoS protection.
+// Per-user concurrent request limiting is handled by mintQueueService.
 export const mintLimiter = rateLimit({
   windowMs: 60000, // 1 minute
-  max: 3,
+  max: 10, // Generous limit - per-user limiting is handled by queue service
   standardHeaders: true,
   legacyHeaders: false,
   store: new RedisStore({

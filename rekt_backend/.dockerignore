@@ -1,17 +1,61 @@
+# Dependencies
 node_modules
 npm-debug.log
+yarn-error.log
+package-lock.json
+yarn.lock
+
+# Build outputs
 dist
+build
+*.tsbuildinfo
+
+# Environment
 .env
 .env.local
+.env.*.local
+.env.example
+
+# Git
 .git
 .gitignore
-README.md
+.gitattributes
+
+# Documentation
+*.md
+docs/
+ai_helper/
+
+# IDE
 .vscode
 .idea
-*.log
-logs
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Testing
 coverage
 .nyc_output
-tests
 *.test.ts
+*.spec.ts
+__tests__
+tests
 
+# Logs
+logs
+*.log
+
+# Misc
+.cache
+temp
+tmp
+*.pem
+*.key
+
+# Docker
+Dockerfile*
+docker-compose*.yml
+.dockerignore

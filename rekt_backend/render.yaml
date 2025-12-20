@@ -1,0 +1,78 @@
+services:
+  # Backend Web Service
+  - type: web
+    name: rekt-ceo-backend
+    runtime: node
+    plan: starter  # Change to 'free' for development
+    region: oregon  # Change to your preferred region
+    rootDir: rekt_backend  # Remove this if deploying from root
+    buildCommand: corepack enable && corepack prepare pnpm@latest --activate && pnpm install && pnpm run build
+    startCommand: pnpm start
+    healthCheckPath: /api/health
+    envVars:
+      # Server
+      - key: PORT
+        value: 3000
+      - key: NODE_ENV
+        value: production
+      
+      # Blockchain (Update these with your actual values)
+      - key: CHAIN_ID
+        value: 8453
+      - key: RPC_URL
+        sync: false  # Set manually in Render dashboard
+      - key: RPC_URL_FALLBACK
+        value: https://mainnet.base.org
+      - key: BACKEND_PRIVATE_KEY
+        sync: false  # Set manually in Render dashboard (SECRET)
+      
+      # Contracts (Update these with your actual values)
+      - key: MINTER_CONTRACT_ADDRESS
+        sync: false  # Set manually in Render dashboard
+      - key: PFP_COLLECTION_ADDRESS
+        sync: false  # Set manually in Render dashboard
+      - key: MEME_COLLECTION_ADDRESS
+        sync: false  # Set manually in Render dashboard
+      - key: CEO_TOKEN_ADDRESS
+        sync: false  # Set manually in Render dashboard
+      
+      # IPFS (Update these with your actual values)
+      - key: PINATA_JWT
+        sync: false  # Set manually in Render dashboard (SECRET)
+      - key: PINATA_GATEWAY
+        value: https://gateway.pinata.cloud
+      
+      # Authentication (Update these with your actual values)
+      - key: JWT_SECRET
+        sync: false  # Set manually in Render dashboard (SECRET)
+      - key: JWT_EXPIRY
+        value: 24h
+      
+      # CORS (Update with your frontend domain)
+      - key: CORS_ORIGIN
+        sync: false  # Set manually in Render dashboard
+      
+      # Redis (Will be set automatically when linked to Redis service)
+      - key: REDIS_URL
+        fromDatabase:
+          name: rekt-ceo-redis
+          property: connectionString
+      
+      # Rate Limiting
+      - key: RATE_LIMIT_WINDOW_MS
+        value: 60000
+      - key: RATE_LIMIT_MAX_REQUESTS
+        value: 100
+      
+      # Logging
+      - key: LOG_LEVEL
+        value: warn
+
+databases:
+  # Redis Database
+  - name: rekt-ceo-redis
+    plan: starter  # Change to 'free' for development (25MB limit)
+    region: oregon  # Should match web service region
+    maxmemoryPolicy: allkeys-lru
+    ipAllowList: []  # Empty means only accessible from Render services
+
