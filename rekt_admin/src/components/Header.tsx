@@ -2,7 +2,12 @@ import { useWeb3Modal } from '@web3modal/wagmi/react'
 import { useConnection } from 'wagmi'
 import { useAuth } from '../hooks/useAuth'
 
-export const Header = () => {
+interface HeaderProps {
+  currentPage?: 'home' | 'liquidity'
+  onNavigate?: (page: 'home' | 'liquidity') => void
+}
+
+export const Header = ({ currentPage = 'home', onNavigate }: HeaderProps) => {
   const { open } = useWeb3Modal()
   const { address, status } = useConnection()
   const { isAuthenticated, authenticate, logout, isAuthenticating } = useAuth()
@@ -26,7 +31,33 @@ export const Header = () => {
   return (
     <header className="bg-white border-b border-gray-200 px-6 py-4">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900">REKT ADMIN</h1>
+        <div className="flex items-center gap-6">
+          <h1 className="text-2xl font-bold text-gray-900">REKT ADMIN</h1>
+          {onNavigate && (
+            <nav className="flex gap-4">
+              <button
+                onClick={() => onNavigate('home')}
+                className={`px-3 py-2 text-sm font-medium rounded transition-colors ${
+                  currentPage === 'home'
+                    ? 'text-indigo-600 bg-indigo-50'
+                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                }`}
+              >
+                Home
+              </button>
+              <button
+                onClick={() => onNavigate('liquidity')}
+                className={`px-3 py-2 text-sm font-medium rounded transition-colors ${
+                  currentPage === 'liquidity'
+                    ? 'text-indigo-600 bg-indigo-50'
+                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                }`}
+              >
+                Liquidity Pool
+              </button>
+            </nav>
+          )}
+        </div>
         
         <div className="flex items-center gap-3">
           {isConnected && address ? (
