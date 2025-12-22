@@ -15,6 +15,7 @@ import {
 } from '../hooks/useLiquidityPool'
 import { SwapInterface } from './SwapInterface'
 import { AddLiquidityInterface } from './AddLiquidityInterface'
+import { ApproveInterface } from './ApproveInterface'
 import { PositionDisplay } from './PositionDisplay'
 import { MarketDataDisplay } from './MarketDataDisplay'
 
@@ -23,7 +24,7 @@ const CEO_TOKEN_ADDRESS = import.meta.env.VITE_CEO_TOKEN_ADDRESS as Address
 const USDC_ADDRESS = import.meta.env.VITE_USDC_ADDRESS as Address
 const ROUTER_ADDRESS = import.meta.env.VITE_UNISWAP_ROUTER_ADDRESS as Address
 
-type Tab = 'swap' | 'liquidity'
+type Tab = 'swap' | 'liquidity' | 'approve'
 
 export function LiquidityPoolPage() {
   const { address } = useAccount()
@@ -32,6 +33,8 @@ export function LiquidityPoolPage() {
   const [swapTokenIn, setSwapTokenIn] = useState<Address>(CEO_TOKEN_ADDRESS)
   const [liquidityAmount0, setLiquidityAmount0] = useState('')
   const [liquidityAmount1, setLiquidityAmount1] = useState('')
+  const [ceoApprovalAmount, setCeoApprovalAmount] = useState('')
+  const [usdcApprovalAmount, setUsdcApprovalAmount] = useState('')
 
   // Pool data queries
   const { data: poolData, isLoading: poolDataLoading, error: poolDataError } = usePoolData(
@@ -61,10 +64,25 @@ export function LiquidityPoolPage() {
     isLoading: allowanceLoading,
   } = useTokenAllowance(swapTokenIn, address, ROUTER_ADDRESS, !!address && !!swapTokenIn)
 
-  // Approval hook
+  // Approval hooks
   const {
     approveAsync: approveTokenAsync,
     isPending: approvalPending,
+  } = useApproveToken()
+  
+  // Separate approval hooks for CEO and USDC
+  const {
+    approveAsync: approveCEOAsync,
+    isPending: ceoApprovalPending,
+    isSuccess: ceoApprovalSuccess,
+    error: ceoApprovalError,
+  } = useApproveToken()
+  
+  const {
+    approveAsync: approveUSDCAsync,
+    isPending: usdcApprovalPending,
+    isSuccess: usdcApprovalSuccess,
+    error: usdcApprovalError,
   } = useApproveToken()
 
   // Swap quote
@@ -188,6 +206,50 @@ export function LiquidityPoolPage() {
     }
   }
 
+  const handleApproveCEO = async (amount: string) => {
+    if (!address || !amount) return
+
+    const amountNum = parseFloat(amount)
+    if (isNaN(amountNum) || amountNum <= 0) {
+      console.error('Invalid approval amount')
+      return
+    }
+
+    try {
+      await approveCEOAsync({
+        token: CEO_TOKEN_ADDRESS,
+        spender: ROUTER_ADDRESS,
+        amount: amount,
+        owner: address,
+      })
+      setCeoApprovalAmount('')
+    } catch (error) {
+      console.error('CEO approval failed:', error)
+    }
+  }
+
+  const handleApproveUSDC = async (amount: string) => {
+    if (!address || !amount) return
+
+    const amountNum = parseFloat(amount)
+    if (isNaN(amountNum) || amountNum <= 0) {
+      console.error('Invalid approval amount')
+      return
+    }
+
+    try {
+      await approveUSDCAsync({
+        token: USDC_ADDRESS,
+        spender: ROUTER_ADDRESS,
+        amount: amount,
+        owner: address,
+      })
+      setUsdcApprovalAmount('')
+    } catch (error) {
+      console.error('USDC approval failed:', error)
+    }
+  }
+
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="container mx-auto px-4 max-w-6xl">
@@ -231,6 +293,16 @@ export function LiquidityPoolPage() {
               >
                 Liquidity
               </button>
+              <button
+                onClick={() => setActiveTab('approve')}
+                className={`px-6 py-4 text-sm font-medium border-b-2 transition-colors ${
+                  activeTab === 'approve'
+                    ? 'border-indigo-500 text-indigo-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                Approve
+              </button>
             </nav>
           </div>
 
@@ -259,7 +331,7 @@ export function LiquidityPoolPage() {
                 allowance={tokenAllowance}
                 allowanceLoading={allowanceLoading}
               />
-            ) : (
+            ) : activeTab === 'liquidity' ? (
               <AddLiquidityInterface
                 amount0={liquidityAmount0}
                 setAmount0={setLiquidityAmount0}
@@ -283,6 +355,30 @@ export function LiquidityPoolPage() {
                 ceoAllowanceLoading={ceoAllowanceLoading}
                 usdcAllowanceLoading={usdcAllowanceLoading}
               />
+            ) : (
+              <ApproveInterface
+                ceoAmount={ceoApprovalAmount}
+                setCeoAmount={setCeoApprovalAmount}
+                usdcAmount={usdcApprovalAmount}
+                setUsdcAmount={setUsdcApprovalAmount}
+                onApproveCEO={handleApproveCEO}
+                onApproveUSDC={handleApproveUSDC}
+                ceoApprovalPending={ceoApprovalPending}
+                usdcApprovalPending={usdcApprovalPending}
+                ceoApprovalSuccess={ceoApprovalSuccess}
+                usdcApprovalSuccess={usdcApprovalSuccess}
+                ceoError={ceoApprovalError}
+                usdcError={usdcApprovalError}
+                tokenBalances={tokenBalances}
+                balancesLoading={balancesLoading}
+                ceoAllowance={ceoAllowance}
+                usdcAllowance={usdcAllowance}
+                ceoAllowanceLoading={ceoAllowanceLoading}
+                usdcAllowanceLoading={usdcAllowanceLoading}
+                CEOAddress={CEO_TOKEN_ADDRESS}
+                USDCAddress={USDC_ADDRESS}
+                routerAddress={ROUTER_ADDRESS}
+              />
             )}
           </div>
         </div>
@@ -294,6 +390,10 @@ export function LiquidityPoolPage() {
               position={userPosition}
               isLoading={positionLoading}
               error={positionError}
+              token0={CEO_TOKEN_ADDRESS}
+              token1={USDC_ADDRESS}
+              routerAddress={ROUTER_ADDRESS}
+              userAddress={address}
             />
           </div>
         )}

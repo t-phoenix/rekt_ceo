@@ -6,6 +6,7 @@ export { MintButton } from './MintButton'
 export { LiquidityPoolPage } from './LiquidityPoolPage'
 export { SwapInterface } from './SwapInterface'
 export { AddLiquidityInterface } from './AddLiquidityInterface'
+export { ApproveInterface } from './ApproveInterface'
 export { PositionDisplay } from './PositionDisplay'
 export { MarketDataDisplay } from './MarketDataDisplay'
 

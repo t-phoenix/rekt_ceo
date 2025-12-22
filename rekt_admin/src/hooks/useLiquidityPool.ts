@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useWriteContract, useWaitForTransactionReceipt } from 'wagmi'
-import { readContract } from 'wagmi/actions'
+import { readContract, simulateContract } from 'wagmi/actions'
 import { config } from '../config/wagmi'
 import type { Address } from 'viem'
 import { formatUnits, parseUnits } from 'viem'
@@ -70,7 +70,7 @@ const UNISWAP_V2_FACTORY_ABI = [
 // ERC20 ABI imported from JSON file
 
 // Helper function to get pool address from factory
-async function getPoolAddress(
+export async function getPoolAddress(
   routerAddress: Address,
   token0: Address,
   token1: Address
@@ -1121,6 +1121,21 @@ export function useRemoveLiquidity() {
       const amount0MinRaw = parseUnits(amount0Min, decimals0)
       const amount1MinRaw = parseUnits(amount1Min, decimals1)
 
+      // Check LP token balance
+      const lpTokenBalance = (await readContract(config, {
+        address: poolAddress,
+        abi: ERC20_ABI,
+        functionName: 'balanceOf',
+        args: [to],
+      })) as bigint
+
+      if (lpTokenBalance < liquidityRaw) {
+        const balanceFormatted = formatUnits(lpTokenBalance, 18)
+        throw new Error(
+          `Insufficient LP token balance. Current balance: ${balanceFormatted}, Required: ${liquidity}`
+        )
+      }
+
       // Check LP token approval (pool address is the LP token)
       const lpTokenAllowance = (await readContract(config, {
         address: poolAddress,
@@ -1134,6 +1149,71 @@ export function useRemoveLiquidity() {
         throw new Error(
           `Insufficient LP token approval. Please approve the router to spend your LP tokens first. Current allowance: ${allowanceFormatted}, Required: ${liquidity}`
         )
+      }
+
+      // Log parameters for debugging
+      console.log('Remove Liquidity Hook - Parameters:', {
+        token0,
+        token1,
+        liquidity: liquidity,
+        liquidityRaw: liquidityRaw.toString(),
+        amount0Min: amount0Min,
+        amount0MinRaw: amount0MinRaw.toString(),
+        amount1Min: amount1Min,
+        amount1MinRaw: amount1MinRaw.toString(),
+        to,
+        deadline,
+        routerAddress,
+        poolAddress,
+        lpTokenBalance: lpTokenBalance.toString(),
+        lpTokenAllowance: lpTokenAllowance.toString(),
+      })
+
+      // Simulate the transaction first to catch errors before sending
+      // Note: simulateContract may not work in all environments, so we'll catch and continue
+      try {
+        const simulationResult = await simulateContract(config, {
+          address: routerAddress,
+          abi: UNISWAP_V2_ROUTER_ABI,
+          functionName: 'removeLiquidity',
+          args: [
+            token0,
+            token1,
+            liquidityRaw,
+            amount0MinRaw,
+            amount1MinRaw,
+            to,
+            BigInt(deadline),
+          ],
+        })
+        console.log('Transaction simulation successful', simulationResult)
+      } catch (simError: any) {
+        console.error('Transaction simulation failed:', {
+          simError,
+          message: simError?.message,
+          cause: simError?.cause,
+          data: simError?.data,
+          shortMessage: simError?.shortMessage,
+        })
+        
+        // Extract more detailed error information
+        const errorMessage = simError?.data?.message || simError?.shortMessage || simError?.message || 'Unknown simulation error'
+        
+        // Check for specific revert reasons
+        if (errorMessage.includes('UniswapV2: INSUFFICIENT_LIQUIDITY_BURNED')) {
+          throw new Error('Insufficient liquidity to burn. Please check your LP token balance.')
+        }
+        if (errorMessage.includes('UniswapV2: INSUFFICIENT_A_AMOUNT') || errorMessage.includes('UniswapV2: INSUFFICIENT_B_AMOUNT')) {
+          throw new Error(`Minimum amount too high. The calculated minimum amounts (${amount0Min}, ${amount1Min}) exceed what can be received. Try reducing slippage tolerance or the removal amount.`)
+        }
+        if (errorMessage.includes('UniswapV2: EXPIRED')) {
+          throw new Error('Transaction deadline expired. Please try again.')
+        }
+        if (errorMessage.includes('UniswapV2: INSUFFICIENT_LIQUIDITY')) {
+          throw new Error('Insufficient liquidity in the pool.')
+        }
+        
+        throw new Error(`Transaction simulation failed: ${errorMessage}. Please check your LP token balance, approval, and minimum amounts.`)
       }
 
       // Execute the remove liquidity transaction
@@ -1155,15 +1235,26 @@ export function useRemoveLiquidity() {
 
         return txHash
       } catch (error: any) {
+        // Log the full error for debugging
+        console.error('Remove liquidity transaction error:', {
+          error,
+          message: error?.message,
+          cause: error?.cause,
+          data: error?.data,
+          shortMessage: error?.shortMessage,
+        })
+
         // Provide more helpful error messages
-        if (error?.message?.includes('gas')) {
+        if (error?.message?.includes('gas') || error?.shortMessage?.includes('gas')) {
+          const errorDetails = error?.data?.message || error?.shortMessage || error?.message || 'Unknown error'
           throw new Error(
-            `Gas estimation failed. This might be due to insufficient LP token approval, insufficient LP balance, or invalid remove liquidity parameters. Please check your LP token balance and approval.`
+            `Gas estimation failed: ${errorDetails}. This might be due to insufficient LP token approval, insufficient LP balance, invalid minimum amounts, or token ordering issues. Please check your LP token balance, approval, and ensure minimum amounts are correct.`
           )
         }
-        if (error?.message?.includes('revert')) {
+        if (error?.message?.includes('revert') || error?.shortMessage?.includes('revert')) {
+          const errorDetails = error?.data?.message || error?.shortMessage || error?.message || 'Unknown error'
           throw new Error(
-            `Remove liquidity failed: ${error.message}. This might be due to insufficient liquidity, slippage tolerance exceeded, or insufficient LP token approval.`
+            `Remove liquidity failed: ${errorDetails}. This might be due to insufficient liquidity, slippage tolerance exceeded, or insufficient LP token approval.`
           )
         }
         throw error
