@@ -1,11 +1,11 @@
 //806K
-import BG1 from "../creatives/backgrounds/BG_1.png";
-import BG2 from "../creatives/backgrounds/BG_2.jpg";
-import BG3 from "../creatives/backgrounds/BG_3.jpg";
-import BG4 from "../creatives/backgrounds/BG_4.jpg";
-import BG5 from "../creatives/backgrounds/BG_5.jpg";
-import BG6 from "../creatives/backgrounds/BG_6.jpeg";
-import BG7 from "../creatives/backgrounds/BG_7.jpg";
+import BG1 from "../creatives/pfp/backgrounds/BG_1.png";
+import BG2 from "../creatives/pfp/backgrounds/BG_2.png";
+import BG3 from "../creatives/pfp/backgrounds/BG_3.png";
+import BG4 from "../creatives/pfp/backgrounds/BG_4.png";
+import BG5 from "../creatives/pfp/backgrounds/BG_5.png";
+import BG6 from "../creatives/pfp/backgrounds/BG_6.png";
+import BG7 from "../creatives/pfp/backgrounds/BG_7.png";
 
 
 
@@ -57,8 +57,8 @@ import usdc from "../creatives/pfp/coins/usdc.png";
 
 
 export const layers = [
-    [BG1, BG2, BG3, BG4, BG5, BG6, BG7], 
-    [hoodie1, hoodie2, hoodie3, hoodie4], 
+    [BG1, BG2, BG3, BG4, BG5, BG6, BG7],
+    [hoodie1, hoodie2, hoodie3, hoodie4],
     [pant1, pant2, pant3, pant4, pant5],
     [shoe1, shoe2, shoe3, shoe4, shoe5, shoe6],
     [skin1, skin2, skin3, skin4, skin5],
@@ -68,14 +68,14 @@ export const layers = [
 ]
 
 export const layerNames = [
-    ["BG1", "BG2", "BG3", "BG4", "BG5", "BG6", "BG7"], 
-    ["Hoodie1", "Hoodie2", "Hoodie3", "Hoodie4"], 
+    ["BG1", "BG2", "BG3", "BG4", "BG5", "BG6", "BG7"],
+    ["Hoodie1", "Hoodie2", "Hoodie3", "Hoodie4"],
     ["Pant1", "Pant2", "Pant3", "Pant4", "Pant5"],
     ["Shoe1", "Shoe2", "Shoe3", "Shoe4", "Shoe5", "Shoe6"],
     ["Skin1", "Skin2", "Skin3", "Skin4", "Skin5"],
     ["Face1", "Face2", "Face3", "Face4", "Face5"],
     ["Jewel1", "Jewel2", "Jewel3", "Jewel4"],
-    ["btc", "doge", "eth", "pepe", "pump" , "rekt", "shiba", "usdc"]
+    ["btc", "doge", "eth", "pepe", "pump", "rekt", "shiba", "usdc"]
 ]
 
 // BUILD SIMILIAR FOR LAYER OPTIONS VIEW
@@ -89,4 +89,4 @@ export const items = [
     "Face",
     "Jewel",
     "Coin",
-  ];
+];

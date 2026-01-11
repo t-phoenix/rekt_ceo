@@ -13,9 +13,13 @@ import rektceoBeer from "../../creatives/rekt_stickers/rektceo_beer-.png";
 import ceoBadge from "../../creatives/rekt_stickers/ceo_badge.png";
 import hodlBubble from "../../creatives/rekt_stickers/hodl_bubble.png";
 import rktController from "../../creatives/rekt_stickers/rkt_controller.png";
+import rektlogo from "../../creatives/rekt_stickers/Rekt_logo_2D.png";
+import rektlogo3D from "../../creatives/rekt_stickers/Rekt_logo_3D.png";
 
 // Sticker configuration using actual rekt_sticker images
 const STICKERS = [
+  { id: "rekt_logo_2D", name: "Rekt Logo 2D", image: rektlogo, category: "REKT" },
+  { id: "rekt_logo_3D", name: "Rekt Logo 3D", image: rektlogo3D, category: "REKT" },
   { id: "rkt_controller", name: "RKT Controller", image: rktController, category: "REKT" },
   { id: "hodl_bubble", name: "HODL Bubble", image: hodlBubble, category: "CEO" },
   { id: "rektceo_beer", name: "RektCEO Beer", image: rektceoBeer, category: "REKT" },
@@ -35,8 +39,8 @@ const StickerCard = ({ onAddSticker, onRemoveAllStickers, showRemoveAll = true }
       <div className="sticker-header">
         <h3 className="sticker-title">Stickers</h3>
         {showRemoveAll && (
-          <button 
-            onClick={onRemoveAllStickers} 
+          <button
+            onClick={onRemoveAllStickers}
             className="dustbin-btn"
             title="Remove all stickers"
           >
@@ -52,8 +56,8 @@ const StickerCard = ({ onAddSticker, onRemoveAllStickers, showRemoveAll = true }
               onClick={() => onAddSticker(s)}
               className="sticker-btn-simple"
             >
-              <img 
-                src={s.image} 
+              <img
+                src={s.image}
                 alt={s.name}
                 style={{ width: '60px', height: '60px', objectFit: 'contain' }}
               />
