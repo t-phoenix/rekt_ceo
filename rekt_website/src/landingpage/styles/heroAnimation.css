@@ -229,6 +229,14 @@
     animation-delay: 1.85s;
 }
 
+.landing-subtitle-animated .text-split-char:nth-child(19) {
+    animation-delay: 1.9s;
+}
+
+.landing-subtitle-animated .text-split-char:nth-child(20) {
+    animation-delay: 1.95s;
+}
+
 /* Responsive adjustments */
 @media screen and (max-width: 992px) {
     .hero-video {

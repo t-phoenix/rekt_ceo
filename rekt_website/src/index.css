@@ -1,9 +1,11 @@
-@import url("https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Montserrat:wght@400;600;700&display=swap");
+/* Comic Fonts Import */
+@import url("https://fonts.googleapis.com/css2?family=Bangers&family=Bungee&family=Passion+One:wght@400;700;900&family=Lilita+One&display=swap");
 
 * {
- box-sizing: border-box;
- padding: 0;
- margin: 0;
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+  font-family: var(--body-font);
 }
 
 body {
@@ -13,6 +15,39 @@ body {
   -moz-osx-font-smoothing: grayscale;
   background-color: var(--background-color-secondary);
   color: var(--color-white);
+
+  /* Font Customization */
+  letter-spacing: 0.06em;
+  /* Adds slight spacing between characters */
+  font-weight: 400;
+  /* Normal weight, not too bold */
+  line-height: 1.1;
+  /* Better readability */
+}
+
+/* Additional font tweaks for specific elements */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  letter-spacing: 0.04em;
+  /* Slightly more spacing for headings */
+}
+
+p,
+span,
+div {
+  letter-spacing: 0.06em;
+  /* Subtle spacing for body text */
+}
+
+button,
+a {
+  letter-spacing: 0.04em;
+  /* More spacing for interactive elements */
+  font-weight: 400;
 }
 
 code {
@@ -40,22 +75,27 @@ code {
   --color-second: #51A3A3;
 
   --color-blue-primary: #04a9ff;
-  
-  --body-font: "Montserrat", sans-serif;
-  --second-font: "Dancing Script", cursive;
+
+  /* Comic Font Styles */
+  /* --body-font: "Bangers", cursive; */
+
+  --body-font: "Lilita One", cursive;
+  --second-font: "Passion One", cursive;
+  --accent-font: "Bungee", cursive;
+  --alt-font: "Lilita One", cursive;
+
   --h2-font-size: 1.25rem;
   --small-font-size: 0.813rem;
   --font-semi-bold: 600;
   --z-tooltip: 10;
   --z-fixed: 100;
- }
+}
 
- ul {
+ul {
   list-style: none;
- }
- 
- a {
+}
+
+a {
   text-decoration: none;
   text-decoration: dotted underline;
- }
- 
+}

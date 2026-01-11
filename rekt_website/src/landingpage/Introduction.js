@@ -81,7 +81,7 @@ export default function Introduction() {
           <h1 ref={titleRef} className="landing-title text-split-container">
             {splitText('REKT ')}
             <span className="dollar-gradient text-split-container">{splitText('$')}</span>
-            {splitText('CEO')}
+            <span className="ceo-text text-split-container">{splitText('CEO')}</span>
           </h1>
           <p ref={subtitleRef} className="landing-subtitle-animated text-split-container">
             {splitText('A Memecoin Movement')}

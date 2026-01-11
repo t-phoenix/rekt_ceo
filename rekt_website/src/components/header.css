@@ -9,6 +9,7 @@
   padding-inline: 2%;
   position: fixed;
   box-shadow: 0px 0px 20px rgb(100, 100, 100);
+
   backdrop-filter: blur(200px);
   z-index: 5;
 }
@@ -35,7 +36,8 @@
   font-size: 32px;
   font-weight: 700;
 
-  color: var(--color-yellow)
+  color: var(--color-yellow);
+
 }
 
 .icon-title {

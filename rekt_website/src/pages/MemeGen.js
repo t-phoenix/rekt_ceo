@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState, useEffect, useCallback } from "react";
 import "./memeGen.css";
 import "../landingpage/styles/story.css";
 import InteractiveGlow from "../components/InteractiveGlow.js";
@@ -30,21 +30,21 @@ const MemeGen = () => {
   // sticker instances on canvas
   const [items, setItems] = useState([]);
   const [activeId, setActiveId] = useState(null);
-  
+
   // text positioning and sizing state
   const [textPositions, setTextPositions] = useState({
     top: { x: 0.5, y: 0.5, scale: 1 },
     bottom: { x: 0.5, y: 0.5, scale: 1 }
   });
   const [activeTextId, setActiveTextId] = useState(null);
-  
+
   // resize state
   const [isResizing, setIsResizing] = useState(false);
   const [resizeTarget, setResizeTarget] = useState(null);
   const [resizeStartScale, setResizeStartScale] = useState(1);
   const [resizeStartY, setResizeStartY] = useState(0);
   const [resizeStartX, setResizeStartX] = useState(0);
-  
+
   // rotation state
   const [isRotating, setIsRotating] = useState(false);
   const [rotateTarget, setRotateTarget] = useState(null);
@@ -54,10 +54,104 @@ const MemeGen = () => {
 
   const stageRef = useRef(null);
 
+  const showToast = useCallback((message) => {
+    // Simple toast implementation
+    const toast = document.createElement("div");
+    toast.style.cssText = `
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: #333;
+      color: white;
+      padding: 12px 20px;
+      border-radius: 8px;
+      z-index: 1000;
+      animation: slideIn 0.3s ease;
+    `;
+    toast.textContent = message;
+    document.body.appendChild(toast);
+
+    setTimeout(() => {
+      toast.style.animation = "slideOut 0.3s ease";
+      setTimeout(() => document.body.removeChild(toast), 300);
+    }, 3000);
+  }, []);
+
   // Initialize sharing service with toast function
   useEffect(() => {
     sharingService.setToastFunction(showToast);
-  }, []);
+  }, [showToast]);
+
+  // Function to get templates for selected category
+  const getTemplatesForCategory = (category) => {
+    return (
+      categorizedMemeTemplates[category] ||
+      (memeCategories[0] ? categorizedMemeTemplates[memeCategories[0]] : [])
+    );
+  };
+
+  // Function to handle template selection
+  const handleTemplateSelect = useCallback((templateId) => {
+    setSelectedTemplate(templateId);
+    const template = Object.values(categorizedMemeTemplates)
+      .flat()
+      .find((t) => t.id === templateId);
+
+    if (template) {
+      const resolvedSrc =
+        template.src && typeof template.src === "object" && "default" in template.src
+          ? template.src.default
+          : template.src;
+
+      const img = new Image();
+      img.onload = () => {
+        setImageSrc(resolvedSrc);
+        showToast(`Applied ${template.name} template!`);
+      };
+      img.onerror = () => {
+        showToast("Failed to load template image.");
+      };
+      img.src = `${resolvedSrc}`;
+    }
+  }, [showToast]);
+
+  // Function to handle category switching
+  const handleCategorySwitch = (category) => {
+    setActiveCategory(category);
+    const activeIndex = memeCategories.indexOf(category);
+    const categoriesContainer = document.querySelector(".meme-template-categories");
+    if (categoriesContainer && activeIndex >= 0) {
+      categoriesContainer.style.setProperty("--active-index", activeIndex);
+    }
+  };
+
+  // Function to randomly select a meme template
+  const randomizeMemeTemplate = useCallback(() => {
+    const allTemplates = Object.values(categorizedMemeTemplates).flat();
+    if (allTemplates.length === 0) {
+      showToast("No meme templates available.");
+      return;
+    }
+
+    const randomTemplate = allTemplates[Math.floor(Math.random() * allTemplates.length)];
+    const templateCategory = Object.keys(categorizedMemeTemplates).find(category =>
+      categorizedMemeTemplates[category].some(template => template.id === randomTemplate.id)
+    );
+
+    if (templateCategory) {
+      setActiveCategory(templateCategory);
+      setActiveId(null);
+      setActiveTextId(null);
+      setItems([]);
+      setTopText("");
+      setBottomText("");
+      setFont("display");
+      setTextColor("#ffffff");
+      setStrokeColor("#000000");
+      handleTemplateSelect(randomTemplate.id);
+      showToast(`Randomized to ${randomTemplate.name}!`);
+    }
+  }, [showToast, handleTemplateSelect]);
 
   // Check screen width on mount and resize
   useEffect(() => {
@@ -83,19 +177,19 @@ const MemeGen = () => {
     const timer = setTimeout(() => {
       randomizeMemeTemplate();
     }, 100);
-    
+
     return () => clearTimeout(timer);
-  }, []);
+  }, [randomizeMemeTemplate]);
 
   // Show responsive message for small screens
-  if (screenWidth < 1200) {
+  if (screenWidth < 992) {
     return (
       <div className="responsive-message-container">
         <div className="responsive-message-card">
           <div className="responsive-message-icon">💻</div>
           <h1 className="responsive-message-title">CEO of Responsiveness</h1>
           <p className="responsive-message-subtitle">
-            Our dev team is currently experiencing a severe shortage of coffee and sleep, 
+            Our dev team is currently experiencing a severe shortage of coffee and sleep,
             which has resulted in this masterpiece being desktop-exclusive.
           </p>
           <div className="responsive-message-requirements">
@@ -105,7 +199,7 @@ const MemeGen = () => {
             </div>
             <div className="requirement-item">
               <span className="requirement-icon">💻</span>
-              <span>Required: 1200px+</span>
+              <span>Required: 992px+</span>
             </div>
           </div>
           <p className="responsive-message-footer">
@@ -117,91 +211,11 @@ const MemeGen = () => {
     );
   }
 
-  // Function to get templates for selected category
-  const getTemplatesForCategory = (category) => {
-    return (
-      categorizedMemeTemplates[category] ||
-      (memeCategories[0] ? categorizedMemeTemplates[memeCategories[0]] : [])
-    );
-  };
 
-  // Function to handle template selection
-  const handleTemplateSelect = (templateId) => {
-    setSelectedTemplate(templateId);
-    // Find the selected template
-    const template = Object.values(categorizedMemeTemplates)
-      .flat()
-      .find((t) => t.id === templateId);
 
-    if (template) {
-      // Resolve template src to a URL string (handles possible module objects)
-      const resolvedSrc =
-        template.src && typeof template.src === "object" && "default" in template.src
-          ? template.src.default
-          : template.src;
 
-      // Preload before applying to avoid flicker and ensure validity
-      const img = new Image();
-      img.onload = () => {
-        setImageSrc(resolvedSrc);
-        showToast(`Applied ${template.name} template!`);
-      };
-      img.onerror = () => {
-        showToast("Failed to load template image.");
-      };
-      // Add a small cache-buster to force repaint if same URL repeats
-      img.src = `${resolvedSrc}`;
-    }
-  };
 
-  // Function to handle category switching with indicator update
-  const handleCategorySwitch = (category) => {
-    setActiveCategory(category);
-    const activeIndex = memeCategories.indexOf(category);
-    const categoriesContainer = document.querySelector(
-      ".meme-template-categories"
-    );
-    if (categoriesContainer && activeIndex >= 0) {
-      categoriesContainer.style.setProperty("--active-index", activeIndex);
-    }
-  };
 
-  // Function to randomly select a meme template
-  const randomizeMemeTemplate = () => {
-    // Get all available templates from all categories
-    const allTemplates = Object.values(categorizedMemeTemplates).flat();
-    
-    if (allTemplates.length === 0) {
-      showToast("No meme templates available.");
-      return;
-    }
-
-    // Randomly select a template
-    const randomTemplate = allTemplates[Math.floor(Math.random() * allTemplates.length)];
-    
-    // Find which category this template belongs to
-    const templateCategory = Object.keys(categorizedMemeTemplates).find(category =>
-      categorizedMemeTemplates[category].some(template => template.id === randomTemplate.id)
-    );
-
-    // Update the active category and selected template
-    if (templateCategory) {
-      setActiveCategory(templateCategory);
-      setActiveId(null);
-      setActiveTextId(null);
-      setItems([]);
-      setTopText("");
-      setBottomText("");
-      setFont("display");
-      setTextColor("#ffffff");
-      setStrokeColor("#000000");
-      
-      // Apply the random template
-      handleTemplateSelect(randomTemplate.id);
-      
-      showToast(`Randomized to ${randomTemplate.name}!`);
-    }
-  };
 
   const onPickSuggestion = () => {
     const [t, b] = suggestions[Math.floor(Math.random() * suggestions.length)];
@@ -245,25 +259,25 @@ const MemeGen = () => {
 
   const handlePointerMove = (e) => {
     if ((!activeId && !activeTextId) || !stageRef.current) return;
-    
+
     const rect = stageRef.current.getBoundingClientRect();
     const x = e.clientX - rect.left - 16;
     const y = e.clientY - rect.top - 16;
-    
+
     if (activeId) {
       setItems((prev) =>
         prev.map((it) =>
           it.id === activeId
             ? {
-                ...it,
-                x: Math.max(0, Math.min(rect.width - 32, x)),
-                y: Math.max(0, Math.min(rect.height - 32, y)),
-              }
+              ...it,
+              x: Math.max(0, Math.min(rect.width - 32, x)),
+              y: Math.max(0, Math.min(rect.height - 32, y)),
+            }
             : it
         )
       );
     }
-    
+
     if (activeTextId) {
       setTextPositions((prev) => ({
         ...prev,
@@ -306,7 +320,7 @@ const MemeGen = () => {
     e.stopPropagation();
     setIsResizing(true);
     setResizeTarget({ type: targetType, id: targetId });
-    
+
     if (targetType === 'text') {
       setResizeStartScale(textPositions[targetId].scale);
     } else if (targetType === 'sticker') {
@@ -319,17 +333,17 @@ const MemeGen = () => {
 
   const handleResizeMove = (e) => {
     if (!isResizing || !resizeTarget) return;
-    
+
     const deltaY = e.clientY - resizeStartY;
     const deltaX = e.clientX - resizeStartX;
-    
+
     // Since resize handle is at bottom-right corner:
     // - Dragging southeast (down-right) should increase size
     // - Dragging northwest (up-left) should decrease size
     // We combine both X and Y movement for intuitive diagonal resizing
     const scaleDelta = (deltaY + deltaX) * 0.003; // Combined movement for natural feel
     const newScale = Math.max(0.5, Math.min(2, resizeStartScale + scaleDelta));
-    
+
     if (resizeTarget.type === 'text') {
       setTextPositions((prev) => ({
         ...prev,
@@ -362,7 +376,7 @@ const MemeGen = () => {
     e.stopPropagation();
     setIsRotating(true);
     setRotateTarget({ type: targetType, id: targetId });
-    
+
     if (targetType === 'sticker') {
       const sticker = items.find(item => item.id === targetId);
       setRotateStartAngle(sticker.rotation || 0);
@@ -373,36 +387,36 @@ const MemeGen = () => {
 
   const handleRotateMove = (e) => {
     if (!isRotating || !rotateTarget) return;
-    
+
     const rect = stageRef.current.getBoundingClientRect();
     const sticker = items.find(item => item.id === rotateTarget.id);
-    
+
     if (!sticker) return;
-    
+
     // Calculate center of sticker
     const stickerCenterX = sticker.x + 24; // 24 is half of max sticker size (48px)
     const stickerCenterY = sticker.y + 24;
-    
+
     // Calculate mouse position relative to sticker center
     const mouseX = e.clientX - rect.left - stickerCenterX;
     const mouseY = e.clientY - rect.top - stickerCenterY;
-    
+
     // Calculate current angle from center to mouse
     const currentAngle = Math.atan2(mouseY, mouseX) * (180 / Math.PI);
-    
+
     // Calculate start angle from center to initial mouse position
     const startAngle = Math.atan2(rotateStartY - rect.top - stickerCenterY, rotateStartX - rect.left - stickerCenterX) * (180 / Math.PI);
-    
+
     // Calculate the difference and apply to start rotation
     let deltaAngle = currentAngle - startAngle;
-    
+
     // Handle angle wrapping for smooth rotation
     if (deltaAngle > 180) deltaAngle -= 360;
     if (deltaAngle < -180) deltaAngle += 360;
-    
+
     // Apply rotation
     const newRotation = (rotateStartAngle + deltaAngle) % 360;
-    
+
     if (rotateTarget.type === 'sticker') {
       setItems((prev) =>
         prev.map((item) =>
@@ -436,28 +450,7 @@ const MemeGen = () => {
     showToast("Sticker removed!");
   };
 
-  const showToast = (message) => {
-    // Simple toast implementation
-    const toast = document.createElement("div");
-    toast.style.cssText = `
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      background: #333;
-      color: white;
-      padding: 12px 20px;
-      border-radius: 8px;
-      z-index: 1000;
-      animation: slideIn 0.3s ease;
-    `;
-    toast.textContent = message;
-    document.body.appendChild(toast);
 
-    setTimeout(() => {
-      toast.style.animation = "slideOut 0.3s ease";
-      setTimeout(() => document.body.removeChild(toast), 300);
-    }, 3000);
-  };
 
   const handleSocialShare = async (platform) => {
     await sharingService.handleSocialShare(platform, {
@@ -474,15 +467,15 @@ const MemeGen = () => {
 
       <main className="meme-gen-main">
         <header className="meme-gen-header">
-          <h1 className="meme-gen-title">Rekt CEO Meme Generator</h1>
-          
+          {/* <h1 className="meme-gen-title">Rekt CEO Meme Generator</h1> */}
+
         </header>
 
         <section className="meme-gen-grid">
           {/* Left Column - Mint Info & Ready */}
           <div className="meme-left-column">
 
-            
+
             {/* Mint Info */}
             <div className="meme-mint-card">
               <div className="meme-mint-header">
@@ -507,7 +500,7 @@ const MemeGen = () => {
             </div>
 
             {/* Sticker Section */}
-            <StickerCard 
+            <StickerCard
               onAddSticker={onAddSticker}
               onRemoveAllStickers={removeAllStickers}
             />
@@ -582,13 +575,12 @@ const MemeGen = () => {
                 )}
                 {/* Top Text */}
                 <div
-                  className={`meme-text top ${
-                    font === "display"
-                      ? "font-display"
-                      : font === "tech"
+                  className={`meme-text top ${font === "display"
+                    ? "font-display"
+                    : font === "tech"
                       ? "font-tech"
                       : "font-brand"
-                  }`}
+                    }`}
                   style={{
                     color: textColor,
                     WebkitTextStrokeColor: strokeColor,
@@ -604,7 +596,7 @@ const MemeGen = () => {
                   <span style={{ WebkitTextStrokeColor: strokeColor }}>
                     {topText}
                   </span>
-                  <div 
+                  <div
                     className="text-resize-handle"
                     onPointerDown={(e) => handleResizeStart('text', 'top', e)}
                   />
@@ -616,31 +608,31 @@ const MemeGen = () => {
                     key={it.id}
                     onPointerDown={handlePointerDown(it.id)}
                     className="meme-sticker"
-                    style={{ 
-                      left: it.x, 
+                    style={{
+                      left: it.x,
                       top: it.y,
                       transform: `scale(${it.scale}) rotate(${it.rotation}deg)`
                     }}
                   >
-                    <img 
-                      src={it.image} 
+                    <img
+                      src={it.image}
                       alt={it.name}
                       draggable="false"
                       onDragStart={(e) => e.preventDefault()}
                       style={{ width: '60px', height: '60px', objectFit: 'contain' }}
                     />
-                    <button 
-                      className="sticker-delete-btn" 
+                    <button
+                      className="sticker-delete-btn"
                       onClick={() => removeSticker(it.id)}
                       title="Remove sticker"
                     >
                       ✕
                     </button>
-                    <div 
+                    <div
                       className="sticker-resize-handle"
                       onPointerDown={(e) => handleResizeStart('sticker', it.id, e)}
                     />
-                    <div 
+                    <div
                       className="sticker-rotate-handle"
                       onPointerDown={(e) => handleRotateStart('sticker', it.id, e)}
                     />
@@ -652,13 +644,12 @@ const MemeGen = () => {
 
                 {/* Bottom Text */}
                 <div
-                  className={`meme-text bottom ${
-                    font === "display"
-                      ? "font-display"
-                      : font === "tech"
+                  className={`meme-text bottom ${font === "display"
+                    ? "font-display"
+                    : font === "tech"
                       ? "font-tech"
                       : "font-brand"
-                  }`}
+                    }`}
                   style={{
                     color: textColor,
                     left: `${textPositions.bottom.x * 100}%`,
@@ -673,13 +664,13 @@ const MemeGen = () => {
                   <span style={{ WebkitTextStrokeColor: strokeColor }}>
                     {bottomText}
                   </span>
-                  <div 
+                  <div
                     className="text-resize-handle"
                     onPointerDown={(e) => handleResizeStart('text', 'bottom', e)}
                   />
                 </div>
               </div>
-              
+
             </div>
             {/* Social Share Footer */}
             <SocialShareFooter onSocialShare={handleSocialShare} />
@@ -777,9 +768,8 @@ const MemeGen = () => {
                       (category) => (
                         <button
                           key={category}
-                          className={`meme-category-btn ${
-                            activeCategory === category ? "active" : ""
-                          }`}
+                          className={`meme-category-btn ${activeCategory === category ? "active" : ""
+                            }`}
                           onClick={() => handleCategorySwitch(category)}
                         >
                           {category}
@@ -795,9 +785,8 @@ const MemeGen = () => {
                         (template) => (
                           <div
                             key={template.id}
-                            className={`meme-template-item ${
-                              selectedTemplate === template.id ? "selected" : ""
-                            }`}
+                            className={`meme-template-item ${selectedTemplate === template.id ? "selected" : ""
+                              }`}
                             onClick={() => handleTemplateSelect(template.id)}
                           >
                             <img
@@ -815,9 +804,9 @@ const MemeGen = () => {
 
                 <div className="meme-control-row">
                   <div className="meme-control-item">
-                    <input 
-                      type="file" 
-                      accept="image/*" 
+                    <input
+                      type="file"
+                      accept="image/*"
                       onChange={(e) => e.target.files && onUpload(e.target.files[0])}
                       className="meme-file-input"
                     />
@@ -825,21 +814,21 @@ const MemeGen = () => {
                 </div>
 
                 {/* Ready Section */}
-            <div className="meme-ready-card">
-              <div className="meme-ready-header">
-                <h3 className="meme-ready-title">Ready?</h3>
-              </div>
-              <div className="meme-ready-content">
-                <p className="meme-ready-text">Mint your meme to show the world the CEO of rekt you truly are.</p>
-                <button 
-                  onClick={() => showToast("Minting soon. Stay tuned!")}
-                  className="story-btn secondary"
-                  style={{ width: '100%' }}
-                >
-                  Mint (Soon)
-                </button>
-              </div>
-            </div>
+                <div className="meme-ready-card">
+                  <div className="meme-ready-header">
+                    <h3 className="meme-ready-title">Ready?</h3>
+                  </div>
+                  <div className="meme-ready-content">
+                    <p className="meme-ready-text">Mint your meme to show the world the CEO of rekt you truly are.</p>
+                    <button
+                      onClick={() => showToast("Minting soon. Stay tuned!")}
+                      className="story-btn secondary"
+                      style={{ width: '100%' }}
+                    >
+                      Mint (Soon)
+                    </button>
+                  </div>
+                </div>
 
 
 

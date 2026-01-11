@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import "./pfp.css";
 import "../landingpage/styles/story.css";
 import InteractiveGlow from "../components/InteractiveGlow.js";
@@ -25,7 +25,7 @@ export default function ProfileNFT() {
   const [selectedLayer, setSelectedLayer] = useState([0, 0, 0, 0, 0, 0, 0, 0]); // BG/ Hoodie / Pants / Shoes/ Skin / Face / Jewellery / Coin
   const limits = [6, 3, 4, 5, 4, 4, 3, 7]; // Maximum random value for each index
 
-  
+
 
   const randomiseLayers = () => {
     const randomized = selectedLayer.map((_, index) =>
@@ -42,12 +42,7 @@ export default function ProfileNFT() {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // Initialize sharing service with toast function
-  useEffect(() => {
-    sharingService.setToastFunction(showToast);
-  }, []);
-
-  const showToast = (message) => {
+  const showToast = useCallback((message) => {
     // Simple toast implementation
     const toast = document.createElement("div");
     toast.style.cssText = `
@@ -68,9 +63,14 @@ export default function ProfileNFT() {
       toast.style.animation = "slideOut 0.3s ease";
       setTimeout(() => document.body.removeChild(toast), 300);
     }, 3000);
-  };
+  }, []);
 
-  function handleMint() {}
+  // Initialize sharing service with toast function
+  useEffect(() => {
+    sharingService.setToastFunction(showToast);
+  }, [showToast]);
+
+  function handleMint() { }
 
   const handleSocialShare = async (platform) => {
     await sharingService.handleSocialShare(platform, {
@@ -80,7 +80,7 @@ export default function ProfileNFT() {
     });
   };
 
-  
+
 
   // LEGACY CODE: SOLANA
   // async function uploadMetadata() {
@@ -90,7 +90,7 @@ export default function ProfileNFT() {
   //   const image = canvas.toDataURL("image/png");
 
   //   const file = dataURLtoFile(image, `Rekt Ceo.png`);
-    
+
   //   let attribute_list = [
   //     { "trait_type": "Background", "value": `${layerNames[0][selectedLayer[0]]}` },
   //     { "trait_type": "Hoodie", "value": `${layerNames[1][selectedLayer[1]]}` },
@@ -124,12 +124,12 @@ export default function ProfileNFT() {
   //     .catch((error) => {
   //       console.error("Error uploading file:", error);
   //     });
-    
+
   // }
 
 
   // Show responsive message for small screens to match site theme
-  if (screenWidth < 1200) {
+  if (screenWidth < 900) {
     return (
       <div className="responsive-message-container">
         <div className="responsive-message-card">
@@ -161,7 +161,7 @@ export default function ProfileNFT() {
       <InteractiveGlow />
       <main className="pfp-gen-main">
         <header className="pfp-gen-header">
-          <h1 className="pfp-gen-title">Mint Your Unique $CEO PFP NFT</h1>
+          {/* <h1 className="pfp-gen-title">Mint Your Unique $CEO PFP NFT</h1> */}
         </header>
 
         <section className="pfp-gen-grid">
@@ -190,7 +190,7 @@ export default function ProfileNFT() {
             </div>
 
             {/* Sticker Section */}
-            <StickerCard 
+            <StickerCard
               onAddSticker={(sticker) => {
                 // Handle sticker addition for PFP (placeholder for now)
                 console.log("Sticker added:", sticker);
@@ -233,7 +233,7 @@ export default function ProfileNFT() {
 
             {/* Social Share Footer */}
             <SocialShareFooter onSocialShare={handleSocialShare} />
-            
+
           </div>
 
           {/* Right Column: Controls */}
@@ -242,7 +242,7 @@ export default function ProfileNFT() {
               <h3 className="pfp-controls-title">Options</h3>
             </div>
             <div className="pfp-controls-content">
-              
+
               <div className="pfp-control-group">
                 <LayerNavbar currentIndex={currentIndex} setCurrentIndex={setCurrentIndex} />
               </div>
@@ -253,7 +253,7 @@ export default function ProfileNFT() {
                   setSelectedLayer={setSelectedLayer}
                 />
               </div>
-              
+
 
               <div className="pfp-ready-card" style={{ marginTop: "0.6rem" }}>
                 <div className="pfp-ready-header">

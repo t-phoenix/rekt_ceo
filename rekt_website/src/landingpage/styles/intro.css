@@ -34,12 +34,28 @@
     text-align: center;
     line-height: 1.1;
     margin: 0;
-    text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.5);
+    text-shadow:
+        2px 0px 2px #acacac,
+        -2px 2px 5px #000000,
+        -2px -2px 5px #000000;
+
+}
+
+/* White text-shadow for CEO text */
+.ceo-text {
+    text-shadow:
+        4px 0px 1px #000000,
+        0px 2px 5px #fbfbfb,
+        -2px -2px 5px #fbfbfb;
+    /* text-shadow:
+        2px -2px 4px #656565,
+        -1px 1px 2px #fff,
+        1px 1px 2px #fff,
+        -1px -1px 2px #fff; */
 }
 
 /* Beautiful gradient for the dollar sign */
-.dollar-gradient {
-    /* Fallback for browsers that don't support background-clip: text */
+/* .dollar-gradient {
     color: var(--color-yellow);
     background: linear-gradient(45deg,
             var(--color-yellow),
@@ -50,15 +66,27 @@
     background-size: 40% 40%;
     -webkit-background-clip: text;
     background-clip: text;
-    -webkit-text-fill-color: black;
+    -webkit-text-fill-color: rgb(98, 98, 98);
     animation: dollarShift 2.5s ease infinite;
     font-weight: 900;
+}
+*/
+.dollar-gradient {
+    color: rgb(0, 0, 0);
+
+    text-shadow:
+        2px 0px 1px #fff,
+        0px 4px 5px #000000,
+        -2px -2px 5px #000000,
+        0 0 10px #ff0,
+        0 0 20px #ff8c00,
+        0 0 40px #f00;
 }
 
 /* Only apply transparent color if browser supports background-clip */
 @supports (-webkit-background-clip: text) or (background-clip: text) {
     .dollar-gradient {
-        color: chartreuse;
+        color: #6d9953;
     }
 }
 
@@ -110,7 +138,12 @@
     text-align: center;
     margin: 0;
     letter-spacing: 1px;
-    text-shadow: 6px 6px 4px rgb(0, 0, 0);
+    /* text-shadow: 6px 6px 4px rgb(0, 0, 0); */
+    text-shadow:
+        2px -2px 4px #000,
+        -2px 2px 4px #000,
+        2px 2px 4px #000,
+        -2px -2px 4px #000;
 }
 
 .section-title {
