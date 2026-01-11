@@ -1,54 +1,56 @@
-
 .landing-section {
+    position: relative;
     display: flex;
     flex-direction: column;
-    /* justify-content: center; */
     align-items: center;
+    justify-content: center;
     width: 100%;
     height: 84vh;
-    background-position: center;
-    background-size: cover;
-    background-repeat: no-repeat;
     margin-top: 12vh;
-    /* box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19); */
-
+    overflow: hidden;
 }
 
-.landing-main-div{
-    height: 60%;
+.landing-main-div {
+    position: relative;
+    height: 100%;
     width: 70%;
-    backdrop-filter: blur(50px);
+    max-width: 1200px;
+    backdrop-filter: blur(0px);
+    background: rgba(0, 0, 0, 0);
     border-radius: 16px;
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: flex-start;
     align-items: center;
-    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
-    margin-top: 8%;
+    gap: 16px;
+    padding: 80px 40px 100px;
+    z-index: 2;
 }
 
-.landing-title{
+.landing-title {
     font-size: 100px;
+    font-weight: 900;
     color: var(--color-red);
+    text-align: center;
+    line-height: 1.1;
+    margin: 0;
+    text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.5);
 }
 
 /* Beautiful gradient for the dollar sign */
 .dollar-gradient {
     /* Fallback for browsers that don't support background-clip: text */
     color: var(--color-yellow);
-    
-    background: linear-gradient(
-        45deg,
-        var(--color-yellow),
-        var(--color-blue-primary),
-        var(--color-purple),
-        var(--color-yellow),
-        var(--color-blue-primary)
-    );
-    background-size: 400% 400%;
+    background: linear-gradient(45deg,
+            var(--color-yellow),
+            var(--color-blue-primary),
+            var(--color-purple),
+            var(--color-yellow),
+            var(--color-blue-primary));
+    background-size: 40% 40%;
     -webkit-background-clip: text;
     background-clip: text;
-    -webkit-text-fill-color: transparent;
+    -webkit-text-fill-color: black;
     animation: dollarShift 2.5s ease infinite;
     font-weight: 900;
 }
@@ -56,7 +58,7 @@
 /* Only apply transparent color if browser supports background-clip */
 @supports (-webkit-background-clip: text) or (background-clip: text) {
     .dollar-gradient {
-        color: transparent;
+        color: chartreuse;
     }
 }
 
@@ -66,22 +68,27 @@
         background-position: 0% 50%;
         filter: drop-shadow(0 0 18px var(--color-purple));
     }
+
     20% {
         background-position: 25% 50%;
         filter: drop-shadow(0 0 20px var(--color-blue-primary));
     }
+
     40% {
         background-position: 50% 50%;
         filter: drop-shadow(0 0 22px var(--color-purple));
     }
+
     60% {
         background-position: 75% 50%;
         filter: drop-shadow(0 0 20px var(--color-blue-primary));
     }
+
     80% {
         background-position: 100% 50%;
         filter: drop-shadow(0 0 19px var(--color-purple));
     }
+
     100% {
         background-position: 0% 50%;
         filter: drop-shadow(0 0 18px var(--color-purple));
@@ -95,7 +102,18 @@
     }
 }
 
-.section-title{
+/* New Animated Subtitle Styles */
+.landing-subtitle-animated {
+    font-size: 32px;
+    font-weight: 900;
+    color: var(--color-white);
+    text-align: center;
+    margin: 0;
+    letter-spacing: 1px;
+    text-shadow: 6px 6px 4px rgb(0, 0, 0);
+}
+
+.section-title {
     font-size: 80px;
     color: var(--color-red);
     text-shadow: 2px 2px var(--color-blue);
@@ -104,25 +122,90 @@
     z-index: 2;
 }
 
-.landing-subtitle{
+/* Story buttons positioned in landing section */
+.story-buttons {
+    width: 100%;
     display: flex;
     flex-direction: row;
-    justify-content: space-around;
+    gap: 40px;
     align-items: center;
-    width: 60%;
-    font-weight:700;
-    font-size: 24px;
-    margin-block: 36px;
-    color: var(--color-white);
+    justify-content: center;
 }
 
-.ambassador-image{
+.story-btn {
+    position: relative;
+    padding: 16px 40px;
+    font-size: 16px;
+    font-weight: 700;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    backdrop-filter: blur(20px);
+    overflow: hidden;
+}
+
+/* Animated background shimmer effect */
+.story-btn::before {
+    content: '';
     position: absolute;
-    height: 600px;
-    width: 800px;
-    z-index: 1;
-    left: -200px;
-    top: 44vh;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    transition: left 0.5s ease;
+}
+
+.story-btn:hover::before {
+    left: 100%;
+}
+
+.story-btn.primary {
+    background: linear-gradient(135deg, var(--color-purple), var(--color-blue-primary));
+    color: var(--color-white);
+    box-shadow: 0 8px 24px rgba(123, 97, 255, 0.4), 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.story-btn.primary:hover {
+    box-shadow: 0 12px 32px rgba(123, 97, 255, 0.6), 0 6px 16px rgba(0, 0, 0, 0.4);
+    transform: translateY(-4px) scale(1.05);
+}
+
+.story-btn.secondary {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--color-white);
+    border: 2px solid rgba(255, 255, 255, 0.5);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+}
+
+.story-btn.secondary:hover {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.8);
+    box-shadow: 0 12px 32px rgba(255, 255, 255, 0.2), 0 6px 16px rgba(0, 0, 0, 0.3);
+    transform: translateY(-4px) scale(1.05);
+}
+
+.story-btn:active {
+    transform: translateY(-2px) scale(0.98);
+}
+
+.story-btn.clicked {
+    animation: buttonPulse 0.4s ease;
+}
+
+@keyframes buttonPulse {
+
+    0%,
+    100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(0.95);
+    }
 }
 
 
@@ -130,57 +213,61 @@
 
 /* FOR MOBILE AND TABLET */
 @media screen and (max-width: 992px) {
-    .landing-main-div{
+    .landing-main-div {
         width: 90%;
-        height: 70%;
+        padding: 40px 30px;
     }
-    .landing-subtitle{
-        max-width: 100%;
+
+    .landing-title {
+        font-size: 64px;
     }
-    .ambassador-image{
-        top: 60vh;
-        left: -80px;
-        height: 400px;
-        width: 500px;
+
+    .landing-subtitle-animated {
+        font-size: 24px;
     }
-    
+
+    .story-buttons {
+        width: 100%;
+    }
+
+    .story-btn {
+        padding: 12px 24px;
+        font-size: 14px;
+    }
 }
 
 /* FOR MOBILE */
-@media screen and (max-width: 600px){
-    .landing-main-div{
-        height: 72%;
-        backdrop-filter: blur(10px);
+@media screen and (max-width: 600px) {
+    .landing-main-div {
+        width: 95%;
+        padding: 30px 20px;
+        backdrop-filter: blur(0px);
     }
-    .landing-title{
-        padding-inline: 4%;
+
+    .landing-title {
         font-size: 48px;
-        color: var(--color-red);
     }
-    
+
+    .landing-subtitle-animated {
+        font-size: 18px;
+    }
+
     /* Mobile optimization for dollar gradient */
     .dollar-gradient {
-        animation-duration: 2s; /* Snappy and energetic on mobile */
-        filter: drop-shadow(0 0 12px rgba(248, 200, 38, 0.5)); /* Vibrant glow for mobile */
+        animation-duration: 2s;
+        filter: drop-shadow(0 0 12px rgba(248, 200, 38, 0.5));
     }
-    .landing-subtitle{
-        width: 60%;
-        display: flex;
-        flex-direction: column;
-        align-items: start;
-        justify-content: center;
-        gap: 10px;
-        padding-left: 4%;
-        color: var(--color-black);
-        
-    }
-    .section-title{
+
+    .section-title {
         font-size: 48px;
     }
-    .ambassador-image{
-        top: 70vh;
-        left: -100px;
-        height: 300px;
-        width: 400px;
+
+    .story-buttons {
+        width: 100%;
+    }
+
+    .story-btn {
+        padding: 12px 24px;
+        font-size: 14px;
     }
 }
