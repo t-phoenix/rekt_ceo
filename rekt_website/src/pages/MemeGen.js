@@ -7,14 +7,12 @@ import { categorizedMemeTemplates, memeCategories } from "../constants/memeData"
 import { exportNodeToPng } from "../utils/exportImage";
 import SocialShareFooter from "./page_components/SocialShareFooter.js";
 import sharingService from "../services/SharingService.js";
+import AiGenerateModal from "../components/AiGenerateModal.js";
+import BrandifyModal from "../components/BrandifyModal.js";
+import memeApiService from "../services/MemeApiService.js";
 
 
 
-const suggestions = [
-  ["WHEN MARKET DIPS", "I BUY THE DIP DIP"],
-  ["AI SAID SELL", "I HEARD HODL"],
-  ["CEO OF REKT", "BUT STILL BULLISH"],
-];
 
 const MemeGen = () => {
   const [topText, setTopText] = useState("");
@@ -27,14 +25,22 @@ const MemeGen = () => {
   const [selectedTemplate, setSelectedTemplate] = useState(null);
   const [screenWidth, setScreenWidth] = useState(window.innerWidth);
 
+  // AI modal state
+  const [isAiModalOpen, setIsAiModalOpen] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
+
+  // Brandify modal state
+  const [isBrandifyModalOpen, setIsBrandifyModalOpen] = useState(false);
+  const [isBrandifying, setIsBrandifying] = useState(false);
+
   // sticker instances on canvas
   const [items, setItems] = useState([]);
   const [activeId, setActiveId] = useState(null);
 
   // text positioning and sizing state
   const [textPositions, setTextPositions] = useState({
-    top: { x: 0.5, y: 0.5, scale: 1 },
-    bottom: { x: 0.5, y: 0.5, scale: 1 }
+    top: { x: 0.5, y: 0.1, scale: 1 },
+    bottom: { x: 0.5, y: 0.90, scale: 1 }
   });
   const [activeTextId, setActiveTextId] = useState(null);
 
@@ -217,10 +223,125 @@ const MemeGen = () => {
 
 
 
-  const onPickSuggestion = () => {
-    const [t, b] = suggestions[Math.floor(Math.random() * suggestions.length)];
-    setTopText(t);
-    setBottomText(b);
+
+
+  const handleOpenAiModal = () => {
+    if (!imageSrc) {
+      showToast("Please select a meme template first!");
+      return;
+    }
+    setIsAiModalOpen(true);
+  };
+
+  const handleCloseAiModal = (selectedOption) => {
+    if (selectedOption && selectedOption.topText && selectedOption.bottomText) {
+      // User selected an option from the modal
+      setTopText(selectedOption.topText.toUpperCase());
+      setBottomText(selectedOption.bottomText.toUpperCase());
+      showToast("✨ Meme text applied successfully!");
+    }
+    setIsAiModalOpen(false);
+  };
+
+  const handleAiGenerate = async (topic, isTwitterPost = false) => {
+    if (!imageSrc) {
+      showToast("Please select a meme template first!");
+      setIsAiModalOpen(false);
+      return;
+    }
+
+    setIsGenerating(true);
+
+    try {
+      // Convert the current image to a blob/file for the API
+      const response = await fetch(imageSrc);
+      const blob = await response.blob();
+      const file = new File([blob], 'template.jpg', { type: 'image/jpeg' });
+
+      // Call the API with topic, isTwitterPost flag, and template image
+      const result = await memeApiService.generateMemeText(topic, isTwitterPost, file);
+
+      // Return the result so the modal can display the options
+      return result;
+    } catch (error) {
+      console.error('Error generating meme:', error);
+
+      let errorMessage = "Failed to generate meme text. ";
+      if (error.message.includes('Failed to fetch')) {
+        errorMessage += "Is the backend running on localhost:8001?";
+      } else {
+        errorMessage += error.message;
+      }
+
+      showToast(errorMessage);
+      return null;
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  const handleOpenBrandifyModal = () => {
+    if (!imageSrc) {
+      showToast("Please select a meme template first!");
+      return;
+    }
+    setIsBrandifyModalOpen(true);
+  };
+
+  const handleCloseBrandifyModal = (result) => {
+    // If user clicked "Use This", apply the branded template
+    if (result && result.useBrandedTemplate && result.brandedImage) {
+      const base64Image = `data:image/png;base64,${result.brandedImage}`;
+      setImageSrc(base64Image);
+      showToast("✨ Branded template applied successfully!");
+    }
+    setIsBrandifyModalOpen(false);
+  };
+
+  const handleBrandifyGenerate = async (brandData) => {
+    if (!imageSrc) {
+      showToast("Please select a meme template first!");
+      setIsBrandifyModalOpen(false);
+      return null;
+    }
+
+    setIsBrandifying(true);
+
+    try {
+      // Convert the current image to a blob/file for the API
+      const response = await fetch(imageSrc);
+      const blob = await response.blob();
+      const file = new File([blob], 'template.jpg', { type: 'image/jpeg' });
+
+      // Call the API with brand data and template image
+      const result = await memeApiService.generateBrandedTemplate(
+        file,
+        brandData.brandName,
+        brandData.primaryColor,
+        brandData.userPrompt,
+        brandData.secondaryColor,
+        brandData.logoFile
+      );
+
+      // Return result to modal for comparison view
+      return result;
+    } catch (error) {
+      console.error('Error generating branded template:', error);
+
+      let errorMessage = "Failed to generate branded template. ";
+      if (error.message.includes('Failed to fetch')) {
+        errorMessage += "Is the backend running on localhost:8001?";
+      } else if (error.message.includes('Rate')) {
+        errorMessage += "Rate limit exceeded. Please wait 3 minutes.";
+      } else {
+        errorMessage += error.message;
+      }
+
+      showToast(errorMessage);
+      return null;
+    } finally {
+      setIsBrandifying(false);
+    }
   };
 
   const onUpload = (file) => {
@@ -304,8 +425,8 @@ const MemeGen = () => {
     setActiveId(null);
     setActiveTextId(null);
     setTextPositions({
-      top: { x: 0.5, y: 0.5, scale: 1 },
-      bottom: { x: 0.5, y: 0.5, scale: 1 }
+      top: { x: 0.5, y: 0.1, scale: 1 },
+      bottom: { x: 0.5, y: 0.9, scale: 1 }
     });
     setIsResizing(false);
     setResizeTarget(null);
@@ -526,12 +647,12 @@ const MemeGen = () => {
               >
                 <h3 className="meme-canvas-title">Meme Preview</h3>
                 <div className="meme-canvas-actions">
-                  <button onClick={onReset} className="story-btn secondary">
-                    ↩️ Reset
-                  </button>
+                  {/* <button onClick={handleOpenBrandifyModal} className="story-btn secondary meme-canvas-button">
+                    🎨 Brandify
+                  </button> */}
                   <button
                     onClick={randomizeMemeTemplate}
-                    className="story-btn primary"
+                    className="story-btn secondary meme-canvas-primary"
                   >
                     🔮 Randomize
                   </button>
@@ -728,11 +849,11 @@ const MemeGen = () => {
                   <div className="meme-control-item">
                     <label className="meme-label">AI assist</label>
                     <button
-                      onClick={onPickSuggestion}
+                      onClick={handleOpenAiModal}
                       className="story-btn primary"
                       style={{ width: "100%" }}
                     >
-                      ✨ Suggest (SOON)
+                      ✨ AI Suggest
                     </button>
                   </div>
                 </div>
@@ -837,6 +958,23 @@ const MemeGen = () => {
           </div>
         </section>
       </main>
+
+      {/* AI Generate Modal */}
+      <AiGenerateModal
+        isOpen={isAiModalOpen}
+        onClose={handleCloseAiModal}
+        onGenerate={handleAiGenerate}
+        isLoading={isGenerating}
+      />
+
+      {/* Brandify Modal */}
+      <BrandifyModal
+        isOpen={isBrandifyModalOpen}
+        onClose={handleCloseBrandifyModal}
+        onGenerate={handleBrandifyGenerate}
+        isLoading={isBrandifying}
+        templateSrc={imageSrc}
+      />
     </div>
   );
 };

@@ -1,0 +1,427 @@
+/* Brandify Modal Styles - Matching AiGenerateModal theme */
+
+.brandify-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+.brandify-modal-content {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    width: 90%;
+    max-width: 600px;
+    max-height: 90vh;
+    overflow-y: auto;
+    animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.brandify-modal-header {
+    padding: 1.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.02);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.brandify-modal-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: white;
+    margin: 0;
+}
+
+.brandify-template-preview {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+    width: 200px;
+    height: 200px;
+}
+
+.brandify-preview-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.brandify-modal-close {
+    background: var(--color-red);
+    border: none;
+    border-radius: 6px;
+    color: var(--color-white);
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 700;
+    padding: 0.5rem;
+    transition: all 0.3s ease;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.brandify-modal-close:hover {
+    color: var(--color-black);
+    background: var(--color-yellow);
+    transform: scale(1);
+}
+
+.brandify-modal-body {
+    padding: 2rem 1.5rem;
+}
+
+.brandify-modal-hint {
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.6);
+    margin: 0 0 1.5rem 0;
+    text-align: center;
+    line-height: 1.4;
+}
+
+.brandify-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.brandify-two-column {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    align-items: start;
+}
+
+.brandify-column-left,
+.brandify-column-right {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.brandify-form-group {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: start;
+    gap: 0.5rem;
+}
+
+.brandify-form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.brandify-label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.8);
+    margin-left: 10px;
+}
+
+.required {
+    color: var(--color-red);
+}
+
+.brandify-input,
+.brandify-color-text,
+.brandify-textarea {
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.05);
+    color: white;
+    font-size: 0.875rem;
+    transition: all 0.2s ease;
+    box-sizing: border-box;
+    font-family: inherit;
+}
+
+.brandify-input:focus,
+.brandify-color-text:focus,
+.brandify-textarea:focus {
+    outline: none;
+    border-color: var(--background-color-third);
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.brandify-input::placeholder,
+.brandify-color-text::placeholder,
+.brandify-textarea::placeholder {
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.brandify-input:disabled,
+.brandify-color-text:disabled,
+.brandify-textarea:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.brandify-textarea {
+    resize: vertical;
+    min-height: 80px;
+    line-height: 1.5;
+}
+
+.brandify-hint-text {
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.6);
+    text-align: right;
+    margin-top: 0.25rem;
+}
+
+.brandify-color-input-wrapper {
+    display: flex;
+    gap: 0.5rem;
+    align-items: stretch;
+}
+
+.brandify-color-picker {
+    width: 50px;
+    height: auto;
+    min-height: 38px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 6px;
+    cursor: pointer;
+    background: transparent;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+}
+
+.brandify-color-picker:hover {
+    border-color: var(--background-color-third);
+}
+
+.brandify-color-picker:focus {
+    outline: none;
+    border-color: var(--background-color-third);
+}
+
+.brandify-color-text {
+    flex: 1;
+}
+
+.brandify-file-upload {
+    position: relative;
+}
+
+.brandify-file-input {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.brandify-file-label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 2px dashed rgba(255, 255, 255, 0.2);
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.brandify-file-label:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: var(--background-color-third);
+}
+
+.brandify-modal-footer {
+    padding: 1rem 1.5rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.02);
+    display: flex;
+    gap: 0.75rem;
+    justify-content: flex-end;
+}
+
+.brandify-modal-spinner {
+    width: 14px;
+    height: 14px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+    display: inline-block;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Comparison View Styles */
+.brandify-comparison {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 1.5rem;
+    align-items: center;
+    padding: 1rem 0;
+}
+
+.brandify-comparison-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    align-items: center;
+}
+
+.brandify-comparison-label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.9);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.brandify-comparison-image-wrapper {
+    width: 100%;
+    max-width: 250px;
+    aspect-ratio: 1;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.03);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.brandify-comparison-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.brandify-comparison-divider {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 0.5rem;
+}
+
+.brandify-comparison-arrow {
+    font-size: 2rem;
+    color: var(--background-color-third);
+    font-weight: bold;
+}
+
+/* Scrollbar styling */
+.brandify-modal-content::-webkit-scrollbar {
+    width: 6px;
+}
+
+.brandify-modal-content::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 3px;
+}
+
+.brandify-modal-content::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 3px;
+}
+
+.brandify-modal-content::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .brandify-modal-content {
+        width: 95%;
+        max-height: 95vh;
+    }
+
+    .brandify-modal-title {
+        font-size: 1.1rem;
+    }
+
+    .brandify-two-column {
+        grid-template-columns: 1fr;
+    }
+
+    .brandify-preview-image {
+        width: 100px;
+        height: 75px;
+    }
+
+    .brandify-form-row {
+        grid-template-columns: 1fr;
+    }
+
+    .brandify-comparison {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .brandify-comparison-divider {
+        transform: rotate(90deg);
+    }
+
+    .brandify-comparison-image-wrapper {
+        max-width: 200px;
+    }
+
+    .brandify-modal-body {
+        padding: 1.5rem 1rem;
+    }
+
+    .brandify-modal-footer {
+        padding: 1rem;
+    }
+}
