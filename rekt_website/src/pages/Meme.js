@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState } from "react";
-import html2canvas from "html2canvas";
 import "./meme.css";
 import { memeTemplates } from "../constants/memeData";
 import sharingService from "../services/SharingService";
@@ -42,7 +41,7 @@ export default function Meme() {
     `;
     toast.textContent = message;
     document.body.appendChild(toast);
-    
+
     setTimeout(() => {
       document.body.removeChild(toast);
     }, 3000);
@@ -118,10 +117,10 @@ export default function Meme() {
   const shareOnTwitter = async () => {
     const compositeElement = document.getElementById("meme-canvas-container");
     if (!compositeElement) return;
-    
+
     // Use the sharing service with custom share text
     const customText = "🚀Check out this meme I made! #RektCEO #Meme. 🎉 Follow @rekt_ceo and visit rektceo.club to join the community and have fun.";
-    
+
     await sharingService.shareToTwitter(
       compositeElement,
       text1,  // top text
@@ -269,16 +268,15 @@ export default function Meme() {
                   key={template.id}
                   src={template.src}
                   alt={template.name}
-                  className={`template-image ${
-                    selectedTemplate === template.src ? "selected" : ""
-                  }`}
+                  className={`template-image ${selectedTemplate === template.src ? "selected" : ""
+                    }`}
                   onClick={() => setSelectedTemplate(template.src)}
                 />
               ))}
             </div>
           </div>
 
-          <p style={{marginBottom: '4%'}}>New Meme Templates Coming Soon</p>
+          <p style={{ marginBottom: '4%' }}>New Meme Templates Coming Soon</p>
         </div>
       )}
     </>

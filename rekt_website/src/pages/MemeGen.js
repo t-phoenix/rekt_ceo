@@ -4,7 +4,6 @@ import "../landingpage/styles/story.css";
 import InteractiveGlow from "../components/InteractiveGlow.js";
 import StickerCard from "./page_components/StickerCard.js";
 import { categorizedMemeTemplates, memeCategories } from "../constants/memeData";
-import { exportNodeToPng } from "../utils/exportImage";
 import SocialShareFooter from "./page_components/SocialShareFooter.js";
 import sharingService from "../services/SharingService.js";
 import AiGenerateModal from "../components/AiGenerateModal.js";
@@ -38,7 +37,7 @@ const MemeGen = () => {
   // Mint modal state
   const [showMintConfirm, setShowMintConfirm] = useState(false);
   const [showMintSuccess, setShowMintSuccess] = useState(false);
-  const [mintPreviewImage, setMintPreviewImage] = useState(null);
+
 
   // sticker instances on canvas
   const [items, setItems] = useState([]);
@@ -287,14 +286,6 @@ const MemeGen = () => {
     }
   };
 
-  const handleOpenBrandifyModal = () => {
-    if (!imageSrc) {
-      showToast("Please select a meme template first!");
-      return;
-    }
-    setIsBrandifyModalOpen(true);
-  };
-
   const handleCloseBrandifyModal = (result) => {
     // If user clicked "Use This", apply the branded template
     if (result && result.useBrandedTemplate && result.brandedImage) {
@@ -421,24 +412,6 @@ const MemeGen = () => {
   const handlePointerUp = () => {
     setActiveId(null);
     setActiveTextId(null);
-  };
-
-  const onReset = () => {
-    setTopText("");
-    setBottomText("");
-    setImageSrc(null);
-    setSelectedTemplate(null);
-    setItems([]);
-    setActiveId(null);
-    setActiveTextId(null);
-    setTextPositions({
-      top: { x: 0.5, y: 0.1, scale: 1 },
-      bottom: { x: 0.5, y: 0.9, scale: 1 }
-    });
-    setIsResizing(false);
-    setResizeTarget(null);
-    setIsRotating(false);
-    setRotateTarget(null);
   };
 
 
@@ -1007,7 +980,7 @@ const MemeGen = () => {
           setShowMintSuccess(true);
           showToast("🎉 Meme minted successfully!");
         }}
-        imagePreview={mintPreviewImage}
+        imagePreview={null}
         type="MEME"
         pricing={{
           tier: "Standard",
@@ -1022,7 +995,7 @@ const MemeGen = () => {
       <MintSuccessModal
         isOpen={showMintSuccess}
         onClose={() => setShowMintSuccess(false)}
-        imagePreview={mintPreviewImage}
+        imagePreview={null}
         type="MEME"
         onSocialShare={handleSocialShare}
       />

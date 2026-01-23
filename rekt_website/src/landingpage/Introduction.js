@@ -4,8 +4,6 @@ import "./styles/intro.css";
 import "./styles/faq.css";
 
 import ceo_office from "../creatives/ceo_office2.jpg";
-import zeroXpl from "../creatives/socials/0xppl.png";
-
 import HeroAnimation from "./HeroAnimation";
 import BuySection from "./BuySection";
 import StorySection from "./StorySection";

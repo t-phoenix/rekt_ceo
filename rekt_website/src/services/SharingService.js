@@ -25,11 +25,11 @@ class SharingService {
    */
   async handleSocialShare(platform, options = {}) {
     try {
-      const { 
-        canvasRef, 
-        elementId, 
-        topText = '', 
-        bottomText = '', 
+      const {
+        canvasRef,
+        elementId,
+        topText = '',
+        bottomText = '',
         shareText = '',
         fileName = 'rekt-ceo'
       } = options;
@@ -82,10 +82,10 @@ class SharingService {
 
       this.isDownloading = true;
       this._showToast('Generating your image...');
-      
+
       // Export the element as PNG
       const dataURL = await exportNodeToPng(element);
-      
+
       // Create download link
       const link = document.createElement('a');
       link.download = `${fileName}-${Date.now()}.png`;
@@ -93,7 +93,7 @@ class SharingService {
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      
+
       this._showToast('Image downloaded successfully!');
       return dataURL;
     } catch (error) {
@@ -126,15 +126,15 @@ class SharingService {
       // Create share text
       const shareText = customShareText || this._createShareText(topText, bottomText);
       const twitterUrl = `https://x.com/intent/tweet?text=${encodeURIComponent(shareText)}`;
-      
+
       // If element is provided, try to copy to clipboard
       if (element) {
         const clipboardSuccess = await this.copyImageToClipboard(element);
-        
+
         if (clipboardSuccess) {
           // Open Twitter after successful copy
           window.open(twitterUrl, '_blank');
-          
+
           const isMac = navigator.userAgent.includes('Mac');
           const pasteShortcut = isMac ? 'Cmd+V' : 'Ctrl+V';
           this._showToast(`✅ Image copied! Paste with ${pasteShortcut} in Twitter`);
@@ -153,7 +153,7 @@ class SharingService {
       this._showToast('Error sharing to Twitter. Please try again.');
     }
   }
-  
+
   /**
    * Copy an image to clipboard
    * @param {Object} element - DOM element to capture
@@ -162,27 +162,27 @@ class SharingService {
   async copyImageToClipboard(element) {
     try {
       if (!element) return false;
-      
+
       // Check if clipboard API is available
       if (!navigator.clipboard || !window.ClipboardItem) {
         console.log('Clipboard API not available');
         return false;
       }
-      
+
       // Export element as PNG and convert to blob
       const dataURL = await exportNodeToPng(element);
       const response = await fetch(dataURL);
       const blob = await response.blob();
-      
+
       // Create clipboard item and write to clipboard
       const clipboardItem = new ClipboardItem({
         'image/png': blob
       });
-      
+
       await navigator.clipboard.write([clipboardItem]);
       console.log('Image copied to clipboard successfully');
       return true;
-      
+
     } catch (error) {
       console.error('Failed to copy to clipboard:', error);
       return false;
@@ -219,9 +219,7 @@ class SharingService {
   async shareToFarcaster(element, topText = '', bottomText = '', customShareText = '', fileName = 'rekt-ceo') {
     try {
       // Farcaster sharing - similar to Twitter approach
-      const shareText = customShareText || this._createShareText(topText, bottomText);
-      const shareUrl = window.location.href;
-      
+
       // For now, we'll show instructions since Farcaster integration might need specific setup
       this._showToast('Farcaster sharing coming soon! For now, download and share manually.');
     } catch (error) {
@@ -241,11 +239,11 @@ class SharingService {
     try {
       const shareText = customShareText || this._createShareText(topText, bottomText);
       const shareUrl = window.location.href;
-      
+
       // Open Reddit submit page
       const redditUrl = `https://reddit.com/submit?url=${encodeURIComponent(shareUrl)}&title=${encodeURIComponent(shareText)}`;
       window.open(redditUrl, '_blank');
-      
+
       this._showToast('Reddit submit page opened! Download the image first, then attach it to your post.');
     } catch (error) {
       console.error('Reddit share error:', error);

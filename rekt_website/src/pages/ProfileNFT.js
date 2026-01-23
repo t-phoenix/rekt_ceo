@@ -3,7 +3,7 @@ import "./pfp.css";
 import "../landingpage/styles/story.css";
 import InteractiveGlow from "../components/InteractiveGlow.js";
 import StickerCard from "./page_components/StickerCard.js";
-import { MdDownload, MdShuffle } from "react-icons/md";
+import { MdShuffle } from "react-icons/md";
 import SocialShareFooter from "./page_components/SocialShareFooter.js";
 import MintConfirmModal from "../components/MintConfirmModal.js";
 import MintSuccessModal from "../components/MintSuccessModal.js";
@@ -12,42 +12,36 @@ import LayerImage from "./page_components/LayerImage";
 import LayerNavbar from "./page_components/LayerNavbar";
 import LayerOptions from "./page_components/LayerOptions";
 
-import { downloadImage } from "../services/PfpHelpers";
 import sharingService from "../services/SharingService.js";
 
+const limits = [6, 3, 4, 5, 4, 4, 3, 7]; // Maximum random value for each index
+
 export default function ProfileNFT() {
-  // const [imageUri, setImageUri] = useState("");
-  // const [metadataJSON, setMetadataJSON] = useState("");
-  // const [metadataURI, setMetadataURI] = useState("");
-
   const [screenWidth, setScreenWidth] = useState(window.innerWidth);
-
   const [currentIndex, setCurrentIndex] = useState(1); // Start with the second item as the current
-
   const [selectedLayer, setSelectedLayer] = useState([0, 0, 0, 0, 0, 0, 0, 0]); // BG/ Hoodie / Pants / Shoes/ Skin / Face / Jewellery / Coin
-  const limits = [6, 3, 4, 5, 4, 4, 3, 7]; // Maximum random value for each index
+
 
   // Mint modal state
   const [showMintConfirm, setShowMintConfirm] = useState(false);
   const [showMintSuccess, setShowMintSuccess] = useState(false);
-  const [mintPreviewImage, setMintPreviewImage] = useState(null);
+  const [mintPreviewImage] = useState(null);
 
 
 
-  const randomiseLayers = () => {
-    const randomized = selectedLayer.map((_, index) =>
-      Math.floor(Math.random() * (limits[index] + 1))
+  const randomiseLayers = useCallback(() => {
+    const randomized = limits.map((limit) =>
+      Math.floor(Math.random() * (limit + 1))
     );
-    console.log(randomized);
     setSelectedLayer(randomized);
-  };
+  }, []);
 
   useEffect(() => {
     const handleResize = () => setScreenWidth(window.innerWidth);
     window.addEventListener("resize", handleResize);
     randomiseLayers();
     return () => window.removeEventListener("resize", handleResize);
-  }, []);
+  }, [randomiseLayers]);
 
   const showToast = useCallback((message) => {
     // Simple toast implementation
@@ -77,27 +71,27 @@ export default function ProfileNFT() {
     sharingService.setToastFunction(showToast);
   }, [showToast]);
 
-  const handleMint = async () => {
-    try {
-      // Capture the composite PFP image
-      const compositeElement = document.getElementById('composite-container');
-      if (!compositeElement) {
-        showToast("Please wait for PFP to load!");
-        return;
-      }
-
-      // Use html2canvas to capture the composite
-      const html2canvas = (await import('html2canvas')).default;
-      const canvas = await html2canvas(compositeElement);
-      const preview = canvas.toDataURL('image/png');
-
-      setMintPreviewImage(preview);
-      setShowMintConfirm(true);
-    } catch (error) {
-      console.error('Error capturing PFP:', error);
-      showToast("Failed to capture PFP preview");
-    }
-  };
+  // const handleMint = async () => {
+  //   try {
+  //     // Capture the composite PFP image
+  //     const compositeElement = document.getElementById('composite-container');
+  //     if (!compositeElement) {
+  //       showToast("Please wait for PFP to load!");
+  //       return;
+  //     }
+  //
+  //     // Use html2canvas to capture the composite
+  //     const html2canvas = (await import('html2canvas')).default;
+  //     const canvas = await html2canvas(compositeElement);
+  //     const preview = canvas.toDataURL('image/png');
+  //
+  //     setMintPreviewImage(preview);
+  //     setShowMintConfirm(true);
+  //   } catch (error) {
+  //     console.error('Error capturing PFP:', error);
+  //     showToast("Failed to capture PFP preview");
+  //   }
+  // };
 
   const handleSocialShare = async (platform) => {
     await sharingService.handleSocialShare(platform, {
