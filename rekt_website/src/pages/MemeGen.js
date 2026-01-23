@@ -7,14 +7,14 @@ import { categorizedMemeTemplates, memeCategories } from "../constants/memeData"
 import { exportNodeToPng } from "../utils/exportImage";
 import SocialShareFooter from "./page_components/SocialShareFooter.js";
 import sharingService from "../services/SharingService.js";
+import AiGenerateModal from "../components/AiGenerateModal.js";
+import BrandifyModal from "../components/BrandifyModal.js";
+import MintConfirmModal from "../components/MintConfirmModal.js";
+import MintSuccessModal from "../components/MintSuccessModal.js";
+import memeApiService from "../services/MemeApiService.js";
 
 
 
-const suggestions = [
-  ["WHEN MARKET DIPS", "I BUY THE DIP DIP"],
-  ["AI SAID SELL", "I HEARD HODL"],
-  ["CEO OF REKT", "BUT STILL BULLISH"],
-];
 
 const MemeGen = () => {
   const [topText, setTopText] = useState("");
@@ -27,14 +27,27 @@ const MemeGen = () => {
   const [selectedTemplate, setSelectedTemplate] = useState(null);
   const [screenWidth, setScreenWidth] = useState(window.innerWidth);
 
+  // AI modal state
+  const [isAiModalOpen, setIsAiModalOpen] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
+
+  // Brandify modal state
+  const [isBrandifyModalOpen, setIsBrandifyModalOpen] = useState(false);
+  const [isBrandifying, setIsBrandifying] = useState(false);
+
+  // Mint modal state
+  const [showMintConfirm, setShowMintConfirm] = useState(false);
+  const [showMintSuccess, setShowMintSuccess] = useState(false);
+  const [mintPreviewImage, setMintPreviewImage] = useState(null);
+
   // sticker instances on canvas
   const [items, setItems] = useState([]);
   const [activeId, setActiveId] = useState(null);
 
   // text positioning and sizing state
   const [textPositions, setTextPositions] = useState({
-    top: { x: 0.5, y: 0.5, scale: 1 },
-    bottom: { x: 0.5, y: 0.5, scale: 1 }
+    top: { x: 0.5, y: 0.1, scale: 1 },
+    bottom: { x: 0.5, y: 0.90, scale: 1 }
   });
   const [activeTextId, setActiveTextId] = useState(null);
 
@@ -217,10 +230,125 @@ const MemeGen = () => {
 
 
 
-  const onPickSuggestion = () => {
-    const [t, b] = suggestions[Math.floor(Math.random() * suggestions.length)];
-    setTopText(t);
-    setBottomText(b);
+
+
+  const handleOpenAiModal = () => {
+    if (!imageSrc) {
+      showToast("Please select a meme template first!");
+      return;
+    }
+    setIsAiModalOpen(true);
+  };
+
+  const handleCloseAiModal = (selectedOption) => {
+    if (selectedOption && selectedOption.topText && selectedOption.bottomText) {
+      // User selected an option from the modal
+      setTopText(selectedOption.topText.toUpperCase());
+      setBottomText(selectedOption.bottomText.toUpperCase());
+      showToast("✨ Meme text applied successfully!");
+    }
+    setIsAiModalOpen(false);
+  };
+
+  const handleAiGenerate = async (topic, isTwitterPost = false) => {
+    if (!imageSrc) {
+      showToast("Please select a meme template first!");
+      setIsAiModalOpen(false);
+      return;
+    }
+
+    setIsGenerating(true);
+
+    try {
+      // Convert the current image to a blob/file for the API
+      const response = await fetch(imageSrc);
+      const blob = await response.blob();
+      const file = new File([blob], 'template.jpg', { type: 'image/jpeg' });
+
+      // Call the API with topic, isTwitterPost flag, and template image
+      const result = await memeApiService.generateMemeText(topic, isTwitterPost, file);
+
+      // Return the result so the modal can display the options
+      return result;
+    } catch (error) {
+      console.error('Error generating meme:', error);
+
+      let errorMessage = "Failed to generate meme text. ";
+      if (error.message.includes('Failed to fetch')) {
+        errorMessage += "Is the backend running on localhost:8001?";
+      } else {
+        errorMessage += error.message;
+      }
+
+      showToast(errorMessage);
+      return null;
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  const handleOpenBrandifyModal = () => {
+    if (!imageSrc) {
+      showToast("Please select a meme template first!");
+      return;
+    }
+    setIsBrandifyModalOpen(true);
+  };
+
+  const handleCloseBrandifyModal = (result) => {
+    // If user clicked "Use This", apply the branded template
+    if (result && result.useBrandedTemplate && result.brandedImage) {
+      const base64Image = `data:image/png;base64,${result.brandedImage}`;
+      setImageSrc(base64Image);
+      showToast("✨ Branded template applied successfully!");
+    }
+    setIsBrandifyModalOpen(false);
+  };
+
+  const handleBrandifyGenerate = async (brandData) => {
+    if (!imageSrc) {
+      showToast("Please select a meme template first!");
+      setIsBrandifyModalOpen(false);
+      return null;
+    }
+
+    setIsBrandifying(true);
+
+    try {
+      // Convert the current image to a blob/file for the API
+      const response = await fetch(imageSrc);
+      const blob = await response.blob();
+      const file = new File([blob], 'template.jpg', { type: 'image/jpeg' });
+
+      // Call the API with brand data and template image
+      const result = await memeApiService.generateBrandedTemplate(
+        file,
+        brandData.brandName,
+        brandData.primaryColor,
+        brandData.userPrompt,
+        brandData.secondaryColor,
+        brandData.logoFile
+      );
+
+      // Return result to modal for comparison view
+      return result;
+    } catch (error) {
+      console.error('Error generating branded template:', error);
+
+      let errorMessage = "Failed to generate branded template. ";
+      if (error.message.includes('Failed to fetch')) {
+        errorMessage += "Is the backend running on localhost:8001?";
+      } else if (error.message.includes('Rate')) {
+        errorMessage += "Rate limit exceeded. Please wait 3 minutes.";
+      } else {
+        errorMessage += error.message;
+      }
+
+      showToast(errorMessage);
+      return null;
+    } finally {
+      setIsBrandifying(false);
+    }
   };
 
   const onUpload = (file) => {
@@ -304,8 +432,8 @@ const MemeGen = () => {
     setActiveId(null);
     setActiveTextId(null);
     setTextPositions({
-      top: { x: 0.5, y: 0.5, scale: 1 },
-      bottom: { x: 0.5, y: 0.5, scale: 1 }
+      top: { x: 0.5, y: 0.1, scale: 1 },
+      bottom: { x: 0.5, y: 0.9, scale: 1 }
     });
     setIsResizing(false);
     setResizeTarget(null);
@@ -526,12 +654,12 @@ const MemeGen = () => {
               >
                 <h3 className="meme-canvas-title">Meme Preview</h3>
                 <div className="meme-canvas-actions">
-                  <button onClick={onReset} className="story-btn secondary">
-                    ↩️ Reset
-                  </button>
+                  {/* <button onClick={handleOpenBrandifyModal} className="story-btn secondary meme-canvas-button">
+                    🎨 Brandify
+                  </button> */}
                   <button
                     onClick={randomizeMemeTemplate}
-                    className="story-btn primary"
+                    className="story-btn secondary meme-canvas-primary"
                   >
                     🔮 Randomize
                   </button>
@@ -677,166 +805,227 @@ const MemeGen = () => {
           </div>
 
           {/* Right Column - Controls */}
-          <div className="meme-controls-card">
-            <div className="meme-controls-header">
-              <h3 className="meme-controls-title">Controls</h3>
-            </div>
-            <div className="meme-controls-content">
-              <div className="meme-control-group">
-                <div className="meme-control-row">
-                  <div className="meme-control-item">
-                    <label htmlFor="top" className="meme-label">
-                      Top text
-                    </label>
-                    <input
-                      id="top"
-                      placeholder="TOP TEXT"
-                      value={topText}
-                      onChange={(e) => setTopText(e.target.value.toUpperCase())}
-                      className="meme-input"
-                    />
-                  </div>
-                  <div className="meme-control-item">
-                    <label htmlFor="bottom" className="meme-label">
-                      Bottom text
-                    </label>
-                    <input
-                      id="bottom"
-                      placeholder="BOTTOM TEXT"
-                      value={bottomText}
-                      onChange={(e) =>
-                        setBottomText(e.target.value.toUpperCase())
-                      }
-                      className="meme-input"
-                    />
-                  </div>
-                </div>
+          <div className="right-column">
+            <div className="meme-controls-card">
+              <div className="meme-controls-header">
+                <h3 className="meme-controls-title">Controls</h3>
+              </div>
+              <div className="meme-controls-content">
+                <div className="meme-control-group">
 
-                <div className="meme-control-row">
-                  <div className="meme-control-item">
-                    <label className="meme-label">Font</label>
-                    <select
-                      value={font}
-                      onChange={(e) => setFont(e.target.value)}
-                      className="meme-select"
-                    >
-                      <option value="display">Bebas Neue</option>
-                      <option value="tech">Chakra Petch</option>
-                      <option value="brand">Space Grotesk</option>
-                    </select>
-                  </div>
-                  <div className="meme-control-item">
-                    <label className="meme-label">AI assist</label>
-                    <button
-                      onClick={onPickSuggestion}
-                      className="story-btn primary"
-                      style={{ width: "100%" }}
-                    >
-                      ✨ Suggest (SOON)
-                    </button>
-                  </div>
-                </div>
 
-                <div className="meme-control-row">
+                  {/* Meme Template Selection */}
                   <div className="meme-control-item">
-                    <label className="meme-label">Text color</label>
-                    <input
-                      type="color"
-                      value={textColor}
-                      onChange={(e) => setTextColor(e.target.value)}
-                      className="meme-color-input"
-                    />
-                  </div>
-                  <div className="meme-control-item">
-                    <label className="meme-label">Outline</label>
-                    <input
-                      type="color"
-                      value={strokeColor}
-                      onChange={(e) => setStrokeColor(e.target.value)}
-                      className="meme-color-input"
-                    />
-                  </div>
-                </div>
+                    <label className="meme-label">Meme Templates</label>
 
-                {/* Meme Template Selection */}
-                <div className="meme-control-item">
-                  <label className="meme-label">Meme Templates</label>
-
-                  {/* Template Categories Navigation */}
-                  <div className="meme-template-categories">
-                    {memeCategories.map(
-                      (category) => (
-                        <button
-                          key={category}
-                          className={`meme-category-btn ${activeCategory === category ? "active" : ""
-                            }`}
-                          onClick={() => handleCategorySwitch(category)}
-                        >
-                          {category}
-                        </button>
-                      )
-                    )}
-                  </div>
-
-                  {/* Template Grid with Horizontal Scroll */}
-                  <div className="meme-template-container">
-                    <div className="meme-template-grid">
-                      {getTemplatesForCategory(activeCategory).map(
-                        (template) => (
-                          <div
-                            key={template.id}
-                            className={`meme-template-item ${selectedTemplate === template.id ? "selected" : ""
+                    {/* Template Categories Navigation */}
+                    <div className="meme-template-categories">
+                      {memeCategories.map(
+                        (category) => (
+                          <button
+                            key={category}
+                            className={`meme-category-btn ${activeCategory === category ? "active" : ""
                               }`}
-                            onClick={() => handleTemplateSelect(template.id)}
+                            onClick={() => handleCategorySwitch(category)}
                           >
-                            <img
-                              src={template.src}
-                              alt={template.name}
-                              loading="lazy"
-                              className="meme-template-image"
-                            />
-                          </div>
+                            {category}
+                          </button>
                         )
                       )}
                     </div>
+
+                    {/* Template Grid with Horizontal Scroll */}
+                    <div className="meme-template-container">
+                      <div className="meme-template-grid">
+                        {getTemplatesForCategory(activeCategory).map(
+                          (template) => (
+                            <div
+                              key={template.id}
+                              className={`meme-template-item ${selectedTemplate === template.id ? "selected" : ""
+                                }`}
+                              onClick={() => handleTemplateSelect(template.id)}
+                            >
+                              <img
+                                src={template.src}
+                                alt={template.name}
+                                loading="lazy"
+                                className="meme-template-image"
+                              />
+                            </div>
+                          )
+                        )}
+                      </div>
+                    </div>
                   </div>
+
+                  <div className="meme-control-row">
+                    <div className="meme-control-item">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => e.target.files && onUpload(e.target.files[0])}
+                        className="meme-file-input"
+                      />
+                    </div>
+                  </div>
+
+
+                  <div className="meme-control-row">
+                    <div className="meme-control-item">
+                      <label htmlFor="top" className="meme-label">
+                        Top text
+                      </label>
+                      <input
+                        id="top"
+                        placeholder="TOP TEXT"
+                        value={topText}
+                        onChange={(e) => setTopText(e.target.value.toUpperCase())}
+                        className="meme-input"
+                      />
+                    </div>
+                    <div className="meme-control-item">
+                      <label htmlFor="bottom" className="meme-label">
+                        Bottom text
+                      </label>
+                      <input
+                        id="bottom"
+                        placeholder="BOTTOM TEXT"
+                        value={bottomText}
+                        onChange={(e) =>
+                          setBottomText(e.target.value.toUpperCase())
+                        }
+                        className="meme-input"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="meme-control-row">
+                    <div className="meme-control-item">
+                      <label className="meme-label">Font</label>
+                      <select
+                        value={font}
+                        onChange={(e) => setFont(e.target.value)}
+                        className="meme-select"
+                      >
+                        <option value="display">Bebas Neue</option>
+                        <option value="tech">Chakra Petch</option>
+                        <option value="brand">Space Grotesk</option>
+                      </select>
+                    </div>
+                    <div className="meme-control-item">
+                      <label className="meme-label">AI assist</label>
+                      <button
+                        onClick={handleOpenAiModal}
+                        className="story-btn primary"
+                        style={{ width: "100%" }}
+                      >
+                        ✨ AI Suggest
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="meme-control-row">
+                    <div className="meme-control-item">
+                      <label className="meme-label">Text color</label>
+                      <input
+                        type="color"
+                        value={textColor}
+                        onChange={(e) => setTextColor(e.target.value)}
+                        className="meme-color-input"
+                      />
+                    </div>
+                    <div className="meme-control-item">
+                      <label className="meme-label">Outline</label>
+                      <input
+                        type="color"
+                        value={strokeColor}
+                        onChange={(e) => setStrokeColor(e.target.value)}
+                        className="meme-color-input"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Ready Section */}
                 </div>
+              </div>
+            </div>
 
-                <div className="meme-control-row">
-                  <div className="meme-control-item">
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={(e) => e.target.files && onUpload(e.target.files[0])}
-                      className="meme-file-input"
-                    />
-                  </div>
-                </div>
-
-                {/* Ready Section */}
-                <div className="meme-ready-card">
-                  <div className="meme-ready-header">
-                    <h3 className="meme-ready-title">Ready?</h3>
-                  </div>
-                  <div className="meme-ready-content">
-                    <p className="meme-ready-text">Mint your meme to show the world the CEO of rekt you truly are.</p>
-                    <button
-                      onClick={() => showToast("Minting soon. Stay tuned!")}
-                      className="story-btn secondary"
-                      style={{ width: '100%' }}
-                    >
-                      Mint (Soon)
-                    </button>
-                  </div>
-                </div>
-
-
-
+            <div className="meme-ready-card">
+              <div className="meme-ready-header">
+                <h3 className="meme-ready-title">Ready to Own Your MEMEs?</h3>
+              </div>
+              <div className="meme-ready-content">
+                {/* <p className="meme-ready-text">Mint your meme to show the world the CEO of rekt you truly are.</p> */}
+                <button
+                  onClick={async () => {
+                    //DO NOT DELETE
+                    // if (!imageSrc) {
+                    //   showToast("Please select a meme template first!");
+                    //   return;
+                    // }
+                    // // Capture the canvas as image
+                    // const preview = await exportNodeToPng(stageRef.current);
+                    // setMintPreviewImage(preview);
+                    // setShowMintConfirm(true);
+                  }}
+                  className="story-btn secondary"
+                  style={{ width: '100%' }}
+                >
+                  Mint NFT (Coming Soon)
+                </button>
               </div>
             </div>
           </div>
+
+
         </section>
       </main>
+
+      {/* AI Generate Modal */}
+      <AiGenerateModal
+        isOpen={isAiModalOpen}
+        onClose={handleCloseAiModal}
+        onGenerate={handleAiGenerate}
+        isLoading={isGenerating}
+      />
+
+      {/* Brandify Modal */}
+      <BrandifyModal
+        isOpen={isBrandifyModalOpen}
+        onClose={handleCloseBrandifyModal}
+        onGenerate={handleBrandifyGenerate}
+        isLoading={isBrandifying}
+        templateSrc={imageSrc}
+      />
+
+      {/* Mint Confirmation Modal */}
+      <MintConfirmModal
+        isOpen={showMintConfirm}
+        onClose={() => setShowMintConfirm(false)}
+        onConfirm={() => {
+          setShowMintConfirm(false);
+          setShowMintSuccess(true);
+          showToast("🎉 Meme minted successfully!");
+        }}
+        imagePreview={mintPreviewImage}
+        type="MEME"
+        pricing={{
+          tier: "Standard",
+          usdPrice: "Free",
+          ceoPrice: "Priceless",
+          currentSupply: "--",
+          totalSupply: "10,000"
+        }}
+      />
+
+      {/* Mint Success Modal */}
+      <MintSuccessModal
+        isOpen={showMintSuccess}
+        onClose={() => setShowMintSuccess(false)}
+        imagePreview={mintPreviewImage}
+        type="MEME"
+        onSocialShare={handleSocialShare}
+      />
     </div>
   );
 };

@@ -5,6 +5,8 @@ import InteractiveGlow from "../components/InteractiveGlow.js";
 import StickerCard from "./page_components/StickerCard.js";
 import { MdDownload, MdShuffle } from "react-icons/md";
 import SocialShareFooter from "./page_components/SocialShareFooter.js";
+import MintConfirmModal from "../components/MintConfirmModal.js";
+import MintSuccessModal from "../components/MintSuccessModal.js";
 
 import LayerImage from "./page_components/LayerImage";
 import LayerNavbar from "./page_components/LayerNavbar";
@@ -24,6 +26,11 @@ export default function ProfileNFT() {
 
   const [selectedLayer, setSelectedLayer] = useState([0, 0, 0, 0, 0, 0, 0, 0]); // BG/ Hoodie / Pants / Shoes/ Skin / Face / Jewellery / Coin
   const limits = [6, 3, 4, 5, 4, 4, 3, 7]; // Maximum random value for each index
+
+  // Mint modal state
+  const [showMintConfirm, setShowMintConfirm] = useState(false);
+  const [showMintSuccess, setShowMintSuccess] = useState(false);
+  const [mintPreviewImage, setMintPreviewImage] = useState(null);
 
 
 
@@ -70,7 +77,27 @@ export default function ProfileNFT() {
     sharingService.setToastFunction(showToast);
   }, [showToast]);
 
-  function handleMint() { }
+  const handleMint = async () => {
+    try {
+      // Capture the composite PFP image
+      const compositeElement = document.getElementById('composite-container');
+      if (!compositeElement) {
+        showToast("Please wait for PFP to load!");
+        return;
+      }
+
+      // Use html2canvas to capture the composite
+      const html2canvas = (await import('html2canvas')).default;
+      const canvas = await html2canvas(compositeElement);
+      const preview = canvas.toDataURL('image/png');
+
+      setMintPreviewImage(preview);
+      setShowMintConfirm(true);
+    } catch (error) {
+      console.error('Error capturing PFP:', error);
+      showToast("Failed to capture PFP preview");
+    }
+  };
 
   const handleSocialShare = async (platform) => {
     await sharingService.handleSocialShare(platform, {
@@ -80,52 +107,6 @@ export default function ProfileNFT() {
     });
   };
 
-
-
-  // LEGACY CODE: SOLANA
-  // async function uploadMetadata() {
-  //   const compositeElement = document.getElementById("composite-container");
-
-  //   const canvas = await html2canvas(compositeElement);
-  //   const image = canvas.toDataURL("image/png");
-
-  //   const file = dataURLtoFile(image, `Rekt Ceo.png`);
-
-  //   let attribute_list = [
-  //     { "trait_type": "Background", "value": `${layerNames[0][selectedLayer[0]]}` },
-  //     { "trait_type": "Hoodie", "value": `${layerNames[1][selectedLayer[1]]}` },
-  //     { "trait_type": "Pants", "value": `${layerNames[2][selectedLayer[2]]}` },
-  //     { "trait_type": "Shoes", "value": `${layerNames[3][selectedLayer[3]]}` },
-  //     { "trait_type": "Rekt Coin", "value": "rekt_coin" },
-  //     { "trait_type": "Skin", "value": `${layerNames[4][selectedLayer[4]]}` },
-  //     { "trait_type": "Face", "value": `${layerNames[5][selectedLayer[5]]}` },
-  //     { "trait_type": "Coin", "value": `${layerNames[6][selectedLayer[6]]}` }
-  //   ]
-
-  //   const formData = new FormData();
-  //   formData.append('image', file);
-  //   formData.append('attributes', JSON.stringify(attribute_list)); // Add attribute list as JSON string
-
-
-  //   fetch(`http://localhost:3001/uploadImageAndMetadata`, {
-  //     method: "POST",
-  //     body: formData
-  //   })    
-  //     .then((response) => {
-  //       if (response.ok) {
-  //         return response.json();
-  //       } else {
-  //         throw new Error("File upload failed");
-  //       }
-  //     })
-  //     .then((data) => {
-  //       console.log("Server response:", data);
-  //     })
-  //     .catch((error) => {
-  //       console.error("Error uploading file:", error);
-  //     });
-
-  // }
 
 
   // Show responsive message for small screens to match site theme
@@ -261,8 +242,9 @@ export default function ProfileNFT() {
                 </div>
                 <div className="pfp-ready-content">
                   <p className="pfp-ready-text">Mint your PFP NFT using $CEO. Coming soon.</p>
-                  <button onClick={handleMint} className="story-btn secondary" style={{ width: "100%" }}>
-                    Mint NFT (Soon)
+                  {/* <button onClick={handleMint} className="story-btn secondary" style={{ width: "100%" }}> */}
+                  <button className="story-btn secondary" style={{ width: "100%" }}>
+                    Mint NFT (Coming Soon)
                   </button>
                 </div>
               </div>
@@ -270,6 +252,47 @@ export default function ProfileNFT() {
           </div>
         </section>
       </main>
+
+      {/* Mint Confirmation Modal */}
+      <MintConfirmModal
+        isOpen={showMintConfirm}
+        onClose={() => setShowMintConfirm(false)}
+        onConfirm={() => {
+          setShowMintConfirm(false);
+          setShowMintSuccess(true);
+          showToast("🎉 PFP NFT minted successfully!");
+        }}
+        imagePreview={mintPreviewImage}
+        type="PFP"
+        pricing={{
+          tier: "Premium",
+          usdPrice: "Free",
+          ceoPrice: "Priceless",
+          currentSupply: "--",
+          totalSupply: "999"
+        }}
+        metadata={{
+          traits: {
+            "Background": `BG ${selectedLayer[0]}`,
+            "Hoodie": `Hoodie ${selectedLayer[1]}`,
+            "Pants": `Pants ${selectedLayer[2]}`,
+            "Shoes": `Shoes ${selectedLayer[3]}`,
+            "Skin": `Skin ${selectedLayer[4]}`,
+            "Face": `Face ${selectedLayer[5]}`,
+            "Jewellery": `Jewellery ${selectedLayer[6]}`,
+            "Coin": `Coin ${selectedLayer[7]}`
+          }
+        }}
+      />
+
+      {/* Mint Success Modal */}
+      <MintSuccessModal
+        isOpen={showMintSuccess}
+        onClose={() => setShowMintSuccess(false)}
+        imagePreview={mintPreviewImage}
+        type="PFP"
+        onSocialShare={handleSocialShare}
+      />
     </div>
   );
 }

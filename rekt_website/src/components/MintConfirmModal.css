@@ -1,0 +1,396 @@
+/* Mint Confirmation Modal Styles - Red & Yellow Theme */
+.mint-confirm-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(12px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+.mint-confirm-content {
+    background: linear-gradient(135deg, rgba(59, 28, 50, 0.98) 0%, rgba(216, 30, 91, 0.15) 100%);
+    border: 2px solid rgba(248, 200, 38, 0.3);
+    border-radius: 20px;
+    backdrop-filter: blur(20px);
+    box-shadow: 0 0 40px rgba(248, 200, 38, 0.2);
+    width: 90%;
+    max-width: 700px;
+    max-height: 90vh;
+    overflow: hidden;
+    animation: slideUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    position: relative;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.mint-confirm-content:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 50px rgba(248, 200, 38, 0.3);
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(40px) scale(0.9);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.mint-confirm-header {
+    padding: 1.5rem;
+    border-bottom: 1px solid rgba(248, 200, 38, 0.2);
+    background: linear-gradient(135deg, rgba(216, 30, 91, 0.2) 0%, rgba(248, 200, 38, 0.1) 100%);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.mint-confirm-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: white;
+    margin: 0;
+    background: linear-gradient(135deg, var(--color-yellow) 0%, var(--color-red) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: titleShine 3s ease-in-out infinite;
+}
+
+@keyframes titleShine {
+
+    0%,
+    100% {
+        filter: brightness(1);
+    }
+
+    50% {
+        filter: brightness(1.2);
+    }
+}
+
+.mint-confirm-close {
+    background: var(--color-red);
+    border: 2px solid var(--color-yellow);
+    border-radius: 8px;
+    color: white;
+    cursor: pointer;
+    font-size: 1.2rem;
+    font-weight: 700;
+    padding: 0.5rem;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    box-shadow: 0 0 0px rgba(0, 0, 0, 0.5);
+
+}
+
+.mint-confirm-close:hover {
+    background: var(--color-yellow);
+    color: var(--color-black);
+    transform: rotate(90deg) scale(1.1);
+    box-shadow: 0 0 20px rgba(248, 200, 38, 0.5);
+}
+
+.mint-confirm-close:active {
+    transform: rotate(90deg) scale(0.95);
+}
+
+.mint-confirm-body {
+    padding: 1.5rem;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    max-height: calc(90vh - 180px);
+    overflow-y: auto;
+}
+
+/* Preview Section */
+.mint-preview-section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.mint-preview-label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--color-yellow);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.mint-preview-container {
+    background: rgba(0, 0, 0, 0.4);
+    border: 2px solid rgba(248, 200, 38, 0.3);
+    border-radius: 16px;
+    overflow: hidden;
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.mint-preview-container:hover {
+    border-color: rgba(248, 200, 38, 0.6);
+    box-shadow: 0 0 30px rgba(248, 200, 38, 0.2);
+}
+
+.mint-preview-container::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(216, 30, 91, 0.1) 0%, rgba(248, 200, 38, 0.1) 100%);
+    pointer-events: none;
+    animation: shimmer 3s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+
+    0%,
+    100% {
+        opacity: 0.2;
+    }
+
+    50% {
+        opacity: 0.4;
+    }
+}
+
+.mint-preview-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    position: relative;
+    z-index: 1;
+    transition: transform 0.3s ease;
+}
+
+.mint-preview-container:hover .mint-preview-image {
+    transform: scale(1.02);
+}
+
+.mint-preview-placeholder {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.875rem;
+    text-align: center;
+}
+
+/* Details Section */
+.mint-details-section {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.mint-details-header {
+    margin-bottom: 0.5rem;
+}
+
+.mint-details-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--color-yellow);
+    margin: 0;
+}
+
+/* Pricing Card */
+.mint-pricing-card {
+    background: rgba(216, 30, 91, 0.1);
+    border: 1px solid rgba(248, 200, 38, 0.2);
+    border-radius: 12px;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    transition: all 0.3s ease;
+}
+
+.mint-pricing-card:hover {
+    border-color: rgba(248, 200, 38, 0.4);
+    background: rgba(216, 30, 91, 0.15);
+}
+
+.mint-pricing-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid rgba(248, 200, 38, 0.1);
+}
+
+.mint-pricing-row:last-child {
+    border-bottom: none;
+}
+
+.mint-pricing-label {
+    font-size: 0.875rem;
+    color: rgba(255, 255, 255, 0.7);
+    font-weight: 500;
+}
+
+.mint-pricing-value {
+    font-size: 1rem;
+    color: white;
+    font-weight: 700;
+}
+
+.mint-pricing-value.highlight-green {
+    color: var(--color-green);
+}
+
+.mint-pricing-value.highlight-yellow {
+    color: var(--color-yellow);
+    text-shadow: 0 0 10px rgba(248, 200, 38, 0.3);
+}
+
+/* Metadata Card */
+.mint-metadata-card {
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(248, 200, 38, 0.15);
+    border-radius: 12px;
+    padding: 1rem;
+    transition: all 0.3s ease;
+}
+
+.mint-metadata-card:hover {
+    border-color: rgba(248, 200, 38, 0.3);
+}
+
+.mint-metadata-header {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--color-yellow);
+    margin-bottom: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.mint-metadata-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+}
+
+.mint-trait-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    padding: 0.5rem;
+    background: rgba(216, 30, 91, 0.1);
+    border-radius: 6px;
+    border: 1px solid rgba(248, 200, 38, 0.1);
+    transition: all 0.2s ease;
+}
+
+.mint-trait-item:hover {
+    background: rgba(216, 30, 91, 0.15);
+    border-color: rgba(248, 200, 38, 0.3);
+    transform: translateY(-2px);
+}
+
+.mint-trait-label {
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.6);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.mint-trait-value {
+    font-size: 0.875rem;
+    color: var(--color-yellow);
+    font-weight: 600;
+}
+
+/* Supply Info */
+.mint-supply-info {
+    background: linear-gradient(135deg, rgba(216, 30, 91, 0.15) 0%, rgba(248, 200, 38, 0.1) 100%);
+    border: 1px solid rgba(248, 200, 38, 0.2);
+    border-radius: 10px;
+    padding: 0.75rem 1rem;
+    transition: all 0.3s ease;
+}
+
+.mint-supply-info:hover {
+    border-color: rgba(248, 200, 38, 0.4);
+}
+
+.mint-supply-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.supply-icon {
+    font-size: 1.2rem;
+    animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.1);
+    }
+}
+
+.supply-text {
+    font-size: 0.875rem;
+    color: rgba(255, 255, 255, 0.9);
+    font-weight: 500;
+}
+
+/* Footer */
+.mint-confirm-footer {
+    padding: 1rem 1.5rem;
+    border-top: 1px solid rgba(248, 200, 38, 0.2);
+    background: rgba(0, 0, 0, 0.2);
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+}
+
+
+/* Responsive */
+@media (max-width: 768px) {
+    .mint-confirm-content {
+        max-width: 95%;
+    }
+
+    .mint-confirm-body {
+        grid-template-columns: 1fr;
+    }
+
+    .mint-metadata-grid {
+        grid-template-columns: 1fr;
+    }
+}

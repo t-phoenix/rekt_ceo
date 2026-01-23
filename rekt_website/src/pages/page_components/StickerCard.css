@@ -137,7 +137,7 @@
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2), 0 0 30px rgba(216, 30, 91, 0.2);
 }
 
-.sticker-btn-simple > * {
+.sticker-btn-simple>* {
   position: relative;
   z-index: 1;
 }
@@ -147,9 +147,11 @@
     transform: scale(0.8);
     opacity: 0;
   }
+
   50% {
     transform: scale(1.1);
   }
+
   100% {
     transform: scale(1);
     opacity: 1;
@@ -160,8 +162,32 @@
   animation: stickerAdd 0.3s ease-out;
 }
 
+
 .sticker-btn-simple.selected {
   border-color: rgba(216, 30, 91, 1);
   background: rgba(216, 30, 91, 0.1);
   box-shadow: 0 0 20px rgba(216, 30, 91, 0.3);
-} 
+}
+
+/* Upload button specific styles */
+.sticker-btn-simple.upload-btn {
+  background: linear-gradient(135deg, rgba(30, 216, 96, 0.1) 0%, rgba(30, 150, 216, 0.1) 100%);
+  border: 2px dashed rgba(30, 216, 150, 0.4);
+}
+
+.sticker-btn-simple.upload-btn:hover {
+  background: linear-gradient(135deg, rgba(30, 216, 96, 0.2) 0%, rgba(30, 150, 216, 0.2) 100%);
+  border-color: rgba(30, 216, 150, 0.8);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2), 0 0 30px rgba(30, 216, 150, 0.3);
+}
+
+.upload-icon {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  color: rgba(255, 255, 255, 0.9);
+  font-family: 'Chakra Petch', monospace;
+  font-weight: 600;
+}
