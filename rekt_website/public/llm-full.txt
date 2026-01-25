@@ -1,0 +1,46 @@
+# REKT CEO ($CEO) - Full Documentation
+
+## The REKT CEO Philosophy
+REKT CEO was born from the struggle of the average "meme guy." It's a brand for the degens who spent hours in Discord and Twitter, got "rekt" by market turns, but refused to quit. The movement transition from "holding bags" to "holding the future."
+
+### Core Values
+1. **Financial Opportunity**: We’re all here to make money.
+2. **Entertainment**: We’re all here to have fun.
+3. **Belonging**: We’re all here to belong to a decentralized community.
+
+## Project Ecosystem
+
+### 1. AI Meme Generator
+Located at `/memes`, this tool is the heart of the project's creative engine. It allows anyone to generate professional-grade memes, fostering a culture where "memes turn into dreams."
+
+### 2. NFT PFPs
+Located at `/pfp`, the PFP minting platform allows community members to secure their visual identity within the REKT CEO clubhouse. These NFTs are expected to provide access to future DAO operations and IRL events.
+
+### 3. Tokenomics ($CEO)
+- **Chain**: Base Layer2 and Solana (pump.fun)
+- **Vision**: To solve the "what to do" problem of typical crypto coins by building a suite of interactive utilities.
+
+## Roadmap & Future
+The project outlines several ambitious milestones:
+- **Phase 1**: Brand Launch, Community Building, and AI Tool Release.
+- **Phase 2**: NFT Minting and DEX Listing (UniswapV2).
+- **Phase 3**: IRL Clubhouse, Global Parties, and DAO Governance.
+- **Future Goals**: Meme Coin Investment Funds and Holder-exclusive public chats.
+
+## Integration & Partnerships
+REKT CEO aims to collaborate with established decentralized platforms including:
+- **Exchanges**: UniswapV2, Binance (Goal).
+- **Socials**: Twitter, Farcaster, Instagram, Linkedin, Reddit, BlueSky.
+
+## Technical Details
+The website is built using:
+- **Frontend**: React.js with CRCO (Create React App Configuration Override).
+- **Animation**: GSAP, Framer Motion.
+- **Data Visualization**: Recharts, Chart.js.
+- **Styling**: Vanilla CSS with Tailwind-style utility integrations.
+
+## Disclaimer
+$CEO is a memecoin created for fun with absolutely no intrinsic value or any expectation of financial return. It is for entertainment purposes only. $CEO is inspired by the memecoin culture and community conviction.
+
+---
+For more information, visit [rektceo.club](https://rektceo.club) or contact the team at [contact@rektceo.club](mailto:contact@rektceo.club).
