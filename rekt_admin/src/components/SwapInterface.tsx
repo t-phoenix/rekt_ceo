@@ -92,7 +92,7 @@ export function SwapInterface({
   const hasEnoughBalance = parseFloat(amountIn || '0') > 0 && parseFloat(amountIn || '0') <= parseFloat(balance)
   const approvalAmountNum = parseFloat(approvalAmount || '0')
   const hasValidApprovalAmount = approvalAmountNum > 0 && approvalAmountNum <= parseFloat(balance)
-  
+
   const canSwap =
     amountIn &&
     parseFloat(amountIn) > 0 &&
@@ -114,25 +114,25 @@ export function SwapInterface({
         {/* Input Token */}
         <div className="space-y-2">
           <div className="flex justify-between items-center">
-            <label className="text-sm font-medium text-gray-700">From</label>
+            <label className="text-sm font-medium text-gray-700 dark:text-gray-300">From</label>
             <div className="flex flex-col items-end gap-1">
-              <div className="text-sm text-gray-500">
+              <div className="text-sm text-gray-500 dark:text-gray-400">
                 Balance:{' '}
                 {balancesLoading ? (
-                  <span className="text-gray-400">Loading...</span>
+                  <span className="text-gray-400 dark:text-gray-500">Loading...</span>
                 ) : (
-                  <span className="font-medium text-gray-700">
+                  <span className="font-medium text-gray-700 dark:text-gray-200">
                     {formatTokenAmount(balance, { symbol: tokenInSymbol, maxDecimals: 6 })}
                   </span>
                 )}
               </div>
               {userAddress && (
-                <div className="text-xs text-gray-400">
+                <div className="text-xs text-gray-400 dark:text-gray-500">
                   Approved:{' '}
                   {allowanceLoading ? (
-                    <span className="text-gray-300">Loading...</span>
+                    <span className="text-gray-300 dark:text-gray-600">Loading...</span>
                   ) : (
-                    <span className={parseFloat(allowance || '0') >= parseFloat(amountIn || '0') ? 'text-green-600' : 'text-yellow-600'}>
+                    <span className={parseFloat(allowance || '0') >= parseFloat(amountIn || '0') ? 'text-green-600 dark:text-green-400' : 'text-yellow-600 dark:text-yellow-400'}>
                       {formatTokenAmount(allowance || '0', { symbol: tokenInSymbol, maxDecimals: 6 })}
                     </span>
                   )}
@@ -147,19 +147,19 @@ export function SwapInterface({
                 value={amountIn}
                 onChange={(e) => setAmountIn(e.target.value)}
                 placeholder="0.0"
-                className="w-full px-4 py-3 text-lg border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
+                className="w-full px-4 py-3 text-lg bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-colors"
                 disabled={isPending}
               />
             </div>
             <div className="flex gap-2">
               <button
                 onClick={handleMax}
-                className="px-4 py-2 text-sm font-medium text-indigo-600 bg-indigo-50 rounded-lg hover:bg-indigo-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-4 py-2 text-sm font-medium text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg hover:bg-indigo-100 dark:hover:bg-indigo-900/40 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 disabled={isPending || !balance || parseFloat(balance) === 0}
               >
                 MAX
               </button>
-              <div className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg">
+              <div className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-lg">
                 {tokenInSymbol}
               </div>
             </div>
@@ -167,15 +167,15 @@ export function SwapInterface({
         </div>
 
         {/* Flip Button */}
-        <div className="flex justify-center -my-2">
+        <div className="flex justify-center -my-2 relative z-10">
           <button
             onClick={handleFlip}
-            className="p-2 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="p-2 bg-gray-100 dark:bg-gray-700 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed border-4 border-white dark:border-gray-800"
             disabled={isPending}
             aria-label="Flip tokens"
           >
             <svg
-              className="w-5 h-5 text-gray-600"
+              className="w-5 h-5 text-gray-600 dark:text-gray-300"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -193,13 +193,13 @@ export function SwapInterface({
         {/* Output Token */}
         <div className="space-y-2">
           <div className="flex justify-between items-center">
-            <label className="text-sm font-medium text-gray-700">To</label>
-            <div className="text-sm text-gray-500">
+            <label className="text-sm font-medium text-gray-700 dark:text-gray-300">To</label>
+            <div className="text-sm text-gray-500 dark:text-gray-400">
               Balance:{' '}
               {balancesLoading ? (
-                <span className="text-gray-400">Loading...</span>
+                <span className="text-gray-400 dark:text-gray-500">Loading...</span>
               ) : (
-                <span className="font-medium text-gray-700">
+                <span className="font-medium text-gray-700 dark:text-gray-200">
                   {formatTokenAmount(
                     isCEOIn ? tokenBalances?.token1 || '0' : tokenBalances?.token0 || '0',
                     { symbol: tokenOutSymbol, maxDecimals: 6 }
@@ -220,10 +220,10 @@ export function SwapInterface({
                       : '0.0'
                 }
                 readOnly
-                className="w-full px-4 py-3 text-lg border border-gray-300 rounded-lg bg-gray-50 text-gray-700"
+                className="w-full px-4 py-3 text-lg border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-900/50 text-gray-700 dark:text-gray-300"
               />
             </div>
-            <div className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg">
+            <div className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-lg">
               {tokenOutSymbol}
             </div>
           </div>
@@ -231,24 +231,23 @@ export function SwapInterface({
 
         {/* Quote Info */}
         {quote && !quoteLoading && (
-          <div className="bg-gray-50 rounded-lg p-4 space-y-2 text-sm">
+          <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-4 space-y-2 text-sm transition-colors">
             <div className="flex justify-between">
-              <span className="text-gray-600">Price Impact</span>
+              <span className="text-gray-600 dark:text-gray-400">Price Impact</span>
               <span
-                className={`font-medium ${
-                  parseFloat(quote.priceImpact) > 1
-                    ? 'text-red-600'
+                className={`font-medium ${parseFloat(quote.priceImpact) > 1
+                    ? 'text-red-600 dark:text-red-400'
                     : parseFloat(quote.priceImpact) > 0.5
-                      ? 'text-yellow-600'
-                      : 'text-green-600'
-                }`}
+                      ? 'text-yellow-600 dark:text-yellow-400'
+                      : 'text-green-600 dark:text-green-400'
+                  }`}
               >
                 {formatPercentage(quote.priceImpact, { maxDecimals: 2 })}
               </span>
             </div>
             <div className="flex justify-between">
-              <span className="text-gray-600">Minimum Received</span>
-              <span className="font-medium text-gray-900">
+              <span className="text-gray-600 dark:text-gray-400">Minimum Received</span>
+              <span className="font-medium text-gray-900 dark:text-gray-200">
                 {formatTokenAmount(quote.amountOutMin, { symbol: tokenOutSymbol, maxDecimals: 6 })}
               </span>
             </div>
@@ -257,32 +256,32 @@ export function SwapInterface({
 
         {/* Error Messages */}
         {quoteError && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded text-sm">
+          <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 px-4 py-3 rounded text-sm">
             {quoteError.message}
           </div>
         )}
         {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded text-sm">
+          <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 px-4 py-3 rounded text-sm">
             Swap failed: {error.message}
           </div>
         )}
         {amountIn && parseFloat(amountIn) > parseFloat(balance) && (
-          <div className="bg-yellow-50 border border-yellow-200 text-yellow-700 px-4 py-3 rounded text-sm">
+          <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 text-yellow-700 dark:text-yellow-400 px-4 py-3 rounded text-sm">
             Insufficient balance
           </div>
         )}
         {isSuccess && (
-          <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded text-sm">
+          <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 text-green-700 dark:text-green-400 px-4 py-3 rounded text-sm">
             Swap successful!
           </div>
         )}
 
         {/* Approval Notice */}
         {needsApproval && userAddress && (
-          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 space-y-3">
+          <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4 space-y-3">
             <div className="flex items-start gap-3">
               <svg
-                className="w-5 h-5 text-yellow-600 mt-0.5 flex-shrink-0"
+                className="w-5 h-5 text-yellow-600 dark:text-yellow-400 mt-0.5 flex-shrink-0"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -295,17 +294,17 @@ export function SwapInterface({
                 />
               </svg>
               <div className="flex-1">
-                <p className="text-sm font-medium text-yellow-800 mb-1">
+                <p className="text-sm font-medium text-yellow-800 dark:text-yellow-400 mb-1">
                   Token Approval Required
                 </p>
-                <p className="text-xs text-yellow-700 mb-3">
+                <p className="text-xs text-yellow-700 dark:text-yellow-500/80 mb-3">
                   You need to approve the router to spend your {tokenInSymbol} tokens before swapping.
-                  Enter the amount you want to approve (this will overwrite your previous approval).
+                  Enter the amount you want to approve.
                 </p>
-                
+
                 {/* Approval Amount Input */}
                 <div className="space-y-2 mb-3">
-                  <label className="text-xs font-medium text-yellow-800 block">
+                  <label className="text-xs font-medium text-yellow-800 dark:text-yellow-400 block">
                     Approval Amount ({tokenInSymbol})
                   </label>
                   <div className="flex gap-2">
@@ -317,23 +316,23 @@ export function SwapInterface({
                         placeholder="0.0"
                         min="0"
                         step="0.000001"
-                        className="w-full px-3 py-2 text-sm border border-yellow-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 outline-none bg-white"
+                        className="w-full px-3 py-2 text-sm bg-white dark:bg-gray-800 border border-yellow-300 dark:border-yellow-700 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 outline-none transition-colors"
                         disabled={approvalPending}
                       />
                     </div>
                     <button
                       onClick={handleMaxApproval}
-                      className="px-3 py-2 text-xs font-medium text-yellow-700 bg-yellow-100 rounded-lg hover:bg-yellow-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="px-3 py-2 text-xs font-medium text-yellow-700 dark:text-yellow-400 bg-yellow-100 dark:bg-yellow-900/40 rounded-lg hover:bg-yellow-200 dark:hover:bg-yellow-900/60 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                       disabled={approvalPending || !balance || parseFloat(balance) === 0}
                     >
                       MAX
                     </button>
                   </div>
                   {approvalAmount && parseFloat(approvalAmount) > parseFloat(balance) && (
-                    <p className="text-xs text-red-600">Approval amount exceeds balance</p>
+                    <p className="text-xs text-red-600 dark:text-red-400">Approval amount exceeds balance</p>
                   )}
                   {allowance && parseFloat(allowance) > 0 && (
-                    <p className="text-xs text-yellow-600">
+                    <p className="text-xs text-yellow-600 dark:text-yellow-500">
                       Current approval: {formatTokenAmount(allowance, { symbol: tokenInSymbol, maxDecimals: 6 })}
                     </p>
                   )}
@@ -343,11 +342,10 @@ export function SwapInterface({
                   <button
                     onClick={() => onApprove(approvalAmount)}
                     disabled={!canApprove || approvalPending}
-                    className={`w-full py-2 px-4 rounded-lg font-medium text-white transition-colors ${
-                      canApprove && !approvalPending
+                    className={`w-full py-2 px-4 rounded-lg font-medium text-white transition-colors ${canApprove && !approvalPending
                         ? 'bg-yellow-600 hover:bg-yellow-700 active:bg-yellow-800'
-                        : 'bg-gray-300 cursor-not-allowed'
-                    }`}
+                        : 'bg-gray-300 dark:bg-gray-700 cursor-not-allowed'
+                      }`}
                   >
                     {approvalPending ? (
                       <span className="flex items-center justify-center gap-2">
@@ -374,7 +372,7 @@ export function SwapInterface({
                         Approving...
                       </span>
                     ) : (
-                      `Approve ${formatTokenAmount(approvalAmount, { symbol: tokenInSymbol, maxDecimals: 6 })}`
+                      `Approve ${formatTokenAmount(approvalAmount || '0', { symbol: tokenInSymbol, maxDecimals: 6 })}`
                     )}
                   </button>
                 )}
@@ -387,11 +385,10 @@ export function SwapInterface({
         <button
           onClick={onSwap}
           disabled={!canSwap}
-          className={`w-full py-3 px-4 rounded-lg font-semibold text-white transition-colors ${
-            canSwap
-              ? 'bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800'
-              : 'bg-gray-300 cursor-not-allowed'
-          }`}
+          className={`w-full py-3 px-4 rounded-lg font-semibold text-white transition-all ${canSwap
+              ? 'bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 dark:bg-indigo-500 dark:hover:bg-indigo-600'
+              : 'bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-500 cursor-not-allowed'
+            }`}
         >
           {isPending ? (
             <span className="flex items-center justify-center gap-2">

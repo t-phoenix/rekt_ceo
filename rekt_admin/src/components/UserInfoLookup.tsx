@@ -19,16 +19,16 @@ interface MintInfoBoxProps {
 
 function MintInfoBox({ title, mintCount, maxMint, canMint }: MintInfoBoxProps) {
   return (
-    <div className="bg-gray-50 rounded-lg p-4">
-      <h3 className="font-medium text-gray-800 mb-2">{title}</h3>
+    <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-4 transition-colors">
+      <h3 className="font-medium text-gray-800 dark:text-gray-200 mb-2">{title}</h3>
       <div className="space-y-1 text-sm">
         <div className="flex justify-between">
-          <span className="text-gray-600">Minted:</span>
-          <span>{mintCount} / {maxMint}</span>
+          <span className="text-gray-600 dark:text-gray-400">Minted:</span>
+          <span className="dark:text-gray-300">{mintCount} / {maxMint}</span>
         </div>
         <div className="flex justify-between">
-          <span className="text-gray-600">Can Mint:</span>
-          <span className={canMint ? 'text-green-600' : 'text-red-600'}>
+          <span className="text-gray-600 dark:text-gray-400">Can Mint:</span>
+          <span className={canMint ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}>
             {canMint ? 'Yes' : 'No'}
           </span>
         </div>
@@ -67,16 +67,16 @@ export function UserInfoLookup({
   }
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-      <h2 className="text-lg font-semibold text-gray-800 mb-3">User Info Lookup</h2>
-      
+    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6 transition-colors duration-300">
+      <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-3">User Info Lookup</h2>
+
       <div className="flex gap-3 mb-4">
         <input
           type="text"
           value={address}
           onChange={(e) => setAddress(e.target.value)}
           placeholder="Enter wallet address (0x...)"
-          className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+          className="flex-1 px-4 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors"
           onKeyDown={handleKeyDown}
         />
         <button
@@ -89,7 +89,7 @@ export function UserInfoLookup({
       </div>
 
       {error && (
-        <div className="text-red-600 mb-4">{error}</div>
+        <div className="text-red-600 dark:text-red-400 mb-4">{error}</div>
       )}
 
       {userInfo && (

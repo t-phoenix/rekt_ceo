@@ -69,7 +69,7 @@ export function LiquidityPoolPage() {
     approveAsync: approveTokenAsync,
     isPending: approvalPending,
   } = useApproveToken()
-  
+
   // Separate approval hooks for CEO and USDC
   const {
     approveAsync: approveCEOAsync,
@@ -77,7 +77,7 @@ export function LiquidityPoolPage() {
     isSuccess: ceoApprovalSuccess,
     error: ceoApprovalError,
   } = useApproveToken()
-  
+
   const {
     approveAsync: approveUSDCAsync,
     isPending: usdcApprovalPending,
@@ -251,11 +251,11 @@ export function LiquidityPoolPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8 transition-colors duration-300">
       <div className="container mx-auto px-4 max-w-6xl">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">CEO/USDC Liquidity Pool</h1>
-          <p className="text-gray-600">Manage your liquidity and swap tokens</p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">CEO/USDC Liquidity Pool</h1>
+          <p className="text-gray-600 dark:text-gray-400">Manage your liquidity and swap tokens</p>
         </div>
 
         {/* Market Data */}
@@ -270,36 +270,33 @@ export function LiquidityPoolPage() {
         </div>
 
         {/* Tabs */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 mb-6">
-          <div className="border-b border-gray-200">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 mb-6 transition-colors duration-300">
+          <div className="border-b border-gray-200 dark:border-gray-700">
             <nav className="flex -mb-px">
               <button
                 onClick={() => setActiveTab('swap')}
-                className={`px-6 py-4 text-sm font-medium border-b-2 transition-colors ${
-                  activeTab === 'swap'
-                    ? 'border-indigo-500 text-indigo-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
+                className={`px-6 py-4 text-sm font-medium border-b-2 transition-colors ${activeTab === 'swap'
+                    ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400'
+                    : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:border-gray-300 dark:hover:border-gray-600'
+                  }`}
               >
                 Swap
               </button>
               <button
                 onClick={() => setActiveTab('liquidity')}
-                className={`px-6 py-4 text-sm font-medium border-b-2 transition-colors ${
-                  activeTab === 'liquidity'
-                    ? 'border-indigo-500 text-indigo-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
+                className={`px-6 py-4 text-sm font-medium border-b-2 transition-colors ${activeTab === 'liquidity'
+                    ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400'
+                    : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:border-gray-300 dark:hover:border-gray-600'
+                  }`}
               >
                 Liquidity
               </button>
               <button
                 onClick={() => setActiveTab('approve')}
-                className={`px-6 py-4 text-sm font-medium border-b-2 transition-colors ${
-                  activeTab === 'approve'
-                    ? 'border-indigo-500 text-indigo-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
+                className={`px-6 py-4 text-sm font-medium border-b-2 transition-colors ${activeTab === 'approve'
+                    ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400'
+                    : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:border-gray-300 dark:hover:border-gray-600'
+                  }`}
               >
                 Approve
               </button>
@@ -400,7 +397,7 @@ export function LiquidityPoolPage() {
 
         {/* Pool Data Debug (can be removed in production) */}
         {poolDataError && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4">
+          <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 px-4 py-3 rounded mb-4">
             <p className="font-semibold">Pool Data Error:</p>
             <p className="text-sm">{poolDataError.message}</p>
           </div>

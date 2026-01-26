@@ -12,6 +12,7 @@ export const useAuth = () => {
   // Extract values with safe defaults
   const address = connection?.address
   const isConnected = connection?.isConnected === true
+  const connectedChainId = connection?.chain?.id
 
   // Clear token when wallet disconnects
   useEffect(() => {
@@ -20,6 +21,27 @@ export const useAuth = () => {
       localStorage.removeItem('auth_token')
     }
   }, [isConnected])
+
+  const validateToken = useCallback(async () => {
+    if (!token || !address) return false
+
+    try {
+      // Basic check: decode JWT if possible, or just hit a simple protected endpoint
+      // For now, let's assume we need to hit the health check or similar if it were protected
+      // But since we don't have a specific "validate" endpoint, we can rely on 401s
+      // Actually, let's check if the address in the token matches the current address
+      // (This would require a JWT decode lib, which we might not have)
+      // For now, we'll just check if we can fetch user info with it
+      await api.getUserInfo(address)
+      return true
+    } catch (err: any) {
+      if (err.status === 401 || err.message?.includes('Unauthorized')) {
+        logout()
+        return false
+      }
+      return true // Other errors might be network issues, don't logout
+    }
+  }, [token, address])
 
   const authenticate = useCallback(async () => {
     if (!address || !isConnected) {
@@ -38,7 +60,7 @@ export const useAuth = () => {
         statement: 'Sign in to Rekt CEO Admin',
         uri: window.location.origin,
         version: '1',
-        chainId: 1,
+        chainId: Number(import.meta.env.VITE_CHAIN_ID) || 1,
         nonce,
       })
 
@@ -75,7 +97,9 @@ export const useAuth = () => {
     isAuthenticated: Boolean(token) && isConnected,
     isConnected,
     address,
+    connectedChainId,
     authenticate,
+    validateToken,
     logout,
     isAuthenticating,
   }

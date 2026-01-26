@@ -9,4 +9,6 @@ export { AddLiquidityInterface } from './AddLiquidityInterface'
 export { ApproveInterface } from './ApproveInterface'
 export { PositionDisplay } from './PositionDisplay'
 export { MarketDataDisplay } from './MarketDataDisplay'
+export { ContractManagerPage } from './ContractManagerPage'
+export { ContractExplorer } from './ContractExplorer'
 

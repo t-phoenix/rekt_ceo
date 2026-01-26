@@ -112,17 +112,17 @@ export function PositionDisplay({
     // Account for minimum liquidity locked in Uniswap V2 (1000 wei = 0.000000000000001 LP tokens)
     // This is negligible for most cases, but we should still account for rounding
     // The actual amount received will be slightly less due to rounding in the contract
-    
+
     // Apply slippage tolerance with a very conservative buffer
     // INSUFFICIENT_A_AMOUNT means our minimum is too high, so we need to be very conservative
     // Use a much larger buffer (10% + slippage tolerance) to ensure we don't hit the error
     const bufferPercent = slippageTolerance + 10 // Add 10% extra buffer for safety
     const safeMultiplier = (100 - bufferPercent) / 100
-    
+
     // Calculate minimum amounts with very conservative buffer
     let amount0Min = Math.max(0, token0Amount * safeMultiplier)
     let amount1Min = Math.max(0, token1Amount * safeMultiplier)
-    
+
     // Further reduce by 2% to account for rounding errors, precision issues, and minimum liquidity lock
     // Uniswap V2 locks 1000 wei of minimum liquidity, which can affect calculations
     amount0Min = amount0Min * 0.98
@@ -133,7 +133,7 @@ export function PositionDisplay({
     // Use Math.floor to always round down (more conservative)
     amount0Min = Math.floor(amount0Min * 1000000) / 1000000
     amount1Min = Math.floor(amount1Min * 1000000) / 1000000
-    
+
     // Ensure we never have zero minimums if we expect tokens (but allow zero if amount is truly zero)
     if (amount0Min === 0 && token0Amount > 0.000001) {
       // If we expect tokens but got zero, use 80% of expected as absolute minimum
@@ -143,9 +143,9 @@ export function PositionDisplay({
       amount1Min = Math.floor(token1Amount * 0.8 * 1000000) / 1000000
     }
 
-    return { 
-      amount0Min: amount0Min.toString(), 
-      amount1Min: amount1Min.toString() 
+    return {
+      amount0Min: amount0Min.toString(),
+      amount1Min: amount1Min.toString()
     }
   }, [position, removeAmount, slippageTolerance, poolData])
 
@@ -202,7 +202,7 @@ export function PositionDisplay({
     const amountBMin = isToken0CEO ? minAmounts.amount1Min : minAmounts.amount0Min
 
     // Calculate expected amounts for logging (in pair order)
-    const expectedA = isToken0CEO 
+    const expectedA = isToken0CEO
       ? ((parseFloat(removeAmount) * parseFloat(poolData.reserve0)) / parseFloat(poolData.totalSupply)).toString()
       : ((parseFloat(removeAmount) * parseFloat(poolData.reserve1)) / parseFloat(poolData.totalSupply)).toString()
     const expectedB = isToken0CEO
@@ -321,70 +321,70 @@ export function PositionDisplay({
   }
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-      <h2 className="text-lg font-semibold text-gray-800 mb-4">Your Position</h2>
+    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6 transition-colors duration-300">
+      <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-4">Your Position</h2>
 
       <div className="space-y-4">
         {/* Total Value */}
-        <div className="bg-indigo-50 rounded-lg p-4">
-          <div className="text-sm text-indigo-600 mb-1">Total Value</div>
-          <div className="text-2xl font-bold text-indigo-900">
+        <div className="bg-indigo-50 dark:bg-indigo-900/20 rounded-lg p-4 transition-colors">
+          <div className="text-sm text-indigo-600 dark:text-indigo-400 mb-1">Total Value</div>
+          <div className="text-2xl font-bold text-indigo-900 dark:text-indigo-100">
             {formatCurrency(position.valueUSD, { compact: true })}
           </div>
         </div>
 
         {/* Position Details */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="bg-gray-50 rounded-lg p-4">
-            <div className="text-sm text-gray-600 mb-1">CEO Amount</div>
-            <div className="text-lg font-semibold text-gray-900">
+          <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-4 transition-colors">
+            <div className="text-sm text-gray-600 dark:text-gray-400 mb-1">CEO Amount</div>
+            <div className="text-lg font-semibold text-gray-900 dark:text-gray-100">
               {formatTokenAmount(position.token0Amount, { symbol: 'CEO', maxDecimals: 6 })}
             </div>
           </div>
-          <div className="bg-gray-50 rounded-lg p-4">
-            <div className="text-sm text-gray-600 mb-1">USDC Amount</div>
-            <div className="text-lg font-semibold text-gray-900">
+          <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-4 transition-colors">
+            <div className="text-sm text-gray-600 dark:text-gray-400 mb-1">USDC Amount</div>
+            <div className="text-lg font-semibold text-gray-900 dark:text-gray-100">
               {formatTokenAmount(position.token1Amount, { symbol: 'USDC', maxDecimals: 6 })}
             </div>
           </div>
         </div>
 
         {/* LP Token Info */}
-        <div className="bg-gray-50 rounded-lg p-4">
-          <div className="flex justify-between items-center mb-2">
-            <span className="text-sm text-gray-600">LP Tokens</span>
-            <span className="text-sm font-medium text-gray-900">
+        <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-4 space-y-2 transition-colors">
+          <div className="flex justify-between items-center text-sm">
+            <span className="text-gray-600 dark:text-gray-400">LP Tokens</span>
+            <span className="font-medium text-gray-900 dark:text-gray-100">
               {formatTokenAmount(position.lpBalance, { maxDecimals: 6 })}
             </span>
           </div>
-          <div className="flex justify-between items-center mb-2">
-            <span className="text-sm text-gray-600">Approved Balance</span>
-            <span className="text-sm font-medium text-gray-900">
+          <div className="flex justify-between items-center text-sm">
+            <span className="text-gray-600 dark:text-gray-400">Approved Balance</span>
+            <span className="font-medium text-gray-900 dark:text-gray-100">
               {lpTokenAllowance ? formatTokenAmount(lpTokenAllowance, { maxDecimals: 6 }) : '0'}
             </span>
           </div>
-          <div className="flex justify-between items-center">
-            <span className="text-sm text-gray-600">Pool Share</span>
-            <span className="text-sm font-medium text-gray-900">
+          <div className="flex justify-between items-center text-sm">
+            <span className="text-gray-600 dark:text-gray-400">Pool Share</span>
+            <span className="font-medium text-gray-900 dark:text-gray-100">
               {formatPercentage(position.share, { maxDecimals: 4 })}
             </span>
           </div>
         </div>
 
         {/* Approve LP Tokens Section */}
-        <div className="border border-gray-200 rounded-lg p-4 space-y-3">
+        <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 space-y-3 transition-colors">
           <div className="flex justify-between items-center">
-            <h3 className="text-sm font-semibold text-gray-800">Approve LP Tokens</h3>
+            <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-200">Approve LP Tokens</h3>
             <div className="text-right">
-              <div className="text-xs text-gray-500">Currently Approved</div>
-              <div className="text-sm font-medium text-gray-900">
+              <div className="text-xs text-gray-500 dark:text-gray-400">Currently Approved</div>
+              <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
                 {lpTokenAllowance ? formatTokenAmount(lpTokenAllowance, { maxDecimals: 6 }) : '0'}
               </div>
             </div>
           </div>
-          
+
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Approval Amount
             </label>
             <div className="flex gap-2">
@@ -393,20 +393,20 @@ export function PositionDisplay({
                 value={approveAmount}
                 onChange={(e) => setApproveAmount(e.target.value)}
                 placeholder="0.0"
-                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500"
+                className="flex-1 px-4 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 outline-none transition-colors"
               />
               <button
                 onClick={() => setApproveAmount(position.lpBalance)}
-                className="px-4 py-2 text-sm font-medium text-yellow-600 hover:text-yellow-700 border border-yellow-300 rounded-lg hover:bg-yellow-50"
+                className="px-4 py-2 text-sm font-medium text-yellow-600 dark:text-yellow-400 hover:text-yellow-700 border border-yellow-300 dark:border-yellow-700 rounded-lg hover:bg-yellow-50 dark:hover:bg-yellow-900/20 transition-colors"
               >
                 MAX
               </button>
             </div>
             {approveAmount && parseFloat(approveAmount) > parseFloat(position.lpBalance) && (
-              <p className="mt-1 text-sm text-red-600">Amount exceeds LP balance</p>
+              <p className="mt-1 text-sm text-red-600 dark:text-red-400">Amount exceeds LP balance</p>
             )}
             {lpTokenAllowance && approveAmount && parseFloat(approveAmount) > 0 && (
-              <p className="mt-1 text-sm text-gray-600">
+              <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
                 After approval: {formatTokenAmount(approveAmount, { maxDecimals: 6 })} LP tokens
               </p>
             )}
@@ -415,11 +415,10 @@ export function PositionDisplay({
           <button
             onClick={handleApproveLpToken}
             disabled={!canApprove}
-            className={`w-full py-3 px-4 rounded-lg font-semibold text-white transition-colors ${
-              canApprove
-                ? 'bg-yellow-600 hover:bg-yellow-700 active:bg-yellow-800'
-                : 'bg-gray-300 cursor-not-allowed'
-            }`}
+            className={`w-full py-3 px-4 rounded-lg font-semibold text-white transition-all ${canApprove
+                ? 'bg-yellow-600 hover:bg-yellow-700 active:bg-yellow-800 dark:bg-yellow-500 dark:hover:bg-yellow-600'
+                : 'bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-500 cursor-not-allowed'
+              }`}
           >
             {approvalPending ? (
               <span className="flex items-center justify-center gap-2">
@@ -456,11 +455,11 @@ export function PositionDisplay({
         </div>
 
         {/* Remove Liquidity Section */}
-        <div className="border border-gray-200 rounded-lg p-4 space-y-3">
-          <h3 className="text-sm font-semibold text-gray-800">Remove Liquidity</h3>
-          
+        <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 space-y-3 transition-colors">
+          <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-200">Remove Liquidity</h3>
+
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Amount to Remove
             </label>
             <div className="flex gap-2">
@@ -469,28 +468,28 @@ export function PositionDisplay({
                 value={removeAmount}
                 onChange={(e) => setRemoveAmount(e.target.value)}
                 placeholder="0.0"
-                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                className="flex-1 px-4 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition-colors"
               />
               <button
                 onClick={() => setRemoveAmount(position.lpBalance)}
-                className="px-4 py-2 text-sm font-medium text-red-600 hover:text-red-700 border border-red-300 rounded-lg hover:bg-red-50"
+                className="px-4 py-2 text-sm font-medium text-red-600 dark:text-red-400 hover:text-red-700 border border-red-300 dark:border-red-700 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
               >
                 MAX
               </button>
             </div>
             {removeAmount && parseFloat(removeAmount) > parseFloat(position.lpBalance) && (
-              <p className="mt-1 text-sm text-red-600">Amount exceeds LP balance</p>
+              <p className="mt-1 text-sm text-red-600 dark:text-red-400">Amount exceeds LP balance</p>
             )}
             {needsApproval && removeAmount && parseFloat(removeAmount) > 0 && (
-              <p className="mt-1 text-sm text-yellow-600">
+              <p className="mt-1 text-sm text-yellow-600 dark:text-yellow-400">
                 Insufficient approval. Please approve {formatTokenAmount(removeAmount, { maxDecimals: 6 })} LP tokens first.
               </p>
             )}
             {removeAmount && parseFloat(removeAmount) > 0 && poolData && (
-              <div className="mt-2 p-2 bg-gray-50 rounded text-xs space-y-1">
+              <div className="mt-2 p-3 bg-gray-50 dark:bg-gray-900/50 border border-gray-100 dark:border-gray-700 rounded text-xs space-y-1 transition-colors">
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Expected CEO:</span>
-                  <span className="text-gray-900">
+                  <span className="text-gray-600 dark:text-gray-400">Expected CEO:</span>
+                  <span className="text-gray-900 dark:text-gray-200 font-medium">
                     {formatTokenAmount(
                       ((parseFloat(removeAmount) * parseFloat(poolData.reserve0)) / parseFloat(poolData.totalSupply)).toString(),
                       { maxDecimals: 6 }
@@ -498,21 +497,23 @@ export function PositionDisplay({
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Expected USDC:</span>
-                  <span className="text-gray-900">
+                  <span className="text-gray-600 dark:text-gray-400">Expected USDC:</span>
+                  <span className="text-gray-900 dark:text-gray-200 font-medium">
                     {formatTokenAmount(
                       ((parseFloat(removeAmount) * parseFloat(poolData.reserve1)) / parseFloat(poolData.totalSupply)).toString(),
                       { maxDecimals: 6 }
                     )}
                   </span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Min CEO (with {slippageTolerance}% slippage):</span>
-                  <span className="text-gray-900">{formatTokenAmount(minAmounts.amount0Min, { maxDecimals: 6 })}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Min USDC (with {slippageTolerance}% slippage):</span>
-                  <span className="text-gray-900">{formatTokenAmount(minAmounts.amount1Min, { maxDecimals: 6 })}</span>
+                <div className="pt-1 mt-1 border-t border-gray-200 dark:border-gray-700">
+                  <div className="flex justify-between">
+                    <span className="text-gray-600 dark:text-gray-400">Min CEO (with {slippageTolerance}% slippage):</span>
+                    <span className="text-gray-900 dark:text-gray-200 font-medium">{formatTokenAmount(minAmounts.amount0Min, { maxDecimals: 6 })}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600 dark:text-gray-400">Min USDC (with {slippageTolerance}% slippage):</span>
+                    <span className="text-gray-900 dark:text-gray-200 font-medium">{formatTokenAmount(minAmounts.amount1Min, { maxDecimals: 6 })}</span>
+                  </div>
                 </div>
               </div>
             )}
@@ -520,14 +521,14 @@ export function PositionDisplay({
 
           {/* Error Display */}
           {removeLiquidityError && (
-            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded text-sm">
+            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 px-4 py-3 rounded text-sm">
               {removeLiquidityError.message || 'Failed to remove liquidity'}
             </div>
           )}
 
           {/* Success Display */}
           {removeLiquiditySuccess && (
-            <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded text-sm">
+            <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 text-green-700 dark:text-green-400 px-4 py-3 rounded text-sm">
               Liquidity removed successfully!
             </div>
           )}
@@ -535,11 +536,10 @@ export function PositionDisplay({
           <button
             onClick={handleRemoveLiquidity}
             disabled={!canRemoveLiquidity}
-            className={`w-full py-3 px-4 rounded-lg font-semibold text-white transition-colors ${
-              canRemoveLiquidity
-                ? 'bg-red-600 hover:bg-red-700 active:bg-red-800'
-                : 'bg-gray-300 cursor-not-allowed'
-            }`}
+            className={`w-full py-3 px-4 rounded-lg font-semibold text-white transition-all ${canRemoveLiquidity
+                ? 'bg-red-600 hover:bg-red-700 active:bg-red-800 dark:bg-red-500 dark:hover:bg-red-600'
+                : 'bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-500 cursor-not-allowed'
+              }`}
           >
             {removeLiquidityPending ? (
               <span className="flex items-center justify-center gap-2">

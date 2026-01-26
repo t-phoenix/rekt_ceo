@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { createWeb3Modal } from '@web3modal/wagmi/react'
 import { config, projectId, metadata } from './config/wagmi'
 import './index.css'
+import { ThemeProvider } from './context/ThemeContext'
 import App from './App.tsx'
 
 const queryClient = new QueryClient()
@@ -15,14 +16,15 @@ createWeb3Modal({
   projectId,
   metadata,
   enableAnalytics: false,
-  themeMode: 'light',
 })
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <WagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>
-        <App />
+        <ThemeProvider>
+          <App />
+        </ThemeProvider>
       </QueryClientProvider>
     </WagmiProvider>
   </StrictMode>,
