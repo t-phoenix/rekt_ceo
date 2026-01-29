@@ -12,21 +12,11 @@ const BuyCEOonPump = () => {
     const [showModal, setShowModal] = useState(false);
     const [transactionStatus, setTransactionStatus] = useState('idle'); // idle, pending, success, error
     const [errorMessage, setErrorMessage] = useState('');
-    const [copied, setCopied] = useState(false);
 
-    const CONTRACT_ADDRESS = 'To Be Announced';
     const PUMP_FUN_URL = 'https://pump.fun';
 
     // Mock exchange rate (1 SOL = 1000 CEO for demo)
     const EXCHANGE_RATE = 1000;
-
-    const handleCopyAddress = () => {
-        if (CONTRACT_ADDRESS !== 'To Be Announced') {
-            navigator.clipboard.writeText(CONTRACT_ADDRESS);
-            setCopied(true);
-            setTimeout(() => setCopied(false), 2000);
-        }
-    };
 
     const handleFromAmountChange = (e) => {
         const value = e.target.value;

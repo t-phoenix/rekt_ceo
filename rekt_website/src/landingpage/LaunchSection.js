@@ -11,6 +11,7 @@ export default function LaunchSection() {
     const containerRef = useRef(null);
     const videoRef = useRef(null);
     const [isReady, setIsReady] = useState(false);
+    const initializedRef = useRef(false);
 
     useEffect(() => {
         const video = videoRef.current;
@@ -50,7 +51,8 @@ export default function LaunchSection() {
         };
 
         const initScrollTrigger = () => {
-            if (!video.duration || isReady) return;
+            if (!video.duration || initializedRef.current) return;
+            initializedRef.current = true;
             setIsReady(true);
 
             // Starts the rendering loop
