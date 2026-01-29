@@ -38,11 +38,10 @@
 .launch-title {
     font-size: 4rem;
     font-weight: 900;
-    color: #e7255e;
+    color: #F8C826;
     text-transform: uppercase;
     letter-spacing: 0.25em;
-    text-shadow: 2px 2px 2px #F8C826;
-
+    text-shadow: 2px 2px 4px #ffffff;
     margin: 0;
 }
 

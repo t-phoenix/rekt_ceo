@@ -124,6 +124,7 @@ const BuyCEOonPump = () => {
                                     src={solanaLogo}
                                     alt="SOL"
                                     className="token-icon"
+                                    style={{ width: '40px', height: '40px' }}
                                 />
                                 <span className="token-symbol">SOL</span>
                             </div>
@@ -154,6 +155,7 @@ const BuyCEOonPump = () => {
                                     src={ceo_token}
                                     alt="CEO"
                                     className="token-icon"
+                                    style={{ width: '40px', height: '40px' }}
                                 />
                                 <span className="token-symbol">$CEO</span>
                             </div>

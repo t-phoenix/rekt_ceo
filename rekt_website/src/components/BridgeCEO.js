@@ -56,10 +56,10 @@ const BridgeCEO = () => {
                                 onChange={(e) => setSolanaAmount(e.target.value)}
                             />
                             <div className="token-selector">
-                                <img src={ceo_token} alt="CEO" className="token-icon" />
+                                <img src={ceo_token} alt="CEO" className="token-icon" style={{ width: '40px', height: '40px' }} />
                                 <span className="token-symbol">$CEO</span>
                                 <span className="chain-divider">on</span>
-                                <img src={solanaLogo} alt="Solana" className="token-icon" />
+                                <img src={solanaLogo} alt="Solana" className="token-icon" style={{ width: '40px', height: '40px' }} />
                                 <span className="token-symbol">SOL</span>
                             </div>
                         </div>
@@ -87,10 +87,10 @@ const BridgeCEO = () => {
                                 readOnly
                             />
                             <div className="token-selector">
-                                <img src={ceo_token} alt="CEO" className="token-icon" />
+                                <img src={ceo_token} alt="CEO" className="token-icon" style={{ width: '40px', height: '40px' }} />
                                 <span className="token-symbol">$CEO</span>
                                 <span className="chain-divider">on</span>
-                                <img src={baseLogo} alt="Base" className="token-icon" />
+                                <img src={baseLogo} alt="Base" className="token-icon" style={{ width: '36px', height: '36px' }} />
                                 <span className="token-symbol">Base</span>
                             </div>
                         </div>
