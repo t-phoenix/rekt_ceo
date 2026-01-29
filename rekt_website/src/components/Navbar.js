@@ -3,6 +3,7 @@ import "./header.css";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useMediaQuery } from "react-responsive";
 import pumpFunLogo from "../creatives/crypto/pump_fun.png";
+import baseLogo from "../creatives/crypto/base.png";
 
 export default function Navbar({ setShow }) {
   const navigate = useNavigate();
@@ -159,7 +160,7 @@ export default function Navbar({ setShow }) {
           isTab && setShow(false);
         }}
       >
-        BUY $CEO
+        BUY $CEO <img src={baseLogo} alt="base" style={{ height: '20px', marginLeft: '8px', verticalAlign: 'middle', borderRadius: '10%' }} />
       </div>
 
       {/* Links to other pages */}

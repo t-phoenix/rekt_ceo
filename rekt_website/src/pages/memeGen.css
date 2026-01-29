@@ -1035,6 +1035,51 @@
 
 
 /* Meme Template Selection Styles */
+/* Wrapper for categories with scroll hints */
+.meme-template-categories-wrapper {
+  position: relative;
+  width: 100%;
+  margin-bottom: 1rem;
+}
+
+/* Wrapper for template container with scroll hints */
+.meme-template-container-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+
+/* Scroll hint arrows */
+.scroll-hint {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 2.5rem;
+  color: rgba(255, 255, 255, 0.6);
+  background: linear-gradient(to right, rgba(0, 0, 0, 0.3), transparent);
+  pointer-events: none;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  width: 40px;
+  transition: all 0.3s ease;
+  user-select: none;
+}
+
+.scroll-hint.left {
+  left: 0;
+  background: linear-gradient(to right, rgba(0, 0, 0, 0.5), transparent);
+  border-radius: 12px 0 0 12px;
+}
+
+.scroll-hint.right {
+  right: 0;
+  background: linear-gradient(to left, rgba(0, 0, 0, 0.5), transparent);
+  border-radius: 0 12px 12px 0;
+}
+
 /* Enhanced navigation container with subtle glow */
 .meme-template-categories {
   width: 100%;

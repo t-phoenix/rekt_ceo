@@ -792,42 +792,50 @@ const MemeGen = () => {
                     <label className="meme-label">Meme Templates</label>
 
                     {/* Template Categories Navigation */}
-                    <div className="meme-template-categories">
-                      {memeCategories.map(
-                        (category) => (
-                          <button
-                            key={category}
-                            className={`meme-category-btn ${activeCategory === category ? "active" : ""
-                              }`}
-                            onClick={() => handleCategorySwitch(category)}
-                          >
-                            {category}
-                          </button>
-                        )
-                      )}
-                    </div>
-
-                    {/* Template Grid with Horizontal Scroll */}
-                    <div className="meme-template-container">
-                      <div className="meme-template-grid">
-                        {getTemplatesForCategory(activeCategory).map(
-                          (template) => (
-                            <div
-                              key={template.id}
-                              className={`meme-template-item ${selectedTemplate === template.id ? "selected" : ""
+                    <div className="meme-template-categories-wrapper">
+                      <div className="scroll-hint left">‹</div>
+                      <div className="meme-template-categories">
+                        {memeCategories.map(
+                          (category) => (
+                            <button
+                              key={category}
+                              className={`meme-category-btn ${activeCategory === category ? "active" : ""
                                 }`}
-                              onClick={() => handleTemplateSelect(template.id)}
+                              onClick={() => handleCategorySwitch(category)}
                             >
-                              <img
-                                src={template.src}
-                                alt={template.name}
-                                loading="lazy"
-                                className="meme-template-image"
-                              />
-                            </div>
+                              {category}
+                            </button>
                           )
                         )}
                       </div>
+                      <div className="scroll-hint right">›</div>
+                    </div>
+
+                    {/* Template Grid with Horizontal Scroll */}
+                    <div className="meme-template-container-wrapper">
+                      <div className="scroll-hint left">‹</div>
+                      <div className="meme-template-container">
+                        <div className="meme-template-grid">
+                          {getTemplatesForCategory(activeCategory).map(
+                            (template) => (
+                              <div
+                                key={template.id}
+                                className={`meme-template-item ${selectedTemplate === template.id ? "selected" : ""
+                                  }`}
+                                onClick={() => handleTemplateSelect(template.id)}
+                              >
+                                <img
+                                  src={template.src}
+                                  alt={template.name}
+                                  loading="lazy"
+                                  className="meme-template-image"
+                                />
+                              </div>
+                            )
+                          )}
+                        </div>
+                      </div>
+                      <div className="scroll-hint right">›</div>
                     </div>
                   </div>
 
