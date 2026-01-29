@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from "react";
 import "./header.css";
 import { useLocation, useNavigate } from "react-router-dom";
+import { useMediaQuery } from "react-responsive";
+import pumpFunLogo from "../creatives/crypto/pump_fun.png";
 
 export default function Navbar({ setShow }) {
   const navigate = useNavigate();
   const location = useLocation();
+  const isTab = useMediaQuery({ maxWidth: "992px" });
 
   const [scrollTarget, setScrollTarget] = useState(null);
   const [activeSection, setActiveSection] = useState("");
@@ -29,7 +32,7 @@ export default function Navbar({ setShow }) {
     }
 
     const handleScroll = () => {
-      const sections = ["story", "buyceo", "roadmap", "pienomics", "faq"];
+      const sections = ["story", "launch", "buyceo", "roadmap", "pienomics", "exchange", "faq"];
       const scrollPosition = window.scrollY + window.innerHeight / 3;
 
       for (let i = sections.length - 1; i >= 0; i--) {
@@ -37,7 +40,7 @@ export default function Navbar({ setShow }) {
         if (section) {
           const sectionTop = section.offsetTop;
           const sectionHeight = section.offsetHeight;
-          
+
           if (scrollPosition >= sectionTop && scrollPosition < sectionTop + sectionHeight) {
             setActiveSection(sections[i]);
             break;
@@ -51,7 +54,7 @@ export default function Navbar({ setShow }) {
 
     // Add scroll listener
     window.addEventListener("scroll", handleScroll);
-    
+
     // Cleanup
     return () => window.removeEventListener("scroll", handleScroll);
   }, [location.pathname]);
@@ -77,26 +80,86 @@ export default function Navbar({ setShow }) {
     return "links-style";
   };
 
+  const [isRektInfoOpen, setIsRektInfoOpen] = useState(false);
+
   return (
     <nav className="links-container">
       {/* Links to landing page sections */}
 
-      <div onClick={() => scrollToSection("story")} className={getNavItemClass("story")}>
-        STORY
-      </div>
-      <div onClick={() => scrollToSection("buyceo")} className={getNavItemClass("buyceo")}>
-        HOW TO BUY
-      </div>
-      
-      <div
-        onClick={() => scrollToSection("pienomics")}
-        className={getNavItemClass("pienomics")}
-      >
-        REKTNOMICS
-      </div>
+      {!isTab ? (
+        <div className="nav-item-wrapper dropdown-wrapper"
+          onMouseEnter={() => setIsRektInfoOpen(true)}
+          onMouseLeave={() => setIsRektInfoOpen(false)}>
+          <div className={location.pathname === "/" ? "links-style selected-link" : "links-style"}>
+            REKT-INFO
+          </div>
 
-      <div onClick={() => scrollToSection("roadmap")} className={getNavItemClass("roadmap")}>
-        ROADMAP
+          {isRektInfoOpen && (
+            <div className={`rekt-info-dropdown show`}>
+              <div onClick={() => { scrollToSection("story"); }} className={getNavItemClass("story")}>
+                STORY
+              </div>
+              <div onClick={() => { scrollToSection("launch"); }} className={getNavItemClass("launch")}>
+                LAUNCH MECH
+              </div>
+              <div onClick={() => { scrollToSection("buyceo"); }} className={getNavItemClass("buyceo")}>
+                HOW TO BUY
+              </div>
+              <div
+                onClick={() => { scrollToSection("pienomics"); }}
+                className={getNavItemClass("pienomics")}
+              >
+                REKTNOMICS
+              </div>
+              <div onClick={() => { scrollToSection("roadmap"); }} className={getNavItemClass("roadmap")}>
+                ROADMAP
+              </div>
+              <div onClick={() => { scrollToSection("exchange"); }} className={getNavItemClass("exchange")}>
+                BUY $CEO <img src={pumpFunLogo} alt="pump.fun" style={{ height: '20px', marginLeft: '8px', verticalAlign: 'middle' }} />
+              </div>
+              <div onClick={() => { scrollToSection("faq"); }} className={getNavItemClass("faq")}>
+                FAQ
+              </div>
+            </div>
+          )}
+        </div>
+      ) : (
+        <>
+          <div onClick={() => { scrollToSection("story"); setShow(false); }} className={getNavItemClass("story")}>
+            STORY
+          </div>
+          <div onClick={() => { scrollToSection("launch"); setShow(false); }} className={getNavItemClass("launch")}>
+            LAUNCH MECH
+          </div>
+          <div onClick={() => { scrollToSection("buyceo"); setShow(false); }} className={getNavItemClass("buyceo")}>
+            HOW TO BUY
+          </div>
+          <div
+            onClick={() => { scrollToSection("pienomics"); setShow(false); }}
+            className={getNavItemClass("pienomics")}
+          >
+            REKTNOMICS
+          </div>
+          <div onClick={() => { scrollToSection("roadmap"); setShow(false); }} className={getNavItemClass("roadmap")}>
+            ROADMAP
+          </div>
+          <div onClick={() => { scrollToSection("exchange"); setShow(false); }} className={getNavItemClass("exchange")}>
+            BUY $CEO <img src={pumpFunLogo} alt="pump.fun" style={{ height: '20px', marginLeft: '8px', verticalAlign: 'middle' }} />
+          </div>
+          <div onClick={() => { scrollToSection("faq"); setShow(false); }} className={getNavItemClass("faq")}>
+            FAQ
+          </div>
+        </>
+      )}
+
+      <div
+        className={location.pathname === "/buy-ceo" ? "links-style selected-link" : "links-style"}
+        onClick={() => {
+          navigate("/buy-ceo");
+          isTab && setShow(false);
+        }}
+      >
+        BUY $CEO
       </div>
 
       {/* Links to other pages */}
@@ -104,6 +167,7 @@ export default function Navbar({ setShow }) {
         className={location.pathname === "/pfp" ? "links-style selected-link" : "links-style"}
         onClick={() => {
           navigate("/pfp");
+          isTab && setShow(false);
         }}
       >
         PFP
@@ -111,23 +175,27 @@ export default function Navbar({ setShow }) {
       <div
         onClick={() => {
           navigate("/memes");
+          isTab && setShow(false);
         }}
         className={location.pathname === "/memes" ? "links-style selected-link" : "links-style"}
       >
         MEMES
       </div>
-      {/* <div
-        onClick={() => {
-          navigate("/chat");
-        }}
-        className="links-style"
-      >
-        CHAT
-      </div> */}
 
-      {/* Link to Landing Page Section */}
-      <div onClick={() => scrollToSection("faq")} className={getNavItemClass("faq")}>
-        FAQ
+      <div
+        onClick={() => {
+          navigate("/blueprint");
+          isTab && setShow(false);
+        }}
+        className={location.pathname === "/blueprint" ? "links-style selected-link" : "links-style"}
+      >
+        THE BLUEPRINT
+      </div>
+
+      <div className="connect-wallet-container">
+        <button className="connect-wallet-btn" onClick={() => console.log("Connect Wallet clicked")}>
+          CONNECT WALLET
+        </button>
       </div>
     </nav>
   );

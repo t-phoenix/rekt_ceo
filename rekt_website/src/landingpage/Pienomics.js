@@ -15,7 +15,7 @@ const ceoTokenData = [
   {
     name: "Team + Advisory",
     percentage: 2,
-    color: "token-team", 
+    color: "token-team",
     icon: "👨‍💻",
     description: "Operating team will hold these tokens as founding $CEO holders",
     funFact: "These tokens will be bought on the bonding curve!"
@@ -64,7 +64,7 @@ const treasuryUSDCData = [
     description: "Team will earn once the Phase 1 is succesfull with this piece of pie",
     funFact: "Building a community is hard work!"
   },
-  
+
   {
     name: "New Ventures",
     percentage: 8,
@@ -81,7 +81,7 @@ const treasuryUSDCData = [
     description: "Critical for maintaining market stability",
     funFact: "Liquidity Rebalancing!"
   },
-  
+
   {
     name: "Partnerships & Collab",
     percentage: 8,
@@ -156,7 +156,7 @@ const chartConfigs = [
   {
     title: "$CEO Token",
     subtitle: "Main Token Distribution",
-    totalValue: "21M $CEO",
+    totalValue: "1B $CEO (pump.fun)",
     data: ceoTokenData,
     size: 'large',
     floatDelay: 0
@@ -180,7 +180,7 @@ const chartConfigs = [
 ];
 
 const FallingToken = ({ delay }) => (
-  <div 
+  <div
     className="pienomics-falling-token"
     style={{
       left: `${Math.random() * 100}%`,
@@ -195,7 +195,7 @@ const FallingToken = ({ delay }) => (
 
 
 const Star = ({ delay }) => (
-  <div 
+  <div
     className="pienomics-star"
     style={{
       left: `${Math.random() * 100}%`,
@@ -208,13 +208,13 @@ const Star = ({ delay }) => (
   </div>
 );
 
-const InteractivePieChart = ({ 
-  config, 
-  selectedChart, 
-  selectedSlice, 
-  onChartSelect, 
-  onSliceSelect, 
-  chartIndex 
+const InteractivePieChart = ({
+  config,
+  selectedChart,
+  selectedSlice,
+  onChartSelect,
+  onSliceSelect,
+  chartIndex
 }) => {
   const [hoveredSlice, setHoveredSlice] = useState(null);
   const isActive = selectedChart === chartIndex;
@@ -226,10 +226,10 @@ const InteractivePieChart = ({
     const isSelected = selectedSlice === index && isActive;
     const angle = endAngle - startAngle;
     const midAngle = startAngle + angle / 2;
-    
+
     const innerRadius = isHovered ? 15 : 8;
     const outerRadius = isHovered ? radius + 10 : radius;
-    
+
     const x1 = Math.cos(startAngle) * innerRadius;
     const y1 = Math.sin(startAngle) * innerRadius;
     const x2 = Math.cos(startAngle) * outerRadius;
@@ -238,9 +238,9 @@ const InteractivePieChart = ({
     const y3 = Math.sin(endAngle) * outerRadius;
     const x4 = Math.cos(endAngle) * innerRadius;
     const y4 = Math.sin(endAngle) * innerRadius;
-    
+
     const largeArc = angle > Math.PI ? 1 : 0;
-    
+
     const pathData = [
       `M ${x1} ${y1}`,
       `L ${x2} ${y2}`,
@@ -276,7 +276,7 @@ const InteractivePieChart = ({
           }}
         />
         {/* Background circle for better visibility */}
-        
+
         <text
           x={labelX}
           y={labelY}
@@ -302,13 +302,13 @@ const InteractivePieChart = ({
   let currentAngle = -Math.PI / 2;
 
   return (
-    <div 
+    <div
       className={`pienomics-chart ${config.size} ${isActive ? 'active' : ''}`}
-      style={{ 
+      style={{
         animationDelay: `${config.floatDelay}s`
       }}
     >
-      <div 
+      <div
         className="pienomics-chart-header"
         onClick={() => onChartSelect(chartIndex)}
         style={{ cursor: 'pointer' }}
@@ -327,11 +327,11 @@ const InteractivePieChart = ({
         </div>
         <div className="chart-header-glow"></div>
       </div>
-      
+
       <svg
         width={chartSize}
         height={chartSize}
-        viewBox={`-${chartSize/2} -${chartSize/2} ${chartSize} ${chartSize}`}
+        viewBox={`-${chartSize / 2} -${chartSize / 2} ${chartSize} ${chartSize}`}
         className="pienomics-svg"
         onClick={(e) => {
           // Only trigger if clicking on the SVG background, not on slices
@@ -345,10 +345,10 @@ const InteractivePieChart = ({
           const startAngle = currentAngle;
           const endAngle = currentAngle + angle;
           currentAngle = endAngle;
-          
+
           return createPieSlice(data, index, startAngle, endAngle);
         })}
-        
+
         <circle
           cx="0"
           cy="0"

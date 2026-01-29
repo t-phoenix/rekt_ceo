@@ -6,9 +6,43 @@
 
 .exchange-header {
   text-align: center;
-  padding: 4rem 0;
+  padding: 0 0;
   max-width: 1200px;
-  margin: 0 auto;
+  margin-block: 10px;
+}
+
+/* .section-title {
+  font-size: 3rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  line-height: 1.4;
+} */
+
+.title-logo {
+  height: 60px;
+  width: 20px;
+  margin-bottom: -24px;
+  object-fit: contain;
+  vertical-align: middle;
+  transition: transform 0.2s ease;
+
+}
+
+.title-logo:hover {
+  transform: scale(1.1);
+}
+
+.solana-logo {
+  border-radius: 0%;
+  height: 80px;
+  width: 80px;
+  margin-left: 10px;
+  margin-bottom: 10px;
 }
 
 .exchange-title {
@@ -22,6 +56,112 @@
   font-size: 1.125rem;
   color: var(--color-offwhite);
   margin-bottom: 1.5rem;
+}
+
+/* Base Buy Button Styles */
+.base-button-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.base-buy-button {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 1rem;
+  background: linear-gradient(135deg, #0052FF 0%, #0041CC 100%);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 50px;
+  text-decoration: none;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 15px rgba(0, 82, 255, 0.3);
+}
+
+.base-buy-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s ease;
+}
+
+.base-buy-button:hover::before {
+  left: 100%;
+}
+
+.base-buy-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 25px rgba(0, 82, 255, 0.5);
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+.base-buy-button:active {
+  transform: translateY(0);
+}
+
+.base-button-text {
+  font-size: 0.8rem;
+  font-weight: 400;
+  color: #FFFFFF;
+  letter-spacing: 0.5px;
+  position: relative;
+  z-index: 2;
+}
+
+.base-button-logo {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+  position: relative;
+  z-index: 2;
+  transition: transform 0.3s ease;
+  filter: brightness(1.1);
+}
+
+.base-buy-button:hover .base-button-logo {
+  transform: rotate(360deg) scale(1.1);
+}
+
+.base-button-glow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.3) 0%, transparent 70%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+.base-buy-button:hover .base-button-glow {
+  opacity: 1;
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+
+  0%,
+  100% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0.3;
+  }
+
+  50% {
+    transform: translate(-50%, -50%) scale(1.1);
+    opacity: 0.5;
+  }
 }
 
 .exchange-main {
@@ -51,24 +191,53 @@
   .exchange-container {
     padding: 1rem 0.5rem;
   }
-  
+
   .exchange-header {
     padding: 2rem 0;
   }
-  
+
+  .section-title {
+    font-size: 1.5rem;
+    gap: 0.5rem;
+  }
+
+  .title-logo {
+    height: 32px;
+    margin: 0 0.15rem;
+  }
+
   .exchange-title {
     font-size: 2rem;
   }
-  
+
   .exchange-subtitle {
     font-size: 1rem;
   }
-  
+
+  .base-button-container {
+    justify-content: center;
+    padding: 0 0.5rem;
+  }
+
+  .base-buy-button {
+    padding: 0.75rem 1.5rem;
+    gap: 0.5rem;
+  }
+
+  .base-button-text {
+    font-size: 0.9rem;
+  }
+
+  .base-button-logo {
+    width: 20px;
+    height: 20px;
+  }
+
   .exchange-main {
     gap: 1.5rem;
     padding-bottom: 2rem;
   }
-  
+
   .exchange-section .buy-ceo-card,
   .exchange-section .provide-liquidity-card {
     max-width: 100%;
@@ -82,11 +251,11 @@
     grid-template-columns: 1fr 1fr;
     gap: 3rem;
   }
-  
+
   .exchange-container {
     padding: 2rem;
   }
-  
+
   .exchange-section .buy-ceo-card,
   .exchange-section .provide-liquidity-card {
     max-width: 100%;
@@ -110,4 +279,4 @@
   clip: rect(0, 0, 0, 0);
   white-space: nowrap;
   border: 0;
-} 
+}

@@ -5,8 +5,9 @@ import "./styles/faq.css";
 
 import ceo_office from "../creatives/ceo_office2.jpg";
 import HeroAnimation from "./HeroAnimation";
-import BuySection from "./BuySection";
+import HowToBuy from "./HowToBuy";
 import StorySection from "./StorySection";
+import LaunchSection from "./LaunchSection";
 import { Pienomics } from "./Pienomics";
 import Roadmap from "./Roadmap";
 import Banner from "../components/Banner";
@@ -99,7 +100,9 @@ export default function Introduction() {
 
       <StorySection />
 
-      <BuySection />
+      <LaunchSection />
+
+      <HowToBuy />
 
       <Pienomics />
 

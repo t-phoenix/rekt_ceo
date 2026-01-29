@@ -9,6 +9,8 @@ import CustomCursor from "./components/CustomCursor";
 import ProfileNFT from "./pages/ProfileNFT";
 import AdminPage from "./pages/Admin";
 import MemeGen from "./pages/MemeGen";
+import Blueprint from "./pages/Blueprint";
+import BuyCEOPage from "./pages/BuyCEOPage";
 
 
 function App() {
@@ -22,8 +24,11 @@ function App() {
         <Routes>
           <Route path="/" element={<Introduction />} />
           <Route path="/pfp" element={<ProfileNFT />} />
+          <Route path="/buy-ceo" element={<BuyCEOPage />} />
           <Route path="/memes" element={<MemeGen />} />
           <Route path="/admin" element={<AdminPage />} />
+          <Route path="/blueprint" element={<Blueprint />} />
+
           {/* <Route path="/chat" element={<Chat />}/> */}
         </Routes>
       </div>

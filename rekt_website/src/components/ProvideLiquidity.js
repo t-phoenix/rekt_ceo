@@ -1,10 +1,10 @@
 import { useMemo, useState } from "react";
 import "./ProvideLiquidity.css";
 
-const PAIRS = ["CEO/BNB", "CEO/USDC"];
+const PAIRS = ["CEO/USDC"];
 export default function ProvideLiquidity() {
-  const [pair, setPair] = useState("CEO/BNB");
-  const ratio = useMemo(() => (pair === "CEO/BNB" ? 5000 : 1000), [pair]);
+  const [pair, setPair] = useState("CEO/USDC");
+  const ratio = useMemo(() => (pair === "CEO/USDC" ? 5000 : 1000), [pair]);
   const [tokenA, setTokenA] = useState("");
 
   const tokenB = useMemo(() => {
@@ -23,8 +23,8 @@ export default function ProvideLiquidity() {
         <div className="tabs-container">
           <div className="tabs-list">
             {PAIRS.map((p) => (
-              <button 
-                key={p} 
+              <button
+                key={p}
                 className={`tab-trigger ${pair === p ? 'active' : ''}`}
                 onClick={() => setPair(p)}
               >
@@ -36,23 +36,23 @@ export default function ProvideLiquidity() {
             <div key={p} className={`tab-content ${pair === p ? 'active' : ''}`}>
               <div className="input-group">
                 <label htmlFor="ceo">$CEO amount</label>
-                <input 
-                  id="ceo" 
+                <input
+                  id="ceo"
                   type="text"
-                  inputMode="decimal" 
-                  placeholder="Amount in $CEO" 
-                  value={pair === p ? tokenA : ""} 
-                  onChange={(e) => pair === p && setTokenA(e.target.value)} 
+                  inputMode="decimal"
+                  placeholder="Amount in $CEO"
+                  value={pair === p ? tokenA : ""}
+                  onChange={(e) => pair === p && setTokenA(e.target.value)}
                   className="amount-input"
                 />
               </div>
               <div className="input-group">
                 <label htmlFor="pair">{p.split("/")[1]} amount</label>
-                <input 
-                  id="pair" 
+                <input
+                  id="pair"
                   type="text"
-                  value={pair === p ? tokenB : ""} 
-                  readOnly 
+                  value={pair === p ? tokenB : ""}
+                  readOnly
                   className="amount-input"
                 />
               </div>

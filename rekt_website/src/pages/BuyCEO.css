@@ -1,0 +1,111 @@
+/* Standalone styling for the Buy $CEO page */
+
+.buy-ceo-page-container {
+    padding: 120px 20px 60px;
+    background: #3B1C32;
+    /* Deep Magenta from Blueprint */
+    color: white;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-family: var(--body-font), sans-serif;
+}
+
+.exchange-layout {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.exchange-header {
+    text-align: center;
+    padding: 4rem 0;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.exchange-title {
+    font-size: clamp(2rem, 5vw, 4rem);
+    font-weight: 900;
+    font-family: var(--accent-font);
+    text-transform: uppercase;
+    color: #F8C826;
+    /* CEO Yellow */
+    text-shadow: 4px 4px 0px #e7255e;
+    margin-bottom: 2rem;
+}
+
+.token-icon {
+    width: 3rem;
+    height: 3rem;
+    border-radius: 10%;
+}
+
+.exchange-main {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    padding-bottom: 4rem;
+}
+
+.exchange-section {
+    display: flex;
+    justify-content: center;
+}
+
+/* Consistent sizing for internal components */
+.exchange-section .buy-ceo-card,
+.exchange-section .provide-liquidity-card {
+    width: 100%;
+    max-width: 500px;
+    min-height: 400px;
+}
+
+/* Screen reader only */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* Responsive design */
+@media (max-width: 767px) {
+    .buy-ceo-page-container {
+        padding: 80px 15px 40px;
+    }
+
+    .exchange-header {
+        padding: 2rem 0;
+    }
+
+    .exchange-main {
+        gap: 1.5rem;
+    }
+
+    .exchange-section .buy-ceo-card,
+    .exchange-section .provide-liquidity-card {
+        max-width: 100%;
+        min-height: 350px;
+    }
+}
+
+@media (min-width: 768px) {
+    .exchange-main {
+        grid-template-columns: 1fr 1fr;
+        gap: 3rem;
+    }
+}
+
+@media (min-width: 1024px) {
+    .exchange-main {
+        gap: 4rem;
+    }
+}

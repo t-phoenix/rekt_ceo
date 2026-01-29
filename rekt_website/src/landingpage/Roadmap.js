@@ -94,8 +94,9 @@ export default function Roadmap() {
   const [isVisible, setIsVisible] = useState(false);
   const [isInViewport, setIsInViewport] = useState(false);
   const [scrollDirection, setScrollDirection] = useState('down');
-  
+
   const sectionRef = useRef(null);
+  const wrapperRef = useRef(null);
   const progressRef = useRef(0);
   const velocityRef = useRef(0);
   const lastScrollY = useRef(0);
@@ -115,26 +116,26 @@ export default function Roadmap() {
   // Intersection Observer for viewport detection
   useEffect(() => {
     const currentSectionRef = sectionRef.current;
-    
+
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           const isInView = entry.isIntersecting;
           const rect = entry.boundingClientRect;
-          
+
           setIsVisible(isInView);
-          
+
           // Check if section is mostly in viewport
           const viewportCoverage = entry.intersectionRatio;
           setIsInViewport(viewportCoverage > 0.3);
-          
+
           // Store section boundaries
           if (currentSectionRef) {
             const sectionRect = currentSectionRef.getBoundingClientRect();
             sectionTopRef.current = window.scrollY + sectionRect.top;
             sectionBottomRef.current = window.scrollY + sectionRect.bottom;
           }
-          
+
           // Reset progress when section exits viewport going up
           if (!isInView && rect.top > window.innerHeight) {
             progressRef.current = 0;
@@ -163,7 +164,7 @@ export default function Roadmap() {
 
   // Main scroll handler for milestone progression
   const handleScroll = useCallback(() => {
-    if (!sectionRef.current || !isInViewport) return;
+    if (!wrapperRef.current || !sectionRef.current) return;
 
     if (animationFrameId.current) {
       cancelAnimationFrame(animationFrameId.current);
@@ -172,69 +173,51 @@ export default function Roadmap() {
     animationFrameId.current = requestAnimationFrame(() => {
       const currentScrollY = window.scrollY;
       const scrollDelta = currentScrollY - lastScrollY.current;
-      
+
       // Detect scroll direction
       if (scrollDelta > 0) {
         setScrollDirection('down');
       } else if (scrollDelta < 0) {
         setScrollDirection('up');
       }
-      
+
       // Calculate velocity
       const velocity = Math.abs(scrollDelta);
       velocityRef.current = velocity;
-      
-      // Calculate progress based on scroll position within section
-      const rect = sectionRef.current.getBoundingClientRect();
-      const windowHeight = window.innerHeight;
-      const sectionHeight = rect.height;
-      
-      // How far through the section have we scrolled?
-      const scrollThroughSection = Math.max(0, -rect.top+160);
-      const maxScrollThrough = Math.max(sectionHeight - windowHeight, sectionHeight * 0.16);
-      
-      if (maxScrollThrough > 0) {
-        // Calculate progress as percentage through the section
-        const rawProgress = (scrollThroughSection / maxScrollThrough) * 100;
-        progressRef.current = Math.max(0, Math.min(100, rawProgress));
-      } else {
-        // Section fits in viewport, use intersection-based progress
-        //const visibleHeight = Math.min(rect.bottom, windowHeight) - Math.max(rect.top, 0);
-        //const visibilityRatio = visibleHeight / sectionHeight;
-        
-        if (rect.top <= 0 && rect.bottom >= windowHeight) {
-          // Fully in view
-          const scrollInView = -rect.top / (sectionHeight * 0.1);
-          progressRef.current = Math.min(100, scrollInView * 100);
-        } else if (rect.top > 0) {
-          // Entering from top
-          progressRef.current = Math.max(0, (1 - rect.top / windowHeight) * 30);
-        } else if (rect.bottom < windowHeight) {
-          // Exiting from bottom
-          progressRef.current = Math.min(100, 70 + (rect.bottom / windowHeight) * 30);
-        }
-      }
-      
+
+      // Calculate progress based on scroll position within wrapper
+      const wrapperRect = wrapperRef.current.getBoundingClientRect();
+      const sectionRect = sectionRef.current.getBoundingClientRect();
+
+      // How far through the wrapper have we scrolled?
+      // Progress 0 when wrapper top hits top of viewport
+      // Progress 100 when wrapper bottom hits bottom of viewport
+      const totalScrollable = wrapperRect.height - sectionRect.height;
+      const scrolled = -wrapperRect.top;
+
+      let rawProgress = (scrolled / totalScrollable) * 100;
+      progressRef.current = Math.max(0, Math.min(100, rawProgress));
+
       setScrollProgress(progressRef.current);
-      
+
       // Update milestone based on scroll progress
       const milestoneIndex = Math.min(
         milestones.length - 1,
         Math.floor((progressRef.current / 100) * milestones.length)
       );
       setCurrentMilestone(milestoneIndex);
-      
+
       lastScrollY.current = currentScrollY;
     });
-  }, [isInViewport]);
+  }, []);
 
   // Wheel event handler for enhanced scroll detection
   const handleWheel = useCallback((e) => {
     if (!sectionRef.current || !isVisible) return;
-    
+
     const velocity = Math.abs(e.deltaY);
     const speedMultiplier = calculateSpeedMultiplier(velocity);
-    
+
     if (isInViewport && animationFrameId.current) {
       velocityRef.current = velocity * speedMultiplier;
     }
@@ -244,7 +227,7 @@ export default function Roadmap() {
   const touchStartY = useRef(0);
   const touchVelocity = useRef(0);
   const lastTouchTime = useRef(Date.now());
-  
+
   const handleTouchStart = useCallback((e) => {
     touchStartY.current = e.touches[0].clientY;
     lastTouchTime.current = Date.now();
@@ -258,10 +241,10 @@ export default function Roadmap() {
     const touchDelta = touchStartY.current - currentTouch;
     const currentTime = Date.now();
     const timeDelta = Math.max(currentTime - lastTouchTime.current, 16);
-    
+
     touchVelocity.current = touchDelta / timeDelta;
     velocityRef.current = Math.abs(touchVelocity.current) * calculateSpeedMultiplier(Math.abs(touchVelocity.current));
-    
+
     touchStartY.current = currentTouch;
     lastTouchTime.current = currentTime;
   }, [isVisible, isInViewport]);
@@ -269,7 +252,7 @@ export default function Roadmap() {
   // Scroll direction detection
   useEffect(() => {
     let ticking = false;
-    
+
     const updateScrollDirection = () => {
       const currentScrollY = window.scrollY;
       if (currentScrollY > lastScrollY.current) {
@@ -304,7 +287,7 @@ export default function Roadmap() {
       window.removeEventListener('wheel', handleWheel);
       window.removeEventListener('touchstart', handleTouchStart);
       window.removeEventListener('touchmove', handleTouchMove);
-      
+
       if (animationFrameId.current) {
         cancelAnimationFrame(animationFrameId.current);
       }
@@ -338,14 +321,14 @@ export default function Roadmap() {
     if (milestoneId === 8) {
       const message = "🚀 Check out @rekt_ceo and join the revolution! \n🎯 Best web3 community ever \n\n🔥 Create memes at rektceo.club/memes\n🌐 Visit rektceo.club\n\n#RektCEO #MemeCoin #Crypto";
       const encodedMessage = encodeURIComponent(message);
-      
+
       // Option 1: Text-only sharing (works immediately)
       const twitterUrl = `https://x.com/intent/tweet?text=${encodedMessage}`;
-      
+
       window.open(twitterUrl, "_blank");
       return;
     }
-    
+
     if (link.startsWith("http")) {
       window.open(link, "_blank");
     } else if (link.startsWith("/")) {
@@ -358,105 +341,46 @@ export default function Roadmap() {
   };
 
   return (
-    <section 
-      id="roadmap" 
-      className={`roadmap-section ${isInViewport ? 'in-viewport' : ''}`}
-      ref={sectionRef}
-      style={{ backgroundImage: `url(${neon_penthouse})` }}
-      data-scroll-direction={scrollDirection}
-    >
-      <div className="roadmap-container">
-        <h1 className="section-title" style={{color: 'var(--color-yellow)', fontSize: '4rem'}}>ROADMAP</h1>
-        
-        {/* Scroll Progress Indicator */}
-        {isInViewport && (
-          <div className="scroll-progress-bar">
-            <div 
-              className="scroll-progress-fill" 
-              style={{ 
-                height: `${scrollProgress}%`,
-                transition: velocityRef.current > 5 ? 'none' : 'height 0.3s ease-out'
-              }}
-            />
-            <div className="velocity-indicator" style={{
-              opacity: Math.min(1, velocityRef.current / 10),
-              transform: `translate(-50%, -50%) scale(${1 + velocityRef.current / 20})`
-            }} />
-          </div>
-        )}
-        
-        {/* Monitor Overlays */}
-        <div className={`monitors-container ${isVisible ? 'active' : ''}`}>
-          
-          {/* Left Monitor - Status Display */}
-          <div className="monitor monitor-left">
-            <div className="monitor-screen">
-              <div className="monitor-content">
-                <div className="status-display">
-                  <h3 className="status-title">STATUS</h3>
-                  <div 
-                    className="status-indicator"
-                    style={{ 
-                      color: getStatusColor(milestones[currentMilestone].status),
-                      textShadow: `0 0 20px ${getStatusColor(milestones[currentMilestone].status)}`
-                    }}
-                  >
-                    {milestones[currentMilestone].status}
-                  </div>
-                  <div className="progress-bar">
-                    <div 
-                      className="progress-fill"
-                      style={{ 
-                        width: `${milestones[currentMilestone].progress}%`,
-                        background: `linear-gradient(90deg, ${getStatusColor(milestones[currentMilestone].status)}, #00ffff)`
-                      }}
-                    />
-                  </div>
-                  <div className="progress-text">
-                    {milestones[currentMilestone].progress}% COMPLETE
-                  </div>
-                </div>
-                
-                {/* Mini roadmap navigator */}
-                <div className="milestone-dots">
-                  {milestones.map((milestone, index) => (
-                    <div
-                      key={milestone.id}
-                      className={`dot ${index === currentMilestone ? 'active' : ''} ${index < currentMilestone ? 'completed' : ''}`}
-                      style={{
-                        background: index <= currentMilestone ? getStatusColor(milestone.status) : 'rgba(255,255,255,0.2)',
-                        transform: index === currentMilestone ? 
-                          `scale(${1.5 + velocityRef.current / 30})` : 'scale(1)'
-                      }}
-                    />
-                  ))}
-                </div>
-              </div>
-            </div>
-            <div className="monitor-glow" />
-          </div>
+    <div className="roadmap-sticky-wrapper" ref={wrapperRef}>
+      <section
+        id="roadmap"
+        className={`roadmap-section ${isInViewport ? 'in-viewport' : ''}`}
+        ref={sectionRef}
+        style={{ backgroundImage: `url(${neon_penthouse})` }}
+        data-scroll-direction={scrollDirection}
+      >
+        <div className="roadmap-container">
+          <h1 className="section-title" style={{ color: 'var(--color-yellow)', fontSize: '4rem' }}>ROADMAP</h1>
 
-          {/* Center Monitor - Main Content */}
-          <div className="monitor monitor-center">
-            <div className="monitor-screen">
-              <div className="monitor-content">
-                <div className="milestone-main">
-                  <div className="milestone-number">
-                    PHASE {milestones[currentMilestone].id}
-                  </div>
-                  <h2 className="milestone-title">
-                    {milestones[currentMilestone].title}
-                  </h2>
-                  <p className="milestone-description">
-                    {milestones[currentMilestone].description}
-                  </p>
-                  
-                  {/* Status Display for Mobile/Tablet */}
-                  <div className="status-display mobile-status">
+          {/* Scroll Progress Indicator */}
+          {isInViewport && (
+            <div className="scroll-progress-bar">
+              <div
+                className="scroll-progress-fill"
+                style={{
+                  height: `${scrollProgress}%`,
+                  transition: velocityRef.current > 5 ? 'none' : 'height 0.3s ease-out'
+                }}
+              />
+              <div className="velocity-indicator" style={{
+                opacity: Math.min(1, velocityRef.current / 10),
+                transform: `translate(-50%, -50%) scale(${1 + velocityRef.current / 20})`
+              }} />
+            </div>
+          )}
+
+          {/* Monitor Overlays */}
+          <div className={`monitors-container ${isVisible ? 'active' : ''}`}>
+
+            {/* Left Monitor - Status Display */}
+            <div className="monitor monitor-left">
+              <div className="monitor-screen">
+                <div className="monitor-content">
+                  <div className="status-display">
                     <h3 className="status-title">STATUS</h3>
-                    <div 
+                    <div
                       className="status-indicator"
-                      style={{ 
+                      style={{
                         color: getStatusColor(milestones[currentMilestone].status),
                         textShadow: `0 0 20px ${getStatusColor(milestones[currentMilestone].status)}`
                       }}
@@ -464,9 +388,9 @@ export default function Roadmap() {
                       {milestones[currentMilestone].status}
                     </div>
                     <div className="progress-bar">
-                      <div 
+                      <div
                         className="progress-fill"
-                        style={{ 
+                        style={{
                           width: `${milestones[currentMilestone].progress}%`,
                           background: `linear-gradient(90deg, ${getStatusColor(milestones[currentMilestone].status)}, #00ffff)`
                         }}
@@ -477,75 +401,136 @@ export default function Roadmap() {
                     </div>
                   </div>
 
-                  <button 
-                    className={`cta-button ${milestones[currentMilestone].id % 2 === 0 ? 'cta-button-yellow' : 'cta-button-red'}`}
-                    onClick={() => handleCTAClick(milestones[currentMilestone].ctaLink, milestones[currentMilestone].id)}
-                  >
-                    <span className="cta-text">{milestones[currentMilestone].cta}</span>
-                  </button>
-                </div>
-                
-                {/* Animated background grid */}
-                <div className="grid-background">
-                  <div className="grid-lines" style={{
-                    animationDuration: `${Math.max(5, 20 - velocityRef.current)}s`
-                  }} />
-                </div>
-              </div>
-            </div>
-            <div className="monitor-glow" />
-          </div>
-
-          {/* Right Monitor - Timeline */}
-          <div className="monitor monitor-right">
-            <div className="monitor-screen">
-              <div className="monitor-content">
-                <div className="timeline-display">
-                  <h3 className="timeline-title">TIMELINE</h3>
-                  <div className="timeline-list">
+                  {/* Mini roadmap navigator */}
+                  <div className="milestone-dots">
                     {milestones.map((milestone, index) => (
-                      <div 
+                      <div
                         key={milestone.id}
-                        className={`timeline-item ${index === currentMilestone ? 'active' : ''} ${index < currentMilestone ? 'completed' : ''}`}
+                        className={`dot ${index === currentMilestone ? 'active' : ''} ${index < currentMilestone ? 'completed' : ''}`}
                         style={{
-                          '--status-color': getStatusColor(milestone.status),
-                          '--status-color-rgb': getStatusColorRGB(milestone.status)
+                          background: index <= currentMilestone ? getStatusColor(milestone.status) : 'rgba(255,255,255,0.2)',
+                          transform: index === currentMilestone ?
+                            `scale(${1.5 + velocityRef.current / 30})` : 'scale(1)'
                         }}
-                      >
-                        <div 
-                          className="timeline-marker" 
-                          style={{
-                            background: index <= currentMilestone ? getStatusColor(milestone.status) : 'rgba(255,255,255,0.2)',
-                            boxShadow: index <= currentMilestone ? `0 0 10px ${getStatusColor(milestone.status)}` : 'none',
-                            transform: index === currentMilestone ? 'scale(1.2)' : 'scale(1)'
-                          }}
-                        />
-                        <div className="timeline-content">
-                          <span className="timeline-phase">P{milestone.id}</span>
-                          <span className="timeline-name">{milestone.title}</span>
-                        </div>
-                      </div>
+                      />
                     ))}
                   </div>
                 </div>
               </div>
+              <div className="monitor-glow" />
             </div>
-            <div className="monitor-glow" />
-          </div>
-        </div>
 
-        {/* Scroll Indicator */}
-        <div className="scroll-indicator">
-          <div className="scroll-text">
-            {isInViewport ? 
-              `TIMELINE ${Math.round(scrollProgress)}%` : 
-             'SCROLL TO EXPLORE'}
+            {/* Center Monitor - Main Content */}
+            <div className="monitor monitor-center">
+              <div className="monitor-screen">
+                <div className="monitor-content">
+                  <div className="milestone-main">
+                    <div className="milestone-number">
+                      PHASE {milestones[currentMilestone].id}
+                    </div>
+                    <h2 className="milestone-title">
+                      {milestones[currentMilestone].title}
+                    </h2>
+                    <p className="milestone-description">
+                      {milestones[currentMilestone].description}
+                    </p>
+
+                    {/* Status Display for Mobile/Tablet */}
+                    <div className="status-display mobile-status">
+                      <h3 className="status-title">STATUS</h3>
+                      <div
+                        className="status-indicator"
+                        style={{
+                          color: getStatusColor(milestones[currentMilestone].status),
+                          textShadow: `0 0 20px ${getStatusColor(milestones[currentMilestone].status)}`
+                        }}
+                      >
+                        {milestones[currentMilestone].status}
+                      </div>
+                      <div className="progress-bar">
+                        <div
+                          className="progress-fill"
+                          style={{
+                            width: `${milestones[currentMilestone].progress}%`,
+                            background: `linear-gradient(90deg, ${getStatusColor(milestones[currentMilestone].status)}, #00ffff)`
+                          }}
+                        />
+                      </div>
+                      <div className="progress-text">
+                        {milestones[currentMilestone].progress}% COMPLETE
+                      </div>
+                    </div>
+
+                    <button
+                      className={`cta-button ${milestones[currentMilestone].id % 2 === 0 ? 'cta-button-yellow' : 'cta-button-red'}`}
+                      onClick={() => handleCTAClick(milestones[currentMilestone].ctaLink, milestones[currentMilestone].id)}
+                    >
+                      <span className="cta-text">{milestones[currentMilestone].cta}</span>
+                    </button>
+                  </div>
+
+                  {/* Animated background grid */}
+                  <div className="grid-background">
+                    <div className="grid-lines" style={{
+                      animationDuration: `${Math.max(5, 20 - velocityRef.current)}s`
+                    }} />
+                  </div>
+                </div>
+              </div>
+              <div className="monitor-glow" />
+            </div>
+
+            {/* Right Monitor - Timeline */}
+            <div className="monitor monitor-right">
+              <div className="monitor-screen">
+                <div className="monitor-content">
+                  <div className="timeline-display">
+                    <h3 className="timeline-title">TIMELINE</h3>
+                    <div className="timeline-list">
+                      {milestones.map((milestone, index) => (
+                        <div
+                          key={milestone.id}
+                          className={`timeline-item ${index === currentMilestone ? 'active' : ''} ${index < currentMilestone ? 'completed' : ''}`}
+                          style={{
+                            '--status-color': getStatusColor(milestone.status),
+                            '--status-color-rgb': getStatusColorRGB(milestone.status)
+                          }}
+                        >
+                          <div
+                            className="timeline-marker"
+                            style={{
+                              background: index <= currentMilestone ? getStatusColor(milestone.status) : 'rgba(255,255,255,0.2)',
+                              boxShadow: index <= currentMilestone ? `0 0 10px ${getStatusColor(milestone.status)}` : 'none',
+                              transform: index === currentMilestone ? 'scale(1.2)' : 'scale(1)'
+                            }}
+                          />
+                          <div className="timeline-content">
+                            <span className="timeline-phase">P{milestone.id}</span>
+                            <span className="timeline-name">{milestone.title}</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="monitor-glow" />
+            </div>
           </div>
-          <div className="scroll-arrow">
-            {scrollDirection === 'down' ? '↓' : '↑'}
+
+          {/* Scroll Indicator */}
+          <div className="scroll-indicator">
+            <div className="scroll-text">
+              {isInViewport ?
+                `TIMELINE ${Math.round(scrollProgress)}%` :
+                'SCROLL TO EXPLORE'}
+            </div>
+            <div className="scroll-arrow">
+              {scrollDirection === 'down' ? '↓' : '↑'}
+            </div>
           </div>
         </div>
-      </div>
-    </section>
+      </section>
+    </div>
   );
 }

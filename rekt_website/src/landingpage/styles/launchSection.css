@@ -1,0 +1,119 @@
+.launch-section {
+    position: relative;
+    width: 100%;
+    height: 800vh;
+    /* High resolution scroll distance */
+    background-color: #000;
+    contain: layout style paint;
+}
+
+
+
+.launch-video-container {
+    position: sticky;
+    top: 0;
+    width: 100%;
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 0;
+    background-color: #000;
+}
+
+.launch-title-div {
+    position: absolute;
+    top: -5vh;
+    left: 0;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    z-index: 10;
+    pointer-events: none;
+    margin-top: 8vh;
+    ;
+}
+
+.launch-title {
+    font-size: 4rem;
+    font-weight: 900;
+    color: #e7255e;
+    text-transform: uppercase;
+    letter-spacing: 0.25em;
+    text-shadow: 2px 2px 2px #F8C826;
+
+    margin: 0;
+}
+
+/* Subtle vignette to focus on the center */
+.launch-video-container::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at center, transparent 0%, rgba(0, 0, 0, 0.3) 100%);
+    pointer-events: none;
+    z-index: 1;
+}
+
+.launch-video-main {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0;
+    transition: opacity 0.8s ease;
+    will-change: transform, opacity, object-position;
+}
+
+.launch-video-main.visible {
+    opacity: 1;
+}
+
+.launch-loading-minimal {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 10;
+}
+
+.loading-spinner-small {
+    width: 40px;
+    height: 40px;
+    border: 3px solid rgba(255, 255, 255, 0.1);
+    border-top: 3px solid #ff0000;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+@media (max-width: 768px) {
+    .launch-section {
+        height: 300vh;
+    }
+
+    .launch-title {
+        font-size: 2rem;
+        letter-spacing: 0.15em;
+    }
+}
+
+.launch-video-main::-webkit-media-controls {
+    display: none !important;
+}
+
+.launch-video-main::-webkit-media-controls-enclosure {
+    display: none !important;
+}

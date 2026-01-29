@@ -1,4 +1,4 @@
-.buy-section{
+.buy-section {
     width: 100%;
     min-height: 100vh;
     display: flex;
@@ -11,7 +11,7 @@
     justify-content: flex-start;
 }
 
-.buy-container{
+.buy-container {
     display: flex;
     flex-direction: column;
     width: 100%;
@@ -25,7 +25,7 @@
 }
 
 /* Step Cards Grid Layout */
-.steps-column{
+.steps-column {
     height: 100%;
     width: 100%;
     display: grid;
@@ -37,12 +37,12 @@
     margin-top: 2rem;
 }
 
-.steps-column .section-title{
+.steps-column .section-title {
     margin-bottom: 1rem;
     text-align: center;
 }
 
-.buy-card{
+.buy-card {
     height: 200px;
     width: 100%;
     padding: 1.5rem;
@@ -60,12 +60,12 @@
     flex-shrink: 0;
 }
 
-.buy-card:hover{
+.buy-card:hover {
     transform: translateY(-4px);
     box-shadow: 0 6px 12px 0 rgba(0, 0, 0, 0.3), 0 8px 25px 0 rgba(0, 0, 0, 0.25);
 }
 
-.buy-card .content-section{
+.buy-card .content-section {
     flex: 1;
     display: flex;
     flex-direction: column;
@@ -76,7 +76,7 @@
     overflow: hidden;
 }
 
-.buy-card .button-section{
+.buy-card .button-section {
     height: 100%;
     display: flex;
     flex-direction: column;
@@ -87,7 +87,7 @@
     flex-shrink: 0;
 }
 
-.buy-card h1{
+.buy-card h1 {
     font-size: 1.2rem;
     font-weight: 700;
     margin-bottom: 0.5rem;
@@ -98,31 +98,32 @@
     hyphens: auto;
 }
 
-.buy-card p{
+.buy-card p {
     font-size: 1rem;
+    font-weight: 100;
+    font-family: 'Comic Sans MS';
     margin-bottom: 0;
     margin-right: 0;
     margin-left: 0;
     line-height: 1.4;
     color: white;
     word-wrap: break-word;
-    overflow-wrap: break-word;
     hyphens: auto;
+    overflow-wrap: break-word;
     overflow: hidden;
-    text-justify:inter-word;
+    text-justify: inter-word;
     display: -webkit-box;
-    -webkit-line-clamp: 4;
     -webkit-box-orient: vertical;
 }
 
-.row-box{
+.row-box {
     display: flex;
     flex-direction: column;
     gap: 0.4rem;
     align-items: flex-end;
 }
 
-.button-margin{
+.button-margin {
     margin: 0;
     width: 100%;
     min-width: 100px;
@@ -169,7 +170,7 @@
 }
 
 /* Single button styling for card 2 */
-.buy-card .button-section button:only-child{
+.buy-card .button-section button:only-child {
     width: 100%;
     min-width: 120px;
     max-width: 140px;
@@ -192,7 +193,7 @@
     max-height: 40px;
 }
 
-.icon-box{
+.icon-box {
     border-radius: 50%;
     color: var(--color-white);
     background-color: var(--color-red);
@@ -209,7 +210,7 @@
     flex-shrink: 0;
 }
 
-.card-icon{
+.card-icon {
     width: 20px;
     height: 20px;
 }
@@ -223,27 +224,27 @@
         align-items: center;
         justify-content: center;
     }
-    
+
     .steps-column {
         grid-template-columns: repeat(2, 1fr);
         gap: 2.5rem;
         max-width: 1200px;
     }
-    
+
     .buy-card {
         height: 220px;
         padding: 2rem;
     }
-    
+
     .buy-card h1 {
         font-size: 1.3rem;
     }
-    
+
     .buy-card p {
         font-size: 1.1rem;
         -webkit-line-clamp: 4;
     }
-    
+
     .button-margin {
         font-size: 0.9rem;
         padding: 0.6rem 1.2rem;
@@ -259,21 +260,21 @@
         align-items: center;
         justify-content: center;
     }
-    
+
     .steps-column {
         grid-template-columns: repeat(2, 1fr);
         gap: 1.5rem;
         max-width: 1000px;
     }
-    
+
     .buy-card {
         padding: 1.5rem;
     }
-    
+
     .buy-card h1 {
         font-size: 1.2rem;
     }
-    
+
     .buy-card p {
         font-size: 1rem;
     }
@@ -289,7 +290,7 @@
         margin: 1.5em auto;
         align-items: center;
     }
-    
+
     .steps-column {
         order: 2;
         display: grid;
@@ -299,14 +300,14 @@
         width: 100%;
         max-width: 600px;
     }
-    
+
     .buy-card {
         height: 180px;
         padding: 1.25rem;
         display: flex;
         flex-direction: column;
     }
-    
+
     .buy-card .content-section {
         padding-right: 0.75rem;
     }
@@ -319,16 +320,16 @@
         align-items: center;
         justify-content: flex-end;
     }
-    
+
     .buy-card h1 {
         font-size: 1rem;
     }
-    
+
     .buy-card p {
         font-size: 0.85rem;
         -webkit-line-clamp: 3;
     }
-    
+
     .button-margin {
         max-width: 110px;
     }
@@ -340,7 +341,7 @@
         padding: 0.5rem 0;
         min-height: auto;
     }
-    
+
     .buy-container {
         flex-direction: column;
         height: auto;
@@ -348,7 +349,7 @@
         padding: 0 1.6rem;
         margin: 0.75em auto;
     }
-    
+
     .steps-column {
         order: 2;
         display: flex;
@@ -356,7 +357,7 @@
         gap: 0.5rem;
         width: 100%;
     }
-    
+
     .buy-card {
         min-height: 100px;
         width: 100%;
@@ -368,7 +369,7 @@
         justify-content: space-between;
         align-self: center;
     }
-    
+
     .buy-card .content-section {
         text-align: left;
         height: auto;
@@ -378,7 +379,7 @@
         flex-direction: column;
         justify-content: flex-start;
     }
-    
+
     .buy-card .button-section {
         align-items: flex-end;
         height: 20%;
@@ -389,14 +390,14 @@
         gap: 1rem;
         justify-content: flex-end;
     }
-    
+
     .buy-card h1 {
         font-size: 1rem;
         margin-bottom: 0.8rem;
         line-height: 1.2;
         font-weight: 700;
     }
-    
+
     .buy-card p {
         height: auto;
         font-size: 0.8rem;
@@ -409,7 +410,7 @@
         -webkit-box-orient: vertical;
         flex: none;
     }
-    
+
     .button-margin {
         min-width: 80px;
         max-width: 110px;
@@ -418,43 +419,43 @@
         height: auto;
         white-space: nowrap;
     }
-    
+
     /* First button (red theme) - mobile */
     .button-margin:first-child {
         background: var(--background-color-third);
         box-shadow: 0 4px 15px rgba(216, 30, 91, 0.3);
     }
-    
+
     .button-margin:first-child:hover {
         background: var(--color-red);
         transform: translateY(-2px);
         box-shadow: 0 6px 20px rgba(216, 30, 91, 0.4);
     }
-    
+
     /* Second button (yellow theme) - mobile */
     .button-margin:last-child {
         background: var(--color-yellow);
         color: var(--color-black);
         box-shadow: 0 4px 15px rgba(248, 200, 38, 0.3);
     }
-    
+
     .button-margin:last-child:hover {
         background: #ffd700;
         transform: translateY(-2px);
         box-shadow: 0 6px 20px rgba(248, 200, 38, 0.4);
     }
-    
+
     .row-box {
         flex-direction: column;
         width: auto;
         gap: 0.3rem;
         align-items: flex-end;
     }
-    
+
     .button-margin {
         width: 100%;
     }
-    
+
     .icon-box {
         width: 35px;
         height: 35px;
@@ -462,7 +463,7 @@
         bottom: -6px;
         left: -6px;
     }
-    
+
     .card-icon {
         width: 18px;
         height: 18px;
@@ -470,7 +471,8 @@
 }
 
 /* High DPI Displays */
-@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+@media (-webkit-min-device-pixel-ratio: 2),
+(min-resolution: 192dpi) {
     .buy-card {
         backdrop-filter: blur(100px);
     }
@@ -481,15 +483,15 @@
     .buy-card {
         transition: none;
     }
-    
+
     .buy-card:hover {
         transform: none;
     }
-    
+
     .button-margin {
         transition: none;
     }
-    
+
     .button-margin:hover {
         transform: none;
     }
@@ -509,13 +511,13 @@
         background: white !important;
         color: black !important;
     }
-    
+
     .buy-card {
         background: white !important;
         border: 1px solid #ccc !important;
         box-shadow: none !important;
     }
-    
+
     .button-margin {
         background: #f0f0f0 !important;
         color: black !important;
