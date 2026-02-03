@@ -1054,8 +1054,9 @@
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  font-size: 2.5rem;
-  color: rgba(255, 255, 255, 0.6);
+  font-size: 3rem;
+  font-weight: bold;
+  color: rgba(255, 255, 255, 0.9);
   background: linear-gradient(to right, rgba(0, 0, 0, 0.3), transparent);
   pointer-events: none;
   z-index: 10;
@@ -1063,21 +1064,42 @@
   align-items: center;
   justify-content: center;
   height: 100%;
-  width: 40px;
+  width: 50px;
   transition: all 0.3s ease;
   user-select: none;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+
+  0%,
+  100% {
+    opacity: 0.7;
+  }
+
+  50% {
+    opacity: 1;
+  }
 }
 
 .scroll-hint.left {
   left: 0;
-  background: linear-gradient(to right, rgba(0, 0, 0, 0.5), transparent);
+  background: linear-gradient(to right, rgba(0, 0, 0, 0.6), transparent);
   border-radius: 12px 0 0 12px;
+}
+
+.scroll-hint.left::before {
+  content: '<';
 }
 
 .scroll-hint.right {
   right: 0;
-  background: linear-gradient(to left, rgba(0, 0, 0, 0.5), transparent);
+  background: linear-gradient(to left, rgba(0, 0, 0, 0.6), transparent);
   border-radius: 0 12px 12px 0;
+}
+
+.scroll-hint.right::before {
+  content: '>';
 }
 
 /* Enhanced navigation container with subtle glow */

@@ -4,6 +4,12 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useMediaQuery } from "react-responsive";
 import pumpFunLogo from "../creatives/crypto/pump_fun.png";
 import baseLogo from "../creatives/crypto/base.png";
+import { useAppKit } from '@reown/appkit/react';
+import { useAccount, useDisconnect, useSwitchChain } from 'wagmi';
+import { base } from 'wagmi/chains';
+import { useNexus } from '../config/NexusProvider';
+import UnifiedBalance from './nexus/UnifiedBalance';
+import WalletDropdown from './WalletDropdown';
 
 export default function Navbar({ setShow }) {
   const navigate = useNavigate();
@@ -12,6 +18,64 @@ export default function Navbar({ setShow }) {
 
   const [scrollTarget, setScrollTarget] = useState(null);
   const [activeSection, setActiveSection] = useState("");
+  const [showWalletDropdown, setShowWalletDropdown] = useState(false);
+
+  // WalletConnect hooks
+  const { open } = useAppKit();
+  const { address, isConnected, chain, connector } = useAccount();
+  const { disconnect } = useDisconnect();
+  const { switchChain } = useSwitchChain();
+
+  // Nexus hooks
+  const { handleInit, nexusSDK, loading: nexusLoading, fetchUnifiedBalance } = useNexus();
+
+  // Function to truncate wallet address
+  const truncateAddress = (addr) => {
+    if (!addr) return '';
+    return `${addr.slice(0, 6)}...${addr.slice(-4)}`;
+  };
+
+  // Handle wallet button click
+  const handleWalletClick = () => {
+    if (!isConnected) {
+      open();
+    }
+    // If connected, dropdown handles disconnect
+  };
+
+  // Ensure user is on Base chain when connected
+  // TODO: Re-enable this after debugging Nexus/Chain conflicts. 
+  // currently this might be fighting with Nexus SDK initialization.
+  /*
+  useEffect(() => {
+    if (isConnected && chain && chain.id !== base.id) {
+      switchChain({ chainId: base.id });
+    }
+  }, [isConnected, chain, switchChain]);
+  */
+
+  // Initialize Nexus SDK when wallet connects
+  useEffect(() => {
+    const initNexus = async () => {
+      if (isConnected && connector && !nexusSDK && !nexusLoading) {
+        try {
+          const provider = await connector.getProvider();
+          console.log('Initializing Nexus with provider:', provider);
+          await handleInit(provider);
+        } catch (error) {
+          console.error('Error initializing Nexus:', error);
+        }
+      }
+    };
+
+    initNexus();
+  }, [isConnected, connector, nexusSDK, nexusLoading, handleInit]);
+
+  // Get chain name for display
+  const getChainName = () => {
+    if (!chain) return '';
+    return chain.name;
+  };
 
   // Effect to handle scrolling after navigation
   useEffect(() => {
@@ -193,10 +257,27 @@ export default function Navbar({ setShow }) {
         THE BLUEPRINT
       </div>
 
-      <div className="connect-wallet-container">
-        <button className="connect-wallet-btn" onClick={() => console.log("Connect Wallet clicked")}>
-          CONNECT WALLET
+      <div
+        className="connect-wallet-container"
+        onMouseEnter={() => isConnected && setShowWalletDropdown(true)}
+        onMouseLeave={() => setShowWalletDropdown(false)}
+      >
+        <button
+          className={`connect-wallet-btn ${isConnected ? 'connected' : ''}`}
+          onClick={handleWalletClick}
+        >
+          {isConnected ? (
+            <div className="wallet-btn-content">
+              <span>{truncateAddress(address)}</span>
+            </div>
+          ) : (
+            'CONNECT WALLET'
+          )}
         </button>
+
+        {isConnected && showWalletDropdown && (
+          <WalletDropdown onClose={() => setShowWalletDropdown(false)} />
+        )}
       </div>
     </nav>
   );

@@ -1,10 +1,12 @@
+// eslint-disable-next-line
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { BrowserRouter } from 'react-router-dom';
-
+import { WagmiProvider, QueryClientProvider, queryClient, config } from './config/walletConfig';
+import NexusProvider from './config/NexusProvider';
 
 
 
@@ -14,12 +16,15 @@ const root = ReactDOM.createRoot(document.getElementById('root'));
 
 root.render(
   <React.StrictMode>
-
-      <BrowserRouter>
-        <App />
-      </BrowserRouter>
-
-
+    <WagmiProvider config={config}>
+      <QueryClientProvider client={queryClient}>
+        <NexusProvider config={{ network: 'mainnet', debug: true }}>
+          <BrowserRouter>
+            <App />
+          </BrowserRouter>
+        </NexusProvider>
+      </QueryClientProvider>
+    </WagmiProvider>
   </React.StrictMode>
 );
 

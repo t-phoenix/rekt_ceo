@@ -252,14 +252,99 @@
   box-shadow: 0 4px 0px #ab1b46;
 }
 
+.connect-wallet-btn.connected {
+  background-color: var(--color-green, #10b981);
+  box-shadow: 0 4px 0px #059669;
+}
+
 .connect-wallet-btn:hover {
   transform: translateY(2px);
   box-shadow: 0 2px 0px #ab1b46;
 }
 
+.connect-wallet-btn.connected:hover {
+  box-shadow: 0 2px 0px #059669;
+}
+
 .connect-wallet-btn:active {
   transform: translateY(4px);
   box-shadow: none;
+}
+
+/* Wallet button content layout */
+.wallet-btn-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Chain badge styling */
+.chain-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background-color: rgba(0, 0, 0, 0.3);
+  padding: 4px 10px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.chain-icon {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+}
+
+/* Wallet dropdown */
+.connect-wallet-container {
+  position: relative;
+}
+
+.wallet-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  background-color: var(--color-black);
+  border: 2px solid var(--color-green, #10b981);
+  border-radius: 10px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+  padding: 8px;
+  min-width: 150px;
+  z-index: 1000;
+  animation: slideDown 0.2s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.disconnect-btn {
+  width: 100%;
+  background-color: transparent;
+  color: var(--color-white);
+  border: none;
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-family: var(--body-font);
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 14px;
+  text-align: left;
+}
+
+.disconnect-btn:hover {
+  background-color: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
 }
 
 /* FOR MOBILE */
@@ -303,4 +388,23 @@
   height: 10px;
   border-radius: 10px;
   margin: 5px;
+}
+.nexus-btn {
+  width: 100%;
+  background-color: transparent;
+  color: var(--color-white);
+  border: none;
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-family: var(--body-font);
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 14px;
+  text-align: left;
+}
+
+.nexus-btn:hover {
+  background-color: rgba(16, 185, 129, 0.2);
+  color: var(--color-green, #10b981);
 }

@@ -1,0 +1,187 @@
+.wallet-dropdown-container {
+    position: absolute;
+    top: 20%;
+    right: 0;
+    width: 360px;
+    background-color: var(--color-black);
+    border: 3px solid var(--color-black);
+    border-radius: 12px;
+    padding: 16px;
+    z-index: 1000;
+    color: var(--color-white);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    animation: fadeIn 0.15s ease-out;
+    /* No box shadow */
+}
+
+.wallet-dropdown-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.header-right {
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+}
+
+
+/* Chain Selector */
+.chain-selector-wrapper {
+    position: relative;
+}
+
+.current-chain-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid transparent;
+    color: var(--color-white);
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: var(--body-font);
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+    box-shadow: none !important;
+}
+
+.current-chain-btn:hover {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: var(--color-yellow);
+    color: var(--color-yellow);
+}
+
+.chain-caret {
+    font-size: 0.7rem;
+    color: rgba(255, 255, 255, 0.3);
+}
+
+.chain-options-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    margin-top: 6px;
+    background: var(--color-black);
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 160px;
+    z-index: 20;
+    box-shadow: none !important;
+}
+
+.chain-option {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+    background: transparent;
+    border: 1px solid transparent;
+    color: rgba(255, 255, 255, 0.6);
+    cursor: pointer;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    text-align: left;
+    font-family: var(--body-font);
+    font-weight: 500;
+    box-shadow: none !important;
+}
+
+.chain-option:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--color-white);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.chain-option.active {
+    color: var(--color-black);
+    background: var(--color-yellow);
+    font-weight: 700;
+}
+
+/* Refresh Button */
+.refresh-icon-btn {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid transparent;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 0.85rem;
+    font-family: var(--body-font);
+    font-weight: 600;
+    cursor: pointer;
+    padding: 8px 12px;
+    border-radius: 6px;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: none !important;
+    white-space: nowrap;
+}
+
+
+
+.refresh-icon-btn:hover {
+    color: var(--color-white);
+    background: var(--color-red);
+}
+
+/* Compact Init Button */
+.init-btn {
+    width: 100%;
+    background-color: var(--color-yellow);
+    color: var(--color-black);
+    border: none;
+    padding: 10px;
+    border-radius: 6px;
+    font-family: var(--accent-font);
+    font-size: 0.9rem;
+    cursor: pointer;
+    text-transform: uppercase;
+    font-weight: 800;
+    margin-bottom: 12px;
+    box-shadow: none !important;
+}
+
+.init-btn:hover {
+    filter: brightness(1.1);
+    transform: translateY(-1px);
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-5px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Override UnifiedBalance styles locally if needed */
+.wallet-dropdown-container .unified-balance-container {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    padding: 12px;
+    margin: 0;
+}
