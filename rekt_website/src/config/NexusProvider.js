@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useCallback } from 'react';
 import { NexusSDK } from '@avail-project/nexus-core';
+import useUnifiedBalance from '../hooks/useUnifiedBalance';
 
 const NexusContext = createContext({
     nexusSDK: null,
@@ -20,7 +21,9 @@ const NexusProvider = ({ children, config = {} }) => {
     const [nexusSDK, setNexusSDK] = useState(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
-    const [unifiedBalance, setUnifiedBalance] = useState(null);
+
+    // Use the custom hook for balance management
+    const { unifiedBalance, fetchUnifiedBalance } = useUnifiedBalance(nexusSDK);
 
     // Debug: Intercept fetch requests to inspect backend responses
     React.useEffect(() => {
@@ -55,49 +58,6 @@ const NexusProvider = ({ children, config = {} }) => {
         };
     }, []);
 
-    const fetchUnifiedBalance = useCallback(async () => {
-        if (!nexusSDK) {
-            console.warn('Nexus SDK not initialized, cannot fetch balances');
-            return;
-        }
-
-        console.log('Fetching unified balances...');
-        let retries = 0;
-
-        const executeFetch = async () => {
-            try {
-                // Introduce a small delay for backend sync if retrying or initial fetch
-                if (retries === 0) await new Promise(r => setTimeout(r, 1000));
-
-                if (nexusSDK.isInitialized) {
-                    console.log('Nexus SDK initialized status:', nexusSDK.isInitialized());
-                }
-
-                const balances = await nexusSDK.getUnifiedBalances();
-                console.log('Unified Balances fetched:', balances);
-                if (balances) {
-                    setUnifiedBalance(balances);
-                }
-            } catch (err) {
-                console.warn(`Balance fetch attempt ${retries + 1} failed:`, err);
-                console.log('Error details:', JSON.stringify(err, Object.getOwnPropertyNames(err)));
-
-                // Retry if specific error, but stop after 6 tries
-                if (err.message && err.message.includes('currencies is not iterable') && retries < 6) {
-                    retries++;
-                    console.log(`Retrying fetch in 2s... (Attempt ${retries + 1})`);
-                    setTimeout(executeFetch, 2000);
-                } else {
-                    console.error('Final balance fetch failure - setting empty balance');
-                    // Fallback to empty array if persistence fails or other error
-                    setUnifiedBalance([]);
-                }
-            }
-        };
-
-        executeFetch();
-    }, [nexusSDK]);
-
     const handleInit = useCallback(async (provider) => {
         if (!provider) {
             console.error('No provider available for Nexus initialization');
@@ -118,24 +78,7 @@ const NexusProvider = ({ children, config = {} }) => {
             setNexusSDK(nexus);
             console.log('Nexus SDK initialized successfully');
 
-            // We can't call fetchUnifiedBalance here immediately because nexusSDK state 
-            // won't be updated yet. We can call it directly on the new instance though.
-
-            // Define local fetch for immediate execution (Single Attempt)
-            const localFetch = async () => {
-                try {
-                    await new Promise(r => setTimeout(r, 1000));
-                    console.log("🚀 Triggering initial getUnifiedBalances...");
-                    const balances = await nexus.getUnifiedBalances();
-                    console.log('✅ Unified Balances fetched (init):', balances);
-                    if (balances) setUnifiedBalance(balances);
-                } catch (e) {
-                    console.warn('❌ Initial balance fetch failed:', e);
-                    // Do not retry here. Use the manual "Fetch Unified Balance" button to retry given the persistence of the error.
-                    setUnifiedBalance([]);
-                }
-            };
-            localFetch();
+            // React Query in useUnifiedBalance will automatically trigger fetch when nexusSDK state updates
 
         } catch (err) {
             console.error('Error initializing Nexus SDK:', err);

@@ -1,6 +1,7 @@
+
 import { createAppKit } from '@reown/appkit/react'
 import { WagmiProvider } from 'wagmi'
-import { base, mainnet, arbitrum, optimism } from '@reown/appkit/networks'
+import { base, mainnet, arbitrum, optimism, polygon, avalanche, bsc, scroll } from '@reown/appkit/networks'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { WagmiAdapter } from '@reown/appkit-adapter-wagmi'
 
@@ -19,12 +20,12 @@ if (!projectId) {
 const metadata = {
     name: 'REKT CEO',
     description: 'Be Your Own CEO - REKT CEO Meme Platform',
-    url: 'https://rektceo.com', // Update with your actual domain
-    icons: ['https://rektceo.com/favicon.ico'] // Update with your actual icon URL
+    url: typeof window !== 'undefined' ? window.location.origin : 'https://rektceo.com', // Dynamically get current URL
+    icons: ['https://www.rektceo.com/creatives/rekt.png'] // Use a known working highly available public image for testing
 }
 
 // 3. Set the networks
-export const networks = [mainnet, base, arbitrum, optimism]
+export const networks = [mainnet, base, arbitrum, optimism, polygon, avalanche, bsc, scroll]
 
 // 4. Create Wagmi Adapter
 export const wagmiAdapter = new WagmiAdapter({
@@ -47,7 +48,8 @@ export const modal = createAppKit({
     themeMode: 'dark',
     themeVariables: {
         '--w3m-accent': '#D81E5B', // REKT CEO red color
-        '--w3m-border-radius-master': '10px'
+        '--w3m-border-radius-master': '10px',
+        '--w3m-font-family': 'Roboto, sans-serif' // Use local font to avoid unused preload warning for custom AppKit font
     }
 })
 

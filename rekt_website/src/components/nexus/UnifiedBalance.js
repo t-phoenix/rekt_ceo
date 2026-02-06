@@ -1,5 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { useNexus } from '../../config/NexusProvider';
+import { getTokenLogo } from '../../config/tokens';
+import { getChainLogo } from '../../config/chains';
 import './UnifiedBalance.css';
 
 const UnifiedBalance = () => {
@@ -32,11 +34,11 @@ const UnifiedBalance = () => {
                     const chainName = chainItem.chain?.name || `Chain ${chainId}`;
 
                     if (!chains[chainName]) {
-                        chains[chainName] = [];
+                        chains[chainName] = { id: chainId, assets: [] };
                     }
 
                     if (parseFloat(chainItem.balance) > 0) {
-                        chains[chainName].push({
+                        chains[chainName].assets.push({
                             symbol: asset.symbol,
                             balance: chainItem.balance,
                             usdValue: chainItem.usdValue // Assuming breakdown also has price, if not we might need to calculate
@@ -45,14 +47,14 @@ const UnifiedBalance = () => {
                 });
             } else {
                 // Fallback if no breakdown, just show as "Unknown Chain"
-                if (!chains['Unknown Chain']) chains['Unknown Chain'] = [];
-                chains['Unknown Chain'].push(asset);
+                if (!chains['Unknown Chain']) chains['Unknown Chain'] = { id: null, assets: [] };
+                chains['Unknown Chain'].assets.push(asset);
             }
         });
 
         return {
             tokenData: tokens, // Array of assets with breakdown
-            chainData: Object.entries(chains).sort((a, b) => a[0].localeCompare(b[0])) // [ [ChainName, Assets[]], ... ]
+            chainData: Object.entries(chains).sort((a, b) => a[0].localeCompare(b[0])) // [ [ChainName, { id, assets[] }], ... ]
         };
     }, [contextUnifiedBalance]);
 
@@ -109,6 +111,7 @@ const UnifiedBalance = () => {
                         {tokenData.map((asset, idx) => {
                             const isExpanded = expandedTokens[asset.symbol];
                             const hasBreakdown = asset.breakdown && asset.breakdown.length > 0;
+                            const tokenLogo = getTokenLogo(asset.symbol);
 
                             return (
                                 <div key={asset.symbol + idx} className="token-group">
@@ -119,6 +122,14 @@ const UnifiedBalance = () => {
                                         <div className="token-symbol-wrapper">
                                             {hasBreakdown && (
                                                 <span className="expand-icon">{isExpanded ? '▼' : '▶'}</span>
+                                            )}
+                                            {tokenLogo && (
+                                                <img
+                                                    src={tokenLogo}
+                                                    alt={asset.symbol}
+                                                    className="token-logo-img"
+                                                    style={{ width: '20px', height: '20px', marginRight: '8px', borderRadius: '50%' }}
+                                                />
                                             )}
                                             <span style={{ color: 'white', fontWeight: 'bold' }}>{asset.symbol}</span>
                                         </div>
@@ -135,18 +146,29 @@ const UnifiedBalance = () => {
                                     {/* Breakdown */}
                                     {isExpanded && hasBreakdown && (
                                         <div className="token-breakdown">
-                                            {asset.breakdown.map((item, i) => (
-                                                parseFloat(item.balance) > 0 && (
+                                            {asset.breakdown.map((item, i) => {
+                                                const chainId = item.chain?.id || item.chainId;
+                                                const chainLogo = getChainLogo(chainId);
+                                                return parseFloat(item.balance) > 0 && (
                                                     <div key={i} className="breakdown-item">
-                                                        <span className="chain-name">
-                                                            {item.chain?.name || `Chain ${item.chain?.id}`}
-                                                        </span>
+                                                        <div style={{ display: 'flex', alignItems: 'center' }}>
+                                                            {chainLogo && (
+                                                                <img
+                                                                    src={chainLogo}
+                                                                    alt=""
+                                                                    style={{ width: '14px', height: '14px', marginRight: '6px', borderRadius: '50%' }}
+                                                                />
+                                                            )}
+                                                            <span className="chain-name">
+                                                                {item.chain?.name || `Chain ${item.chain?.id}`}
+                                                            </span>
+                                                        </div>
                                                         <span className="amount-text" style={{ fontSize: '11px' }}>
                                                             {formatAmount(item.balance)}
                                                         </span>
                                                     </div>
-                                                )
-                                            ))}
+                                                );
+                                            })}
                                         </div>
                                     )}
                                 </div>
@@ -158,23 +180,47 @@ const UnifiedBalance = () => {
                 {/* Chain View */}
                 {viewMode === 'chain' && (
                     <div className="chain-list">
-                        {chainData.map(([chainName, assets]) => (
-                            <div key={chainName} className="chain-group">
-                                <div className="chain-header-title">{chainName}</div>
-                                <div className="chain-assets-list">
-                                    {assets.map((asset, i) => (
-                                        <div key={i} className="chain-asset-item">
-                                            <span style={{ fontSize: '12px', fontWeight: 'bold' }}>{asset.symbol}</span>
-                                            <div style={{ textAlign: 'right' }}>
-                                                <div className="amount-text" style={{ fontSize: '12px', color: 'var(--color-yellow)' }}>
-                                                    {formatAmount(asset.balance)}
+                        {chainData.map(([chainName, { id: chainId, assets }]) => {
+                            const chainLogo = getChainLogo(chainId);
+                            return (
+                                <div key={chainName} className="chain-group">
+                                    <div className="chain-header-title" style={{ display: 'flex', alignItems: 'center' }}>
+                                        {chainLogo && (
+                                            <img
+                                                src={chainLogo}
+                                                alt={chainName}
+                                                style={{ width: '18px', height: '18px', marginRight: '8px', borderRadius: '50%' }}
+                                            />
+                                        )}
+                                        {chainName}
+                                    </div>
+                                    <div className="chain-assets-list">
+                                        {assets.map((asset, i) => {
+                                            const tokenLogo = getTokenLogo(asset.symbol);
+                                            return (
+                                                <div key={i} className="chain-asset-item">
+                                                    <div style={{ display: 'flex', alignItems: 'center' }}>
+                                                        {tokenLogo && (
+                                                            <img
+                                                                src={tokenLogo}
+                                                                alt={asset.symbol}
+                                                                style={{ width: '16px', height: '16px', marginRight: '6px', borderRadius: '50%' }}
+                                                            />
+                                                        )}
+                                                        <span style={{ fontSize: '12px', fontWeight: 'bold' }}>{asset.symbol}</span>
+                                                    </div>
+                                                    <div style={{ textAlign: 'right' }}>
+                                                        <div className="amount-text" style={{ fontSize: '12px', color: 'var(--color-yellow)' }}>
+                                                            {formatAmount(asset.balance)}
+                                                        </div>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        </div>
-                                    ))}
+                                            );
+                                        })}
+                                    </div>
                                 </div>
-                            </div>
-                        ))}
+                            );
+                        })}
                     </div>
                 )}
             </div>

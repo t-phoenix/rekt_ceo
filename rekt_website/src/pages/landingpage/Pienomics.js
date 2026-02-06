@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Badge } from '../components/badge';
+import { Badge } from '../../components/badge';
 import './styles/pienomics.css';
 
 // Main $CEO Token Distribution

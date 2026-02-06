@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import "./styles/roadmap.css";
-import neon_penthouse from "../creatives/neon_penthouse.jpg";
+import neon_penthouse from "../../creatives/neon_penthouse.jpg";
 
 // Roadmap milestones data: STATUS MAPPING
 // case:  "COMPLETED": return "#00ff00";

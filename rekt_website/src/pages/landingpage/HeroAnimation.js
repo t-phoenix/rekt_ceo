@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import './styles/heroAnimation.css';
-import heroVideo from '../creatives/ai_image/Hero_Anim.webm';
+import heroVideo from '../../creatives/ai_image/Hero_Anim.webm';
 
 export default function HeroAnimation() {
     const videoRef = useRef(null);

@@ -2,7 +2,7 @@ import React from "react";
 import "./App.css";
 
 import { Route, Routes } from "react-router-dom";
-import Introduction from "./landingpage/Introduction";
+import Introduction from "./pages/landingpage/Introduction";
 import Header from "./components/Header";
 import CustomCursor from "./components/CustomCursor";
 

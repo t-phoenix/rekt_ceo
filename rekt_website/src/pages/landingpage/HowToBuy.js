@@ -1,7 +1,7 @@
 import React from "react";
 import "./styles/intro.css";
 import "./styles/buy.css";
-import penthouse2 from "../creatives/penthouse2.jpg";
+import penthouse2 from "../../creatives/penthouse2.jpg";
 
 import { MdRocketLaunch, MdShoppingCart, MdSwapHoriz, MdAccountBox } from "react-icons/md";
 import { useNavigate } from "react-router-dom";

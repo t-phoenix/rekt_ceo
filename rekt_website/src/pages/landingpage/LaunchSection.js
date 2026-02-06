@@ -2,8 +2,8 @@ import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import './styles/launchSection.css';
-import launchVideo from '../creatives/ai_image/Launch_Scrub.mp4';
-import launchVideoMobile from '../creatives/ai_image/Launch_Scrub_mobile.mp4';
+import launchVideo from '../../creatives/ai_image/Launch_Scrub.mp4';
+import launchVideoMobile from '../../creatives/ai_image/Launch_Scrub_mobile.mp4';
 
 gsap.registerPlugin(ScrollTrigger);
 

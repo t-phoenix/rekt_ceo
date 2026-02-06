@@ -82,14 +82,34 @@
     padding: 6px;
     display: flex;
     flex-direction: column;
+    align-items: start;
     gap: 4px;
     min-width: 160px;
     z-index: 20;
     box-shadow: none !important;
+    max-height: 300px;
+    overflow-y: auto;
+    /* Custom Scrollbar */
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+}
+
+.chain-options-dropdown::-webkit-scrollbar {
+    width: 4px;
+}
+
+.chain-options-dropdown::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.chain-options-dropdown::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 20px;
 }
 
 .chain-option {
     display: flex;
+    justify-content: start;
     align-items: center;
     gap: 10px;
     padding: 10px;
@@ -103,6 +123,7 @@
     font-family: var(--body-font);
     font-weight: 500;
     box-shadow: none !important;
+    width: 95%;
 }
 
 .chain-option:hover {
@@ -115,6 +136,13 @@
     color: var(--color-black);
     background: var(--color-yellow);
     font-weight: 700;
+}
+
+.chain-icon {
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
+    border-radius: 50%;
 }
 
 /* Refresh Button */

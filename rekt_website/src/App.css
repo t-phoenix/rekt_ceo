@@ -5,10 +5,9 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  /* background-color: var(--color-black); */
   background: transparent;
   color: var(--color-white);
-  position:relative;
+  position: relative;
 }
 
 
@@ -29,7 +28,6 @@ button {
   border-radius: 6px;
   border-width: 0px;
   margin-block: 10px;
-  margin-block: 10px;
   padding-block: 12px;
   padding-inline: 24px;
   background-color: var(--color-red);
@@ -37,7 +35,7 @@ button {
   box-shadow: 4px 4px 0px 2px var(--color-blue);
   display: flex;
   flex-direction: row;
-  justify-content:center;
+  justify-content: center;
   align-items: center;
   font-size: large;
   font-weight: 400;
@@ -61,12 +59,6 @@ input {
   border-width: 0;
 }
 
-input:focus{
+input:focus {
   outline: none;
 }
-
-/* @media all and (max-width: 600px) {
-  .body{
-    margin-top: 4vh;
-  }
-} */

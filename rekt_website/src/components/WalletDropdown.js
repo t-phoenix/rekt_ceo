@@ -2,15 +2,15 @@ import React, { useState } from 'react';
 import { useAccount, useDisconnect, useSwitchChain } from 'wagmi';
 import { useNexus } from '../config/NexusProvider';
 import UnifiedBalance from './nexus/UnifiedBalance';
-import baseLogo from "../creatives/crypto/base.png";
-import { FaEthereum, FaLink, FaChevronDown, FaLayerGroup } from 'react-icons/fa';
+import { chains } from '../config/chains';
+import { FaLink, FaChevronDown } from 'react-icons/fa';
 import "./WalletDropdown.css";
 
 const WalletDropdown = ({ onClose }) => {
     const { chain, connector, isConnected } = useAccount();
     const { disconnect } = useDisconnect();
     const { switchChain } = useSwitchChain();
-    const { handleInit, fetchUnifiedBalance, isInitialized } = useNexus();
+    const { handleInit, fetchUnifiedBalance } = useNexus();
     const [showChainOptions, setShowChainOptions] = useState(false);
 
     const getChainName = () => {
@@ -19,10 +19,10 @@ const WalletDropdown = ({ onClose }) => {
     };
 
     const getChainIcon = (chainId) => {
-        if (chainId === 8453) return <img src={baseLogo} alt="Base" className="chain-icon" />;
-        if (chainId === 1) return <FaEthereum className="chain-icon" style={{ color: '#627EEA', background: 'white', padding: '1px' }} />;
-        if (chainId === 42161) return <FaLayerGroup className="chain-icon" style={{ color: '#28A0F0' }} />; // Arb placeholder
-        if (chainId === 10) return <div className="chain-icon" style={{ background: 'red', borderRadius: '50%', width: 20, height: 20, textAlign: 'center', fontSize: 10, lineHeight: '20px' }}>OP</div>;
+        const chainConfig = chains.find(c => c.id === chainId);
+        if (chainConfig) {
+            return <img src={chainConfig.logo} alt={chainConfig.name} className="chain-icon" />;
+        }
         return <FaLink className="chain-icon" />;
     };
 
@@ -37,13 +37,6 @@ const WalletDropdown = ({ onClose }) => {
             }
         }
     };
-
-    const availableChains = [
-        { id: 8453, name: 'Base', icon: <img src={baseLogo} alt="Base" className="chain-icon" /> },
-        { id: 1, name: 'Ethereum', icon: <FaEthereum className="chain-icon" style={{ color: '#627EEA' }} /> },
-        { id: 42161, name: 'Arbitrum', icon: <FaLayerGroup className="chain-icon" style={{ color: '#28A0F0' }} /> },
-        { id: 10, name: 'Optimism', icon: <span style={{ color: 'red', fontWeight: 'bold' }}>OP</span> }
-    ];
 
     return (
         <div className="wallet-dropdown-container" onMouseLeave={onClose}>
@@ -62,7 +55,7 @@ const WalletDropdown = ({ onClose }) => {
 
                         {showChainOptions && (
                             <div className="chain-options-dropdown">
-                                {availableChains.map((c) => (
+                                {chains.map((c) => (
                                     <button
                                         key={c.id}
                                         className={`chain-option ${chain?.id === c.id ? 'active' : ''}`}
@@ -71,7 +64,7 @@ const WalletDropdown = ({ onClose }) => {
                                             setShowChainOptions(false);
                                         }}
                                     >
-                                        {c.icon}
+                                        <img src={c.logo} alt={c.name} className="chain-icon" />
                                         {c.name}
                                     </button>
                                 ))}
@@ -101,10 +94,6 @@ const WalletDropdown = ({ onClose }) => {
                     </button>
                 </div>
             </div>
-
-            {/* Init Button - Only if NOT initialized */}
-
-
 
 
             {/* Unified Balance Component */}

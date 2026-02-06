@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from "react";
 import "./pfp.css";
-import "../landingpage/styles/story.css";
+import "./landingpage/styles/story.css";
 import InteractiveGlow from "../components/InteractiveGlow.js";
 import StickerCard from "./page_components/StickerCard.js";
 import { MdShuffle } from "react-icons/md";

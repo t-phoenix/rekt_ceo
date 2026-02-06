@@ -5,10 +5,8 @@ import { useMediaQuery } from "react-responsive";
 import pumpFunLogo from "../creatives/crypto/pump_fun.png";
 import baseLogo from "../creatives/crypto/base.png";
 import { useAppKit } from '@reown/appkit/react';
-import { useAccount, useDisconnect, useSwitchChain } from 'wagmi';
-import { base } from 'wagmi/chains';
+import { useAccount, useWalletClient } from 'wagmi';
 import { useNexus } from '../config/NexusProvider';
-import UnifiedBalance from './nexus/UnifiedBalance';
 import WalletDropdown from './WalletDropdown';
 
 export default function Navbar({ setShow }) {
@@ -22,12 +20,11 @@ export default function Navbar({ setShow }) {
 
   // WalletConnect hooks
   const { open } = useAppKit();
-  const { address, isConnected, chain, connector } = useAccount();
-  const { disconnect } = useDisconnect();
-  const { switchChain } = useSwitchChain();
+  const { address, isConnected, connector } = useAccount();
+  const { data: walletClient } = useWalletClient();
 
   // Nexus hooks
-  const { handleInit, nexusSDK, loading: nexusLoading, fetchUnifiedBalance } = useNexus();
+  const { handleInit, nexusSDK, loading: nexusLoading } = useNexus();
 
   // Function to truncate wallet address
   const truncateAddress = (addr) => {
@@ -43,25 +40,32 @@ export default function Navbar({ setShow }) {
     // If connected, dropdown handles disconnect
   };
 
-  // Ensure user is on Base chain when connected
-  // TODO: Re-enable this after debugging Nexus/Chain conflicts. 
-  // currently this might be fighting with Nexus SDK initialization.
-  /*
-  useEffect(() => {
-    if (isConnected && chain && chain.id !== base.id) {
-      switchChain({ chainId: base.id });
-    }
-  }, [isConnected, chain, switchChain]);
-  */
 
   // Initialize Nexus SDK when wallet connects
   useEffect(() => {
     const initNexus = async () => {
-      if (isConnected && connector && !nexusSDK && !nexusLoading) {
+      if (isConnected && !nexusSDK && !nexusLoading) {
         try {
-          const provider = await connector.getProvider();
-          console.log('Initializing Nexus with provider:', provider);
-          await handleInit(provider);
+          let provider = null;
+
+          // Attempt to get provider from walletClient (most reliable in v3)
+          if (walletClient) {
+            provider = walletClient;
+          }
+          // Fallback to connector if available and has getProvider
+          else if (connector && typeof connector.getProvider === 'function') {
+            try {
+              provider = await connector.getProvider();
+            } catch (e) {
+              console.warn("Failed to get provider from connector:", e);
+            }
+          }
+
+          if (provider) {
+            await handleInit(provider);
+          } else {
+            console.log("Waiting for valid provider...");
+          }
         } catch (error) {
           console.error('Error initializing Nexus:', error);
         }
@@ -69,13 +73,7 @@ export default function Navbar({ setShow }) {
     };
 
     initNexus();
-  }, [isConnected, connector, nexusSDK, nexusLoading, handleInit]);
-
-  // Get chain name for display
-  const getChainName = () => {
-    if (!chain) return '';
-    return chain.name;
-  };
+  }, [isConnected, connector, walletClient, nexusSDK, nexusLoading, handleInit]);
 
   // Effect to handle scrolling after navigation
   useEffect(() => {

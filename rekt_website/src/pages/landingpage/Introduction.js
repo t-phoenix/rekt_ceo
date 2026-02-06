@@ -3,15 +3,15 @@ import { useNavigate } from "react-router-dom";
 import "./styles/intro.css";
 import "./styles/faq.css";
 
-import ceo_office from "../creatives/ceo_office2.jpg";
+import ceo_office from "../../creatives/ceo_office2.jpg";
 import HeroAnimation from "./HeroAnimation";
 import HowToBuy from "./HowToBuy";
 import StorySection from "./StorySection";
 import LaunchSection from "./LaunchSection";
 import { Pienomics } from "./Pienomics";
 import Roadmap from "./Roadmap";
-import Banner from "../components/Banner";
-import { faqData } from "../constants/faqData";
+import Banner from "../../components/Banner";
+import { faqData } from "../../constants/faqData";
 import { MdCopyright, MdMail } from "react-icons/md";
 import { FaInstagram, FaTwitter } from "react-icons/fa"
 import { SiFarcaster } from "react-icons/si";

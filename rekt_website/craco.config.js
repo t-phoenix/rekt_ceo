@@ -40,6 +40,13 @@ module.exports = {
                 })
             );
 
+            // Suppress warnings for unused optional wallet connectors
+            webpackConfig.ignoreWarnings = [
+                /Can't resolve '@gemini-wallet\/core'/,
+                /Can't resolve 'porto'/,
+                /Can't resolve 'porto\/internal'/,
+            ];
+
             return webpackConfig;
         },
     },

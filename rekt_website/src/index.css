@@ -57,6 +57,8 @@ code {
 
 :root {
   --header-height: 3.5rem;
+
+  /* Core Colors */
   --color-white: #FFFFFF;
   --color-offwhite: #cccbcb;
   --color-black: #191e29;
@@ -68,11 +70,16 @@ code {
   --color-purple: #D7B8F3;
   --color-green: #51A3A3;
 
+  /* Background Colors */
   --background-color-primary: #fcd25a;
   --background-color-secondary: #3B1C32;
   --background-color-third: #D81E5B;
-  --color-first: #D7B8F3;
-  --color-second: #51A3A3;
+
+  /* Semantic Color Aliases (for backward compatibility) */
+  --primary-color: #F8C826;
+  /* Maps to --color-yellow */
+  --secondary-color: #52959d;
+  /* Maps to --color-blue */
 
   --color-blue-primary: #04a9ff;
 

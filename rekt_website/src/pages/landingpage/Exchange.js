@@ -1,10 +1,11 @@
+import React from 'react';
 import { Link } from "react-router-dom";
-import BuyCEOonPump from "../components/BuyCEOonPump";
-import BridgeCEO from "../components/BridgeCEO";
-import "./styles/exchange.css";
-import pumpFunLogo from "../creatives/crypto/pump_fun.png";
-import solanaLogo from "../creatives/crypto/solana.png";
-import baseLogo from "../creatives/crypto/base.png";
+import BuyCEOonPump from "../../components/BuyCEOonPump";
+import BridgeCEO from "../../components/BridgeCEO";
+import './styles/exchange.css';
+import pumpFunLogo from "../../creatives/crypto/pump_fun.png";
+import solanaLogo from "../../creatives/crypto/solana.png";
+import baseLogo from "../../creatives/crypto/base.png";
 
 export default function Exchange() {
   return (
