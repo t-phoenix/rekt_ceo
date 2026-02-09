@@ -2,15 +2,51 @@ import React, { memo, useMemo } from "react";
 import { useNexus } from "../nexus/NexusProvider";
 import { Label } from "../ui/label";
 import { DollarSign } from "lucide-react";
+import { Skeleton } from "../ui/skeleton";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "../ui/accordion";
-import { Separator } from "../ui/separator";
 import { cn } from "@/lib/utils";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
+
+const BalanceSkeleton = ({ className }) => {
+  return (
+    <div className={cn(className)}>
+      {/* Total Balance Skeleton */}
+      <div className="flex items-center justify-between w-full !px-2 !my-2 opacity-50">
+        <Skeleton className="h-5 w-24 bg-white/10" />
+        <Skeleton className="h-7 w-32 bg-white/10" />
+      </div>
+
+      {/* Accordion Items Skeleton */}
+      <div className="w-full flex flex-col gap-4 px-0 my-4">
+        {[1, 2, 3].map((i) => (
+          <div
+            key={i}
+            className="!px-2 !py-4 border border-[rgba(255,255,255,0.05)] bg-[rgba(255,255,255,0.02)] rounded-xl overflow-hidden mb-0"
+          >
+            <div className="flex items-center justify-between w-full px-6 py-5">
+              <div className="flex items-center gap-3 ">
+                <Skeleton className="size-7 sm:size-9 rounded-full bg-white/10" />
+                <div className="space-y-2">
+                  <Skeleton className="h-4 w-16 bg-white/10" />
+                  <Skeleton className="h-3 w-24 bg-white/5" />
+                </div>
+              </div>
+              <div className="flex flex-col items-end gap-2">
+                <Skeleton className="h-5 w-20 bg-white/10" />
+                <Skeleton className="h-3 w-16 bg-white/5" />
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
 
 const BalanceBreakdown = ({
   className,
@@ -20,7 +56,7 @@ const BalanceBreakdown = ({
 }) => {
   return (
     <div className={cn(className)}>
-      <div className="flex items-center justify-between w-full px-1 mb-2">
+      <div className="flex items-center justify-between w-full !px-2 !mb-2">
         <Label className="font-semibold text-muted-foreground">
           Total Balance:
         </Label>
@@ -151,7 +187,22 @@ const UnifiedBalance = ({
     swapBalance?.filter((token) => Number.parseFloat(token.balance) > 0) ??
     [], [swapBalance]);
 
+  // Loading state
+  const isLoading = !bridgableBalance || !swapBalance; // Strict check? Or maybe just !bridgableBalance is enough?
+  // Since we use both in Tabs, we should probably wait for both or show loading if bridgable is loading (main one).
+  // The context sets them independently. Let's check bridgableBalance as it's the default tab.
+
+  if (isLoading) {
+    return (
+      <BalanceSkeleton
+        className="w-full max-w-lg mx-auto py-4 px-1 sm:p-4 flex flex-col gap-y-2 items-center overflow-y-scroll max-h-[372px] rounded-lg border border-border"
+      />
+    );
+  }
+
   if (!swapBalance) {
+    // If swapBalance is missing but bridge is there, we might still want to show tabs but maybe disable swap tab?
+    // Or just show single view as originally intended.
     return (
       <BalanceBreakdown
         totalFiat={totalFiat}

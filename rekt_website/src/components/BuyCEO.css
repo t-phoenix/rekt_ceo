@@ -20,6 +20,11 @@
 
 .card-header {
   margin-bottom: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: start;
+  gap: 1rem;
 }
 
 .card-title {
