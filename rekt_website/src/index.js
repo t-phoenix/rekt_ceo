@@ -6,19 +6,15 @@ import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { BrowserRouter } from 'react-router-dom';
 import { WagmiProvider, QueryClientProvider, queryClient, config } from './config/walletConfig';
-import NexusProvider from './config/NexusProvider';
-
-
+import NexusProvider from './components/nexus/NexusProvider';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
-
-
 
 root.render(
   <React.StrictMode>
     <WagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>
-        <NexusProvider config={{ network: 'mainnet', debug: true }}>
+        <NexusProvider>
           <BrowserRouter>
             <App />
           </BrowserRouter>

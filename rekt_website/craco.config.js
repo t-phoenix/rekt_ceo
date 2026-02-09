@@ -1,6 +1,19 @@
+const path = require("path");
+
 module.exports = {
+    style: {
+        postcss: {
+            mode: "file",
+        },
+    },
     webpack: {
         configure: (webpackConfig) => {
+            // Add @ alias for src directory
+            webpackConfig.resolve.alias = {
+                ...webpackConfig.resolve.alias,
+                "@": path.resolve(__dirname, "src"),
+            };
+
             // Find the source-map-loader rule and exclude node_modules
             const sourceMapLoaderRule = webpackConfig.module.rules.find(
                 (rule) => rule.enforce === 'pre' && rule.loader && rule.loader.includes('source-map-loader')

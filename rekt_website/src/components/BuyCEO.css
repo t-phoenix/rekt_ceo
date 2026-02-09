@@ -1,12 +1,16 @@
+/* Glassmorphism Container */
 .buy-ceo-card {
   width: 100%;
+  max-width: 500px;
   background: rgba(59, 28, 50, 0.95);
   backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   border-radius: 16px;
   padding: 1.5rem;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
   border: 1px solid rgba(255, 255, 255, 0.1);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
+  margin: 0 auto;
 }
 
 .buy-ceo-card:hover {
@@ -32,6 +36,7 @@
   gap: 1.5rem;
 }
 
+/* Tabs Styling matching ProvideLiquidity */
 .tabs-container {
   display: flex;
   flex-direction: column;
@@ -42,12 +47,14 @@
   display: flex;
   flex-direction: row;
   gap: 0.5rem;
-  margin-bottom: 1rem;
+  margin-bottom: 0.5rem;
+  /* Reduced margin */
   flex-wrap: nowrap;
   justify-content: center;
 }
 
-.tab-trigger {
+
+.buy-ceo-card .tab-trigger {
   background: var(--background-color-third);
   border: none;
   border-radius: 6px;
@@ -63,15 +70,17 @@
   white-space: nowrap;
   min-width: 60px;
   box-shadow: 0 4px 15px rgba(216, 30, 91, 0.3);
+  flex: 1;
+  text-align: center;
 }
 
-.tab-trigger:hover {
+.buy-ceo-card .tab-trigger:hover {
   background: var(--color-red);
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(216, 30, 91, 0.4);
 }
 
-.tab-trigger.active {
+.buy-ceo-card .tab-trigger.active {
   background: var(--color-yellow);
   color: var(--color-black);
   box-shadow: 0 4px 15px rgba(248, 200, 38, 0.3);
@@ -81,110 +90,71 @@
   display: none;
   flex-direction: column;
   gap: 1rem;
+  width: 100%;
 }
 
 .tab-content.active {
   display: flex;
 }
 
-.input-group {
+/* FastBridge Customization */
+.fast-bridge-container {
+  width: 100%;
   display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
+  justify-content: center;
 }
 
-.input-group label {
-  color: #cccbcb;
-  font-size: 0.9rem;
-  font-weight: 500;
+/* Make internal components transparent */
+.fast-bridge-container>div {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  width: 100% !important;
+  max-width: 100% !important;
 }
 
-.amount-input {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 8px;
-  padding: 0.75rem;
-  color: white;
-  font-size: 1rem;
-  transition: border-color 0.2s ease;
-  width: 100%;
-  box-sizing: border-box;
+/* Specifically target borders inside components to match theme */
+.fast-bridge-container .border {
+  border-color: rgba(255, 255, 255, 0.1) !important;
 }
 
-.amount-input:focus {
-  outline: none;
-  border-color: var(--color-blue, #4a90e2);
+.fast-bridge-container .rounded-xl {
+  border-color: rgba(255, 255, 255, 0.1) !important;
+  /* Keep slight border for structure */
 }
 
-.amount-input:read-only {
-  background: rgba(255, 255, 255, 0.02);
-  color: #999;
-  cursor: not-allowed;
+/* Text Readability */
+
+.buy-ceo-card .text-muted-foreground {
+  color: rgba(255, 255, 255, 0.7) !important;
 }
 
-.rate-info {
-  color: #999;
-  font-size: 0.875rem;
-  text-align: center;
-  padding: 0.5rem;
-  background: rgba(255, 255, 255, 0.02);
-  border-radius: 6px;
-}
-
-.buy-button {
-  background: var(--background-color-third);
-  color: var(--color-white);
-  border: none;
-  border-radius: 6px;
-  padding: 0.875rem;
-  font-size: 1rem;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(216, 30, 91, 0.3);
-  margin: 0;
-  width: 100%;
+/* Button Theming Enforcement */
+.buy-ceo-card button.bg-primary,
+.buy-ceo-card button[type="submit"] {
+  background: var(--color-yellow) !important;
+  color: var(--color-black) !important;
+  font-weight: 700 !important;
   text-transform: uppercase;
-  letter-spacing: 1px;
 }
 
-.buy-button:hover {
-  background: var(--color-red);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(216, 30, 91, 0.4);
+.buy-ceo-card button.bg-primary:hover {
+  background: #e5b820 !important;
 }
 
-.buy-button:active {
-  transform: translateY(0px);
-  box-shadow: 0 2px 10px rgba(216, 30, 91, 0.3);
+.buy-ceo-card button.bg-destructive {
+  background: var(--color-red) !important;
+  color: white !important;
 }
 
-.demo-note {
-  color: #999;
-  font-size: 0.75rem;
-  text-align: center;
-  line-height: 1.4;
-  margin-top: 1rem;
-  padding: 1rem;
-  background: rgba(255, 255, 255, 0.02);
-  border-radius: 6px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-/* Ensure cards have consistent sizing */
-.exchange-section .buy-ceo-card,
-.exchange-section .provide-liquidity-card {
-  width: 100%;
-  max-width: 500px;
-  min-height: 400px;
-}
-
-/* Responsive tab button sizing */
+/* Responsive Handling */
 @media (max-width: 480px) {
   .tabs-list {
     gap: 0.25rem;
   }
-  
+
   .tab-trigger {
     padding: 0.3rem 0.6rem;
     font-size: 0.65rem;
@@ -198,4 +168,20 @@
     font-size: 0.7rem;
     min-width: 55px;
   }
-} 
+}
+
+/* Common Input Styles for Child Components */
+.amount-input-style {
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 8px !important;
+  padding: 0.75rem !important;
+  color: white !important;
+  font-size: 1rem !important;
+  transition: border-color 0.2s ease !important;
+  width: 100%;
+}
+
+.amount-input-style:focus-within {
+  border-color: var(--color-yellow) !important;
+}

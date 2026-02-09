@@ -1,74 +1,84 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
+import { useAccount } from "wagmi";
+import UnifiedBalance from "./unified-balance/unified-balance";
+import FastBridge from "./fast-bridge/fast-bridge";
+import SwapWidget from "./swaps/swap-widget";
+import { SUPPORTED_CHAINS } from "@avail-project/nexus-core";
 import "./BuyCEO.css";
 
-const QUOTES = ["USDC", "USDT", "BNB"];
-
 export default function BuyCEO() {
-  const [quote, setQuote] = useState("USDC");
-  const [from, setFrom] = useState("");
-  const rate = useMemo(() => {
-    // naive mock price: 1 quote buys X $CEO
-    return quote === "BNB" ? 3000 : 1000;
-  }, [quote]);
-
-  const to = useMemo(() => {
-    const f = parseFloat(from || "0");
-    if (isNaN(f)) return "";
-    return (f * rate).toFixed(2);
-  }, [from, rate]);
+  const { address } = useAccount();
+  const [activeTab, setActiveTab] = useState("unified-balance");
 
   return (
     <div className="buy-ceo-card">
       <div className="card-header">
         <h2 className="card-title">Buy $CEO</h2>
       </div>
+
       <div className="card-content">
         <div className="tabs-container">
           <div className="tabs-list">
-            {QUOTES.map((t) => (
-              <button 
-                key={t} 
-                className={`tab-trigger ${quote === t ? 'active' : ''}`}
-                onClick={() => setQuote(t)}
-              >
-                {t}
-              </button>
-            ))}
+            <button
+              className={`tab-trigger ${activeTab === 'unified-balance' ? 'active' : ''}`}
+              onClick={() => setActiveTab('unified-balance')}
+            >
+              Unified Balance
+            </button>
+            <button
+              className={`tab-trigger ${activeTab === 'fast-bridge' ? 'active' : ''}`}
+              onClick={() => setActiveTab('fast-bridge')}
+            >
+              Fast Bridge
+            </button>
+            <button
+              className={`tab-trigger ${activeTab === 'swaps' ? 'active' : ''}`}
+              onClick={() => setActiveTab('swaps')}
+            >
+              Swaps
+            </button>
           </div>
-          {QUOTES.map((t) => (
-            <div key={t} className={`tab-content ${quote === t ? 'active' : ''}`}>
-              <div className="input-group">
-                <label htmlFor="from">From ({t})</label>
-                <input
-                  id="from"
-                  type="text"
-                  inputMode="decimal"
-                  placeholder={`Amount in ${t}`}
-                  value={quote === t ? from : ""}
-                  onChange={(e) => quote === t && setFrom(e.target.value)}
-                  className="amount-input"
-                />
-              </div>
-              <div className="input-group">
-                <label htmlFor="to">To ($CEO)</label>
-                <input 
-                  id="to" 
-                  type="text"
-                  value={quote === t ? to : ""} 
-                  readOnly 
-                  className="amount-input"
-                />
-              </div>
-              <div className="rate-info">
-                Rate: 1 {t} ≈ {rate.toLocaleString()} $CEO
-              </div>
-              <button className="buy-button">Buy $CEO (Soon)</button>
+
+          {activeTab === 'unified-balance' && (
+            <div className="tab-content active">
+              <UnifiedBalance />
             </div>
-          ))}
+          )}
+
+          {activeTab === 'fast-bridge' && (
+            <div className="tab-content active">
+              <div className="fast-bridge-container">
+                <FastBridge
+                  connectedAddress={address}
+                  onComplete={() => console.log("Bridge Completed")}
+                  onError={(e) => console.error("Bridge Error", e)}
+                />
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'swaps' && (
+            <div className="tab-content active">
+              <div className="swaps-container flex justify-center">
+                <SwapWidget
+                  defaultInputs={{
+                    toChainID: SUPPORTED_CHAINS.BASE,
+                    toToken: {
+                      tokenAddress: "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+                      decimals: 6,
+                      symbol: "USDC",
+                      name: "USD Coin",
+                      logo: "https://coin-images.coingecko.com/coins/images/6319/large/usdc.png?1696506694",
+                    },
+                  }}
+                  onComplete={() => console.log("Swap Completed")}
+                  onStart={() => console.log("Swap Started")}
+                  onError={(e) => console.error("Swap Error", e)}
+                />
+              </div>
+            </div>
+          )}
         </div>
-        <p className="demo-note">
-          This is a demo DEX-style interface inspired by rektceo.club. Connect your wallet and route orders to your preferred DEX in production.
-        </p>
       </div>
     </div>
   );

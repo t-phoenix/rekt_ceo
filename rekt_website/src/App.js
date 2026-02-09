@@ -11,12 +11,14 @@ import AdminPage from "./pages/Admin";
 import MemeGen from "./pages/MemeGen";
 import Blueprint from "./pages/Blueprint";
 import BuyCEOPage from "./pages/BuyCEOPage";
+import { InitNexusOnConnect } from "./components/nexus/InitNexusOnConnect";
 
 
 function App() {
 
   return (
     <div className="App">
+      <InitNexusOnConnect />
       <CustomCursor />
       <Header />
 

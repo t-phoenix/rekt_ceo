@@ -1,3 +1,37 @@
+@import "tailwindcss";
+
+@theme {
+  --color-background: var(--background-color-secondary);
+  --color-foreground: var(--color-white);
+
+  --color-card: var(--background-color-secondary);
+  --color-card-foreground: var(--color-white);
+
+  --color-popover: var(--background-color-secondary);
+  --color-popover-foreground: var(--color-white);
+
+  --color-primary: var(--color-yellow);
+  --color-primary-foreground: var(--color-black);
+
+  --color-secondary: var(--background-color-third);
+  --color-secondary-foreground: var(--color-white);
+
+  --color-muted: var(--color-offblack);
+  --color-muted-foreground: var(--color-offwhite);
+
+  --color-accent: var(--color-blue);
+  --color-accent-foreground: var(--color-white);
+
+  --color-destructive: var(--color-red);
+  --color-destructive-foreground: var(--color-white);
+
+  --color-border: rgba(255, 255, 255, 0.1);
+  --color-input: rgba(255, 255, 255, 0.1);
+  --color-ring: var(--color-yellow);
+
+  --radius: 0.5rem;
+}
+
 /* Comic Fonts Import */
 @import url("https://fonts.googleapis.com/css2?family=Bangers&family=Bungee&family=Passion+One:wght@400;700;900&family=Lilita+One&display=swap");
 

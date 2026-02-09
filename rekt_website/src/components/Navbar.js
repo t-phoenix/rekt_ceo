@@ -5,8 +5,7 @@ import { useMediaQuery } from "react-responsive";
 import pumpFunLogo from "../creatives/crypto/pump_fun.png";
 import baseLogo from "../creatives/crypto/base.png";
 import { useAppKit } from '@reown/appkit/react';
-import { useAccount, useWalletClient } from 'wagmi';
-import { useNexus } from '../config/NexusProvider';
+import { useAccount } from 'wagmi';
 import WalletDropdown from './WalletDropdown';
 
 export default function Navbar({ setShow }) {
@@ -20,11 +19,7 @@ export default function Navbar({ setShow }) {
 
   // WalletConnect hooks
   const { open } = useAppKit();
-  const { address, isConnected, connector } = useAccount();
-  const { data: walletClient } = useWalletClient();
-
-  // Nexus hooks
-  const { handleInit, nexusSDK, loading: nexusLoading } = useNexus();
+  const { address, isConnected } = useAccount();
 
   // Function to truncate wallet address
   const truncateAddress = (addr) => {
@@ -40,40 +35,6 @@ export default function Navbar({ setShow }) {
     // If connected, dropdown handles disconnect
   };
 
-
-  // Initialize Nexus SDK when wallet connects
-  useEffect(() => {
-    const initNexus = async () => {
-      if (isConnected && !nexusSDK && !nexusLoading) {
-        try {
-          let provider = null;
-
-          // Attempt to get provider from walletClient (most reliable in v3)
-          if (walletClient) {
-            provider = walletClient;
-          }
-          // Fallback to connector if available and has getProvider
-          else if (connector && typeof connector.getProvider === 'function') {
-            try {
-              provider = await connector.getProvider();
-            } catch (e) {
-              console.warn("Failed to get provider from connector:", e);
-            }
-          }
-
-          if (provider) {
-            await handleInit(provider);
-          } else {
-            console.log("Waiting for valid provider...");
-          }
-        } catch (error) {
-          console.error('Error initializing Nexus:', error);
-        }
-      }
-    };
-
-    initNexus();
-  }, [isConnected, connector, walletClient, nexusSDK, nexusLoading, handleInit]);
 
   // Effect to handle scrolling after navigation
   useEffect(() => {

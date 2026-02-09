@@ -1,16 +1,14 @@
 import React, { useState } from 'react';
 import { useAccount, useDisconnect, useSwitchChain } from 'wagmi';
-import { useNexus } from '../config/NexusProvider';
-import UnifiedBalance from './nexus/UnifiedBalance';
 import { chains } from '../config/chains';
 import { FaLink, FaChevronDown } from 'react-icons/fa';
+import UnifiedBalance from "./unified-balance/unified-balance";
 import "./WalletDropdown.css";
 
 const WalletDropdown = ({ onClose }) => {
-    const { chain, connector, isConnected } = useAccount();
+    const { chain } = useAccount();
     const { disconnect } = useDisconnect();
     const { switchChain } = useSwitchChain();
-    const { handleInit, fetchUnifiedBalance } = useNexus();
     const [showChainOptions, setShowChainOptions] = useState(false);
 
     const getChainName = () => {
@@ -26,21 +24,9 @@ const WalletDropdown = ({ onClose }) => {
         return <FaLink className="chain-icon" />;
     };
 
-    const handleNexusInit = async () => {
-        if (isConnected && connector) {
-            try {
-                const provider = await connector.getProvider();
-                console.log('Initializing Nexus with provider:', provider);
-                await handleInit(provider);
-            } catch (err) {
-                console.error('Manual Init Error:', err);
-            }
-        }
-    };
-
     return (
         <div className="wallet-dropdown-container" onMouseLeave={onClose}>
-            {/* Header: Chain Switcher on Left, Refresh on Right */}
+            {/* Header: Chain Switcher on Left */}
             <div className="wallet-dropdown-header">
                 <div className="header-left">
                     <div className="chain-selector-wrapper">
@@ -72,32 +58,11 @@ const WalletDropdown = ({ onClose }) => {
                         )}
                     </div>
                 </div>
-
-
-
-                <div className="header-right">
-                    <button
-                        className="refresh-icon-btn"
-                        onClick={handleNexusInit}
-                        title="Init Nexus"
-                        style={{ boxShadow: 'none' }}
-                    >
-                        Init
-                    </button>
-                    <button
-                        className="refresh-icon-btn"
-                        onClick={() => fetchUnifiedBalance()}
-                        title="Refresh Balances"
-                        style={{ boxShadow: 'none' }}
-                    >
-                        Refresh
-                    </button>
-                </div>
             </div>
 
-
-            {/* Unified Balance Component */}
-            <UnifiedBalance />
+            <div className="unified-balance-container" style={{ padding: '0.5rem' }}>
+                <UnifiedBalance />
+            </div>
 
             <button
                 className="disconnect-btn"
