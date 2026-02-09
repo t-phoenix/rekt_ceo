@@ -11,6 +11,7 @@ import AdminPage from "./pages/Admin";
 import MemeGen from "./pages/MemeGen";
 import Blueprint from "./pages/Blueprint";
 import BuyCEOPage from "./pages/BuyCEOPage";
+import { Analytics } from '@vercel/analytics/react';
 
 
 function App() {
@@ -32,6 +33,7 @@ function App() {
           {/* <Route path="/chat" element={<Chat />}/> */}
         </Routes>
       </div>
+      <Analytics />
     </div>
 
   );
