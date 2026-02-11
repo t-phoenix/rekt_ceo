@@ -11,7 +11,7 @@ export default function Exchange() {
   return (
     <div id="exchange" className="exchange-container">
       <header className="exchange-header">
-        <h1 className="section-title">
+        <h1 className="exchange-section-title">
           Buy $CEO on
           pump<img src={pumpFunLogo} alt="Pump.fun" className="title-logo" />fun
           <img src={solanaLogo} alt="Solana" className="title-logo solana-logo" />

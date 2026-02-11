@@ -1,0 +1,99 @@
+.swap-modal-content {
+    background: rgba(59, 28, 50, 0.95) !important;
+    backdrop-filter: blur(20px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border-radius: 20px !important;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
+    color: white !important;
+    padding: 1.5rem !important;
+    /* Enforce padding */
+    max-width: 480px !important;
+    gap: 1.5rem !important;
+}
+
+.swap-modal-title {
+    color: var(--color-yellow, #ffd700) !important;
+    font-size: 1.25rem !important;
+    font-weight: 700 !important;
+    margin: 0 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+    line-height: normal !important;
+}
+
+.swap-step-icon {
+    width: 2.5rem;
+    /* Slightly larger for better visibility */
+    height: 2.5rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    font-weight: 600;
+}
+
+.swap-step-icon.pending {
+    background: rgba(33, 150, 243, 0.2);
+    color: #2196f3;
+    box-shadow: 0 0 10px rgba(33, 150, 243, 0.2);
+}
+
+.swap-step-icon.completed {
+    background: rgba(76, 175, 80, 0.2);
+    color: #4caf50;
+    box-shadow: 0 0 10px rgba(76, 175, 80, 0.2);
+}
+
+.swap-step-icon.idle {
+    background: rgba(255, 255, 255, 0.05);
+    color: rgba(255, 255, 255, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.step-label {
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+.swap-success-box {
+    background: rgba(76, 175, 80, 0.1);
+    border: 1px solid rgba(76, 175, 80, 0.2);
+    border-radius: 12px;
+    padding: 1rem;
+    color: #4caf50;
+    font-size: 0.95rem;
+    text-align: center;
+    margin-top: 1rem;
+}
+
+.swap-error-box {
+    background: rgba(244, 67, 54, 0.1);
+    border: 1px solid rgba(244, 67, 54, 0.2);
+    border-radius: 12px;
+    padding: 1rem;
+    color: #f44336;
+    font-size: 0.95rem;
+    text-align: center;
+    margin-top: 1rem;
+}
+
+.explorer-link {
+    color: #4caf50;
+    text-decoration: none;
+    /* Remove underline by default */
+    font-weight: 700;
+    border-bottom: 1px dashed #4caf50;
+    transition: all 0.2s;
+}
+
+.explorer-link:hover {
+    color: #81c784;
+    border-bottom-style: solid;
+}
+
+/* Override Dialog overlay if needed to be darker/blurry */
+[data-slot="dialog-overlay"] {
+    background-color: rgba(0, 0, 0, 0.7) !important;
+    backdrop-filter: blur(4px);
+}

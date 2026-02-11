@@ -136,7 +136,7 @@ export default function BuyCEO() {
   return (
     <div className="buy-ceo-card">
       <div className="card-header">
-        <h2 className="card-title">Get CEO on BASE</h2>
+        <h2 className="card-title">Get  USDC on BASE</h2>
         <p className="text-[10px] font-medium text-white/40 uppercase tracking-widest mt-0 text-center">
           Powered by Avail Nexus
         </p>
