@@ -16,18 +16,24 @@
     box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
 }
 
-.card-header {
+.bridge-card-header {
     margin-bottom: 1.5rem;
     display: flex;
+    flex-direction: row;
+    width: 100%;
     justify-content: space-between;
     align-items: center;
     gap: 1rem;
 }
 
-.header-left {
+.bridge-header-left {
     display: flex;
     flex-direction: column;
     gap: 0.25rem;
+    width: 60%;
+    align-items: flex-start;
+    text-align: start;
+    margin-left: 1%;
 }
 
 .card-title {
@@ -35,12 +41,14 @@
     font-size: 1.5rem;
     font-weight: 600;
     margin: 0;
+    text-align: start;
 }
 
 .bridge-subtitle {
     color: #999;
     font-size: 0.8rem;
     letter-spacing: 1px;
+    margin-top: 1%;
 }
 
 .wormhole-bridge-btn {
@@ -297,7 +305,7 @@
 
 /* Responsive Design */
 @media (max-width: 768px) {
-    .card-header {
+    .bridge-card-header {
         flex-direction: column;
         align-items: flex-start;
         gap: 1rem;

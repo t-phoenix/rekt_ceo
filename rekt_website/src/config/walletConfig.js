@@ -4,6 +4,9 @@ import { WagmiProvider } from 'wagmi'
 import { base, mainnet, arbitrum, optimism, polygon, avalanche, bsc, scroll } from '@reown/appkit/networks'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { WagmiAdapter } from '@reown/appkit-adapter-wagmi'
+import { SolanaAdapter } from '@reown/appkit-adapter-solana'
+import { solana } from '@reown/appkit/networks'
+import { PhantomWalletAdapter, SolflareWalletAdapter } from '@solana/wallet-adapter-wallets'
 
 // 0. Setup queryClient
 const queryClient = new QueryClient()

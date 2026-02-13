@@ -24,8 +24,8 @@ const BridgeCEO = () => {
 
     return (
         <div className="bridge-ceo-card">
-            <div className="card-header">
-                <div className="header-left">
+            <div className="bridge-card-header">
+                <div className="bridge-header-left">
                     <h2 className="card-title">Bridge $CEO</h2>
                     <div className="bridge-subtitle">Cross-Chain Transfer</div>
                 </div>

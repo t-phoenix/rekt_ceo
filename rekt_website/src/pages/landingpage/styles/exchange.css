@@ -35,6 +35,10 @@
 
 }
 
+dot-fun {
+  margin-inline: -50%;
+}
+
 .title-logo:hover {
   transform: scale(1.1);
 }

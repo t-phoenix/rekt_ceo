@@ -3,12 +3,19 @@ import { NexusSDK } from "@avail-project/nexus-core";
 import { createContext, useCallback, useContext, useMemo, useRef, useState } from "react";
 import { useAccountEffect } from "wagmi";
 
+import { useAppKitAccount, useAppKitProvider } from "@reown/appkit/react";
+import { Connection, PublicKey, LAMPORTS_PER_SOL } from "@solana/web3.js";
+import { getAssociatedTokenAddress, getAccount } from "@solana/spl-token";
+
 const NexusContext = createContext(undefined);
 
 const defaultConfig = {
   network: "mainnet",
   debug: false,
 };
+
+
+
 
 const NexusProvider = ({
   children,

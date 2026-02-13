@@ -5,26 +5,22 @@ import BridgeCEO from "../../components/BridgeCEO";
 import './styles/exchange.css';
 import pumpFunLogo from "../../creatives/crypto/pump_fun.png";
 import solanaLogo from "../../creatives/crypto/solana.png";
-import baseLogo from "../../creatives/crypto/base.png";
+import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 
 export default function Exchange() {
+
   return (
     <div id="exchange" className="exchange-container">
       <header className="exchange-header">
-        <h1 className="exchange-section-title">
-          Buy $CEO on
-          pump<img src={pumpFunLogo} alt="Pump.fun" className="title-logo" />fun
-          <img src={solanaLogo} alt="Solana" className="title-logo solana-logo" />
-          olana
-        </h1>
-        <div className="base-button-container">
-          <Link to="/buy-ceo" className="base-buy-button">
-            <span className="base-button-text">Buy On Base</span>
-            <img src={baseLogo} alt="Base" className="base-button-logo" />
-            <div className="base-button-glow"></div>
-          </Link>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '20px' }}>
+          <h1 className="exchange-section-title" style={{ marginBottom: 0 }}>
+            Buy $CEO on
+            pump<img src={pumpFunLogo} alt="Pump.fun" className="title-logo dot-fun" />fun
+            <img src={solanaLogo} alt="Solana" className="title-logo solana-logo" />
+            olana
+          </h1>
+          <WalletMultiButton />
         </div>
-        {/* <p className="exchange-subtitle">No Insider · No KOL · No Bullshit</p> */}
 
       </header>
       <main className="exchange-main">

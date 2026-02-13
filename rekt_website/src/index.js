@@ -7,6 +7,7 @@ import reportWebVitals from './reportWebVitals';
 import { BrowserRouter } from 'react-router-dom';
 import { WagmiProvider, QueryClientProvider, queryClient, config } from './config/walletConfig';
 import NexusProvider from './components/nexus/NexusProvider';
+import { SolanaWalletProvider } from './config/SolanaWalletProvider';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
@@ -15,9 +16,11 @@ root.render(
     <WagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>
         <NexusProvider>
-          <BrowserRouter>
-            <App />
-          </BrowserRouter>
+          <SolanaWalletProvider>
+            <BrowserRouter>
+              <App />
+            </BrowserRouter>
+          </SolanaWalletProvider>
         </NexusProvider>
       </QueryClientProvider>
     </WagmiProvider>
