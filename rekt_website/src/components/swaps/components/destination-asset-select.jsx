@@ -48,7 +48,7 @@ const DestinationAssetSelect = ({
         balanceInFiat: usdFormatter.format(balance?.balanceInFiat ?? 0),
       };
     });
-  }, [swapBalance]);
+  }, [swapBalance, nexusSDK]);
 
   // Only show chains that have tokens
   const chainsWithTokens = useMemo(() => {

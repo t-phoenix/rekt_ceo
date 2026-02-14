@@ -127,7 +127,7 @@ export const usePumpFunSwap = () => {
                 try {
                     // Get current block height
                     const currentBlockHeight = await connection.getBlockHeight('confirmed');
-                    const blocksRemaining = lastValidBlockHeight - currentBlockHeight;
+
 
 
 

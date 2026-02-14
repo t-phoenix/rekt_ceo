@@ -261,11 +261,9 @@ const useSwaps = ({
 
   const availableStables = useMemo(() => {
     if (!nexusSDK || !swapBalance) return [];
-    const filteredToken = swapBalance?.filter((token) => {
-      if (["USDT", "USDC", "ETH", "DAI", "WBTC"].includes(token.symbol)) {
-        return token;
-      }
-    });
+    const filteredToken = swapBalance?.filter((token) =>
+      ["USDT", "USDC", "ETH", "DAI", "WBTC"].includes(token.symbol)
+    );
     return filteredToken ?? [];
   }, [swapBalance, nexusSDK]);
 
