@@ -3,15 +3,14 @@ import { wormhole, TokenTransfer, Wormhole, signSendWait } from '@wormhole-found
 import solana from '@wormhole-foundation/sdk/solana';
 import { Transaction, VersionedTransaction, TransactionExpiredBlockheightExceededError } from '@solana/web3.js';
 import evm from '@wormhole-foundation/sdk/evm';
-import { getEvmSignerForSigner } from '@wormhole-foundation/sdk-evm';
+
 import {
     WORMHOLE_NETWORK,
     CEO_TOKEN_MINT,
     CEO_TOKEN_DECIMALS,
     SOURCE_CHAIN,
     DESTINATION_CHAIN,
-    STATUS_POLL_INTERVAL,
-    TRANSFER_TIMEOUT,
+
     WORMHOLE_EXPLORER_URL,
     SOLANA_RPC_URL,
     BASE_RPC_URL,
@@ -38,7 +37,7 @@ export const initWormhole = async () => {
                 }
             }
         });
-        console.log('[Wormhole] SDK initialized for', WORMHOLE_NETWORK, 'RPCs configured');
+
         return whInstance;
     } catch (error) {
         console.error('[Wormhole] Failed to initialize SDK:', error);
@@ -145,7 +144,7 @@ export const createSolanaSigner = (wallet, connection) => {
                 // Use modern confirmation strategy
                 const latestBlockhash = await connection.getLatestBlockhash('confirmed');
 
-                console.log(`[Wormhole] Transaction sent: ${txid}. Waiting for confirmation...`);
+
 
                 try {
                     await connection.confirmTransaction({
@@ -166,7 +165,7 @@ export const createSolanaSigner = (wallet, connection) => {
                         const confirmation = status?.value?.confirmationStatus;
 
                         if (confirmation === 'confirmed' || confirmation === 'finalized') {
-                            console.log("[Wormhole] Transaction landed successfully despite confirmation error!");
+
                         } else {
                             console.error("[Wormhole] Transaction definitely failed or not found:", status);
                             throw error;
@@ -177,7 +176,7 @@ export const createSolanaSigner = (wallet, connection) => {
                         const status = await connection.getSignatureStatus(txid);
                         const confirmation = status?.value?.confirmationStatus;
                         if (confirmation === 'confirmed' || confirmation === 'finalized') {
-                            console.log("[Wormhole] Transaction landed successfully despite error!");
+
                         } else {
                             throw error;
                         }
@@ -206,10 +205,7 @@ export const quoteTransfer = async (wh, amountToSend, sourceAddress, destAddress
         // Convert amount to atomic units
         const atomicAmount = BigInt(Math.floor(amountToSend * (10 ** CEO_TOKEN_DECIMALS)));
 
-        console.log('[Wormhole] Token ID:', tokenId);
-        console.log('[Wormhole] Atomic Amount:', atomicAmount);
-        console.log('[Wormhole] Source Address:', sourceAddress);
-        console.log('[Wormhole] Destination Address:', destAddress);
+
         // Create the transfer object
         const xfer = await wh.tokenTransfer(
             tokenId,
@@ -218,7 +214,7 @@ export const quoteTransfer = async (wh, amountToSend, sourceAddress, destAddress
             Wormhole.chainAddress(DESTINATION_CHAIN, destAddress),
             'TokenBridge', // Use Manual Token Bridge (Automatic requires registration)
         );
-        console.log('[Wormhole] Quote result XFER:', xfer);
+
 
 
         // Get the quote
@@ -229,7 +225,7 @@ export const quoteTransfer = async (wh, amountToSend, sourceAddress, destAddress
             xfer.transfer,
         );
 
-        console.log('[Wormhole] Quote result QUOTE:', quote);
+
 
         return {
             success: true,
@@ -270,7 +266,7 @@ export const executeBridge = async (wh, amountToSend, solanaSigner, destAddress,
         // Convert to atomic units
         const atomicAmount = BigInt(Math.floor(amountToSend * (10 ** CEO_TOKEN_DECIMALS)));
 
-        console.log("Token Transfer params", tokenId, atomicAmount, sourceAddress, Wormhole.chainAddress(SOURCE_CHAIN, sourceAddress), Wormhole.chainAddress(DESTINATION_CHAIN, destAddress))
+
 
         onProgress('initiating', { message: 'Creating bridge transfer...' });
 
@@ -288,7 +284,7 @@ export const executeBridge = async (wh, amountToSend, solanaSigner, destAddress,
 
         // Initiate transfer on Solana (user signs)
         const srcTxids = await signSendWait(srcChain, transferTxns, solanaSigner);
-        console.log('[Wormhole] Transfer initiated. result:', srcTxids);
+
 
         // Get the last transaction hash which contains the bridge instruction
         let solanaTxHash = srcTxids[srcTxids.length - 1];
@@ -317,7 +313,7 @@ export const executeBridge = async (wh, amountToSend, solanaSigner, destAddress,
             solanaTxHash = String(solanaTxHash);
         }
 
-        console.log('[Wormhole] Final Solana TxHash:', solanaTxHash);
+
 
         onProgress('submitted', {
             message: 'Transaction confirmed!',
@@ -389,7 +385,7 @@ export const getPendingTransactions = async (wh, address) => {
             return true;
         });
 
-        console.log('[Wormhole] Pending transactions:', pending);
+
 
         return pending.map(tx => ({
             id: tx.id, // Wormhole Message ID (Chain/Emitter/Sequence)
@@ -413,7 +409,7 @@ export const getPendingTransactions = async (wh, address) => {
  */
 export const redeemTransfer = async (wh, txHash, ethersSigner) => {
     try {
-        console.log('[Wormhole] Redeeming transfer with hash:', txHash);
+
 
         // Custom Signer Implementation for EVM
         // This bypasses `getEvmSignerForSigner` which attempts `eth_signTransaction`
@@ -426,11 +422,10 @@ export const redeemTransfer = async (wh, txHash, ethersSigner) => {
                 const txids = [];
                 for (const tx of txs) {
                     const { transaction } = tx;
-                    console.log('[Wormhole] Sending EVM transaction:', transaction);
 
                     // Send directly
                     const txResponse = await ethersSigner.sendTransaction(transaction);
-                    console.log('[Wormhole] EVM Tx Hash:', txResponse.hash);
+
 
                     // Wait for it to be mined
                     await txResponse.wait();
@@ -447,16 +442,16 @@ export const redeemTransfer = async (wh, txHash, ethersSigner) => {
             txid: txHash
         });
 
-        console.log('[Wormhole] Transfer object created:', xfer);
+
 
         // Fetch attestation (VAA) - wait if not ready
         // timeout 60s
-        const attestations = await xfer.fetchAttestation(60 * 1000);
-        console.log('[Wormhole] Attestation fetched:', attestations);
+        await xfer.fetchAttestation(60 * 1000);
+
 
         // Complete transfer (Redeem)
         const txids = await xfer.completeTransfer(signer);
-        console.log('[Wormhole] Redemption submitted:', txids);
+
 
         return txids;
     } catch (error) {

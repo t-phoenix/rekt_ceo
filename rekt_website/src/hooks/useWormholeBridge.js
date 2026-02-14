@@ -16,7 +16,7 @@ import { ESTIMATED_BRIDGE_TIME_SECONDS, BRIDGE_STEPS } from '../config/wormholeC
 export const useWormholeBridge = () => {
     const { connection } = useConnection();
     const wallet = useWallet();
-    const { publicKey, connected, signTransaction, sendTransaction } = wallet;
+    const { publicKey, connected, signTransaction } = wallet;
 
     // Wormhole SDK instance
     const [wh, setWh] = useState(null);

@@ -11,7 +11,7 @@ export default function LayerOptions({
       updatedLayer[currentIndex] = layerindex; // Update the specific index
       return updatedLayer;
     });
-    console.log("Updated Layer:", selectedLayer);
+
   }
 
   return (

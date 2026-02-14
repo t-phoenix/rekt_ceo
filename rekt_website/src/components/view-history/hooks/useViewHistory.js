@@ -26,7 +26,7 @@ const useViewHistory = () => {
     setSentinelNode(node);
   }, []);
 
-  const fetchIntentHistory = async () => {
+  const fetchIntentHistory = useCallback(async () => {
     try {
       const history = await nexusSDK?.getMyIntents();
       if (history) {
@@ -38,13 +38,13 @@ const useViewHistory = () => {
     } catch (error) {
       console.error("Error fetching intent history:", error);
     }
-  };
+  }, [nexusSDK]);
 
   useEffect(() => {
     if (!history) {
       fetchIntentHistory();
     }
-  }, [history]);
+  }, [history, fetchIntentHistory]);
 
   const loadMore = useCallback(() => {
     if (!history || isLoadingMore || !hasMore) return;

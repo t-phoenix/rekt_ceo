@@ -90,7 +90,7 @@ const ViewTransaction = ({
   txError,
 }) => {
   const transactionIntent = swapIntent.current?.intent;
-  const sources = transactionIntent?.sources ?? [];
+  const sources = useMemo(() => transactionIntent?.sources ?? [], [transactionIntent]);
   const hasSources = sources.length > 0;
   const hasMultipleSources = sources.length > 1;
 
@@ -122,7 +122,7 @@ const ViewTransaction = ({
 
   if (!transactionIntent) return null;
 
-  console.log("TRANSAXTION INENT", transactionIntent);
+
 
   return (
     <Dialog

@@ -110,7 +110,7 @@ const useSwaps = ({
   const handleSwapEvent = (event) => {
     if (event.name === NEXUS_EVENTS.SWAP_STEP_COMPLETE) {
       const step = event.args;
-      console.log("STEPS", event);
+
       if (step?.type === "SOURCE_SWAP_HASH" && step.explorerURL) {
         dispatch({
           type: "setExplorerUrls",
@@ -183,7 +183,7 @@ const useSwaps = ({
       onEvent: (event) =>
         handleSwapEvent(event),
     });
-    console.log("EXACT OUT RES", result);
+
     if (!result?.success) {
       throw new Error(result?.error || "Swap failed");
     }
@@ -285,7 +285,7 @@ const useSwaps = ({
     if (!swapBalance) {
       fetchBalance();
     }
-  }, [swapBalance]);
+  }, [swapBalance, fetchBalance]);
 
   useEffect(() => {
     // Check validity based on current swap mode
@@ -316,6 +316,8 @@ const useSwaps = ({
     areExactInInputsValid,
     areExactOutInputsValid,
     state.status,
+    debouncedSwapStart,
+    swapIntent
   ]);
 
   const refreshSimulation = async () => {

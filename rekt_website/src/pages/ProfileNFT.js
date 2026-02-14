@@ -168,11 +168,11 @@ export default function ProfileNFT() {
             <StickerCard
               onAddSticker={(sticker) => {
                 // Handle sticker addition for PFP (placeholder for now)
-                console.log("Sticker added:", sticker);
+
               }}
               onRemoveAllStickers={() => {
                 // Handle sticker removal for PFP (placeholder for now)
-                console.log("All stickers removed");
+
               }}
             />
 

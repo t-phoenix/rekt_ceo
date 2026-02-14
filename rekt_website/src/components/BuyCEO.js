@@ -92,7 +92,7 @@ export default function BuyCEO() {
               <FastBridge
                 connectedAddress={address}
                 onComplete={() => {
-                  console.log("Bridge Completed");
+
                   fetchBridgableBalance();
                   fetchSwapBalance();
                   setActiveTab('unified-balance');
@@ -118,12 +118,12 @@ export default function BuyCEO() {
                   },
                 }}
                 onComplete={() => {
-                  console.log("Swap Completed");
+
                   fetchBridgableBalance();
                   fetchSwapBalance();
                   setActiveTab('unified-balance');
                 }}
-                onStart={() => console.log("Swap Started")}
+                onStart={() => { }}
                 onError={(e) => console.error("Swap Error", e)}
               />
             </div>
