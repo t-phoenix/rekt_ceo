@@ -38,6 +38,8 @@
     "@wormhole-foundation/sdk-evm": "^4.10.0",
     "@wormhole-foundation/sdk-solana": "^4.10.0",
     "autoprefixer": "^10.4.24",
+    "@vercel/analytics": "^1.6.1",
+    "ajv": "^8.17.1",
     "axios": "^1.4.0",
     "bn.js": "^5.2.2",
     "buffer": "^6.0.3",

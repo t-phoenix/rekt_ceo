@@ -12,6 +12,7 @@ import MemeGen from "./pages/MemeGen";
 import Blueprint from "./pages/Blueprint";
 import BuyCEOPage from "./pages/BuyCEOPage";
 import { InitNexusOnConnect } from "./components/nexus/InitNexusOnConnect";
+import { Analytics } from '@vercel/analytics/react';
 
 
 function App() {
@@ -34,6 +35,7 @@ function App() {
           {/* <Route path="/chat" element={<Chat />}/> */}
         </Routes>
       </div>
+      <Analytics />
     </div>
 
   );
