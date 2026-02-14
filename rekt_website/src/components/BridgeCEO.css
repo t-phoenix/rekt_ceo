@@ -92,7 +92,7 @@
     gap: 1rem;
 }
 
-/* Swap Input Container Styles (matching BuyCEOonPump) */
+/* Swap Input Container Styles */
 .swap-input-container {
     background: rgba(255, 255, 255, 0.03);
     border: 1px solid rgba(255, 255, 255, 0.1);
@@ -155,6 +155,32 @@
     cursor: default;
 }
 
+.token-selector-with-max {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-shrink: 0;
+}
+
+.max-btn {
+    background: rgba(248, 200, 38, 0.15);
+    color: var(--color-yellow, #F8C826);
+    border: 1px solid rgba(248, 200, 38, 0.3);
+    border-radius: 8px;
+    padding: 0.3rem 0.6rem;
+    font-size: 0.7rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.max-btn:hover {
+    background: rgba(248, 200, 38, 0.3);
+    border-color: var(--color-yellow, #F8C826);
+}
+
 .token-selector {
     display: flex;
     align-items: center;
@@ -187,11 +213,18 @@
     margin: 0 0.25rem;
 }
 
+.input-error {
+    color: #ff6b6b;
+    font-size: 0.75rem;
+    margin-top: 0.5rem;
+    font-weight: 500;
+}
+
 /* Swap Arrow */
 .swap-arrow-container {
     display: flex;
     justify-content: center;
-    margin: -0.5rem 0;
+    margin: -28px 0;
     position: relative;
     z-index: 1;
 }
@@ -209,6 +242,13 @@
     font-size: 1.5rem;
     font-weight: 700;
     transition: all 0.3s ease;
+    overflow: hidden;
+}
+
+.swap-arrow-wormhole {
+    width: 28px;
+    height: 28px;
+    object-fit: contain;
 }
 
 .swap-arrow:hover {
@@ -263,6 +303,52 @@
     color: rgba(255, 255, 255, 0.3);
 }
 
+/* Fee Breakdown */
+.bridge-fee-breakdown {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    padding: 0.875rem 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.fee-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.8rem;
+}
+
+.fee-label {
+    color: #999;
+    font-weight: 500;
+}
+
+.fee-value {
+    color: var(--color-offwhite, #cccbcb);
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+}
+
+.fee-icon {
+    width: 16px;
+    height: 16px;
+    object-fit: contain;
+}
+
+.fee-highlight {
+    color: var(--color-yellow, #F8C826);
+}
+
+.fee-error .fee-label,
+.fee-error .fee-value {
+    color: #ff6b6b;
+}
+
 /* Bridge Button */
 .bridge-button {
     background: linear-gradient(135deg, var(--color-yellow, #F8C826), #ffd700);
@@ -277,17 +363,22 @@
     box-shadow: 0 4px 15px rgba(248, 200, 38, 0.3);
     text-transform: uppercase;
     letter-spacing: 0.08em;
-    margin-top: 1rem;
+    margin-top: 0.5rem;
 }
 
-.bridge-button:hover {
+.bridge-button:hover:not(.disabled) {
     background: linear-gradient(135deg, #ffd700, var(--color-yellow, #F8C826));
     transform: translateY(-2px);
     box-shadow: 0 6px 20px rgba(248, 200, 38, 0.5);
 }
 
-.bridge-button:active {
+.bridge-button:active:not(.disabled) {
     transform: translateY(0);
+}
+
+.bridge-button.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
 }
 
 /* Bridge Note */
@@ -301,6 +392,423 @@
     background: rgba(255, 255, 255, 0.02);
     border-radius: 6px;
     border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* =========================================== */
+/* Bridge Progress Modal                       */
+/* =========================================== */
+
+.bridge-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+.bridge-modal-content {
+    background: rgba(59, 28, 50, 0.98);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 20px;
+    padding: 2rem;
+    width: 90%;
+    max-width: 440px;
+    position: relative;
+    box-shadow: 0 24px 64px rgba(0, 0, 0, 0.5);
+    animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.bridge-modal-close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: none;
+    border: none;
+    color: #999;
+    font-size: 1.5rem;
+    cursor: pointer;
+    transition: color 0.2s;
+    line-height: 1;
+}
+
+.bridge-modal-close:hover {
+    color: #fff;
+}
+
+.bridge-modal-body {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.bridge-modal-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--color-white, #fff);
+    text-align: center;
+}
+
+/* Step Indicators */
+.bridge-steps {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 0.5rem;
+    position: relative;
+}
+
+.bridge-steps::before {
+    content: '';
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    right: 16px;
+    height: 2px;
+    background: rgba(255, 255, 255, 0.1);
+    z-index: 0;
+}
+
+.bridge-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.4rem;
+    z-index: 1;
+    flex: 1;
+}
+
+.bridge-step-indicator {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, 0.15);
+    background: rgba(59, 28, 50, 0.95);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #999;
+    transition: all 0.3s ease;
+}
+
+.bridge-step.active .bridge-step-indicator {
+    border-color: var(--color-yellow, #F8C826);
+    color: var(--color-yellow, #F8C826);
+    background: rgba(248, 200, 38, 0.1);
+    box-shadow: 0 0 12px rgba(248, 200, 38, 0.3);
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        box-shadow: 0 0 12px rgba(248, 200, 38, 0.3);
+    }
+
+    50% {
+        box-shadow: 0 0 20px rgba(248, 200, 38, 0.6);
+    }
+}
+
+.bridge-step.completed .bridge-step-indicator {
+    border-color: #4ade80;
+    color: #4ade80;
+    background: rgba(74, 222, 128, 0.1);
+}
+
+.bridge-step-label {
+    font-size: 0.65rem;
+    color: #999;
+    text-align: center;
+    font-weight: 500;
+    line-height: 1.2;
+    max-width: 80px;
+}
+
+.bridge-step.active .bridge-step-label {
+    color: var(--color-yellow, #F8C826);
+}
+
+.bridge-step.completed .bridge-step-label {
+    color: #4ade80;
+}
+
+/* Progress Bar */
+.bridge-progress-bar {
+    width: 100%;
+    height: 6px;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.bridge-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--color-yellow, #F8C826), #ffd700);
+    border-radius: 3px;
+    transition: width 1s ease;
+    position: relative;
+}
+
+.bridge-progress-fill::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+    0% {
+        transform: translateX(-100%);
+    }
+
+    100% {
+        transform: translateX(100%);
+    }
+}
+
+/* Timer */
+.bridge-timer {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 10px;
+    padding: 0.75rem 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.bridge-timer-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.8rem;
+    color: #999;
+}
+
+.bridge-timer-value {
+    color: var(--color-white, #fff);
+    font-weight: 700;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9rem;
+}
+
+/* Progress Message */
+.bridge-progress-message {
+    text-align: center;
+    color: #999;
+    font-size: 0.8rem;
+    line-height: 1.4;
+    font-style: italic;
+}
+
+/* Transaction Info */
+.bridge-tx-info {
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 10px;
+    padding: 0.75rem 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.bridge-tx-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.75rem;
+    color: #999;
+}
+
+.bridge-tx-link {
+    color: var(--color-yellow, #F8C826);
+    text-decoration: none;
+    font-weight: 600;
+    transition: opacity 0.2s;
+}
+
+.bridge-tx-link:hover {
+    opacity: 0.8;
+}
+
+/* Success State */
+.bridge-success {
+    align-items: center;
+    text-align: center;
+}
+
+.bridge-success-icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: rgba(74, 222, 128, 0.15);
+    border: 2px solid #4ade80;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    color: #4ade80;
+    margin: 0 auto;
+    animation: scaleIn 0.4s ease;
+}
+
+@keyframes scaleIn {
+    from {
+        transform: scale(0);
+    }
+
+    to {
+        transform: scale(1);
+    }
+}
+
+.bridge-success-subtitle {
+    color: #999;
+    font-size: 0.85rem;
+    margin: 0;
+}
+
+.bridge-result-details {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 12px;
+    padding: 0.875rem 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.bridge-result-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.8rem;
+}
+
+.bridge-result-row span:first-child {
+    color: #999;
+}
+
+.bridge-result-row span:last-child {
+    color: var(--color-white, #fff);
+    font-weight: 600;
+}
+
+.bridge-result-links {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    width: 100%;
+}
+
+.bridge-explorer-btn {
+    display: block;
+    text-align: center;
+    padding: 0.75rem 1rem;
+    border-radius: 10px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    background: linear-gradient(135deg, var(--color-yellow, #F8C826), #ffd700);
+    color: #000;
+}
+
+.bridge-explorer-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 15px rgba(248, 200, 38, 0.3);
+}
+
+.bridge-explorer-btn.secondary {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--color-offwhite, #cccbcb);
+}
+
+.bridge-explorer-btn.secondary:hover {
+    background: rgba(255, 255, 255, 0.12);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.bridge-modal-action-btn {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    padding: 0.75rem 1.5rem;
+    color: var(--color-white, #fff);
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    width: 100%;
+}
+
+.bridge-modal-action-btn:hover {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Error State */
+.bridge-error {
+    align-items: center;
+    text-align: center;
+}
+
+.bridge-error-icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: rgba(255, 107, 107, 0.15);
+    border: 2px solid #ff6b6b;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    color: #ff6b6b;
+    margin: 0 auto;
+}
+
+.bridge-error-message {
+    color: #ff9999;
+    font-size: 0.85rem;
+    line-height: 1.4;
+    word-break: break-word;
 }
 
 /* Responsive Design */
@@ -325,6 +833,19 @@
 
     .chain-divider {
         display: none;
+    }
+
+    .bridge-steps {
+        gap: 0.25rem;
+    }
+
+    .bridge-step-label {
+        font-size: 0.6rem;
+        max-width: 60px;
+    }
+
+    .bridge-modal-content {
+        padding: 1.5rem;
     }
 }
 
@@ -357,5 +878,24 @@
     .bridge-button {
         font-size: 0.95rem;
         padding: 0.875rem 1.25rem;
+    }
+
+    .bridge-modal-content {
+        width: 95%;
+        padding: 1.25rem;
+    }
+}
+
+@keyframes skeleton-pulse {
+    0% {
+        opacity: 0.6;
+    }
+
+    50% {
+        opacity: 0.3;
+    }
+
+    100% {
+        opacity: 0.6;
     }
 }

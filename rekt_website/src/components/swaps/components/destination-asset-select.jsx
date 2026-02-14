@@ -83,106 +83,112 @@ const DestinationAssetSelect = ({
   };
 
   return (
-    <div className="w-full">
-      <div className="w-full flex flex-col gap-y-3">
-        <Select
-          value={tempChain ? CHAIN_METADATA[tempChain].name : ""}
-          onValueChange={(value) => {
-            const matchedChain = chainsWithTokens.find((chain) => String(chain) === value);
-            if (matchedChain) {
-              setTempChain(matchedChain);
-            }
-          }}>
-          <div className="flex bg-input/30 w-full px-2 py-1.5">
-            <div className="flex items-center gap-x-2 w-full justify-between">
-              <Search className="size-5 opacity-65" />
-              <input
-                placeholder="Search tokens..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="bg-transparent w-full text-foreground text-base font-medium outline-none transition-all duration-150 placeholder-muted-foreground proportional-nums disabled:opacity-80" />
-              {searchQuery && (
-                <button
-                  type="button"
-                  onClick={() => setSearchQuery("")}
-                  className="p-0.5 hover:bg-muted rounded-full transition-colors">
-                  <X className="size-4 opacity-65" />
-                </button>
-              )}
-            </div>
-            <SelectTrigger className="rounded-full border-none cursor-pointer bg-transparent!">
-              {tempChain ? (
-                <img
-                  src={CHAIN_METADATA[tempChain].logo}
-                  alt={CHAIN_METADATA[tempChain].name}
-                  width={24}
-                  height={24}
-                  className="rounded-full size-6" />
-              ) : (
-                <div
-                  className="size-8 rounded-full flex items-center justify-center border border-border">
-                  <Link2 className="size-4" />
-                </div>
-              )}
-            </SelectTrigger>
-          </div>
-          <SelectContent>
-            <SelectGroup>
-              {chainsWithTokens.map((c) => (
-                <SelectItem key={c} value={String(c)}>
-                  <div className="flex items-center justify-between gap-x-2">
-                    <img
-                      src={CHAIN_METADATA[c].logo}
-                      alt={CHAIN_METADATA[c].name}
-                      width={20}
-                      height={20}
-                      className="rounded-full size-5" />
-                    <span className="text-sm">{CHAIN_METADATA[c].name}</span>
-                  </div>
-                </SelectItem>
-              ))}
-            </SelectGroup>
-          </SelectContent>
-        </Select>
-        <p className="text-sm">
-          {tempChain
-            ? `Tokens on ${SHORT_CHAIN_NAME[tempChain]}`
-            : "All Tokens"}
-        </p>
-        <div className="rounded-md px-2 max-h-80 overflow-y-auto no-scrollbar">
-          <div
-            className="flex flex-col items-center sm:items-start gap-y-4 w-full no-scrollbar">
-            {displayedTokens.length > 0 ? (
-              displayedTokens.map((t) => (
-                <DialogClose asChild key={`${t.tokenAddress}-${t.chainId}`}>
-                  <Button
-                    variant={"ghost"}
-                    onClick={() => handlePick(t)}
-                    className="flex items-center justify-between gap-x-2 p-2 rounded w-full h-max">
-                    <div className="flex items-center gap-x-2">
-                      {t.symbol ? (
-                        <div className="relative">
-                          <TokenIcon
-                            symbol={t.symbol}
-                            tokenLogo={t.logo}
-                            chainLogo={CHAIN_METADATA[t.chainId ?? 1]?.logo}
-                            className="border border-border rounded-full" />
-                        </div>
-                      ) : null}
-                    </div>
-                    <div className="flex flex-col items-end">
-                      <p className="text-base text-foreground">{t.balance}</p>
-                      <p className="text-sm text-muted-foreground">
-                        {t.balanceInFiat}
-                      </p>
-                    </div>
-                  </Button>
-                </DialogClose>
-              ))
-            ) : (
-              <p className="text-xs text-muted-foreground">No Tokens Found</p>
+    <div className="w-full flex flex-col gap-y-3">
+      <Select
+        value={tempChain ? CHAIN_METADATA[tempChain].name : ""}
+        onValueChange={(value) => {
+          const matchedChain = chainsWithTokens.find((chain) => String(chain) === value);
+          if (matchedChain) {
+            setTempChain(matchedChain);
+          }
+        }}>
+        <div className="flex items-center bg-white/5 border border-white/10 rounded-lg !mx-2 transition-colors focus-within:border-[#4a90e2]">
+          <div className="flex items-center w-full justify-start">
+            <Search className="size-4 opacity-50 text-white !ml-2" />
+            <input
+              placeholder="Search tokens..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="!bg-transparent !w-full text-white text-base font-medium outline-none placeholder-white/30 proportional-nums" />
+            {searchQuery && (
+              <button
+                type="button"
+                onClick={() => setSearchQuery("")}
+                className="p-0.5 hover:bg-white/10 rounded-full transition-colors text-white">
+                <X className="size-4 opacity-70" />
+              </button>
             )}
           </div>
+          <SelectTrigger className="w-auto border-none shadow-none focus:ring-0 !p-2 h-auto bg-transparent hover:bg-white/5 rounded-full">
+            {tempChain ? (
+              <img
+                src={CHAIN_METADATA[tempChain].logo}
+                alt={CHAIN_METADATA[tempChain].name}
+                width={24}
+                height={24}
+                className="rounded-full size-6" />
+            ) : (
+              <div
+                className="size-6 rounded-full flex items-center justify-center border border-white/20">
+                <Link2 className="size-3 text-white/50" />
+              </div>
+            )}
+          </SelectTrigger>
+        </div>
+        <SelectContent className="bg-[#3b1c32]/95 backdrop-blur-xl border border-white/10 text-white">
+          <SelectGroup>
+            {chainsWithTokens.map((c) => (
+              <SelectItem
+                key={c}
+                value={String(c)}
+                className="focus:bg-[#D81E5B] focus:text-white text-white cursor-pointer data-[state=checked]:bg-white/10 !p-4"
+              >
+                <div className="flex items-center justify-between gap-x-2">
+                  <img
+                    src={CHAIN_METADATA[c].logo}
+                    alt={CHAIN_METADATA[c].name}
+                    width={20}
+                    height={20}
+                    className="rounded-full size-5" />
+                  <span className="text-sm">{CHAIN_METADATA[c].name}</span>
+                </div>
+              </SelectItem>
+            ))}
+          </SelectGroup>
+        </SelectContent>
+      </Select>
+      <p className="text-sm text-[#cccbcb] font-medium !px-4">
+        {tempChain
+          ? `Tokens on ${SHORT_CHAIN_NAME[tempChain]}`
+          : "All Tokens"}
+      </p>
+      <div className="rounded-md max-h-80 overflow-y-auto no-scrollbar">
+        <div
+          className="flex flex-col items-center sm:items-start gap-y-4 w-full no-scrollbar !px-4">
+          {displayedTokens.length > 0 ? (
+            displayedTokens.map((t) => (
+              <DialogClose asChild key={`${t.tokenAddress}-${t.chainId}`}>
+                <Button
+                  variant={"ghost"}
+                  onClick={() => handlePick(t)}
+                  className="flex items-center justify-between gap-x-2 p-3 rounded-lg w-full h-auto hover:bg-[#D81E5B] hover:text-white group transition-all duration-200">
+                  <div className="flex items-center gap-x-3">
+                    {t.symbol ? (
+                      <div className="relative">
+                        <TokenIcon
+                          symbol={t.symbol}
+                          tokenLogo={t.logo}
+                          chainLogo={CHAIN_METADATA[t.chainId ?? 1]?.logo}
+                          className="border border-white/20 rounded-full bg-white/5" />
+                      </div>
+                    ) : null}
+                    <div className="flex flex-col items-start">
+                      <span className="font-bold text-base text-white group-hover:text-white">{t.symbol}</span>
+                      <span className="text-xs text-white/50 group-hover:text-white/80">{t.name}</span>
+                    </div>
+                  </div>
+                  <div className="flex flex-col items-end">
+                    <p className="text-base font-medium text-white group-hover:text-white">{t.balance}</p>
+                    <p className="text-sm text-white/50 group-hover:text-white/80">
+                      {t.balanceInFiat}
+                    </p>
+                  </div>
+                </Button>
+              </DialogClose>
+            ))
+          ) : (
+            <p className="text-xs text-muted-foreground">No Tokens Found</p>
+          )}
         </div>
       </div>
     </div>

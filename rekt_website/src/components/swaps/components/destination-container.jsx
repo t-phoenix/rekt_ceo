@@ -108,9 +108,9 @@ const DestinationContainer = ({
               <ChevronDown size={16} className="mr- ref={isSourceHovered}1" />
             </div>
           </DialogTrigger>
-          <DialogContent className="max-w-md!">
+          <DialogContent className="max-w-md! bg-[#3B1C32]/95 backdrop-blur-xl border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.3)] rounded-2xl p-6">
             <DialogHeader>
-              <DialogTitle>Select Destination</DialogTitle>
+              <DialogTitle className="text-[#ffd700] text-2xl font-semibold text-center uppercase tracking-wide !mt-2">Select Destination</DialogTitle>
             </DialogHeader>
             <DestinationAssetSelect
               swapBalance={swapBalance}

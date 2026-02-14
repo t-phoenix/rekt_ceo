@@ -179,6 +179,12 @@ function SwapWidget({
         {status === "error" && (
           <p className="text-destructive text-sm">{txError}</p>
         )}
+        <Button
+          className="w-full bg-[#D81E5B] hover:bg-[#D81E5B]/90 text-white font-bold py-3 rounded-xl opacity-50 cursor-not-allowed !mt-4 !py-4"
+          disabled
+        >
+          Swap
+        </Button>
       </div>
       {status !== "idle" && (
         <ViewTransaction
