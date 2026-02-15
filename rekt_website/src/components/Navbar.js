@@ -4,7 +4,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useMediaQuery } from "react-responsive";
 import pumpFunLogo from "../creatives/crypto/pump_fun.png";
 import baseLogo from "../creatives/crypto/base.png";
-import { useAppKit, useAppKitAccount } from '@reown/appkit/react';
+import { useAppKit } from '@reown/appkit/react';
 import { useAccount } from 'wagmi';
 import WalletDropdown from './WalletDropdown';
 

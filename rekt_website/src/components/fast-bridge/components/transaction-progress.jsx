@@ -80,7 +80,7 @@ const TransactionProgress = ({
     }));
     const current = displaySteps.findIndex((st) => !st.completed);
     return { effectiveSteps: displaySteps, currentIndex: current };
-  }, [percent, timer, completed]);
+  }, [percent, timer]);
 
   return (
     <div className="w-full flex flex-col items-center">

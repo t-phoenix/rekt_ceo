@@ -3,9 +3,7 @@ import { NexusSDK } from "@avail-project/nexus-core";
 import { createContext, useCallback, useContext, useMemo, useRef, useState } from "react";
 import { useAccountEffect } from "wagmi";
 
-import { useAppKitAccount, useAppKitProvider } from "@reown/appkit/react";
-import { Connection, PublicKey, LAMPORTS_PER_SOL } from "@solana/web3.js";
-import { getAssociatedTokenAddress, getAccount } from "@solana/spl-token";
+
 
 const NexusContext = createContext(undefined);
 
@@ -13,9 +11,6 @@ const defaultConfig = {
   network: "mainnet",
   debug: false,
 };
-
-
-
 
 const NexusProvider = ({
   children,
@@ -76,7 +71,7 @@ const NexusProvider = ({
     }
   }, [sdk, config?.network]);
 
-  const initializeNexus = async (provider) => {
+  const initializeNexus = useCallback(async (provider) => {
     setLoading(true);
     try {
       if (sdk.isInitialized()) throw new Error("Nexus is already initialized");
@@ -87,9 +82,9 @@ const NexusProvider = ({
     } finally {
       setLoading(false);
     }
-  };
+  }, [sdk]);
 
-  const deinitializeNexus = async () => {
+  const deinitializeNexus = useCallback(async () => {
     try {
       if (!nexusSDK) throw new Error("Nexus is not initialized");
       await nexusSDK?.deinit();
@@ -106,9 +101,9 @@ const NexusProvider = ({
     } catch (error) {
       console.error("Error deinitializing Nexus:", error);
     }
-  };
+  }, [nexusSDK]);
 
-  const attachEventHooks = () => {
+  const attachEventHooks = useCallback(() => {
     sdk.setOnAllowanceHook((data) => {
       /**
        * Useful when you want the user to select, min, max or a custom value
@@ -140,9 +135,9 @@ const NexusProvider = ({
        */
       swapIntent.current = data;
     });
-  };
+  }, [sdk]);
 
-  const handleInit = async (provider) => {
+  const handleInit = useCallback(async (provider) => {
     if (sdk.isInitialized() || loading) {
       return;
     }
@@ -152,9 +147,9 @@ const NexusProvider = ({
     await initializeNexus(provider);
     await setupNexus();
     attachEventHooks();
-  };
+  }, [sdk, loading, initializeNexus, setupNexus, attachEventHooks]);
 
-  const fetchBridgableBalance = async () => {
+  const fetchBridgableBalance = useCallback(async () => {
     try {
       const updatedBalance = await sdk.getBalancesForBridge();
 
@@ -162,22 +157,22 @@ const NexusProvider = ({
     } catch (error) {
       console.error("Error fetching bridgable balance:", error);
     }
-  };
+  }, [sdk]);
 
-  const fetchSwapBalance = async () => {
+  const fetchSwapBalance = useCallback(async () => {
     try {
       const updatedBalance = await sdk.getBalancesForSwap();
       setSwapBalance(updatedBalance);
     } catch (error) {
       console.error("Error fetching swap balance:", error);
     }
-  };
+  }, [sdk]);
 
-  function getFiatValue(amount, token) {
+  const getFiatValue = useCallback((amount, token) => {
     const key = token.toUpperCase();
     const rate = exchangeRate.current?.[key] ?? 1;
     return rate * amount;
-  }
+  }, []);
 
   useAccountEffect({
     onDisconnect() {
@@ -215,6 +210,8 @@ const NexusProvider = ({
     loading,
     fetchBridgableBalance,
     fetchSwapBalance,
+    bridgableBalance,
+    getFiatValue,
   ]);
   return (<NexusContext.Provider value={value}>{children}</NexusContext.Provider>);
 };

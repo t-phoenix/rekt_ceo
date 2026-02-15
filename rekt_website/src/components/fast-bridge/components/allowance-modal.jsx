@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useMemo, useState } from "react";
+import React, { memo, useEffect, useMemo, useState, useCallback } from "react";
 import { Button } from "../../ui/button";
 import { Input } from "../../ui/input";
 import { Label } from "../../ui/label";
@@ -87,7 +87,7 @@ const AllowanceModal = ({
     [sources.length]
   );
 
-  const isCustomValueValid = (value, minimumRaw, decimals) => {
+  const isCustomValueValid = useCallback((value, minimumRaw, decimals) => {
     if (!value || value.trim() === "") return false;
     try {
       const parsedValue = nexusSDK?.utils?.parseUnits(value, decimals);
@@ -96,7 +96,7 @@ const AllowanceModal = ({
     } catch {
       return false;
     }
-  };
+  }, [nexusSDK]);
 
   const hasValidationErrors = useMemo(() => {
     return sources.some((source, index) => {
@@ -105,7 +105,7 @@ const AllowanceModal = ({
       if (!value || value.trim() === "") return false;
       return !isCustomValueValid(value, source.allowance.minimumRaw, source.token.decimals);
     });
-  }, [sources, selectedOption, customValues]);
+  }, [sources, selectedOption, customValues, isCustomValueValid]);
 
   const onClose = () => {
     deny();
