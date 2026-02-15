@@ -410,6 +410,7 @@
   border-radius: 6px;
   background: var(--color-red);
   height: 42px;
+  width: 42px;
   cursor: pointer;
   display: flex;
   align-items: center;

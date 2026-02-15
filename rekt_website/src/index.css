@@ -34,7 +34,7 @@
 
 /* Comic Fonts Import */
 /* Comic Fonts Import */
-@import url("https://fonts.googleapis.com/css2?family=Comic+Neue:wght@300;400;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Bangers&family=Bungee&family=Passion+One:wght@400;700;900&family=Lilita+One&display=swap");
 
 * {
   box-sizing: border-box;
@@ -119,10 +119,12 @@ code {
   --color-blue-primary: #04a9ff;
 
   /* Comic Font Styles */
-  --body-font: "Comic Neue", "Comic Sans MS", "Comic Sans", cursive;
-  --second-font: "Comic Neue", "Comic Sans MS", "Comic Sans", cursive;
-  --accent-font: "Comic Neue", "Comic Sans MS", "Comic Sans", cursive;
-  --alt-font: "Comic Neue", "Comic Sans MS", "Comic Sans", cursive;
+  /* --body-font: "Bangers", cursive; */
+
+  --body-font: "Lilita One", cursive;
+  --second-font: "Passion One", cursive;
+  --accent-font: "Bungee", cursive;
+  --alt-font: "Lilita One", cursive;
 
   --h2-font-size: 1.25rem;
   --small-font-size: 0.813rem;
