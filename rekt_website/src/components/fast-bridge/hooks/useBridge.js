@@ -201,7 +201,7 @@ const useBridge = ({
       intent.current.deny();
       intent.current = null;
     }
-  }, [inputs]);
+  }, [inputs, intent]);
 
   useEffect(() => {
     if (!isDialogOpen) {
@@ -214,7 +214,7 @@ const useBridge = ({
     if (txError) {
       setTxError(null);
     }
-  }, [inputs]);
+  }, [inputs, txError]);
 
   return {
     inputs,
