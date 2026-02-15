@@ -34,7 +34,15 @@
 
 /* Comic Fonts Import */
 /* Comic Fonts Import */
-@import url("https://fonts.googleapis.com/css2?family=Bangers&family=Bungee&family=Passion+One:wght@400;700;900&family=Lilita+One&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Passion+One:wght@400;700;900&display=swap");
+
+@font-face {
+  font-family: "Lilita One";
+  src: url("./creatives/Lilita_One/LilitaOne-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
 
 * {
   box-sizing: border-box;
