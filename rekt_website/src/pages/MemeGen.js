@@ -1,6 +1,6 @@
 import { useRef, useState, useEffect, useCallback } from "react";
 import "./memeGen.css";
-import "../landingpage/styles/story.css";
+import "./landingpage/styles/story.css";
 import InteractiveGlow from "../components/InteractiveGlow.js";
 import StickerCard from "./page_components/StickerCard.js";
 import { categorizedMemeTemplates, memeCategories } from "../constants/memeData";

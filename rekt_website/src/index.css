@@ -1,3 +1,37 @@
+@import "tailwindcss";
+
+@theme {
+  --color-background: var(--background-color-secondary);
+  --color-foreground: var(--color-white);
+
+  --color-card: var(--background-color-secondary);
+  --color-card-foreground: var(--color-white);
+
+  --color-popover: var(--background-color-secondary);
+  --color-popover-foreground: var(--color-white);
+
+  --color-primary: var(--color-yellow);
+  --color-primary-foreground: var(--color-black);
+
+  --color-secondary: var(--background-color-third);
+  --color-secondary-foreground: var(--color-white);
+
+  --color-muted: var(--color-offblack);
+  --color-muted-foreground: var(--color-offwhite);
+
+  --color-accent: var(--color-blue);
+  --color-accent-foreground: var(--color-white);
+
+  --color-destructive: var(--color-red);
+  --color-destructive-foreground: var(--color-white);
+
+  --color-border: rgba(255, 255, 255, 0.1);
+  --color-input: rgba(255, 255, 255, 0.1);
+  --color-ring: var(--color-yellow);
+
+  --radius: 0.5rem;
+}
+
 /* Comic Fonts Import */
 @import url("https://fonts.googleapis.com/css2?family=Bangers&family=Bungee&family=Passion+One:wght@400;700;900&family=Lilita+One&display=swap");
 
@@ -57,6 +91,8 @@ code {
 
 :root {
   --header-height: 3.5rem;
+
+  /* Core Colors */
   --color-white: #FFFFFF;
   --color-offwhite: #cccbcb;
   --color-black: #191e29;
@@ -68,11 +104,16 @@ code {
   --color-purple: #D7B8F3;
   --color-green: #51A3A3;
 
+  /* Background Colors */
   --background-color-primary: #fcd25a;
   --background-color-secondary: #3B1C32;
   --background-color-third: #D81E5B;
-  --color-first: #D7B8F3;
-  --color-second: #51A3A3;
+
+  /* Semantic Color Aliases (for backward compatibility) */
+  --primary-color: #F8C826;
+  /* Maps to --color-yellow */
+  --secondary-color: #52959d;
+  /* Maps to --color-blue */
 
   --color-blue-primary: #04a9ff;
 

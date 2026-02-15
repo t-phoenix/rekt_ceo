@@ -1,0 +1,153 @@
+.fast-bridge-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    width: 100%;
+}
+
+/* Target Inputs and Select Triggers from shadcn/ui */
+.fast-bridge-content button[role="combobox"],
+.fast-bridge-content input {
+    background: rgba(255, 255, 255, 0.05) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    color: white !important;
+    border-radius: 8px !important;
+    box-shadow: none !important;
+    box-shadow: none !important;
+    transition: border-color 0.2s ease;
+}
+
+.fast-bridge-content input::placeholder {
+    color: rgba(255, 255, 255, 0.4);
+}
+
+.fast-bridge-content button[role="combobox"]:hover,
+.fast-bridge-content input:focus {
+    border-color: var(--color-blue, #4a90e2) !important;
+    outline: none !important;
+}
+
+.fast-bridge-content label {
+    color: #cccbcb !important;
+    font-size: 0.9rem !important;
+    font-weight: 500 !important;
+    margin-bottom: 0.5rem;
+}
+
+/* Specific styling for the Amount Input container to match */
+.fast-bridge-content .amount-input-container {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+}
+
+.fast-bridge-content .amount-input-container input {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+.fast-bridge-content .amount-input-container>div {
+    border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Main Bridge Button */
+.fast-bridge-content button.bridge-submit-button {
+    background: var(--background-color-third) !important;
+    color: var(--color-white) !important;
+    border: none !important;
+    border-radius: 6px !important;
+    padding: 0.875rem !important;
+    font-size: 1rem !important;
+    font-weight: 700 !important;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    box-shadow: 0 4px 15px rgba(216, 30, 91, 0.3) !important;
+    width: 100%;
+    margin-top: 1rem;
+    height: auto !important;
+    transition: all 0.3s ease;
+}
+
+.fast-bridge-content button.bridge-submit-button:hover:not(:disabled) {
+    background: var(--color-red) !important;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(216, 30, 91, 0.4) !important;
+}
+
+.fast-bridge-content button.bridge-submit-button:active:not(:disabled) {
+    transform: translateY(0px) !important;
+    box-shadow: 0 2px 10px rgba(216, 30, 91, 0.3) !important;
+}
+
+.fast-bridge-content button.bridge-submit-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+/* Balance Breakdown generic container */
+.fast-bridge-content .balance-breakdown-container {
+    background: rgba(255, 255, 255, 0.02) !important;
+    border: 1px solid rgba(255, 255, 255, 0.05) !important;
+    border-radius: 8px !important;
+    margin-top: 1rem !important;
+    padding: 0.5rem !important;
+}
+
+/* Individual balance rows */
+.fast-bridge-content .balance-breakdown-container .balance-row {
+    transition: background-color 0.2s ease;
+    border-radius: 6px;
+    padding: 0.5rem;
+}
+
+.fast-bridge-content .balance-breakdown-container .balance-row:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.fast-bridge-content .balance-breakdown-container img {
+    opacity: 0.9;
+}
+
+.fast-bridge-content .balance-breakdown-container span,
+.fast-bridge-content .balance-breakdown-container p {
+    color: #cccbcb;
+}
+
+/* Dropdown Content */
+.fast-bridge-select-content {
+    background: rgba(43, 20, 36, 0.95) !important;
+    backdrop-filter: blur(20px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border-radius: 8px !important;
+    padding: 0.5rem !important;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
+}
+
+.fast-bridge-select-content .group-label {
+    color: #999;
+}
+
+.fast-bridge-select-content [role="option"] {
+    cursor: pointer;
+    border-radius: 4px;
+    padding: 6px 8px;
+    margin-bottom: 2px;
+    transition: all 0.2s ease;
+    color: white !important;
+    outline: none !important;
+}
+
+.fast-bridge-select-content [role="option"]:hover,
+.fast-bridge-select-content [role="option"][data-highlighted] {
+    background: rgba(255, 255, 255, 0.1) !important;
+    color: white !important;
+}
+
+.fast-bridge-select-content [role="option"] img {
+    opacity: 0.9;
+}

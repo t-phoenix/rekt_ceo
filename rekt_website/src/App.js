@@ -2,7 +2,7 @@ import React from "react";
 import "./App.css";
 
 import { Route, Routes } from "react-router-dom";
-import Introduction from "./landingpage/Introduction";
+import Introduction from "./pages/landingpage/Introduction";
 import Header from "./components/Header";
 import CustomCursor from "./components/CustomCursor";
 
@@ -11,6 +11,7 @@ import AdminPage from "./pages/Admin";
 import MemeGen from "./pages/MemeGen";
 import Blueprint from "./pages/Blueprint";
 import BuyCEOPage from "./pages/BuyCEOPage";
+import { InitNexusOnConnect } from "./components/nexus/InitNexusOnConnect";
 import { Analytics } from '@vercel/analytics/react';
 
 
@@ -18,6 +19,7 @@ function App() {
 
   return (
     <div className="App">
+      <InitNexusOnConnect />
       <CustomCursor />
       <Header />
 

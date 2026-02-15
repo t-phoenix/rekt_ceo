@@ -20,20 +20,23 @@
 
 .exchange-header {
     text-align: center;
-    padding: 4rem 0;
+    padding: 2rem 0;
     max-width: 1200px;
     margin: 0 auto;
 }
 
 .exchange-title {
-    font-size: clamp(2rem, 5vw, 4rem);
+    font-size: 50px;
     font-weight: 900;
     font-family: var(--accent-font);
     text-transform: uppercase;
     color: #F8C826;
     /* CEO Yellow */
     text-shadow: 4px 4px 0px #e7255e;
-    margin-bottom: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
 }
 
 .token-icon {

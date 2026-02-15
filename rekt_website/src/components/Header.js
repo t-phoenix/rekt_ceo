@@ -15,7 +15,7 @@ export default function Header() {
   const isTab = useMediaQuery({ maxWidth: "992px" });
 
   function openNavBar() {
-    console.log("Show Menu variabel:", showMenu)
+
     setShowMenu(!showMenu)
   }
 
