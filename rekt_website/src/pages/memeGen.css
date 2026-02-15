@@ -402,6 +402,7 @@
   gap: 0.75rem;
   flex-wrap: wrap;
   width: 100%;
+  margin-block: 1rem;
 
 }
 
@@ -1089,9 +1090,7 @@
   border-radius: 12px 0 0 12px;
 }
 
-.scroll-hint.left::before {
-  content: '<';
-}
+
 
 .scroll-hint.right {
   right: 0;
@@ -1099,9 +1098,7 @@
   border-radius: 0 12px 12px 0;
 }
 
-.scroll-hint.right::before {
-  content: '>';
-}
+
 
 /* Enhanced navigation container with subtle glow */
 .meme-template-categories {
@@ -1111,7 +1108,7 @@
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 12px;
   padding: 0.25rem;
-  margin-bottom: 1rem;
+  margin-block: 0.5rem;
   overflow-x: scroll;
   overflow-y: hidden;
   position: relative;
