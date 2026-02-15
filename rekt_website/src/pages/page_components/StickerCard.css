@@ -75,7 +75,7 @@
   font-weight: 600;
   color: white;
   margin: 0;
-  font-family: 'Chakra Petch', monospace;
+  font-family: var(--body-font);
 }
 
 .sticker-content {
@@ -188,6 +188,6 @@
   justify-content: center;
   gap: 2px;
   color: rgba(255, 255, 255, 0.9);
-  font-family: 'Chakra Petch', monospace;
+  font-family: var(--body-font);
   font-weight: 600;
 }

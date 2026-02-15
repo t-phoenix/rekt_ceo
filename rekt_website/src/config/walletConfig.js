@@ -50,7 +50,7 @@ export const modal = createAppKit({
     themeVariables: {
         '--w3m-accent': '#D81E5B', // REKT CEO red color
         '--w3m-border-radius-master': '10px',
-        '--w3m-font-family': 'Roboto, sans-serif' // Use local font to avoid unused preload warning for custom AppKit font
+        '--w3m-font-family': 'Comic Neue, Comic Sans MS, cursive' // Use local font to avoid unused preload warning for custom AppKit font
     }
 })
 

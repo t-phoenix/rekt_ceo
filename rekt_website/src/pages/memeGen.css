@@ -189,7 +189,7 @@
   line-height: 1.4;
   margin: 0;
   text-align: center;
-  font-family: 'Chakra Petch', monospace;
+  font-family: var(--body-font);
   text-shadow: 0 1px 2px rgba(255, 255, 255, 0.3);
 }
 
@@ -376,15 +376,15 @@
 
 /* Font Classes */
 .font-display {
-  font-family: 'Bebas Neue', 'Impact', sans-serif;
+  font-family: var(--body-font);
 }
 
 .font-tech {
-  font-family: 'Chakra Petch', 'Courier New', monospace;
+  font-family: var(--body-font);
 }
 
 .font-brand {
-  font-family: 'Space Grotesk', 'Arial', sans-serif;
+  font-family: var(--body-font);
 }
 
 /* Social Share Footer */
@@ -844,7 +844,7 @@
   font-weight: 600;
   color: white;
   margin: 0;
-  font-family: 'Chakra Petch', monospace;
+  font-family: var(--body-font);
 }
 
 .meme-mint-content {
