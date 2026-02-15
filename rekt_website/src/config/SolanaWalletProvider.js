@@ -20,7 +20,9 @@ export const SolanaWalletProvider = ({ children }) => {
         const envReact = (process.env.REACT_APP_SOLANA_RPC_HTTP_URL || '').replace(/^"|"$/g, '');
         const envPlain = (process.env.SOLANA_RPC_HTTP_URL || '').replace(/^"|"$/g, '');
         const envUrl = envReact || envPlain;
-        return envUrl;
+
+        // Fallback to mainnet-beta if no env var is provided (prevents crash)
+        return envUrl || "https://api.mainnet-beta.solana.com";
     }, []);
 
     const wallets = useMemo(
