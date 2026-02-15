@@ -11,7 +11,7 @@ const queryClient = new QueryClient()
 
 // 1. Get projectId from https://cloud.walletconnect.com
 // TODO: Replace with your actual WalletConnect Project ID
-export const projectId = process.env.REACT_APP_WALLETCONNECT_PROJECT_ID || 'YOUR_PROJECT_ID_HERE'
+export const projectId = (process.env.REACT_APP_WALLETCONNECT_PROJECT_ID || '').replace(/^"|"$/g, '') || 'YOUR_PROJECT_ID_HERE'
 
 if (!projectId) {
     console.warn('⚠️ WalletConnect Project ID is missing. Please add REACT_APP_WALLETCONNECT_PROJECT_ID to your .env file')

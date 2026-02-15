@@ -7,7 +7,12 @@ import reportWebVitals from './reportWebVitals';
 import { BrowserRouter } from 'react-router-dom';
 import { WagmiProvider, QueryClientProvider, queryClient, config } from './config/walletConfig';
 import NexusProvider from './components/nexus/NexusProvider';
+import { Buffer } from 'buffer';
+import process from 'process';
 import { SolanaWalletProvider } from './config/SolanaWalletProvider';
+
+window.Buffer = Buffer;
+window.process = process;
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 

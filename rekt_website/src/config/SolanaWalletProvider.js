@@ -17,10 +17,8 @@ export const SolanaWalletProvider = ({ children }) => {
     // You can also provide a custom RPC endpoint.
     // Use Ankr public RPC which is often more reliable than the default mainnet-beta
     const endpoint = useMemo(() => {
-        const envReact = process.env.REACT_APP_SOLANA_RPC_HTTP_URL;
-        const envPlain = process.env.SOLANA_RPC_HTTP_URL;
-
-
+        const envReact = (process.env.REACT_APP_SOLANA_RPC_HTTP_URL || '').replace(/^"|"$/g, '');
+        const envPlain = (process.env.SOLANA_RPC_HTTP_URL || '').replace(/^"|"$/g, '');
         const envUrl = envReact || envPlain;
         return envUrl;
     }, []);
