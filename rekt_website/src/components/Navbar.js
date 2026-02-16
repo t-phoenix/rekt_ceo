@@ -4,9 +4,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useMediaQuery } from "react-responsive";
 import pumpFunLogo from "../creatives/crypto/pump_fun.png";
 import baseLogo from "../creatives/crypto/base.png";
-import { useAppKit } from '@reown/appkit/react';
-import { useAccount } from 'wagmi';
-import WalletDropdown from './WalletDropdown';
+import ConnectWalletButton from './ConnectWalletButton';
 
 export default function Navbar({ setShow }) {
   const navigate = useNavigate();
@@ -15,25 +13,7 @@ export default function Navbar({ setShow }) {
 
   const [scrollTarget, setScrollTarget] = useState(null);
   const [activeSection, setActiveSection] = useState("");
-  const [showWalletDropdown, setShowWalletDropdown] = useState(false);
-
-  // WalletConnect hooks
-  const { open } = useAppKit();
-  const { address, isConnected } = useAccount();
-
-  // Function to truncate wallet address
-  const truncateAddress = (addr) => {
-    if (!addr) return '';
-    return `${addr.slice(0, 6)}...${addr.slice(-4)}`;
-  };
-
-  // Handle wallet button click
-  const handleWalletClick = () => {
-    if (!isConnected) {
-      open();
-    }
-    // If connected, dropdown handles disconnect
-  };
+  // Wallet logic moved to ConnectWalletButton
 
 
   // Effect to handle scrolling after navigation
@@ -216,28 +196,7 @@ export default function Navbar({ setShow }) {
         THE BLUEPRINT
       </div>
 
-      <div
-        className="connect-wallet-container"
-        onMouseEnter={() => isConnected && setShowWalletDropdown(true)}
-        onMouseLeave={() => setShowWalletDropdown(false)}
-      >
-        <button
-          className={`connect-wallet-btn ${isConnected ? 'connected' : ''}`}
-          onClick={handleWalletClick}
-        >
-          {isConnected ? (
-            <div className="wallet-btn-content">
-              <span>{truncateAddress(address)}</span>
-            </div>
-          ) : (
-            'CONNECT WALLET'
-          )}
-        </button>
-
-        {isConnected && showWalletDropdown && (
-          <WalletDropdown onClose={() => setShowWalletDropdown(false)} />
-        )}
-      </div>
+      {!isTab && <ConnectWalletButton />}
     </nav>
   );
 }

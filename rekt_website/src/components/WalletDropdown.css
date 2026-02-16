@@ -1,8 +1,9 @@
 .wallet-dropdown-container {
     position: absolute;
-    top: 20%;
+    top: calc(100% + 10px);
     right: 0;
     width: 360px;
+    max-width: 90vw;
     background-color: var(--color-black);
     border: 3px solid var(--color-black);
     border-radius: 12px;
