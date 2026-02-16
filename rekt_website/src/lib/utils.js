@@ -5,5 +5,5 @@ export function cn(...inputs) {
   return twMerge(clsx(inputs));
 }
 export function absoluteUrl(path) {
-  return `${process.env.NEXT_PUBLIC_BASE_URL}${path}`;
+  return `${process.env.REACT_APP_BASE_URL}${path}`;
 }

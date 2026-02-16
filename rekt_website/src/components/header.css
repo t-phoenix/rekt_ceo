@@ -87,12 +87,31 @@
 /* FOR TABLETS */
 @media screen and (max-width: 992px) {
   .title-container {
-    width: 80%;
+    width: auto;
+    flex-grow: 1;
     align-items: center;
     justify-content: center;
     font-size: 12px;
     margin: 0;
+  }
 
+  .mobile-header {
+    justify-content: space-between;
+    padding-inline: 10px;
+  }
+
+  /* Override general mobile styles for header usage */
+  .mobile-header .connect-wallet-container {
+    width: auto;
+    padding: 0;
+    margin: 0;
+  }
+
+  .mobile-header .connect-wallet-btn {
+    width: auto;
+    padding: 8px 12px;
+    font-size: 14px;
+    margin: 0;
   }
 
   .title {
@@ -351,7 +370,8 @@
 @media screen and (max-width: 600px) {
   .title-container {
     font-size: 64%;
-    width: 100%;
+    width: auto;
+    flex-grow: 1;
     align-items: center;
   }
 
@@ -389,6 +409,7 @@
   border-radius: 10px;
   margin: 5px;
 }
+
 .nexus-btn {
   width: 100%;
   background-color: transparent;

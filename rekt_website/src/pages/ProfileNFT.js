@@ -194,7 +194,7 @@ export default function ProfileNFT() {
                   {/* <button onClick={downloadImage} className="story-btn primary">
                     <span style={{ marginRight: 6 }}>Download</span> <MdDownload />
                   </button> */}
-                  <button onClick={randomiseLayers} className="story-btn secondary">
+                  <button onClick={randomiseLayers} className="story-btn secondary" style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
                     <span style={{ marginRight: 6 }}>Randomise</span> <MdShuffle />
                   </button>
                 </div>
