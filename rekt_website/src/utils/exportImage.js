@@ -28,11 +28,16 @@ export async function exportNodeToPng(node) {
 
   try {
     if (backgroundImgEl && backgroundImgEl.tagName === "IMG" && backgroundImgEl.src) {
+      // Get the computed style to check object-fit
+      const style = window.getComputedStyle(backgroundImgEl);
+      const objectFit = style.objectFit;
+
       // Hide the <img> during capture
       backgroundImgEl.style.display = "none";
-      // Apply background image with contain semantics
+
+      // Apply background image with correct sizing based on observed object-fit
       node.style.backgroundImage = `url(${backgroundImgEl.src})`;
-      node.style.backgroundSize = "contain";
+      node.style.backgroundSize = objectFit === 'cover' ? 'cover' : 'contain';
       node.style.backgroundPosition = "center";
       node.style.backgroundRepeat = "no-repeat";
     }
@@ -40,7 +45,7 @@ export async function exportNodeToPng(node) {
     const canvas = await html2canvas(node, {
       backgroundColor: null,
       useCORS: true,
-      scale: window.devicePixelRatio > 1 ? 2 : 1,
+      scale: Math.max(window.devicePixelRatio, 3), // Ensure at least 3x scale for high quality export
       width,
       height,
       ignoreElements: (el) => {

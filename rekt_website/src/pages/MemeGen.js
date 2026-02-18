@@ -4,18 +4,23 @@ import "./landingpage/styles/story.css";
 import InteractiveGlow from "../components/InteractiveGlow.js";
 import StickerCard from "./page_components/StickerCard.js";
 import { categorizedMemeTemplates, memeCategories } from "../constants/memeData";
+import { MdCropSquare, MdCropPortrait, MdCropLandscape, MdCropFree } from "react-icons/md";
 import SocialShareFooter from "./page_components/SocialShareFooter.js";
 import sharingService from "../services/SharingService.js";
+import CurrentTier from "../components/CurrentTier.js";
 import AiGenerateModal from "../components/AiGenerateModal.js";
 import BrandifyModal from "../components/BrandifyModal.js";
 import MintConfirmModal from "../components/MintConfirmModal.js";
 import MintSuccessModal from "../components/MintSuccessModal.js";
 import memeApiService from "../services/MemeApiService.js";
-
-
-
+import { useTierData } from "../hooks/useNftData";
 
 const MemeGen = () => {
+  // Use custom hook for dynamic tier data
+  const { activeTier, totalSupply, isLoading, error } = useTierData('MEME');
+  console.log("Active Tier: ", activeTier)
+  console.log("Total Supply: ", totalSupply)
+
   const [topText, setTopText] = useState("");
   const [bottomText, setBottomText] = useState("");
   const [font, setFont] = useState("display");
@@ -25,6 +30,10 @@ const MemeGen = () => {
   const [activeCategory, setActiveCategory] = useState(memeCategories[0] || "");
   const [selectedTemplate, setSelectedTemplate] = useState(null);
   const [screenWidth, setScreenWidth] = useState(window.innerWidth);
+
+  // Canvas dimensions state
+  const [canvasFormat, setCanvasFormat] = useState("square"); // square, portrait, landscape, dynamic
+  const [imageDimensions, setImageDimensions] = useState({ width: 1, height: 1, ratio: 1 });
 
   // AI modal state
   const [isAiModalOpen, setIsAiModalOpen] = useState(false);
@@ -118,6 +127,7 @@ const MemeGen = () => {
       const img = new Image();
       img.onload = () => {
         setImageSrc(resolvedSrc);
+        setImageDimensions({ width: img.naturalWidth, height: img.naturalHeight, ratio: img.naturalWidth / img.naturalHeight });
         showToast(`Applied ${template.name} template!`);
       };
       img.onerror = () => {
@@ -345,6 +355,11 @@ const MemeGen = () => {
   const onUpload = (file) => {
     const url = URL.createObjectURL(file);
     setImageSrc(url);
+    const img = new Image();
+    img.onload = () => {
+      setImageDimensions({ width: img.naturalWidth, height: img.naturalHeight, ratio: img.naturalWidth / img.naturalHeight });
+    };
+    img.src = url;
   };
 
   const onAddSticker = (s) => {
@@ -578,26 +593,16 @@ const MemeGen = () => {
 
 
             {/* Mint Info */}
-            <div className="meme-mint-card">
-              <div className="meme-mint-header">
-                <h3 className="meme-mint-title">REKT CEO MEME COLLECTION</h3>
-              </div>
-              <div className="meme-mint-content">
-                <div className="meme-mint-grid">
-                  <div className="meme-mint-item">
-                    <div className="meme-mint-label">Total supply</div>
-                    <div className="meme-mint-value">10,000</div>
-                  </div>
-                  <div className="meme-mint-item">
-                    <div className="meme-mint-label">Current supply</div>
-                    <div className="meme-mint-value">--</div>
-                  </div>
-                  <div className="meme-mint-item">
-                    <div className="meme-mint-label">Current price (CEO)</div>
-                    <div className="meme-mint-value">priceless</div>
-                  </div>
+            {/* Mint Info */}
+            {/* Mint Info with Loader Overlay */}
+            <div style={{ position: 'relative', minHeight: '200px' }}>
+              {isLoading && (
+                <div className="loading-overlay">
+                  <div className="loading-spinner"></div>
+                  <p style={{ marginTop: '10px', fontSize: '0.9rem', color: 'rgba(255,255,255,0.7)' }}>Loading Tier Data...</p>
                 </div>
-              </div>
+              )}
+              <CurrentTier collectionType="MEME" />
             </div>
 
             {/* Sticker Section */}
@@ -663,6 +668,10 @@ const MemeGen = () => {
                 onDrop={(e) => e.preventDefault()}
                 className={`meme-canvas-stage ${imageSrc ? "has-image" : ""}`}
                 style={{
+                  aspectRatio: canvasFormat === 'square' ? '1 / 1' :
+                    canvasFormat === 'portrait' ? '4 / 5' :
+                      canvasFormat === 'landscape' ? '1.91 / 1' :
+                        canvasFormat === 'dynamic' ? (imageDimensions.ratio || 1) : '1 / 1'
                 }}
               >
                 {imageSrc && (
@@ -774,7 +783,92 @@ const MemeGen = () => {
 
             </div>
             {/* Social Share Footer */}
-            <SocialShareFooter onSocialShare={handleSocialShare} />
+            <SocialShareFooter onSocialShare={handleSocialShare}>
+              <button
+                className={`story-btn icon-only ${canvasFormat === 'square' ? 'active' : ''}`}
+                onClick={() => setCanvasFormat('square')}
+                title="Square (1:1)"
+                style={{
+                  padding: '8px',
+                  width: '36px',
+                  height: '36px',
+                  minWidth: '36px',
+                  background: canvasFormat === 'square' ? 'var(--color-yellow)' : 'rgba(255,255,255,0.1)',
+                  color: canvasFormat === 'square' ? 'black' : 'white',
+                  border: '1px solid rgba(255,255,255,0.2)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  borderRadius: '8px',
+                  cursor: 'pointer'
+                }}
+              >
+                <MdCropSquare size={20} />
+              </button>
+              <button
+                className={`story-btn icon-only ${canvasFormat === 'portrait' ? 'active' : ''}`}
+                onClick={() => setCanvasFormat('portrait')}
+                title="Portrait (4:5)"
+                style={{
+                  padding: '8px',
+                  width: '36px',
+                  height: '36px',
+                  minWidth: '36px',
+                  background: canvasFormat === 'portrait' ? 'var(--color-yellow)' : 'rgba(255,255,255,0.1)',
+                  color: canvasFormat === 'portrait' ? 'black' : 'white',
+                  border: '1px solid rgba(255,255,255,0.2)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  borderRadius: '8px',
+                  cursor: 'pointer'
+                }}
+              >
+                <MdCropPortrait size={20} />
+              </button>
+              <button
+                className={`story-btn icon-only ${canvasFormat === 'landscape' ? 'active' : ''}`}
+                onClick={() => setCanvasFormat('landscape')}
+                title="Landscape (1.91:1)"
+                style={{
+                  padding: '8px',
+                  width: '36px',
+                  height: '36px',
+                  minWidth: '36px',
+                  background: canvasFormat === 'landscape' ? 'var(--color-yellow)' : 'rgba(255,255,255,0.1)',
+                  color: canvasFormat === 'landscape' ? 'black' : 'white',
+                  border: '1px solid rgba(255,255,255,0.2)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  borderRadius: '8px',
+                  cursor: 'pointer'
+                }}
+              >
+                <MdCropLandscape size={20} />
+              </button>
+              <button
+                className={`story-btn icon-only ${canvasFormat === 'dynamic' ? 'active' : ''}`}
+                onClick={() => setCanvasFormat('dynamic')}
+                title="Dynamic (Original)"
+                style={{
+                  padding: '8px',
+                  width: '36px',
+                  height: '36px',
+                  minWidth: '36px',
+                  background: canvasFormat === 'dynamic' ? 'var(--color-yellow)' : 'rgba(255,255,255,0.1)',
+                  color: canvasFormat === 'dynamic' ? 'black' : 'white',
+                  border: '1px solid rgba(255,255,255,0.2)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  borderRadius: '8px',
+                  cursor: 'pointer'
+                }}
+              >
+                <MdCropFree size={20} />
+              </button>
+            </SocialShareFooter>
           </div>
 
           {/* Right Column - Controls */}
@@ -991,11 +1085,11 @@ const MemeGen = () => {
         imagePreview={null}
         type="MEME"
         pricing={{
-          tier: "Standard",
-          usdPrice: "Free",
-          ceoPrice: "Priceless",
-          currentSupply: "--",
-          totalSupply: "10,000"
+          tier: activeTier?.name || "Standard",
+          usdPrice: activeTier?.priceUSD ? `$${activeTier.priceUSD}` : "Free",
+          ceoPrice: activeTier?.priceCEO ? `${activeTier.priceCEO.toLocaleString()} CEO` : "Priceless",
+          currentSupply: activeTier?.minted?.toLocaleString() || "--",
+          totalSupply: activeTier?.supply?.toLocaleString() || "10,000"
         }}
       />
 

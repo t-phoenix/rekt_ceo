@@ -13,14 +13,22 @@ import LayerNavbar from "./page_components/LayerNavbar";
 import LayerOptions from "./page_components/LayerOptions";
 
 import sharingService from "../services/SharingService.js";
+import CurrentTier from "../components/CurrentTier.js";
+import { useTierData } from "../hooks/useNftData";
+
 
 const limits = [6, 3, 4, 5, 4, 4, 3, 7]; // Maximum random value for each index
+
 
 export default function ProfileNFT() {
   const [screenWidth, setScreenWidth] = useState(window.innerWidth);
   const [currentIndex, setCurrentIndex] = useState(1); // Start with the second item as the current
   const [selectedLayer, setSelectedLayer] = useState([0, 0, 0, 0, 0, 0, 0, 0]); // BG/ Hoodie / Pants / Shoes/ Skin / Face / Jewellery / Coin
 
+  // Use custom hook for dynamic tier data
+  const { activeTier, totalSupply, isLoading, error } = useTierData('PFP');
+  console.log("Active Tier PFP: ", activeTier)
+  console.log("Total Supply PFP: ", totalSupply)
 
   // Mint modal state
   const [showMintConfirm, setShowMintConfirm] = useState(false);
@@ -142,26 +150,15 @@ export default function ProfileNFT() {
         <section className="pfp-gen-grid">
           {/* Left Column: Info & CTA */}
           <div className="pfp-left-column">
-            <div className="pfp-mint-card">
-              <div className="pfp-mint-header">
-                <h3 className="pfp-mint-title">REKT CEO PFP COLLECTION</h3>
-              </div>
-              <div className="pfp-mint-content">
-                <div className="pfp-mint-grid">
-                  <div className="pfp-mint-item">
-                    <div className="pfp-mint-label">Price (CEO)</div>
-                    <div className="pfp-mint-value">Priceless</div>
-                  </div>
-                  <div className="pfp-mint-item">
-                    <div className="pfp-mint-label">Supply</div>
-                    <div className="pfp-mint-value">-- / 999 only</div>
-                  </div>
-                  <div className="pfp-mint-item">
-                    <div className="pfp-mint-label">Your balance (CEO)</div>
-                    <div className="pfp-mint-value">--</div>
-                  </div>
+            {/* Mint Info with Loader Overlay */}
+            <div style={{ position: 'relative', minHeight: '200px' }}>
+              {isLoading && (
+                <div className="loading-overlay">
+                  <div className="loading-spinner"></div>
+                  <p style={{ marginTop: '10px', fontSize: '0.9rem', color: 'rgba(255,255,255,0.7)' }}>Loading Tier Data...</p>
                 </div>
-              </div>
+              )}
+              <CurrentTier collectionType="PFP" />
             </div>
 
             {/* Sticker Section */}
@@ -259,11 +256,11 @@ export default function ProfileNFT() {
         imagePreview={mintPreviewImage}
         type="PFP"
         pricing={{
-          tier: "Premium",
-          usdPrice: "Free",
-          ceoPrice: "Priceless",
-          currentSupply: "--",
-          totalSupply: "999"
+          tier: activeTier?.name || "Premium",
+          usdPrice: activeTier?.priceUSD ? `$${activeTier.priceUSD}` : "Free",
+          ceoPrice: activeTier?.priceCEO ? `${activeTier.priceCEO.toLocaleString()} CEO` : "Priceless",
+          currentSupply: activeTier?.minted?.toLocaleString() || "--",
+          totalSupply: activeTier?.supply?.toLocaleString() || "999"
         }}
         metadata={{
           traits: {
