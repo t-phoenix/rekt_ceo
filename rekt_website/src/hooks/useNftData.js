@@ -33,21 +33,24 @@ export const useNftPricing = (nftType, isEnabled = true) => {
     });
 };
 
-// Hook to get user mint info (e.g. minted count)
-export const useUserMintInfo = (address) => {
+// Consolidated hook for User Data (Mint Info & CEO Balance)
+export const useUserData = (address) => {
     return useQuery({
-        queryKey: ['userMintInfo', address],
-        queryFn: () => api.getUserInfo(address),
-        enabled: !!address,
-    });
-};
+        queryKey: ['userData', address],
+        queryFn: async () => {
+            const [mintInfo, ceoBalance] = await Promise.all([
+                api.getUserInfo(address),
+                api.getUserCEOBalance(address)
+            ]);
+            console.log("Mint Info: ", mintInfo)
 
-// Hook to get user CEO balance
-export const useUserCeoBalance = (address) => {
-    return useQuery({
-        queryKey: ['userCeoBalance', address],
-        queryFn: () => api.getUserCEOBalance(address),
+            return {
+                mintInfo,
+                ceoBalance
+            };
+        },
         enabled: !!address,
+        refetchInterval: 30 * 1000, // Refresh every 30 seconds
     });
 };
 
@@ -74,21 +77,36 @@ export const useTierData = (collectionType) => {
     const tiers = useMemo(() => {
         const initialTiers = collectionType === 'PFP' ? INITIAL_PFP_TIERS : INITIAL_MEME_TIERS;
 
-        if (!pricingData || !pricingData.tiers) return initialTiers;
+        if (!pricingData) return initialTiers;
+
+        // API returns the single active tier data object, not an array of tiers
+        const currentTierId = pricingData.tierId;
 
         return initialTiers.map(tier => {
-            const dynamicTier = pricingData.tiers.find(t => t.id === tier.id);
-            if (dynamicTier) {
+            if (tier.id === currentTierId) {
+                // This is the active tier
                 return {
                     ...tier,
-                    minted: dynamicTier.minted ?? tier.minted,
-                    supply: dynamicTier.supply ?? tier.supply,
-                    priceCEO: dynamicTier.priceCEO ?? tier.priceCEO,
-                    priceUSD: dynamicTier.priceUSD ?? tier.priceUSD,
-                    status: dynamicTier.status ?? tier.status,
+                    minted: pricingData.currentSupply ?? tier.minted,
+                    priceCEO: pricingData.priceCEO ? parseFloat(pricingData.priceCEO) : tier.priceCEO,
+                    priceUSD: pricingData.priceUSD ? parseFloat(pricingData.priceUSD) : tier.priceUSD,
+                    status: 'active',
+                };
+            } else if (tier.id < currentTierId) {
+                // Completed tier
+                return {
+                    ...tier,
+                    status: 'completed',
+                    minted: tier.supply, // Assume full usage for completed tiers
+                };
+            } else {
+                // Future/Locked tier
+                return {
+                    ...tier,
+                    status: 'locked',
+                    minted: 0,
                 };
             }
-            return tier;
         });
     }, [collectionType, pricingData]);
 

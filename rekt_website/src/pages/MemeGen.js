@@ -13,11 +13,16 @@ import BrandifyModal from "../components/BrandifyModal.js";
 import MintConfirmModal from "../components/MintConfirmModal.js";
 import MintSuccessModal from "../components/MintSuccessModal.js";
 import memeApiService from "../services/MemeApiService.js";
-import { useTierData } from "../hooks/useNftData";
+import { useAccount } from 'wagmi';
+import { useTierData, useUserData } from "../hooks/useNftData";
+import { exportNodeToPng } from "../utils/exportImage.js";
+
 
 const MemeGen = () => {
   // Use custom hook for dynamic tier data
   const { activeTier, totalSupply, isLoading, error } = useTierData('MEME');
+  const { address, isConnected } = useAccount();
+  const { data: userData } = useUserData(address);
   console.log("Active Tier: ", activeTier)
   console.log("Total Supply: ", totalSupply)
 
@@ -46,6 +51,7 @@ const MemeGen = () => {
   // Mint modal state
   const [showMintConfirm, setShowMintConfirm] = useState(false);
   const [showMintSuccess, setShowMintSuccess] = useState(false);
+  const [mintPreviewImage, setMintPreviewImage] = useState(null);
 
 
   // sticker instances on canvas
@@ -1030,18 +1036,30 @@ const MemeGen = () => {
                 <h3 className="meme-ready-title">Ready to Own Your MEMEs?</h3>
               </div>
               <div className="meme-ready-content">
-                {/* <p className="meme-ready-text">Mint your meme to show the world the CEO of rekt you truly are.</p> */}
+                {isConnected && userData && (
+                  <div className="flex flex-row items-center justify-between w-full mb-0.5 px-1">
+                    <div className="flex flex-row items-center">
+                      <span className="text-sm font-medium text-gray-400">Your Balance: </span>
+                      <span className="text-md font-bold text-white !ml-0.5">{parseFloat(userData.ceoBalance?.balance || 0).toLocaleString()} CEO</span>
+                    </div>
+                    <div className="h-8 w-[1px] bg-gray-700 mx-2"></div>
+                    <div className="flex flex-row items-center">
+                      <span className="text-sm font-medium text-gray-400">Memes Owned: </span>
+                      <span className="text-md font-bold text-white !ml-0.5">{userData.mintInfo?.meme.mintCount || 0} / {userData.mintInfo?.meme.maxMint || 0}</span>
+                    </div>
+                  </div>
+                )}
                 <button
                   onClick={async () => {
                     //DO NOT DELETE
-                    // if (!imageSrc) {
-                    //   showToast("Please select a meme template first!");
-                    //   return;
-                    // }
-                    // // Capture the canvas as image
-                    // const preview = await exportNodeToPng(stageRef.current);
-                    // setMintPreviewImage(preview);
-                    // setShowMintConfirm(true);
+                    if (!imageSrc) {
+                      showToast("Please select a meme template first!");
+                      return;
+                    }
+                    // Capture the canvas as image
+                    const preview = await exportNodeToPng(stageRef.current);
+                    setMintPreviewImage(preview);
+                    setShowMintConfirm(true);
                   }}
                   className="story-btn secondary"
                   style={{ width: '100%' }}
@@ -1082,7 +1100,7 @@ const MemeGen = () => {
           setShowMintSuccess(true);
           showToast("🎉 Meme minted successfully!");
         }}
-        imagePreview={null}
+        imagePreview={mintPreviewImage}
         type="MEME"
         pricing={{
           tier: activeTier?.name || "Standard",
@@ -1097,7 +1115,7 @@ const MemeGen = () => {
       <MintSuccessModal
         isOpen={showMintSuccess}
         onClose={() => setShowMintSuccess(false)}
-        imagePreview={null}
+        imagePreview={mintPreviewImage}
         type="MEME"
         onSocialShare={handleSocialShare}
       />
