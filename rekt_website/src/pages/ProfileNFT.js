@@ -2,7 +2,7 @@ import React, { useEffect, useState, useCallback } from "react";
 import "./pfp.css";
 import "./landingpage/styles/story.css";
 import InteractiveGlow from "../components/InteractiveGlow.js";
-import StickerCard from "./page_components/StickerCard.js";
+import PerksCarousel from "./page_components/PerksCarousel.js";
 import { MdShuffle } from "react-icons/md";
 import SocialShareFooter from "./page_components/SocialShareFooter.js";
 import MintConfirmModal from "../components/MintConfirmModal.js";
@@ -14,6 +14,7 @@ import LayerOptions from "./page_components/LayerOptions";
 
 import sharingService from "../services/SharingService.js";
 import CurrentTier from "../components/CurrentTier.js";
+import TierDataSkeleton from "../components/TierDataSkeleton.js";
 import { useAccount } from 'wagmi';
 import { useTierData, useUserData } from "../hooks/useNftData";
 
@@ -125,7 +126,7 @@ export default function ProfileNFT() {
           <div className="responsive-message-icon">💼</div>
           <h1 className="responsive-message-title">CEO of Responsiveness</h1>
           <p className="responsive-message-subtitle">
-            This PFP builder is best experienced on desktop. Were brewing a mobile-friendly version.
+            This PFP builder is best experienced on desktop. We re brewing a mobile-friendly version.
           </p>
           <div className="responsive-message-requirements">
             <div className="requirement-item">
@@ -157,27 +158,14 @@ export default function ProfileNFT() {
           {/* Left Column: Info & CTA */}
           <div className="pfp-left-column">
             {/* Mint Info with Loader Overlay */}
-            <div style={{ position: 'relative', minHeight: '200px' }}>
-              {isLoading && (
-                <div className="loading-overlay">
-                  <div className="loading-spinner"></div>
-                  <p style={{ marginTop: '10px', fontSize: '0.9rem', color: 'rgba(255,255,255,0.7)' }}>Loading Tier Data...</p>
-                </div>
-              )}
+            {isLoading ? (
+              <TierDataSkeleton />
+            ) : (
               <CurrentTier collectionType="PFP" />
-            </div>
+            )}
 
-            {/* Sticker Section */}
-            <StickerCard
-              onAddSticker={(sticker) => {
-                // Handle sticker addition for PFP (placeholder for now)
-
-              }}
-              onRemoveAllStickers={() => {
-                // Handle sticker removal for PFP (placeholder for now)
-
-              }}
-            />
+            {/* Perks Carousel Section */}
+            <PerksCarousel />
 
             <div className="pfp-subtitle-card">
               <div className="pfp-subtitle-content">
@@ -244,7 +232,6 @@ export default function ProfileNFT() {
                         <span className="text-sm font-medium text-gray-400">Your Balance: </span>
                         <span className="text-md font-bold text-white !ml-0.5">{parseFloat(userData.ceoBalance?.balance || 0).toLocaleString()} CEO</span>
                       </div>
-                      <div className="h-8 w-[1px] bg-gray-700 mx-2"></div>
                       <div className="flex flex-row items-center">
                         <span className="text-sm font-medium text-gray-400">PFPs Owned: </span>
                         <span className="text-md font-bold text-white !ml-0.5">{userData.mintInfo?.pfp.mintCount || 0} / {userData.mintInfo?.pfp.maxMint || 0}</span>
@@ -291,6 +278,8 @@ export default function ProfileNFT() {
             "Coin": `Coin ${selectedLayer[7]}`
           }
         }}
+        userData={userData}
+        isConnected={isConnected}
       />
 
       {/* Mint Success Modal */}

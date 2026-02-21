@@ -698,7 +698,7 @@
 }
 
 .meme-control-group {
-  margin-bottom: 1rem;
+  margin-bottom: 1%;
 }
 
 .meme-control-row {
@@ -717,6 +717,8 @@
   flex-direction: column;
   gap: 0.5rem;
   width: 100%;
+  margin-bottom: 1rem;
+
 }
 
 .meme-label {

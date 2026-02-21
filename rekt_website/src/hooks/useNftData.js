@@ -54,13 +54,7 @@ export const useUserData = (address) => {
     });
 };
 
-// Mutation to initiate mint
-export const useInitiateMint = () => {
-    return useMutation({
-        mutationFn: ({ nftType, imageData, permitSignature, token }) =>
-            api.initiateMint(nftType, imageData, permitSignature, token),
-    });
-};
+// useMint hook should now be imported from useMint.js
 
 
 export const useTierData = (collectionType) => {

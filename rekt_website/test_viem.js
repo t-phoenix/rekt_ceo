@@ -1,0 +1,2 @@
+import { parseSignature } from 'viem';
+console.log(parseSignature('0x64426543b5df516f49f485dbce4e50882ef9c15ab8ef036a147efb5b5c900eaf725d2595fb0a41d0cc7675f9add68ea4656fa763cffe15bfdb114b7e882e38c71b'));

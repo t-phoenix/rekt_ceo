@@ -72,7 +72,7 @@ const CurrentTier = ({ collectionType = 'MEME' }) => {
                             <div className="progress-bar-bg">
                                 <div
                                     className="progress-bar-fill"
-                                    style={{ width: `${progress}%` }}
+                                    style={{ width: `${Math.max(1, progress)}%` }}
                                 />
                             </div>
                             <div className="progress-stats">
