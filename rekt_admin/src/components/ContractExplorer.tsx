@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt } from 'wagmi'
-import { formatUnits, parseUnits, type Address } from 'viem'
+import { type Address } from 'viem'
 
 interface ContractExplorerProps {
     address: Address

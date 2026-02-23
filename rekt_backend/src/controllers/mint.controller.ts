@@ -8,7 +8,7 @@ export class MintController {
    */
   async initiateMint(req: Request, res: Response, next: NextFunction) {
     try {
-      const { nftType, imageData, permitSignature } = req.body;
+      const { nftType, imageData, permitSignature, attributes } = req.body;
       const userAddress = req.user!.address;
 
       // Validate NFT type
@@ -47,6 +47,7 @@ export class MintController {
         nftType,
         imageData,
         permitSignature: permitValidation.data,
+        attributes,
       });
 
       res.json({

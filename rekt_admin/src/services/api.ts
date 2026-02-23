@@ -51,7 +51,7 @@ export const api = {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ address }),
     })
-    
+
 
     if (!res.ok) throw new Error('Failed to get nonce')
     const data = await res.json()
@@ -66,7 +66,7 @@ export const api = {
       body: JSON.stringify({ message, signature }),
     })
     if (!res.ok) throw new Error('Failed to verify signature')
-    
+
     const data = await res.json()
     return data.data
   },

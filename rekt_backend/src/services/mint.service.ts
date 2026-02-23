@@ -16,6 +16,7 @@ class MintService {
     nftType: 'PFP' | 'MEME';
     imageData: string;
     permitSignature: PermitSignature;
+    attributes?: Record<string, string | number> | Array<{ trait_type: string; value: string | number }>;
   }): Promise<{
     success: boolean;
     txHash: string;
@@ -50,15 +51,17 @@ class MintService {
     // Step 3: Validate permit signature
     this.validatePermitSignature(permitSignature, userAddress);
 
-    // Step 4: Upload image to IPFS
-    logger.info('Uploading image to IPFS', { user: userAddress });
+    // Step 4: Get next token ID (approximate, reusing tier info)
+    const predictedTokenId = tierInfo.currentSupply + 1;
+    const collectionName = nftType === 'PFP' ? 'Rekt CEO PFP' : 'Rekt CEO Meme';
+    const baseFileName = `${collectionName} #${predictedTokenId}`;
+
+    // Step 5: Upload image to IPFS
+    logger.info('Uploading image to IPFS', { user: userAddress, fileName: baseFileName });
     const imageURI = await ipfsService.uploadImage(
       imageData,
-      `${nftType.toLowerCase()}-${Date.now()}.png`
+      `${baseFileName}.png`
     );
-
-    // Step 5: Get next token ID (approximate, reusing tier info)
-    const predictedTokenId = tierInfo.currentSupply + 1;
 
     // Step 6: Generate and upload metadata
     logger.info('Generating metadata', { user: userAddress, tokenId: predictedTokenId });
@@ -66,10 +69,11 @@ class MintService {
       nftType,
       predictedTokenId,
       imageURI,
-      userAddress
+      userAddress,
+      task.attributes
     );
 
-    const metadataURI = await ipfsService.uploadMetadata(metadata);
+    const metadataURI = await ipfsService.uploadMetadata(metadata, `${baseFileName}.json`);
     console.log('metadataURI uploading ...', metadataURI);
 
     // Step 7: Execute mint transaction

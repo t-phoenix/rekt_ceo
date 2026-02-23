@@ -6,6 +6,7 @@ interface MintTask {
   nftType: 'PFP' | 'MEME';
   imageData: string;
   permitSignature: any;
+  attributes?: Record<string, string | number> | Array<{ trait_type: string; value: string | number }>;
   resolve: (result: any) => void;
   reject: (error: any) => void;
 }
