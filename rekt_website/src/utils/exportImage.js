@@ -24,9 +24,22 @@ export async function exportNodeToPng(node) {
   };
 
   try {
+    // Use exact bounding rect so no surrounding whitespace bleeds in
+    const rect = node.getBoundingClientRect();
+    const width = Math.round(rect.width);
+    const height = Math.round(rect.height);
+
     const dataUrl = await toPng(node, {
-      filter: filter,
+      filter,
       pixelRatio: Math.max(window.devicePixelRatio, 3),
+      width,
+      height,
+      // Strip all margin / padding so the captured canvas starts at pixel 0
+      style: {
+        margin: '0',
+        padding: '0',
+        border: 'none',
+      },
     });
     return dataUrl;
   } catch (error) {
