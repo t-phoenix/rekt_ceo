@@ -3,7 +3,7 @@ import { useConnection, useSignTypedData, useWriteContract } from 'wagmi'
 import { getBlock, readContract } from 'wagmi/actions'
 import { config } from '../config/wagmi'
 import { api } from '../services/api'
-import type { TierInfo } from '../services/api'
+import type { TierInfo, NFTAttribute } from '../services/api'
 import { ethers } from 'ethers'
 import CEO_TOKEN_ABI from '../abi/CEOToken.json'
 
@@ -57,6 +57,7 @@ interface PersistedMintState {
   deadline: bigint
   value: string
   tokenName: string
+  attributes?: NFTAttribute[]
   signature?: string
   v?: number
   r?: string
@@ -185,7 +186,7 @@ export const useMint = (token: string | null, pfpPricing: TierInfo | null, memeP
     setError(null)
 
     try {
-      const { step, nftType, imageData, nonce, deadline, value, tokenName, signature, v, r, s, permitTxHash: _permitTxHash } = savedState
+      const { step, nftType, imageData, nonce, deadline, value, tokenName, attributes, signature, v, r, s, permitTxHash: _permitTxHash } = savedState
 
       // Resume from the appropriate step
       if (step === MintStep.SIGNING || step === MintStep.PREPARING) {
@@ -236,7 +237,8 @@ export const useMint = (token: string | null, pfpPricing: TierInfo | null, memeP
             r: parsedSig.r,
             s: parsedSig.s,
           },
-          token
+          token,
+          attributes
         )
 
         // Clear state on success
@@ -263,7 +265,8 @@ export const useMint = (token: string | null, pfpPricing: TierInfo | null, memeP
             r,
             s,
           },
-          token
+          token,
+          attributes
         )
 
         // Clear state on success
@@ -289,7 +292,8 @@ export const useMint = (token: string | null, pfpPricing: TierInfo | null, memeP
             r,
             s,
           },
-          token
+          token,
+          attributes
         )
 
         // Clear state on success
@@ -310,7 +314,7 @@ export const useMint = (token: string | null, pfpPricing: TierInfo | null, memeP
     }
   }, [token, address, signTypedDataAsync, writeContractAsync])
 
-  const mint = useCallback(async (nftType: 'PFP' | 'MEME') => {
+  const mint = useCallback(async (nftType: 'PFP' | 'MEME', attributes?: NFTAttribute[]) => {
     if (!token || !address) {
       throw new Error('Not authenticated')
     }
@@ -355,6 +359,7 @@ export const useMint = (token: string | null, pfpPricing: TierInfo | null, memeP
         deadline,
         value: value.toString(),
         tokenName,
+        attributes,
         timestamp: Date.now(),
       })
       setCurrentStep(MintStep.SIGNING)
@@ -395,6 +400,7 @@ export const useMint = (token: string | null, pfpPricing: TierInfo | null, memeP
         deadline,
         value: value.toString(),
         tokenName,
+        attributes,
         signature,
         v,
         r,
@@ -417,7 +423,8 @@ export const useMint = (token: string | null, pfpPricing: TierInfo | null, memeP
           r,
           s,
         },
-        token
+        token,
+        attributes
       )
 
       console.log('Mint complete .... result', result)

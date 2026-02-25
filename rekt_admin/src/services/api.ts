@@ -1,6 +1,10 @@
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000'
 
 // Types
+export interface NFTAttribute {
+  trait_type: string
+  value: string | number
+}
 export interface TierInfo {
   currentSupply: number
   tierId: number
@@ -123,7 +127,8 @@ export const api = {
       r: string
       s: string
     },
-    token: string
+    token: string,
+    attributes?: NFTAttribute[]
   ): Promise<{ taskId: string; status: string; message?: string }> {
     const res = await fetch(`${API_URL}/api/mint/initiate`, {
       method: 'POST',
@@ -131,7 +136,7 @@ export const api = {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`,
       },
-      body: JSON.stringify({ nftType, imageData, permitSignature }),
+      body: JSON.stringify({ nftType, imageData, permitSignature, attributes }),
     })
 
     const data = await res.json()
