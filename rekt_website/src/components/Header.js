@@ -5,6 +5,7 @@ import { useMediaQuery } from "react-responsive";
 import Navbar from "./Navbar";
 import RektLogo from "../creatives/Rekt_logo_illustration.png"
 import { MdMenu } from "react-icons/md";
+import ConnectWalletButton from "./ConnectWalletButton";
 
 
 export default function Header() {
@@ -23,7 +24,7 @@ export default function Header() {
     <div className="header">
       {isTab ? (
         // FOR MOBILE AND TAB
-        <div className="header-container">
+        <div className="header-container mobile-header">
           <div className="nav-burger" onClick={openNavBar}>
             {<MdMenu size={40} />}
           </div>
@@ -32,6 +33,7 @@ export default function Header() {
             <h2 className="title">REKT CEO</h2>
             <p className="icon-title">Be Your Own CEO</p>
           </div>
+          <ConnectWalletButton />
         </div>
       ) : (
         // FOR LAPTOP

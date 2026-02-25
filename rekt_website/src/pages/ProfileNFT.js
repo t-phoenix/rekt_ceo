@@ -2,30 +2,43 @@ import React, { useEffect, useState, useCallback } from "react";
 import "./pfp.css";
 import "./landingpage/styles/story.css";
 import InteractiveGlow from "../components/InteractiveGlow.js";
-import StickerCard from "./page_components/StickerCard.js";
+import PerksCarousel from "./page_components/PerksCarousel.js";
 import { MdShuffle } from "react-icons/md";
 import SocialShareFooter from "./page_components/SocialShareFooter.js";
 import MintConfirmModal from "../components/MintConfirmModal.js";
 import MintSuccessModal from "../components/MintSuccessModal.js";
+import ComingSoonButton from "../components/ComingSoonButton.js";
 
 import LayerImage from "./page_components/LayerImage";
 import LayerNavbar from "./page_components/LayerNavbar";
 import LayerOptions from "./page_components/LayerOptions";
 
 import sharingService from "../services/SharingService.js";
+import CurrentTier from "../components/CurrentTier.js";
+import TierDataSkeleton from "../components/TierDataSkeleton.js";
+import { useAccount } from 'wagmi';
+import { useTierData, useUserData } from "../hooks/useNftData";
+
 
 const limits = [6, 3, 4, 5, 4, 4, 3, 7]; // Maximum random value for each index
+
 
 export default function ProfileNFT() {
   const [screenWidth, setScreenWidth] = useState(window.innerWidth);
   const [currentIndex, setCurrentIndex] = useState(1); // Start with the second item as the current
   const [selectedLayer, setSelectedLayer] = useState([0, 0, 0, 0, 0, 0, 0, 0]); // BG/ Hoodie / Pants / Shoes/ Skin / Face / Jewellery / Coin
+  const { address, isConnected } = useAccount();
+  const { data: userData } = useUserData(address);
 
+  // Use custom hook for dynamic tier data
+  const { activeTier, totalSupply, isLoading } = useTierData('PFP');
+  console.log("Active Tier PFP: ", activeTier)
+  console.log("Total Supply PFP: ", totalSupply)
 
   // Mint modal state
   const [showMintConfirm, setShowMintConfirm] = useState(false);
   const [showMintSuccess, setShowMintSuccess] = useState(false);
-  const [mintPreviewImage] = useState(null);
+  const [mintPreviewImage, setMintPreviewImage] = useState(null);
 
 
 
@@ -71,27 +84,31 @@ export default function ProfileNFT() {
     sharingService.setToastFunction(showToast);
   }, [showToast]);
 
-  // const handleMint = async () => {
-  //   try {
-  //     // Capture the composite PFP image
-  //     const compositeElement = document.getElementById('composite-container');
-  //     if (!compositeElement) {
-  //       showToast("Please wait for PFP to load!");
-  //       return;
-  //     }
-  //
-  //     // Use html2canvas to capture the composite
-  //     const html2canvas = (await import('html2canvas')).default;
-  //     const canvas = await html2canvas(compositeElement);
-  //     const preview = canvas.toDataURL('image/png');
-  //
-  //     setMintPreviewImage(preview);
-  //     setShowMintConfirm(true);
-  //   } catch (error) {
-  //     console.error('Error capturing PFP:', error);
-  //     showToast("Failed to capture PFP preview");
-  //   }
-  // };
+  // eslint-disable-next-line no-unused-vars
+  const handleMint = async () => {
+    try {
+      // Capture the composite PFP image
+      const compositeElement = document.getElementById('composite-container');
+      if (!compositeElement) {
+        showToast("Please wait for PFP to load!");
+        return;
+      }
+
+      // Use html2canvas to capture the composite
+      const html2canvas = (await import('html2canvas')).default;
+      const canvas = await html2canvas(compositeElement, {
+        useCORS: true,
+        backgroundColor: null
+      });
+      const preview = canvas.toDataURL('image/png');
+
+      setMintPreviewImage(preview);
+      setShowMintConfirm(true);
+    } catch (error) {
+      console.error('Error capturing PFP:', error);
+      showToast("Failed to capture PFP preview");
+    }
+  };
 
   const handleSocialShare = async (platform) => {
     await sharingService.handleSocialShare(platform, {
@@ -111,7 +128,7 @@ export default function ProfileNFT() {
           <div className="responsive-message-icon">💼</div>
           <h1 className="responsive-message-title">CEO of Responsiveness</h1>
           <p className="responsive-message-subtitle">
-            This PFP builder is best experienced on desktop. Were brewing a mobile-friendly version.
+            This PFP builder is best experienced on desktop. We re brewing a mobile-friendly version.
           </p>
           <div className="responsive-message-requirements">
             <div className="requirement-item">
@@ -142,39 +159,15 @@ export default function ProfileNFT() {
         <section className="pfp-gen-grid">
           {/* Left Column: Info & CTA */}
           <div className="pfp-left-column">
-            <div className="pfp-mint-card">
-              <div className="pfp-mint-header">
-                <h3 className="pfp-mint-title">REKT CEO PFP COLLECTION</h3>
-              </div>
-              <div className="pfp-mint-content">
-                <div className="pfp-mint-grid">
-                  <div className="pfp-mint-item">
-                    <div className="pfp-mint-label">Price (CEO)</div>
-                    <div className="pfp-mint-value">Priceless</div>
-                  </div>
-                  <div className="pfp-mint-item">
-                    <div className="pfp-mint-label">Supply</div>
-                    <div className="pfp-mint-value">-- / 999 only</div>
-                  </div>
-                  <div className="pfp-mint-item">
-                    <div className="pfp-mint-label">Your balance (CEO)</div>
-                    <div className="pfp-mint-value">--</div>
-                  </div>
-                </div>
-              </div>
-            </div>
+            {/* Mint Info with Loader Overlay */}
+            {isLoading ? (
+              <TierDataSkeleton />
+            ) : (
+              <CurrentTier collectionType="PFP" />
+            )}
 
-            {/* Sticker Section */}
-            <StickerCard
-              onAddSticker={(sticker) => {
-                // Handle sticker addition for PFP (placeholder for now)
-
-              }}
-              onRemoveAllStickers={() => {
-                // Handle sticker removal for PFP (placeholder for now)
-
-              }}
-            />
+            {/* Perks Carousel Section */}
+            <PerksCarousel />
 
             <div className="pfp-subtitle-card">
               <div className="pfp-subtitle-content">
@@ -194,7 +187,7 @@ export default function ProfileNFT() {
                   {/* <button onClick={downloadImage} className="story-btn primary">
                     <span style={{ marginRight: 6 }}>Download</span> <MdDownload />
                   </button> */}
-                  <button onClick={randomiseLayers} className="story-btn secondary">
+                  <button onClick={randomiseLayers} className="story-btn secondary" style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
                     <span style={{ marginRight: 6 }}>Randomise</span> <MdShuffle />
                   </button>
                 </div>
@@ -235,11 +228,23 @@ export default function ProfileNFT() {
                   <h3 className="pfp-ready-title">Ready?</h3>
                 </div>
                 <div className="pfp-ready-content">
-                  <p className="pfp-ready-text">Mint your PFP NFT using $CEO. Coming soon.</p>
-                  {/* <button onClick={handleMint} className="story-btn secondary" style={{ width: "100%" }}> */}
-                  <button className="story-btn secondary" style={{ width: "100%" }}>
+                  {isConnected && userData && (
+                    <div className="flex flex-row items-center justify-between w-full mb-0.5 px-1">
+                      <div className="flex flex-row items-center">
+                        <span className="text-sm font-medium text-gray-400">Your Balance: </span>
+                        <span className="text-md font-bold text-white !ml-0.5">{parseFloat(userData.ceoBalance?.balance || 0).toLocaleString()} CEO</span>
+                      </div>
+                      <div className="flex flex-row items-center">
+                        <span className="text-sm font-medium text-gray-400">PFPs Owned: </span>
+                        <span className="text-md font-bold text-white !ml-0.5">{userData.mintInfo?.pfp.mintCount || 0} / {userData.mintInfo?.pfp.maxMint || 0}</span>
+                      </div>
+                    </div>
+                  )}
+                  {/* PRODUCTION TODO: Remove <ComingSoonButton> below and uncomment the original button when deploying with production token */}
+                  <ComingSoonButton className="story-btn secondary" style={{ width: "100%" }} label="Mint NFT (Coming Soon)" />
+                  {/* <button onClick={handleMint} className="story-btn secondary" style={{ width: "100%" }}>
                     Mint NFT (Coming Soon)
-                  </button>
+                  </button> */}
                 </div>
               </div>
             </div>
@@ -259,11 +264,11 @@ export default function ProfileNFT() {
         imagePreview={mintPreviewImage}
         type="PFP"
         pricing={{
-          tier: "Premium",
-          usdPrice: "Free",
-          ceoPrice: "Priceless",
-          currentSupply: "--",
-          totalSupply: "999"
+          tier: activeTier?.name || "Premium",
+          usdPrice: activeTier?.priceUSD ? `$${activeTier.priceUSD}` : "Free",
+          ceoPrice: activeTier?.priceCEO ? `${activeTier.priceCEO.toLocaleString()} CEO` : "Priceless",
+          currentSupply: activeTier?.minted?.toLocaleString() || "--",
+          totalSupply: activeTier?.supply?.toLocaleString() || "999"
         }}
         metadata={{
           traits: {
@@ -277,6 +282,8 @@ export default function ProfileNFT() {
             "Coin": `Coin ${selectedLayer[7]}`
           }
         }}
+        userData={userData}
+        isConnected={isConnected}
       />
 
       {/* Mint Success Modal */}

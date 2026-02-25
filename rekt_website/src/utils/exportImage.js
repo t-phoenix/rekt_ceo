@@ -1,4 +1,4 @@
-import html2canvas from "html2canvas";
+import { toPng } from 'html-to-image';
 
 export async function exportNodeToPng(node) {
   if (!node) return;
@@ -11,56 +11,27 @@ export async function exportNodeToPng(node) {
     "sticker-rotation-indicator",
   ]);
 
-  const width = node.offsetWidth;
-  const height = node.offsetHeight;
-
-  // Workaround for html2canvas not honoring object-fit: contain on <img> reliably
-  // We temporarily set the stage's background-image with background-size: contain
-  // and hide the inner img so the aspect ratio is preserved in the export.
-  const backgroundImgEl = node.querySelector?.(".meme-canvas-background");
-  const originalImgDisplay = backgroundImgEl?.style?.display;
-  const originalNodeBg = {
-    backgroundImage: node.style.backgroundImage,
-    backgroundSize: node.style.backgroundSize,
-    backgroundPosition: node.style.backgroundPosition,
-    backgroundRepeat: node.style.backgroundRepeat,
+  const filter = (el) => {
+    // If it's a DOM element, check its classes
+    if (el && el.classList) {
+      for (const cls of classesToIgnore) {
+        if (el.classList.contains(cls)) {
+          return false; // exclude elements with these classes
+        }
+      }
+    }
+    return true; // include everything else
   };
 
   try {
-    if (backgroundImgEl && backgroundImgEl.tagName === "IMG" && backgroundImgEl.src) {
-      // Hide the <img> during capture
-      backgroundImgEl.style.display = "none";
-      // Apply background image with contain semantics
-      node.style.backgroundImage = `url(${backgroundImgEl.src})`;
-      node.style.backgroundSize = "contain";
-      node.style.backgroundPosition = "center";
-      node.style.backgroundRepeat = "no-repeat";
-    }
-
-    const canvas = await html2canvas(node, {
-      backgroundColor: null,
-      useCORS: true,
-      scale: window.devicePixelRatio > 1 ? 2 : 1,
-      width,
-      height,
-      ignoreElements: (el) => {
-        if (!el || !el.classList) return false;
-        for (const cls of classesToIgnore) {
-          if (el.classList.contains(cls)) return true;
-        }
-        return false;
-      },
+    const dataUrl = await toPng(node, {
+      filter: filter,
+      pixelRatio: Math.max(window.devicePixelRatio, 3),
     });
-
-    const dataUrl = canvas.toDataURL("image/png");
     return dataUrl;
-  } finally {
-    // Revert temporary style changes
-    if (backgroundImgEl) backgroundImgEl.style.display = originalImgDisplay || "";
-    node.style.backgroundImage = originalNodeBg.backgroundImage || "";
-    node.style.backgroundSize = originalNodeBg.backgroundSize || "";
-    node.style.backgroundPosition = originalNodeBg.backgroundPosition || "";
-    node.style.backgroundRepeat = originalNodeBg.backgroundRepeat || "";
+  } catch (error) {
+    console.error("Error exporting image:", error);
+    throw error;
   }
 }
 

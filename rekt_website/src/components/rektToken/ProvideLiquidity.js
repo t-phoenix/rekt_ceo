@@ -1,4 +1,5 @@
 import { useCallback, useState, useEffect, useMemo } from "react";
+import ComingSoonButton from '../ComingSoonButton';
 import { Plus } from "lucide-react";
 import { useAccount, useSwitchChain, useChainId, useReadContract } from "wagmi";
 import { parseUnits, formatUnits } from "viem";
@@ -137,6 +138,7 @@ export default function ProvideLiquidity() {
 
 
     // Errors
+    // eslint-disable-next-line no-unused-vars
     const insufficientLiquidityBalance = useMemo(() => {
         if (balanceCEOData === undefined || balanceUSDCData === undefined) return false;
         const valA = parseFloat(liquidityAmountA || "0");
@@ -237,6 +239,7 @@ export default function ProvideLiquidity() {
         }
     }, [isAddLiquidityConfirmed, addLiquidityError, addLiquidityHash, refetchBalanceUSDC, refetchBalanceCEO]);
 
+    // eslint-disable-next-line no-unused-vars
     const handleAddLiquidityClick = () => {
         if (!address) return;
         if (isWrongNetwork) {
@@ -333,13 +336,15 @@ export default function ProvideLiquidity() {
                 </div>
             </div>
 
-            <button
+            {/* PRODUCTION TODO: Remove <ComingSoonButton> below and uncomment the original button when deploying with production token */}
+            <ComingSoonButton className="action-button-large mt-4" style={{ width: '100%' }} />
+            {/* <button
                 className={`action-button-large mt-4 ${insufficientLiquidityBalance ? "opacity-50 cursor-not-allowed" : ""}`}
                 onClick={handleAddLiquidityClick}
                 disabled={!liquidityAmountA || !liquidityAmountB || !isConnected || insufficientLiquidityBalance}
             >
                 {isConnected ? (insufficientLiquidityBalance ? "Insufficient Balance" : "Add Liquidity") : "Connect Wallet"}
-            </button>
+            </button> */}
 
             <SwapModal
                 open={modalOpen}
