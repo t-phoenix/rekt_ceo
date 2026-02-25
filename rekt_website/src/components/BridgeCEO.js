@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import ComingSoonButton from './ComingSoonButton';
 import './BridgeCEO.css';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { useWalletModal } from '@solana/wallet-adapter-react-ui';
@@ -136,6 +137,7 @@ const BridgeCEO = () => {
         }
     };
 
+    // eslint-disable-next-line no-unused-vars
     const handleButtonClick = () => {
         if (!connected) {
             handleConnectWallet();
@@ -144,6 +146,7 @@ const BridgeCEO = () => {
         }
     };
 
+    // eslint-disable-next-line no-unused-vars
     const getButtonText = () => {
         if (!connected) return 'Connect Wallet';
         if (!sdkReady) return 'Initializing Bridge...';
@@ -153,6 +156,7 @@ const BridgeCEO = () => {
         return 'Bridge Now';
     };
 
+    // eslint-disable-next-line no-unused-vars
     const isButtonDisabled = () => {
         if (!connected) return false; // Connect wallet is always enabled
         if (!sdkReady) return true;
@@ -231,13 +235,15 @@ const BridgeCEO = () => {
                     />
 
                     {/* Action Button */}
-                    <button
+                    {/* PRODUCTION TODO: Remove <ComingSoonButton> below and uncomment the original button when deploying with production token */}
+                    <ComingSoonButton className="bridge-button disabled" style={{ width: '100%' }} />
+                    {/* <button
                         className={`bridge-button ${isButtonDisabled() ? 'disabled' : ''}`}
                         onClick={handleButtonClick}
                         disabled={isButtonDisabled()}
                     >
                         {getButtonText()}
-                    </button>
+                    </button> */}
 
                     <p className="bridge-note">
                         Securely bridge $CEO from Solana to Base via Wormhole. Automatic relay — no Base wallet interaction needed.

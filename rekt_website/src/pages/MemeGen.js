@@ -36,7 +36,7 @@ const MemeGen = () => {
   const [screenWidth, setScreenWidth] = useState(window.innerWidth);
 
   // Canvas dimensions state
-  const [canvasFormat, setCanvasFormat] = useState("square"); // square, portrait, landscape, dynamic
+  const [canvasFormat, setCanvasFormat] = useState("dynamic"); // square, portrait, landscape, dynamic
   const [imageDimensions, setImageDimensions] = useState({ width: 1, height: 1, ratio: 1 });
 
   // AI modal state

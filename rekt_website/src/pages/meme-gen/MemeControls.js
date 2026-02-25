@@ -1,4 +1,6 @@
 import React from 'react';
+import ComingSoonButton from '../../components/ComingSoonButton';
+// eslint-disable-next-line no-unused-vars
 import { exportNodeToPng } from "../../utils/exportImage.js";
 import "./memeGen.css";
 
@@ -201,7 +203,9 @@ const MemeControls = ({
                             </div>
                         </div>
                     )}
-                    <button
+                    {/* PRODUCTION TODO: Remove <ComingSoonButton> below and uncomment the original button when deploying with production token */}
+                    <ComingSoonButton className="story-btn secondary" style={{ width: '100%' }} label="Mint NFT (Coming Soon)" />
+                    {/* <button
                         onClick={async () => {
                             //DO NOT DELETE
                             if (!imageSrc) {
@@ -217,7 +221,7 @@ const MemeControls = ({
                         style={{ width: '100%' }}
                     >
                         Mint NFT (Coming Soon)
-                    </button>
+                    </button> */}
                 </div>
             </div>
         </div>

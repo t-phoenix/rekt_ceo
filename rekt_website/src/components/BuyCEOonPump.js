@@ -1,5 +1,6 @@
 
 import React, { useState } from 'react';
+import ComingSoonButton from './ComingSoonButton';
 import { Link } from "react-router-dom";
 import './BuyCEOonPump.css';
 import ceo_token from '../creatives/Rekt_logo_illustration.png';
@@ -98,12 +99,14 @@ const BuyCEOonPump = () => {
         }
     };
 
+    // eslint-disable-next-line no-unused-vars
     const getButtonText = () => {
         if (!connected) return 'Connect Wallet';
         if (!fromAmount || parseFloat(fromAmount) <= 0) return 'Enter Amount';
         return 'Swap';
     };
 
+    // eslint-disable-next-line no-unused-vars
     const handleButtonClick = () => {
         if (!connected) {
             handleConnectWallet();
@@ -236,12 +239,14 @@ const BuyCEOonPump = () => {
 
 
                     {/* Action Button */}
-                    <button
+                    {/* PRODUCTION TODO: Remove <ComingSoonButton> below and uncomment the original button when deploying with production token */}
+                    <ComingSoonButton className="swap-action-btn disabled" style={{ width: '100%' }} />
+                    {/* <button
                         className={`swap-action-btn ${!connected || !fromAmount || parseFloat(fromAmount) <= 0 ? 'disabled' : ''}`}
                         onClick={handleButtonClick}
                     >
                         {getButtonText()}
-                    </button>
+                    </button> */}
 
                 </div>
             </div>

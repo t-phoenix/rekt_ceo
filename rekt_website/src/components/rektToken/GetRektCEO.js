@@ -1,4 +1,5 @@
 import { useCallback, useState, useEffect, useMemo } from "react";
+import ComingSoonButton from '../ComingSoonButton';
 import { ArrowDown, AlertTriangle, Loader2 } from "lucide-react";
 import { useAccount, useSwitchChain, useChainId, useReadContract } from "wagmi";
 import { parseUnits, formatUnits } from "viem";
@@ -290,6 +291,11 @@ export default function GetRektCEO() {
                     Switch to Base
                 </button>
             ) : (
+                // PRODUCTION TODO: Remove <ComingSoonButton> below and uncomment the original button when deploying with production token
+                <ComingSoonButton className="action-button-large !mt-4" style={{ width: '100%' }} />
+            )}
+            {/* Original button (re-enable for production):
+            ) : (
                 <button
                     className={`action-button-large !mt-4 ${insufficientBalance ? "opacity-50 cursor-not-allowed" : ""}`}
                     onClick={handleSwapClick}
@@ -298,6 +304,7 @@ export default function GetRektCEO() {
                     {isConnected ? (insufficientBalance ? "Insufficient USDC Balance" : "Swap") : "Connect Wallet"}
                 </button>
             )}
+            */}
 
             <SwapModal
                 open={modalOpen}

@@ -34,7 +34,7 @@ const MemeCanvas = ({
     randomizeMemeTemplate,
     handleSocialShare
 }) => {
-    const [frameVariant, setFrameVariant] = useState('none');
+    const [frameVariant, setFrameVariant] = useState('pink');
 
     const getParsedRatio = () => {
         if (canvasFormat === 'square') return 1;

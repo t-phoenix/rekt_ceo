@@ -7,6 +7,7 @@ import { MdShuffle } from "react-icons/md";
 import SocialShareFooter from "./page_components/SocialShareFooter.js";
 import MintConfirmModal from "../components/MintConfirmModal.js";
 import MintSuccessModal from "../components/MintSuccessModal.js";
+import ComingSoonButton from "../components/ComingSoonButton.js";
 
 import LayerImage from "./page_components/LayerImage";
 import LayerNavbar from "./page_components/LayerNavbar";
@@ -83,6 +84,7 @@ export default function ProfileNFT() {
     sharingService.setToastFunction(showToast);
   }, [showToast]);
 
+  // eslint-disable-next-line no-unused-vars
   const handleMint = async () => {
     try {
       // Capture the composite PFP image
@@ -238,9 +240,11 @@ export default function ProfileNFT() {
                       </div>
                     </div>
                   )}
-                  <button onClick={handleMint} className="story-btn secondary" style={{ width: "100%" }}>
+                  {/* PRODUCTION TODO: Remove <ComingSoonButton> below and uncomment the original button when deploying with production token */}
+                  <ComingSoonButton className="story-btn secondary" style={{ width: "100%" }} label="Mint NFT (Coming Soon)" />
+                  {/* <button onClick={handleMint} className="story-btn secondary" style={{ width: "100%" }}>
                     Mint NFT (Coming Soon)
-                  </button>
+                  </button> */}
                 </div>
               </div>
             </div>
