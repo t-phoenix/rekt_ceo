@@ -6,7 +6,7 @@ export const INITIAL_MEME_TIERS = [
         id: 1,
         name: "Early CEO",
         supply: 5000,
-        minted: 1250, // Simulating some mints
+        minted: 0, // Simulating some mints
         priceCEO: 1000,
         priceUSD: 5,
         status: "active"
@@ -45,7 +45,7 @@ export const INITIAL_PFP_TIERS = [
         id: 1,
         name: "Early Bird",
         supply: 500,
-        minted: 500,
+        minted: 0,
         priceCEO: 10000,
         priceUSD: 50,
         status: "completed"
@@ -54,7 +54,7 @@ export const INITIAL_PFP_TIERS = [
         id: 2,
         name: "Wise Bird",
         supply: 300,
-        minted: 45, // Simulating active mint
+        minted: 0, // Simulating active mint
         priceCEO: 30000,
         priceUSD: 150,
         status: "active"
