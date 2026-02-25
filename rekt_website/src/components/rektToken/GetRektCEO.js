@@ -192,6 +192,7 @@ export default function GetRektCEO() {
         }
     }, [isSwapConfirmed, swapError, swapTxHash, refetchBalanceUSDC, refetchBalanceCEO]);
 
+    // eslint-disable-next-line no-unused-vars
     const handleSwapClick = () => {
         if (!address) return;
         if (isWrongNetwork) {
