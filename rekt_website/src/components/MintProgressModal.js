@@ -22,7 +22,6 @@ const MintProgressModal = ({
         isMinting,
         error,
         currentStep,
-        hasPendingMint,
         savedState
     } = useMintInterface;
 

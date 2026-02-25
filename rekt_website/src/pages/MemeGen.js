@@ -85,7 +85,6 @@ const MemeGen = () => {
     items,
     setItems,
     textPositions,
-    setTextPositions,
     stageRef,
     activeId,
     setActiveId,

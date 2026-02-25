@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { MintStep, useMint } from '../hooks/useMint';
+import { useMint } from '../hooks/useMint';
 import MintProgressModal from './MintProgressModal';
-import { Loader2 } from 'lucide-react';
 import './MintConfirmModal.css';
 
 const MintConfirmModal = ({

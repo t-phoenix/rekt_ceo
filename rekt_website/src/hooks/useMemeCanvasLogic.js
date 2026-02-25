@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef } from "react";
 
 export const useMemeCanvasLogic = (showToast) => {
     // sticker instances on canvas

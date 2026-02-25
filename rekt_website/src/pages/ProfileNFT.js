@@ -30,7 +30,7 @@ export default function ProfileNFT() {
   const { data: userData } = useUserData(address);
 
   // Use custom hook for dynamic tier data
-  const { activeTier, totalSupply, isLoading, error } = useTierData('PFP');
+  const { activeTier, totalSupply, isLoading } = useTierData('PFP');
   console.log("Active Tier PFP: ", activeTier)
   console.log("Total Supply PFP: ", totalSupply)
 

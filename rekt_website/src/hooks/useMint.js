@@ -1,6 +1,6 @@
 /* global BigInt*/
 import { useState, useCallback, useEffect } from 'react';
-import { useAccount, useSignTypedData, useWriteContract, useBlockNumber, useSwitchChain, useChainId, useSignMessage } from 'wagmi';
+import { useAccount, useSignTypedData, useSwitchChain, useChainId, useSignMessage } from 'wagmi';
 import { getBlock, readContract } from 'wagmi/actions';
 import { ethers } from 'ethers';
 import { config } from '../config/walletConfig';

@@ -1,7 +1,7 @@
 // Consolidated hook for Tier Data (Merges static & dynamic)
 import { useMemo } from 'react';
 import { INITIAL_MEME_TIERS, INITIAL_PFP_TIERS } from '../constants/tierData';
-import { useQuery, useMutation } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { api } from '../services/backend_api';
 
 // Hook to check backend health
