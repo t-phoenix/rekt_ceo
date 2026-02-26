@@ -34,7 +34,7 @@ const MemeCanvas = ({
     randomizeMemeTemplate,
     handleSocialShare
 }) => {
-    const [frameVariant, setFrameVariant] = useState('pink');
+    const [frameVariant, setFrameVariant] = useState('red');
 
     const getParsedRatio = () => {
         if (canvasFormat === 'square') return 1;
@@ -81,13 +81,13 @@ const MemeCanvas = ({
                                 }}
                             ></button>
                             <button
-                                onClick={() => setFrameVariant('pink')}
-                                className={`story-btn icon-only ${frameVariant === 'pink' ? 'active' : ''}`}
-                                title="Pink Frame"
+                                onClick={() => setFrameVariant('red')}
+                                className={`story-btn icon-only ${frameVariant === 'red' ? 'active' : ''}`}
+                                title="Red Frame"
                                 style={{
                                     width: '32px', height: '32px', minWidth: '32px', padding: 0,
-                                    background: frameVariant === 'pink' ? 'var(--color-red)' : 'transparent',
-                                    color: frameVariant === 'pink' ? 'white' : 'var(--color-red)',
+                                    background: frameVariant === 'red' ? 'var(--color-red)' : 'transparent',
+                                    color: frameVariant === 'red' ? 'white' : 'var(--color-red)',
                                     border: '2px solid var(--color-red)'
                                 }}
                             ></button>
@@ -126,9 +126,7 @@ const MemeCanvas = ({
                     className={`meme-canvas-stage ${imageSrc ? "has-image" : ""}`}
                     style={{
                         aspectRatio: currentRatio,
-                        maxWidth: `min(100%, ${Math.min(540, 540 * currentRatio)}px)`,
-                        width: "100%",
-                        borderRadius: frameVariant !== 'none' ? '24px' : '12px',
+                        borderRadius: frameVariant !== 'none' ? '20px' : '12px',
                         border: frameVariant !== 'none' ? 'none' : '2px solid rgba(255, 255, 255, 0.2)'
                     }}
                 >
@@ -151,17 +149,17 @@ const MemeCanvas = ({
                                 zIndex: 2,
                                 pointerEvents: 'none',
                                 overflow: 'hidden',
-                                borderRadius: '24px'
+                                borderRadius: '20px'
                             }}
                         >
                             <div
                                 style={{
                                     position: 'absolute',
-                                    top: '8px',
-                                    left: '8px',
-                                    right: '8px',
-                                    bottom: '32px',
-                                    borderRadius: '12px',
+                                    top: '10px',
+                                    left: '10px',
+                                    right: '10px',
+                                    bottom: '36px',
+                                    borderRadius: '14px',
                                     boxShadow: `0 0 0 2000px ${frameVariant === 'yellow' ? 'var(--color-yellow)' : 'var(--color-red)'}`
                                 }}
                             />
@@ -275,9 +273,9 @@ const MemeCanvas = ({
                     title="Square (1:1)"
                     style={{
                         padding: '8px',
-                        width: '36px',
-                        height: '36px',
-                        minWidth: '36px',
+                        width: '32px',
+                        height: '32px',
+                        minWidth: '32px',
                         background: canvasFormat === 'square' ? 'var(--color-yellow)' : 'rgba(255,255,255,0.1)',
                         color: canvasFormat === 'square' ? 'black' : 'white',
                         border: '1px solid rgba(255,255,255,0.2)',
@@ -296,9 +294,9 @@ const MemeCanvas = ({
                     title="Portrait (4:5)"
                     style={{
                         padding: '8px',
-                        width: '36px',
-                        height: '36px',
-                        minWidth: '36px',
+                        width: '32px',
+                        height: '32px',
+                        minWidth: '32px',
                         background: canvasFormat === 'portrait' ? 'var(--color-yellow)' : 'rgba(255,255,255,0.1)',
                         color: canvasFormat === 'portrait' ? 'black' : 'white',
                         border: '1px solid rgba(255,255,255,0.2)',
@@ -317,9 +315,9 @@ const MemeCanvas = ({
                     title="Landscape (1.91:1)"
                     style={{
                         padding: '8px',
-                        width: '36px',
-                        height: '36px',
-                        minWidth: '36px',
+                        width: '32px',
+                        height: '32px',
+                        minWidth: '32px',
                         background: canvasFormat === 'landscape' ? 'var(--color-yellow)' : 'rgba(255,255,255,0.1)',
                         color: canvasFormat === 'landscape' ? 'black' : 'white',
                         border: '1px solid rgba(255,255,255,0.2)',
@@ -338,9 +336,9 @@ const MemeCanvas = ({
                     title="Dynamic (Original)"
                     style={{
                         padding: '8px',
-                        width: '36px',
-                        height: '36px',
-                        minWidth: '36px',
+                        width: '32px',
+                        height: '32px',
+                        minWidth: '32px',
                         background: canvasFormat === 'dynamic' ? 'var(--color-yellow)' : 'rgba(255,255,255,0.1)',
                         color: canvasFormat === 'dynamic' ? 'black' : 'white',
                         border: '1px solid rgba(255,255,255,0.2)',

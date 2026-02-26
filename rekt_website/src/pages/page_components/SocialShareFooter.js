@@ -53,7 +53,7 @@ const SocialShareFooter = ({ onSocialShare, className = "", children }) => {
   return (
     <div className={`meme-social-footer ${className}`}>
       <div className="social-footer-content" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', marginBlock: '1rem' }}>
-        <div className="social-footer-left" style={{ display: 'flex', gap: '0.5rem' }}>
+        <div className="social-footer-left" style={{ display: 'flex', gap: '0px' }}>
           {children}
         </div>
         <div className="social-share-buttons" style={{ marginBlock: 0, width: 'auto' }}>

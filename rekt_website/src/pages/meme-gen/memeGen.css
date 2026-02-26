@@ -196,9 +196,9 @@
 /* Main Grid Layout */
 .meme-gen-grid {
   display: grid;
-  grid-template-columns: minmax(auto, 360px) 1fr 1fr;
-  gap: 1.5rem;
-  margin-bottom: 1.5rem;
+  grid-template-columns: minmax(200px, 340px) minmax(360px, 520px) 1fr;
+  gap: 1.2rem;
+  margin-bottom: 0.4rem;
   flex: 1;
   height: calc(100vh - 22vh);
   align-items: start;
@@ -208,9 +208,16 @@
 .meme-left-column {
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  gap: 1.5rem;
-  height: 99%;
+  gap: 0.8rem;
+  height: 98%;
+  max-height: calc(100vh - 12vh);
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: none;
+}
+
+.meme-left-column::-webkit-scrollbar {
+  display: none;
 }
 
 /* Canvas Section */
@@ -224,7 +231,8 @@
   display: flex;
   flex-direction: column;
   height: 98%;
-  margin-bottom: 0.6rem;
+  max-height: calc(100vh - 12vh);
+  margin-bottom: 0;
 }
 
 .meme-canvas-button {
@@ -258,29 +266,28 @@
 /* Button styles are now imported from story.css */
 
 .meme-canvas-content {
-  padding: 0.4rem;
+  padding: 0.6rem 0.8rem;
   flex: 1;
   min-height: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  max-height: 90%;
   overflow: hidden;
 }
 
 .meme-canvas-stage {
-  margin-top: 0.4rem;
+  margin-top: 0;
   position: relative;
   width: 100%;
-  max-width: 350px;
-  aspect-ratio: 1;
-  border-radius: 12px;
+  max-width: 420px;
+  max-height: calc(100vh - 34vh);
+  border-radius: 20px;
   border: 2px solid rgba(255, 255, 255, 0.2);
   background: linear-gradient(135deg, var(--background-color-secondary) 0%, var(--color-magenta) 100%);
   overflow: hidden;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-  flex-shrink: 0;
+  flex-shrink: 1;
   touch-action: none;
   -webkit-user-select: none;
   -moz-user-select: none;
@@ -658,8 +665,9 @@
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  max-height: 98%;
-  height: 100%;
+  height: 98%;
+  max-height: calc(100vh - 12vh);
+  overflow: hidden;
 }
 
 .meme-controls-card {
@@ -670,7 +678,8 @@
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
   display: flex;
   flex-direction: column;
-  height: 80%;
+  flex: 1;
+  min-height: 0;
   overflow: hidden;
 }
 
@@ -694,7 +703,6 @@
   overflow-y: auto;
   overflow-x: hidden;
   min-height: 0;
-  max-height: calc(100vh - 25vh);
 }
 
 .meme-control-group {
@@ -894,7 +902,8 @@
   backdrop-filter: blur(10px);
   overflow: hidden;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-  height: 20%;
+  height: fit-content;
+  flex-shrink: 0;
   display: flex;
   flex-direction: column;
 }
@@ -962,11 +971,16 @@
   .meme-gen-main {
     height: calc(100vh - 12vh);
     overflow-x: hidden;
-    overflow-y: auto;
+    overflow-y: hidden;
+  }
+
+  .meme-gen-grid {
+    overflow: hidden;
   }
 
   .meme-canvas-stage {
-    max-width: min(400px, 30vw);
+    max-width: min(420px, 36vw);
+    max-height: calc(100vh - 34vh);
   }
 
   .meme-controls-content {
@@ -996,18 +1010,22 @@
 /* Large desktop screens */
 @media screen and (min-width: 1440px) {
   .meme-canvas-stage {
-    max-width: 500px;
+    max-width: 480px;
   }
 
   .meme-gen-main {
     max-width: 1600px;
+  }
+
+  .meme-gen-grid {
+    grid-template-columns: minmax(200px, 360px) minmax(400px, 540px) 1fr;
   }
 }
 
 /* Extra large desktop screens */
 @media screen and (min-width: 1920px) {
   .meme-canvas-stage {
-    max-width: 500px;
+    max-width: 520px;
   }
 
   .meme-gen-main {
