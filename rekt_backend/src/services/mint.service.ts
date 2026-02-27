@@ -51,38 +51,46 @@ class MintService {
     // Step 3: Validate permit signature
     this.validatePermitSignature(permitSignature, userAddress);
 
-    // Step 4: Get next token ID (approximate, reusing tier info)
-    const predictedTokenId = tierInfo.currentSupply + 1;
-    const collectionName = nftType === 'PFP' ? 'Rekt CEO PFP' : 'Rekt CEO Meme';
-    const baseFileName = `${collectionName} #${predictedTokenId}`;
+    // Step 4: Mint on-chain with a placeholder URI first.
+    // We cannot reliably predict the tokenId before minting (race condition with
+    // concurrent mints or direct contract calls). The contract assigns the real
+    // tokenId which we read from the NFTPurchased event, then use for IPFS upload.
+    const PLACEHOLDER_URI = 'ipfs://pending';
+    logger.info('Executing mint transaction (phase 1 — placeholder URI)', { user: userAddress, nftType });
+    const { txHash, tokenId } = await contractService.mintNFTWithPermit(
+      nftType,
+      PLACEHOLDER_URI,
+      permitSignature
+    );
 
-    // Step 5: Upload image to IPFS
+    logger.info('Mint confirmed — got real tokenId', { tokenId, txHash });
+
+    // Step 5: Now upload image to IPFS using the REAL tokenId
+    const collectionName = nftType === 'PFP' ? 'Rekt CEO PFP' : 'Rekt CEO Meme';
+    const baseFileName = `${collectionName} #${tokenId}`;
+
     logger.info('Uploading image to IPFS', { user: userAddress, fileName: baseFileName });
     const imageURI = await ipfsService.uploadImage(
       imageData,
       `${baseFileName}.png`
     );
 
-    // Step 6: Generate and upload metadata
-    logger.info('Generating metadata', { user: userAddress, tokenId: predictedTokenId });
+    // Step 6: Generate and upload metadata with the correct tokenId
+    logger.info('Generating metadata', { user: userAddress, tokenId });
     const metadata = ipfsService.generateMetadata(
       nftType,
-      predictedTokenId,
+      tokenId,
       imageURI,
       userAddress,
       task.attributes
     );
 
     const metadataURI = await ipfsService.uploadMetadata(metadata, `${baseFileName}.json`);
-    console.log('metadataURI uploading ...', metadataURI);
+    logger.info('Metadata uploaded to IPFS', { metadataURI });
 
-    // Step 7: Execute mint transaction
-    logger.info('Executing mint transaction', { user: userAddress, nftType, priceCEO: tierInfo.priceCEO });
-    const { txHash, tokenId } = await contractService.mintNFTWithPermit(
-      nftType,
-      metadataURI,
-      permitSignature
-    );
+    // Step 7: Update the on-chain token URI to the final IPFS metadata
+    logger.info('Setting final token URI on-chain', { tokenId, metadataURI });
+    await contractService.setNFTTokenURI(nftType, tokenId, metadataURI);
 
     logger.info('Mint completed successfully', {
       user: userAddress,

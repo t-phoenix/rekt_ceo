@@ -162,13 +162,17 @@ class ContractService {
   }
 
   /**
-   * Execute mint with permit signature
+   * Execute mint with permit signature — returns real tokenId from event
+   * Uses a placeholder metadataURI so the true tokenId can be obtained
+   * before IPFS upload. Call setNFTTokenURI() afterwards.
    */
   async mintNFTWithPermit(
     nftType: 'PFP' | 'MEME',
     metadataURI: string,
     permitSignature: PermitSignature
   ): Promise<{ txHash: string; tokenId: number }> {
+    const TX_TIMEOUT_MS = 5 * 60 * 1000; // 5 minutes — prevents queue deadlock
+
     try {
       const nftTypeEnum = nftType === 'PFP' ? NFTType.PFP : NFTType.MEME;
       const wallet = getBackendWallet();
@@ -200,14 +204,21 @@ class ContractService {
 
       logger.info('Transaction submitted', { txHash: tx.hash });
 
-      // Wait for confirmation
-      const receipt = await tx.wait(2); // Wait for 2 confirmations
+      // Wait for confirmation with timeout to prevent queue from freezing indefinitely
+      const timeoutPromise = new Promise<never>((_, reject) =>
+        setTimeout(
+          () => reject(new Error(`Transaction ${tx.hash} timed out after 5 minutes in mempool`)),
+          TX_TIMEOUT_MS
+        )
+      );
+
+      const receipt = await Promise.race([tx.wait(2), timeoutPromise]);
 
       if (!receipt || receipt.status === 0) {
-        throw new Error('Transaction failed');
+        throw new Error('Transaction failed on-chain (reverted)');
       }
 
-      // Parse events to get tokenId
+      // Parse events to get the real tokenId assigned by the contract
       const nftPurchasedEvent = receipt.logs
         .map((log: any) => {
           try {
@@ -246,9 +257,67 @@ class ContractService {
         throw new AppError(400, 'Insufficient CEO tokens in wallet');
       } else if (error.message.includes('permit')) {
         throw new AppError(400, 'Invalid permit signature');
+      } else if (error.message.includes('timed out')) {
+        throw new AppError(504, error.message);
       }
 
       throw new AppError(500, 'Failed to mint NFT');
+    }
+  }
+
+  /**
+   * Set the final metadata URI on a minted NFT using the new setNFTTokenURI contract function.
+   * Called after IPFS upload to fix the correct token ID in the metadata.
+   */
+  async setNFTTokenURI(
+    nftType: 'PFP' | 'MEME',
+    tokenId: number,
+    metadataURI: string
+  ): Promise<{ txHash: string }> {
+    const TX_TIMEOUT_MS = 2 * 60 * 1000; // 2 minutes
+
+    try {
+      const nftTypeEnum = nftType === 'PFP' ? NFTType.PFP : NFTType.MEME;
+      const wallet = getBackendWallet();
+      const contractWithSigner = this.minterContract.connect(wallet) as any;
+
+      logger.info('Setting NFT token URI', { nftType, tokenId, metadataURI });
+
+      const gasEstimate = await contractWithSigner.setNFTTokenURI.estimateGas(
+        nftTypeEnum,
+        tokenId,
+        metadataURI
+      );
+      const gasLimit = (gasEstimate * 120n) / 100n;
+
+      const tx = await contractWithSigner.setNFTTokenURI(
+        nftTypeEnum,
+        tokenId,
+        metadataURI,
+        { gasLimit }
+      );
+
+      logger.info('setNFTTokenURI transaction submitted', { txHash: tx.hash });
+
+      const timeoutPromise = new Promise<never>((_, reject) =>
+        setTimeout(
+          () => reject(new Error(`setNFTTokenURI tx ${tx.hash} timed out`)),
+          TX_TIMEOUT_MS
+        )
+      );
+
+      const receipt = await Promise.race([tx.wait(1), timeoutPromise]);
+
+      if (!receipt || receipt.status === 0) {
+        throw new Error('setNFTTokenURI transaction reverted');
+      }
+
+      logger.info('NFT token URI updated successfully', { tokenId, metadataURI });
+
+      return { txHash: receipt.hash };
+    } catch (error: any) {
+      logger.error('Failed to set NFT token URI:', error);
+      throw new AppError(500, `Failed to update NFT metadata URI: ${error.message}`);
     }
   }
 
