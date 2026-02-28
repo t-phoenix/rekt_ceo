@@ -18,7 +18,8 @@ app.use(helmet());
 // CORS configuration - allow multiple origins
 const allowedOrigins = [
   ...config.corsOrigin.split(','), // Split comma-separated origins from env
-  'http://localhost:5173', // Local development
+  'https://rekt.ceo', // Production
+  'https://www.rekt.ceo', // Production
 ].filter(Boolean); // Remove any undefined values
 
 app.use(cors({

@@ -12,7 +12,8 @@ const MintProgressModal = ({
     type,
     imagePreview,
     pricing,
-    isConnected
+    isConnected,
+    attributes = [],
 }) => {
     const {
         prepareMint,
@@ -45,7 +46,7 @@ const MintProgressModal = ({
     const handlePrepare = async () => {
         setLocalError(null);
         try {
-            await prepareMint(type, imagePreview);
+            await prepareMint(type, imagePreview, attributes);
         } catch (err) {
             setLocalError(err.message || 'Failed to prepare mint transaction');
         }
@@ -102,7 +103,7 @@ const MintProgressModal = ({
                         </div>
                     )}
 
-                    <div className="flex flex-col" style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginTop: '8px' }}>
+                    <div className="flex flex-col" style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginTop: '8px', paddingInline: '16px' }}>
                         {/* Step 1: Prepare */}
                         <div style={{ display: 'flex', flexDirection: 'column', padding: '16px', borderRadius: '12px', border: currentStep === MintStep.IDLE || currentStep === MintStep.PREPARING ? '2px solid var(--color-yellow)' : '1px solid rgba(255,255,255,0.2)', background: currentStep === MintStep.IDLE || currentStep === MintStep.PREPARING ? 'rgba(248, 200, 38, 0.1)' : 'rgba(0,0,0,0.4)', transition: 'all 0.3s ease' }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>

@@ -32,9 +32,10 @@
   --radius: 0.5rem;
 }
 
-/* Comic Fonts Import */
-/* Comic Fonts Import */
-@import url("https://fonts.googleapis.com/css2?family=Passion+One:wght@400;700;900&display=swap");
+/* Fonts Import */
+/* @import url("https://fonts.googleapis.com/css2?family=Passion+One:wght@400;700;900&display=swap"); */
+@import url("https://fonts.googleapis.com/css2?family=Passion+One:wght@400;700;900&family=Bebas+Neue&family=Chakra+Petch:wght@400;700&family=Space+Grotesk:wght@400;700&display=swap");
+
 
 @font-face {
   font-family: "Lilita One";

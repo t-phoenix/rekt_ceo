@@ -24,7 +24,7 @@ const PERMIT_TYPES = {
 
 const CHAIN_ID = Number(11155111); // Fallback to Sepolia (11155111)
 const CEO_TOKEN_ADDRESS = '0xA5bcA6252a477C4Eb62cDbabF3C16f7c06b4f741';
-const MINTER_CONTRACT_ADDRESS = '0xccb8a72cd9149F85c74de4d3d2D756782aa338e8';
+const MINTER_CONTRACT_ADDRESS = '0xc4e8663F22050F13b812ff69b26d6cc372977a41';
 
 
 export const MintStep = {
@@ -40,7 +40,10 @@ export const MintStep = {
 // Local storage helpers
 const STORAGE_KEY = 'mint_state';
 
+const memoryStateCache = {};
+
 function saveMintState(address, state) {
+    memoryStateCache[address] = { ...state };
     try {
         const key = `${STORAGE_KEY}_${address}`;
         localStorage.setItem(key, JSON.stringify({
@@ -55,6 +58,9 @@ function saveMintState(address, state) {
 }
 
 function loadMintState(address) {
+    if (memoryStateCache[address]) {
+        return memoryStateCache[address];
+    }
     try {
         const key = `${STORAGE_KEY}_${address}`;
         const stored = localStorage.getItem(key);
@@ -74,6 +80,7 @@ function loadMintState(address) {
 }
 
 function clearMintState(address) {
+    delete memoryStateCache[address];
     try {
         const key = `${STORAGE_KEY}_${address}`;
         localStorage.removeItem(key);
@@ -161,7 +168,8 @@ export const useMint = (token, pricingData) => {
         throw new Error("Authentication failed to return a token");
     }, [address, token, signMessageAsync]);
 
-    const mint = useCallback(async (nftType, imageSrcFallback) => {
+    // @param {Array<{trait_type: string, value: string|number}>} [attributes] - NFT metadata traits to embed in IPFS metadata
+    const mint = useCallback(async (nftType, imageSrcFallback, attributes) => {
         if (!address) {
             throw new Error('Wallet not connected');
         }
@@ -205,15 +213,27 @@ export const useMint = (token, pricingData) => {
             const block = await getBlock(config);
             const deadline = block.timestamp + BigInt(3600); // 1 hour
 
-            // Get exact price from pricing config passed via hook
+            // Get exact price from pricing config passed via hook, but first try fetching fresh pricing
             let value = BigInt('1000000000000000000000000'); // Default fallback 1 million CEO token
-            if (pricingData?.ceoPrice) {
-                try {
-                    // 1. Strip commas and the string " CEO" from "10,000 CEO" safely
-                    const cleanPriceText = pricingData.ceoPrice.toString().replace(/,/g, '').replace(/[^\d.]/g, '');
-                    // 2. Parse directly to wei without floating point precision loss
+            try {
+                // Fetch fresh pricing exactly at mint time to avoid stale prices
+                const freshPricing = await api.getPricing(nftType);
+                if (freshPricing && freshPricing.priceCEO) {
+                    const cleanPriceText = freshPricing.priceCEO.toString().replace(/,/g, '').replace(/[^\d.]/g, '');
                     value = BigInt(ethers.parseUnits(cleanPriceText, 18));
-                } catch (e) { console.warn(e); }
+                } else if (pricingData?.ceoPrice) {
+                    // Fallback to hook data if fresh pricing is missing the field
+                    const cleanPriceText = pricingData.ceoPrice.toString().replace(/,/g, '').replace(/[^\d.]/g, '');
+                    value = BigInt(ethers.parseUnits(cleanPriceText, 18));
+                }
+            } catch (pricingError) {
+                console.warn('Could not fetch fresh pricing, falling back to cached', pricingError);
+                if (pricingData?.ceoPrice) {
+                    try {
+                        const cleanPriceText = pricingData.ceoPrice.toString().replace(/,/g, '').replace(/[^\d.]/g, '');
+                        value = BigInt(ethers.parseUnits(cleanPriceText, 18));
+                    } catch (e) { console.warn(e); }
+                }
             }
 
             // 4. Token Name
@@ -234,6 +254,7 @@ export const useMint = (token, pricingData) => {
                 deadline,
                 value: value.toString(),
                 tokenName,
+                attributes: attributes || [],
                 timestamp: Date.now(),
             });
             setCurrentStep(MintStep.SIGNING);
@@ -334,11 +355,11 @@ export const useMint = (token, pricingData) => {
         setCurrentStep(MintStep.MINTING);
 
         try {
-            const { nftType, imageData, deadline, value, v, r, s } = savedState;
+            const { nftType, imageData, deadline, value, v, r, s, attributes } = savedState;
             const permitSignature = { owner: address, spender: MINTER_CONTRACT_ADDRESS, value: value.toString(), deadline: Number(deadline), v, r, s };
 
             const activeToken = await getAuthToken();
-            const result = await api.initiateMint(nftType, imageData, permitSignature, activeToken);
+            const result = await api.initiateMint(nftType, imageData, permitSignature, activeToken, attributes);
 
             clearMintState(address);
             setHasPendingMint(false);

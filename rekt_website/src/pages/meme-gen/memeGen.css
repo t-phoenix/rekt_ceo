@@ -382,16 +382,36 @@
 }
 
 /* Font Classes */
-.font-display {
-  font-family: var(--body-font);
+.font-impact,
+.font-impact * {
+  font-family: Impact, 'Arial Black', sans-serif !important;
 }
 
-.font-tech {
-  font-family: var(--body-font);
+.font-arial,
+.font-arial * {
+  font-family: Arial, Helvetica, sans-serif !important;
+  font-weight: 900 !important;
 }
 
-.font-brand {
-  font-family: var(--body-font);
+.font-bebas,
+.font-bebas * {
+  font-family: 'Bebas Neue', sans-serif !important;
+}
+
+.font-chakra,
+.font-chakra * {
+  font-family: 'Chakra Petch', sans-serif !important;
+}
+
+.font-grotesk,
+.font-grotesk * {
+  font-family: 'Space Grotesk', sans-serif !important;
+  font-weight: 700 !important;
+}
+
+.font-lilita,
+.font-lilita * {
+  font-family: 'Lilita One', cursive !important;
 }
 
 /* Social Share Footer */

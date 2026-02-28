@@ -8,12 +8,12 @@ const MintConfirmModal = ({
     onClose,
     onConfirm,
     imagePreview,
-    metadata = {},
     pricing = {},
     type = 'MEME', // 'MEME' or 'PFP'
     userData,
     isConnected,
-    token
+    token,
+    attributes = [],
 }) => {
     const useMintInterface = useMint(token, pricing);
     const { hasPendingMint } = useMintInterface;
@@ -36,6 +36,7 @@ const MintConfirmModal = ({
                 imagePreview={imagePreview}
                 pricing={pricing}
                 isConnected={isConnected}
+                attributes={attributes}
             />
         );
     }
@@ -128,15 +129,15 @@ const MintConfirmModal = ({
                             </div>
                         </div>
 
-                        {/* Metadata for PFP */}
-                        {type === 'PFP' && metadata.traits && (
-                            <div className="mint-metadata-card">
-                                <div className="mint-metadata-header">Traits</div>
-                                <div className="mint-metadata-grid">
-                                    {Object.entries(metadata.traits).map(([key, value]) => (
-                                        <div key={key} className="mint-trait-item">
-                                            <span className="mint-trait-label">{key}</span>
-                                            <span className="mint-trait-value">{value}</span>
+                        {/* Attributes for PFP and MEME */}
+                        {attributes && attributes.length > 0 && (
+                            <div className="mint-attributes-card">
+                                <div className="mint-attributes-header">{type === 'PFP' ? 'Traits' : 'Attributes'}</div>
+                                <div className="mint-attributes-grid">
+                                    {attributes.map(({ trait_type, value }) => (
+                                        <div key={trait_type} className="mint-trait-item">
+                                            <span className="mint-trait-label">{trait_type}</span>
+                                            <span className="mint-trait-value" style={{ wordBreak: 'break-word', whiteSpace: 'pre-wrap' }}>{value}</span>
                                         </div>
                                     ))}
                                 </div>

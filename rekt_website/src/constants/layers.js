@@ -68,14 +68,14 @@ export const layers = [
 ]
 
 export const layerNames = [
-    ["BG1", "BG2", "BG3", "BG4", "BG5", "BG6", "BG7"],
-    ["Hoodie1", "Hoodie2", "Hoodie3", "Hoodie4"],
-    ["Pant1", "Pant2", "Pant3", "Pant4", "Pant5"],
-    ["Shoe1", "Shoe2", "Shoe3", "Shoe4", "Shoe5", "Shoe6"],
-    ["Skin1", "Skin2", "Skin3", "Skin4", "Skin5"],
-    ["Face1", "Face2", "Face3", "Face4", "Face5"],
-    ["Jewel1", "Jewel2", "Jewel3", "Jewel4"],
-    ["btc", "doge", "eth", "pepe", "pump", "rekt", "shiba", "usdc"]
+    ["Neon Matrix", "Billionaire Boardroom", "Trading Floor", "Penthouse Suite", "Metaverse Villa", "Glossy Metropolis", "Crypto Citadel"],
+    ["Golden King", "Diamond Hand Blue", "Bullish Green", "Royalty Violet"],
+    ["Chickoo Brown", "Berry Blue", "Jelly Green", "Bringal Purple", "Orange Yellow"],
+    ["Moon Walkers", "Whale Loafers", "Rugpull Runners", "Diamond Kicks", "Fiat Stompers", "Flash Loan Sneakers"],
+    ["Ivory Executive", "Nebula Blue", "Radioactive Green", "Bronze Tycoon", "Paper Pale"],
+    ["Smiley", "Pookie", "Cutie", "Unpleased", "Curous"],
+    ["Triple Layer Gold Chain", "Gold Block Charms", "Four Layer Gold Chain", "Gold Teardrop Pendant"],
+    ["Bitcoin", "Dogecoin", "Ethereum", "Pepe", "Pump", "RektCEO", "Shiba", "USDC"]
 ]
 
 // BUILD SIMILIAR FOR LAYER OPTIONS VIEW

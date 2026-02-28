@@ -82,11 +82,13 @@ export const api = {
   },
 
   // Initiate mint
+  // attributes: optional Array<{ trait_type: string, value: string | number }>
   async initiateMint(
     nftType,
     imageData,
     permitSignature,
-    token
+    token,
+    attributes
   ) {
     const headers = {
       'Content-Type': 'application/json',
@@ -98,7 +100,7 @@ export const api = {
     const res = await fetch(`${API_URL}/api/mint/initiate`, {
       method: 'POST',
       headers,
-      body: JSON.stringify({ nftType, imageData, permitSignature }),
+      body: JSON.stringify({ nftType, imageData, permitSignature, attributes }),
     })
 
     const data = await res.json()

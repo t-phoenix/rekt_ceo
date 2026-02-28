@@ -9,6 +9,7 @@ import MintConfirmModal from "../components/MintConfirmModal.js";
 import MintSuccessModal from "../components/MintSuccessModal.js";
 import ComingSoonButton from "../components/ComingSoonButton.js";
 
+import { layerNames } from "../constants/layers";
 import LayerImage from "./page_components/LayerImage";
 import LayerNavbar from "./page_components/LayerNavbar";
 import LayerOptions from "./page_components/LayerOptions";
@@ -270,18 +271,16 @@ export default function ProfileNFT() {
           currentSupply: activeTier?.minted?.toLocaleString() || "--",
           totalSupply: activeTier?.supply?.toLocaleString() || "999"
         }}
-        metadata={{
-          traits: {
-            "Background": `BG ${selectedLayer[0]}`,
-            "Hoodie": `Hoodie ${selectedLayer[1]}`,
-            "Pants": `Pants ${selectedLayer[2]}`,
-            "Shoes": `Shoes ${selectedLayer[3]}`,
-            "Skin": `Skin ${selectedLayer[4]}`,
-            "Face": `Face ${selectedLayer[5]}`,
-            "Jewellery": `Jewellery ${selectedLayer[6]}`,
-            "Coin": `Coin ${selectedLayer[7]}`
-          }
-        }}
+        attributes={[
+          { trait_type: 'Background', value: layerNames[0][selectedLayer[0]] },
+          { trait_type: 'Hoodie', value: layerNames[1][selectedLayer[1]] },
+          { trait_type: 'Pants', value: layerNames[2][selectedLayer[2]] },
+          { trait_type: 'Shoes', value: layerNames[3][selectedLayer[3]] },
+          { trait_type: 'Skin', value: layerNames[4][selectedLayer[4]] },
+          { trait_type: 'Face', value: layerNames[5][selectedLayer[5]] },
+          { trait_type: 'Jewellery', value: layerNames[6][selectedLayer[6]] },
+          { trait_type: 'Coin', value: layerNames[7][selectedLayer[7]] },
+        ]}
         userData={userData}
         isConnected={isConnected}
       />

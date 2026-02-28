@@ -143,9 +143,12 @@ const MemeControls = ({
                                     onChange={(e) => setFont(e.target.value)}
                                     className="meme-select"
                                 >
-                                    <option value="display">Bebas Neue</option>
-                                    <option value="tech">Chakra Petch</option>
-                                    <option value="brand">Space Grotesk</option>
+                                    <option value="impact">Impact</option>
+                                    <option value="arial">Arial</option>
+                                    <option value="bebas">Bebas Neue</option>
+                                    <option value="chakra">Chakra Petch</option>
+                                    <option value="grotesk">Space Grotesk</option>
+                                    <option value="lilita">Lilita One</option>
                                 </select>
                             </div>
                             <div className="meme-control-item">

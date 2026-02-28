@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { MdCropSquare, MdCropPortrait, MdCropLandscape, MdCropFree } from "react-icons/md";
 import SocialShareFooter from "../page_components/SocialShareFooter.js";
 
@@ -32,10 +32,10 @@ const MemeCanvas = ({
     textColor,
     strokeColor,
     randomizeMemeTemplate,
-    handleSocialShare
+    handleSocialShare,
+    frameVariant,
+    setFrameVariant
 }) => {
-    const [frameVariant, setFrameVariant] = useState('red');
-
     const getParsedRatio = () => {
         if (canvasFormat === 'square') return 1;
         if (canvasFormat === 'portrait') return 4 / 5;
@@ -126,10 +126,23 @@ const MemeCanvas = ({
                     className={`meme-canvas-stage ${imageSrc ? "has-image" : ""}`}
                     style={{
                         aspectRatio: currentRatio,
-                        borderRadius: frameVariant !== 'none' ? '20px' : '12px',
+                        borderRadius: frameVariant !== 'none' ? '20px' : '20px',
                         border: frameVariant !== 'none' ? 'none' : '2px solid rgba(255, 255, 255, 0.2)'
                     }}
                 >
+                    {/* Frame Background */}
+                    {frameVariant !== 'none' && (
+                        <div
+                            style={{
+                                position: 'absolute',
+                                inset: 0,
+                                zIndex: 0,
+                                backgroundColor: frameVariant === 'yellow' ? 'var(--color-yellow)' : 'var(--color-red)',
+                                borderRadius: '20px'
+                            }}
+                        />
+                    )}
+
                     {imageSrc && (
                         <img
                             key={selectedTemplate || 'bg'}
@@ -137,43 +150,27 @@ const MemeCanvas = ({
                             alt=""
                             draggable={false}
                             className="meme-canvas-background"
-                        />
-                    )}
-
-                    {/* Frame Overlay */}
-                    {frameVariant !== 'none' && (
-                        <div
-                            style={{
-                                position: 'absolute',
-                                inset: 0,
-                                zIndex: 2,
-                                pointerEvents: 'none',
-                                overflow: 'hidden',
-                                borderRadius: '20px'
+                            style={frameVariant !== 'none' ? {
+                                top: '8px',
+                                left: '8px',
+                                width: 'calc(100% - 16px)',
+                                height: 'calc(100% - 28px)',
+                                borderRadius: '12px',
+                                zIndex: 1
+                            } : {
+                                top: '0',
+                                left: '0',
+                                width: '100%',
+                                height: '100%',
+                                borderRadius: '12px',
+                                zIndex: 1
                             }}
-                        >
-                            <div
-                                style={{
-                                    position: 'absolute',
-                                    top: '10px',
-                                    left: '10px',
-                                    right: '10px',
-                                    bottom: '36px',
-                                    borderRadius: '14px',
-                                    boxShadow: `0 0 0 2000px ${frameVariant === 'yellow' ? 'var(--color-yellow)' : 'var(--color-red)'}`
-                                }}
-                            />
-                        </div>
+                        />
                     )}
 
                     {/* Top Text */}
                     <div
-                        className={`meme-text top ${font === "display"
-                            ? "font-display"
-                            : font === "tech"
-                                ? "font-tech"
-                                : "font-brand"
-                            }`}
+                        className={`meme-text top font-${font}`}
                         style={{
                             color: textColor,
                             WebkitTextStrokeColor: strokeColor,
@@ -237,12 +234,7 @@ const MemeCanvas = ({
 
                     {/* Bottom Text */}
                     <div
-                        className={`meme-text bottom ${font === "display"
-                            ? "font-display"
-                            : font === "tech"
-                                ? "font-tech"
-                                : "font-brand"
-                            }`}
+                        className={`meme-text bottom font-${font}`}
                         style={{
                             color: textColor,
                             left: `${textPositions.bottom.x * 100}%`,

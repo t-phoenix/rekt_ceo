@@ -27,7 +27,7 @@ const MemeGen = () => {
 
   const [topText, setTopText] = useState("");
   const [bottomText, setBottomText] = useState("");
-  const [font, setFont] = useState("display");
+  const [font, setFont] = useState("impact");
   const [textColor, setTextColor] = useState("#ffffff");
   const [strokeColor, setStrokeColor] = useState("#000000");
   const [imageSrc, setImageSrc] = useState(null);
@@ -35,9 +35,10 @@ const MemeGen = () => {
   const [selectedTemplate, setSelectedTemplate] = useState(null);
   const [screenWidth, setScreenWidth] = useState(window.innerWidth);
 
-  // Canvas dimensions state
+  // Canvas dimensions and frame state
   const [canvasFormat, setCanvasFormat] = useState("dynamic"); // square, portrait, landscape, dynamic
   const [imageDimensions, setImageDimensions] = useState({ width: 1, height: 1, ratio: 1 });
+  const [frameVariant, setFrameVariant] = useState('red'); // none, red, yellow
 
   // AI modal state
   const [isAiModalOpen, setIsAiModalOpen] = useState(false);
@@ -139,6 +140,75 @@ const MemeGen = () => {
     }
   }, [showToast]);
 
+  // Generate attributes for Meme NFT minting
+  const getMemeAttributes = useCallback(() => {
+    const attributes = [];
+
+    // Meme template
+    const templateName = selectedTemplate
+      ? Object.values(categorizedMemeTemplates).flat().find(t => t.id === selectedTemplate)?.name || "Custom Upload"
+      : imageSrc ? "Custom Upload" : "None";
+
+    attributes.push({
+      trait_type: "Template",
+      value: templateName
+    });
+
+    // Dimension
+    attributes.push({
+      trait_type: "Dimension",
+      value: canvasFormat.charAt(0).toUpperCase() + canvasFormat.slice(1)
+    });
+
+    // Frame
+    attributes.push({
+      trait_type: "Frame",
+      value: frameVariant === 'none' ? 'None' : frameVariant.charAt(0).toUpperCase() + frameVariant.slice(1)
+    });
+
+    // Top text (if exists)
+    if (topText) {
+      attributes.push({
+        trait_type: "Top Text",
+        value: topText
+      });
+    }
+
+    // Bottom text (if exists)
+    if (bottomText) {
+      attributes.push({
+        trait_type: "Bottom Text",
+        value: bottomText
+      });
+    }
+
+    // Font
+    if (font) {
+      attributes.push({
+        trait_type: "Font",
+        value: font.charAt(0).toUpperCase() + font.slice(1)
+      });
+    }
+
+    // Stickers
+    if (items && items.length > 0) {
+      attributes.push({
+        trait_type: "Stickers Count",
+        value: items.length.toString()
+      });
+
+      const stickerNames = items.filter(i => i.name).map(i => i.name);
+      if (stickerNames.length > 0) {
+        attributes.push({
+          trait_type: "Stickers",
+          value: stickerNames.join(", ")
+        });
+      }
+    }
+
+    return attributes;
+  }, [selectedTemplate, imageSrc, canvasFormat, frameVariant, topText, bottomText, font, items]);
+
   // Function to handle category switching
   const handleCategorySwitch = (category) => {
     setActiveCategory(category);
@@ -169,7 +239,6 @@ const MemeGen = () => {
       setItems([]);
       setTopText("");
       setBottomText("");
-      setFont("display");
       setTextColor("#ffffff");
       setStrokeColor("#000000");
       handleTemplateSelect(randomTemplate.id);
@@ -388,6 +457,8 @@ const MemeGen = () => {
             strokeColor={strokeColor}
             randomizeMemeTemplate={randomizeMemeTemplate}
             handleSocialShare={handleSocialShare}
+            frameVariant={frameVariant}
+            setFrameVariant={setFrameVariant}
           />
 
           {/* Right Column - Controls */}
@@ -460,6 +531,7 @@ const MemeGen = () => {
         }}
         userData={userData}
         isConnected={isConnected}
+        attributes={getMemeAttributes()}
       />
 
       {/* Mint Success Modal */}

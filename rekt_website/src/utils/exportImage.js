@@ -39,6 +39,7 @@ export async function exportNodeToPng(node) {
         margin: '0',
         padding: '0',
         border: 'none',
+        borderRadius: '0',
       },
     });
     return dataUrl;
