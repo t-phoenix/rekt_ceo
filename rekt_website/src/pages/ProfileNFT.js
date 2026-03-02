@@ -40,6 +40,7 @@ export default function ProfileNFT() {
   const [showMintConfirm, setShowMintConfirm] = useState(false);
   const [showMintSuccess, setShowMintSuccess] = useState(false);
   const [mintPreviewImage, setMintPreviewImage] = useState(null);
+  const [mintResult, setMintResult] = useState(null);
 
 
 
@@ -257,8 +258,9 @@ export default function ProfileNFT() {
       <MintConfirmModal
         isOpen={showMintConfirm}
         onClose={() => setShowMintConfirm(false)}
-        onConfirm={() => {
+        onConfirm={(result) => {
           setShowMintConfirm(false);
+          setMintResult(result);
           setShowMintSuccess(true);
           showToast("🎉 PFP NFT minted successfully!");
         }}
@@ -292,6 +294,7 @@ export default function ProfileNFT() {
         imagePreview={mintPreviewImage}
         type="PFP"
         onSocialShare={handleSocialShare}
+        mintResult={mintResult}
       />
     </div>
   );

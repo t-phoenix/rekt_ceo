@@ -33,8 +33,10 @@ const MintProgressModal = ({
     React.useEffect(() => {
         if (savedState?.value && !approvalAmount) {
             try {
-                const formatted = ethers.formatUnits(savedState.value, 18);
-                setApprovalAmount(formatted);
+                const formatted = Number(ethers.formatUnits(savedState.value, 18));
+                // Add 1% slippage and use ceiling to remove decimals and reduce approval failures
+                const withSlippage = Math.ceil(formatted * 1.01).toString();
+                setApprovalAmount(withSlippage);
             } catch (e) {
                 // ignore
             }
@@ -68,8 +70,8 @@ const MintProgressModal = ({
     const handleSubmit = async () => {
         setLocalError(null);
         try {
-            await submitMint();
-            onConfirm(); // Close or show success
+            const result = await submitMint();
+            onConfirm(result); // Close or show success
         } catch (err) {
             setLocalError(err.message || 'Failed to submit mint');
         }

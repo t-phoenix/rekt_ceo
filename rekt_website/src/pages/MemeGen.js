@@ -52,6 +52,7 @@ const MemeGen = () => {
   const [showMintConfirm, setShowMintConfirm] = useState(false);
   const [showMintSuccess, setShowMintSuccess] = useState(false);
   const [mintPreviewImage, setMintPreviewImage] = useState(null);
+  const [mintResult, setMintResult] = useState(null);
 
   const showToast = useCallback((message) => {
     // Simple toast implementation
@@ -515,8 +516,9 @@ const MemeGen = () => {
       <MintConfirmModal
         isOpen={showMintConfirm}
         onClose={() => setShowMintConfirm(false)}
-        onConfirm={() => {
+        onConfirm={(result) => {
           setShowMintConfirm(false);
+          setMintResult(result);
           setShowMintSuccess(true);
           showToast("🎉 Meme minted successfully!");
         }}
@@ -541,6 +543,7 @@ const MemeGen = () => {
         imagePreview={mintPreviewImage}
         type="MEME"
         onSocialShare={handleSocialShare}
+        mintResult={mintResult}
       />
     </div>
   );

@@ -262,17 +262,7 @@ export const useMint = (token, pricingData) => {
 
             const activeToken = await getAuthToken(); // Trigger SIWE if needed
 
-            // Print addresses and typed data to console for manual verification
-            console.log("=== MINT PARAMS ===");
-            console.log("Network Chain ID (Target):", CHAIN_ID);
-            console.log("CEO Token Address:", CEO_TOKEN_ADDRESS);
-            console.log("Minter Contract Address:", MINTER_CONTRACT_ADDRESS);
-            console.log("Token Name:", tokenName);
-            console.log("Value (wei):", value.toString());
-            console.log("Nonce:", nonce.toString());
-            console.log("Deadline:", deadline.toString());
-            console.log("Owner Address:", address);
-            console.log("===================");
+
 
             setIsMinting(false);
             return {
@@ -365,7 +355,10 @@ export const useMint = (token, pricingData) => {
             setHasPendingMint(false);
             setCurrentStep(MintStep.COMPLETE);
 
-            return result;
+            return {
+                ...result,
+                amountSpent: ethers.formatUnits(value.toString(), 18)
+            };
         } catch (err) {
             const msg = err.shortMessage || err.message || 'Mint submission failed';
             if (msg.includes('401') || msg.includes('Missing or invalid auth')) {

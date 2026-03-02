@@ -3,10 +3,8 @@ const API_URL = process.env.REACT_APP_BACKEND_API_URL
 export const api = {
   // Health check
   async checkHealth() {
-    console.log("Checking backend health: ", API_URL)
     try {
       const res = await fetch(`${API_URL}/api/health`)
-      console.log("Backend is healthy: ", res)
       return res.ok
     } catch (error) {
       console.log("Backend is not healthy: ", error)
@@ -54,7 +52,6 @@ export const api = {
     const res = await fetch(`${API_URL}/api/info/pricing/${nftType}`)
     if (!res.ok) throw new Error(`Failed to get ${nftType} pricing`)
     const data = await res.json()
-    console.log("Pricing Data HERE: ", data)
     return data.data
   },
 
@@ -110,6 +107,10 @@ export const api = {
       taskId: data.data?.id || 'unknown',
       status: data.data?.status || 'queued',
       message: data.message,
+      txHash: data.data?.txHash,
+      tokenId: data.data?.tokenId,
+      imageURI: data.data?.imageURI,
+      metadataURI: data.data?.metadataURI,
     }
   },
 }
