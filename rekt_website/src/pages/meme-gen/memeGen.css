@@ -1383,7 +1383,7 @@
 /* ===== RESPONSIVE: Mobile (<768px) ===== */
 @media screen and (max-width: 767px) {
   .meme-gen-container {
-    padding-top: 8vh;
+    padding-top: 110px;
   }
 
   .meme-gen-main {
@@ -1538,9 +1538,6 @@
 
 /* ===== RESPONSIVE: Small mobile (<480px) ===== */
 @media screen and (max-width: 479px) {
-  .meme-gen-container {
-    padding-top: 7vh;
-  }
 
   .meme-canvas-header > div {
     flex-direction: column;
