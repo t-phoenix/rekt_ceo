@@ -16,7 +16,6 @@ import { useTierData, useUserData } from "../hooks/useNftData";
 import MemeSidebar from "./meme-gen/MemeSidebar.js";
 import MemeCanvas from "./meme-gen/MemeCanvas.js";
 import MemeControls from "./meme-gen/MemeControls.js";
-import ResponsiveMessage from "./meme-gen/ResponsiveMessage.js";
 import { useMemeCanvasLogic } from "../hooks/useMemeCanvasLogic.js";
 
 const MemeGen = () => {
@@ -33,7 +32,6 @@ const MemeGen = () => {
   const [imageSrc, setImageSrc] = useState(null);
   const [activeCategory, setActiveCategory] = useState(memeCategories[0] || "");
   const [selectedTemplate, setSelectedTemplate] = useState(null);
-  const [screenWidth, setScreenWidth] = useState(window.innerWidth);
 
   // Canvas dimensions and frame state
   const [canvasFormat, setCanvasFormat] = useState("dynamic"); // square, portrait, landscape, dynamic
@@ -247,12 +245,6 @@ const MemeGen = () => {
     }
   }, [showToast, handleTemplateSelect, setItems, setActiveId, setActiveTextId]);
 
-  // Check screen width on mount and resize
-  useEffect(() => {
-    const handleResize = () => setScreenWidth(window.innerWidth);
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
 
   // Update indicator position when category changes
   useEffect(() => {
@@ -274,10 +266,6 @@ const MemeGen = () => {
 
     return () => clearTimeout(timer);
   }, [randomizeMemeTemplate]);
-
-  if (screenWidth < 992) {
-    return <ResponsiveMessage screenWidth={screenWidth} />;
-  }
 
   const handleOpenAiModal = () => {
     if (!imageSrc) {

@@ -74,6 +74,7 @@ const StickerCard = ({ onAddSticker, onRemoveAllStickers, showRemoveAll = true }
             <button
               className="dustbin-btn"
               title="Upload custom image"
+              aria-label="Upload custom image"
               onClick={handleUploadClick}>
               📤
             </button>
@@ -81,6 +82,7 @@ const StickerCard = ({ onAddSticker, onRemoveAllStickers, showRemoveAll = true }
               onClick={onRemoveAllStickers}
               className="dustbin-btn"
               title="Remove all stickers"
+              aria-label="Remove all stickers"
             >
               🗑️
             </button>
