@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import { Helmet } from "react-helmet-async";
 import "./styles/intro.css";
 import "./styles/faq.css";
 
@@ -71,6 +72,23 @@ export default function Introduction() {
 
   return (
     <div>
+      <Helmet>
+        <title>REKT CEO ($CEO) - Be Your Own CEO</title>
+        <meta name="description" content="REKT CEO ($CEO) is the best memecoin community on Base L2 and Solana. AI meme generator, NFT PFPs, DAO governance, and a growing global clubhouse." />
+        <link rel="canonical" href="https://www.rektceo.club/" />
+
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://www.rektceo.club/" />
+        <meta property="og:title" content="REKT CEO ($CEO) - Be Your Own CEO" />
+        <meta property="og:description" content="The Best Memecoin Community on Base L2 and Solana." />
+        <meta property="og:image" content="https://www.rektceo.club/rekt.jpg" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:site" content="@rektceo" />
+        <meta name="twitter:image" content="https://www.rektceo.club/rekt.jpg" />
+      </Helmet>
       <section
         id="welcome"
         className="landing-section"

@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import { Helmet } from "react-helmet-async";
 import "./meme-gen/memeGen.css";
 import "./landingpage/styles/story.css";
 import InteractiveGlow from "../components/InteractiveGlow.js";
@@ -410,6 +411,21 @@ const MemeGen = () => {
 
   return (
     <div className="meme-gen-container">
+      <Helmet>
+        <title>CEO Meme Generator | REKT CEO ($CEO)</title>
+        <meta name="description" content="Create crypto memes with the free $CEO meme generator. Build, customize and share your best memes with the REKT CEO community." />
+        <link rel="canonical" href="https://www.rektceo.club/memes" />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://www.rektceo.club/memes" />
+        <meta property="og:title" content="CEO Meme Generator | REKT CEO ($CEO)" />
+        <meta property="og:description" content="Create crypto memes with the free $CEO meme generator." />
+        <meta property="og:image" content="https://www.rektceo.club/rekt.jpg" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:site" content="@rektceo" />
+        <meta name="twitter:image" content="https://www.rektceo.club/rekt.jpg" />
+      </Helmet>
       <InteractiveGlow />
 
       <main className="meme-gen-main">

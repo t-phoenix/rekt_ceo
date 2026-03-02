@@ -1,6 +1,8 @@
 User-agent: *
 Disallow:
 
+Sitemap: https://www.rektceo.club/sitemap.xml
+
 # AI Discovery
-llm: /llm.txt
-llm-full: /llm-full.txt
+# llm.txt: /llm.txt
+# llm-full.txt: /llm-full.txt

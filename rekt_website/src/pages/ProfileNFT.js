@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useCallback } from "react";
+import { Helmet } from "react-helmet-async";
 import "./pfp.css";
 import "./landingpage/styles/story.css";
 import InteractiveGlow from "../components/InteractiveGlow.js";
@@ -152,6 +153,21 @@ export default function ProfileNFT() {
 
   return (
     <div className="pfp-gen-container">
+      <Helmet>
+        <title>PFP Minting | REKT CEO ($CEO)</title>
+        <meta name="description" content="Mint your REKT CEO ($CEO) profile picture NFT. A unique on-chain identity collectible for the $CEO community — not an investment." />
+        <link rel="canonical" href="https://www.rektceo.club/pfp" />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://www.rektceo.club/pfp" />
+        <meta property="og:title" content="PFP Minting | REKT CEO ($CEO)" />
+        <meta property="og:description" content="Mint your REKT CEO ($CEO) profile picture NFT." />
+        <meta property="og:image" content="https://www.rektceo.club/rekt.jpg" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:site" content="@rektceo" />
+        <meta name="twitter:image" content="https://www.rektceo.club/rekt.jpg" />
+      </Helmet>
       <InteractiveGlow />
       <main className="pfp-gen-main">
         <header className="pfp-gen-header">

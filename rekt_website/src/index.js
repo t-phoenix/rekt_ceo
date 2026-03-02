@@ -6,6 +6,7 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { BrowserRouter } from 'react-router-dom';
+import { HelmetProvider } from 'react-helmet-async';
 import { WagmiProvider, QueryClientProvider, queryClient, config } from './config/walletConfig';
 import NexusProvider from './components/nexus/NexusProvider';
 import { Buffer } from 'buffer';
@@ -19,17 +20,19 @@ const root = ReactDOM.createRoot(document.getElementById('root'));
 
 root.render(
   <React.StrictMode>
-    <WagmiProvider config={config}>
-      <QueryClientProvider client={queryClient}>
-        <NexusProvider>
-          <SolanaWalletProvider>
-            <BrowserRouter>
-              <App />
-            </BrowserRouter>
-          </SolanaWalletProvider>
-        </NexusProvider>
-      </QueryClientProvider>
-    </WagmiProvider>
+    <HelmetProvider>
+      <WagmiProvider config={config}>
+        <QueryClientProvider client={queryClient}>
+          <NexusProvider>
+            <SolanaWalletProvider>
+              <BrowserRouter>
+                <App />
+              </BrowserRouter>
+            </SolanaWalletProvider>
+          </NexusProvider>
+        </QueryClientProvider>
+      </WagmiProvider>
+    </HelmetProvider>
   </React.StrictMode>
 );
 
