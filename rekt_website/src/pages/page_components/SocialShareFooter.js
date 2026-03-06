@@ -63,6 +63,7 @@ const SocialShareFooter = ({ onSocialShare, className = "", children }) => {
               className={`social-share-btn ${platform.id}`}
               onClick={(event) => handleClick(platform.id, event)}
               title={platform.title}
+              aria-label={platform.title}
             >
               <platform.icon size={24} />
             </button>

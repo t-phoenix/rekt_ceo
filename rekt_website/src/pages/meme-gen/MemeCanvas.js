@@ -62,6 +62,8 @@ const MemeCanvas = ({
                                 onClick={() => setFrameVariant('none')}
                                 className={`story-btn icon-only ${frameVariant === 'none' ? 'active' : ''}`}
                                 title="No Frame"
+                                aria-label="No frame"
+                                aria-pressed={frameVariant === 'none'}
                                 style={{
                                     width: '32px', height: '32px', minWidth: '32px', padding: 0,
                                     background: frameVariant === 'none' ? 'var(--color-yellow)' : 'transparent',
@@ -73,6 +75,8 @@ const MemeCanvas = ({
                                 onClick={() => setFrameVariant('yellow')}
                                 className={`story-btn icon-only ${frameVariant === 'yellow' ? 'active' : ''}`}
                                 title="Yellow Frame"
+                                aria-label="Yellow frame"
+                                aria-pressed={frameVariant === 'yellow'}
                                 style={{
                                     width: '32px', height: '32px', minWidth: '32px', padding: 0,
                                     background: frameVariant === 'yellow' ? 'var(--color-yellow)' : 'transparent',
@@ -84,6 +88,8 @@ const MemeCanvas = ({
                                 onClick={() => setFrameVariant('red')}
                                 className={`story-btn icon-only ${frameVariant === 'red' ? 'active' : ''}`}
                                 title="Red Frame"
+                                aria-label="Red frame"
+                                aria-pressed={frameVariant === 'red'}
                                 style={{
                                     width: '32px', height: '32px', minWidth: '32px', padding: 0,
                                     background: frameVariant === 'red' ? 'var(--color-red)' : 'transparent',
@@ -215,6 +221,7 @@ const MemeCanvas = ({
                                 className="sticker-delete-btn"
                                 onClick={() => removeSticker(it.id)}
                                 title="Remove sticker"
+                                aria-label={`Remove sticker ${it.name}`}
                             >
                                 ✕
                             </button>
@@ -263,6 +270,8 @@ const MemeCanvas = ({
                     className={`story-btn icon-only ${canvasFormat === 'square' ? 'active' : ''}`}
                     onClick={() => setCanvasFormat('square')}
                     title="Square (1:1)"
+                    aria-label="Square format (1:1)"
+                    aria-pressed={canvasFormat === 'square'}
                     style={{
                         padding: '8px',
                         width: '32px',
@@ -284,6 +293,8 @@ const MemeCanvas = ({
                     className={`story-btn icon-only ${canvasFormat === 'portrait' ? 'active' : ''}`}
                     onClick={() => setCanvasFormat('portrait')}
                     title="Portrait (4:5)"
+                    aria-label="Portrait format (4:5)"
+                    aria-pressed={canvasFormat === 'portrait'}
                     style={{
                         padding: '8px',
                         width: '32px',
@@ -305,6 +316,8 @@ const MemeCanvas = ({
                     className={`story-btn icon-only ${canvasFormat === 'landscape' ? 'active' : ''}`}
                     onClick={() => setCanvasFormat('landscape')}
                     title="Landscape (1.91:1)"
+                    aria-label="Landscape format (1.91:1)"
+                    aria-pressed={canvasFormat === 'landscape'}
                     style={{
                         padding: '8px',
                         width: '32px',
@@ -326,6 +339,8 @@ const MemeCanvas = ({
                     className={`story-btn icon-only ${canvasFormat === 'dynamic' ? 'active' : ''}`}
                     onClick={() => setCanvasFormat('dynamic')}
                     title="Dynamic (Original)"
+                    aria-label="Dynamic format (Original)"
+                    aria-pressed={canvasFormat === 'dynamic'}
                     style={{
                         padding: '8px',
                         width: '32px',
