@@ -419,16 +419,34 @@ const MemeGen = () => {
         <meta property="og:url" content="https://www.rektceo.club/memes" />
         <meta property="og:title" content="CEO Meme Generator | REKT CEO ($CEO)" />
         <meta property="og:description" content="Create crypto memes with the free $CEO meme generator." />
-        <meta property="og:image" content="https://www.rektceo.club/rekt.jpg" />
+        <meta property="og:image" content="https://www.rektceo.club/rekt.webp" />
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:site" content="@rektceo" />
-        <meta name="twitter:image" content="https://www.rektceo.club/rekt.jpg" />
+        <meta name="twitter:image" content="https://www.rektceo.club/rekt.webp" />
+        <script type="application/ld+json">{JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "WebApplication",
+          "name": "CEO Meme Generator",
+          "url": "https://www.rektceo.club/memes",
+          "applicationCategory": "EntertainmentApplication",
+          "description": "Free AI-powered crypto meme generator for the REKT CEO ($CEO) community.",
+          "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "USD"
+          }
+        })}</script>
       </Helmet>
       <InteractiveGlow />
 
       <main className="meme-gen-main">
+        {/* <section className="meme-intro" style={{ textAlign: "center", padding: "2rem", color: "white" }}>
+          <h1 style={{ fontSize: "2rem", marginBottom: "1rem" }}>Free AI Crypto Meme Generator</h1>
+          <p style={{ color: "#aaa" }}>Create $CEO memes in seconds. Choose a template, add your text, generate with AI, and share with the community. Own your memes as NFTs and earn royalties forever.</p>
+        </section> */}
+
         <header className="meme-gen-header">
           {/* <h1 className="meme-gen-title">Rekt CEO Meme Generator</h1> */}
         </header>

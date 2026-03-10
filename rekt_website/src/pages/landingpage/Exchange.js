@@ -15,8 +15,8 @@ export default function Exchange() {
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '20px' }}>
           <h1 className="exchange-section-title" style={{ marginBottom: 0 }}>
             Buy $CEO on
-            pump<img src={pumpFunLogo} alt="Pump.fun" className="title-logo dot-fun" />fun
-            <img src={solanaLogo} alt="Solana" className="title-logo solana-logo" />
+            pump<img src={pumpFunLogo} alt="Pump.fun" className="title-logo dot-fun" loading="lazy" />fun
+            <img src={solanaLogo} alt="Solana" className="title-logo solana-logo" loading="lazy" />
             olana
           </h1>
           <WalletMultiButton />

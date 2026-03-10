@@ -2,21 +2,31 @@
 
 > The best memecoin community on Base L2 and Solana.
 
-REKT CEO ($CEO) is the ultimate community-driven memecoin movement. We are building a community which can coordinate on scale.
+REKT CEO ($CEO) is the ultimate community-driven memecoin movement. Building a community that coordinates on scale.
 
 ## Core Links
 - Website: https://www.rektceo.club/
-- App: https://www.rektceo.club/memes
-- PFP: https://www.rektceo.club/pfp
+- Meme Generator: https://www.rektceo.club/memes
+- PFP NFT Minting: https://www.rektceo.club/pfp
+- Buy $CEO: https://www.rektceo.club/buy-ceo
+- Blueprint/Roadmap: https://www.rektceo.club/blueprint
 
 ## Key Facts
 - Ticker: $CEO
 - Chains: Base L2, Solana
+- Base Contract: 0xcomingsoon
+- Solana Mint: comingsoonSolana
 - Core Products: AI Meme Generator, NFT PFP Collection
-- Disclaimer: $CEO is a memecoin with no intrinsic value or expectation of financial return.
+- Social: Twitter/X @rekt_ceo | Instagram @rektceo | Farcaster @rekt-ceo
 
 ## AI Meme Generator
-The REKT CEO Meme Generator allows users to easily create rekt ceo memes and share them with the REKT CEO community. It's free to use and available at https://www.rektceo.club/memes. You can also own the memes you made, and earn a split royalty forever.
+Free tool at https://www.rektceo.club/memes. Create and customize $CEO memes, own them on-chain, and earn royalties forever.
 
 ## PFP NFT Collection
-The RektCEO Club PFP NFT is a unique on-chain identity collectible for the $CEO community. Available to mint at https://www.rektceo.club/pfp.
+Unique on-chain identity collectibles for the $CEO community. Mint at https://www.rektceo.club/pfp.
+
+## Tokenomics
+Community-driven memecoin with no pre-sale, no VC allocation. Token for entertainment purposes only.
+
+## Disclaimer
+$CEO is a memecoin with no intrinsic value or expectation of financial return.

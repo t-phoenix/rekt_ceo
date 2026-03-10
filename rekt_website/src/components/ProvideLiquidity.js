@@ -20,7 +20,7 @@ export default function ProvideLiquidity() {
         </div>
         <a href={uniswapUrl} target="_blank" rel="noopener noreferrer" className="uniswap-link-button">
           <span>Trade on</span>
-          <img src={uniswapLogo} alt="Uniswap" className="uniswap-button-logo" />
+          <img src={uniswapLogo} alt="Uniswap" className="uniswap-button-logo" loading="lazy" />
         </a>
       </div>
 

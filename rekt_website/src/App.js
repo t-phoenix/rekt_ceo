@@ -1,18 +1,21 @@
-import React from "react";
+import React, { Suspense, lazy } from "react";
 import "./App.css";
 
 import { Route, Routes } from "react-router-dom";
-import Introduction from "./pages/landingpage/Introduction";
 import Header from "./components/Header";
 import CustomCursor from "./components/CustomCursor";
-
-import ProfileNFT from "./pages/ProfileNFT";
-import AdminPage from "./pages/Admin";
-import MemeGen from "./pages/MemeGen";
-import Blueprint from "./pages/Blueprint";
-import BuyCEOPage from "./pages/BuyCEOPage";
+import PageLoader from "./components/PageLoader";
 import { InitNexusOnConnect } from "./components/nexus/InitNexusOnConnect";
 import { Analytics } from '@vercel/analytics/react';
+
+const Introduction = lazy(() => import("./pages/landingpage/Introduction"));
+const ProfileNFT = lazy(() => import("./pages/ProfileNFT"));
+const AdminPage = lazy(() => import("./pages/Admin"));
+const MemeGen = lazy(() => import("./pages/MemeGen"));
+const Blueprint = lazy(() => import("./pages/Blueprint"));
+const BuyCEOPage = lazy(() => import("./pages/BuyCEOPage"));
+
+
 
 
 function App() {
@@ -24,16 +27,16 @@ function App() {
       <Header />
 
       <div className="body">
-        <Routes>
-          <Route path="/" element={<Introduction />} />
-          <Route path="/pfp" element={<ProfileNFT />} />
-          <Route path="/buy-ceo" element={<BuyCEOPage />} />
-          <Route path="/memes" element={<MemeGen />} />
-          <Route path="/admin" element={<AdminPage />} />
-          <Route path="/blueprint" element={<Blueprint />} />
-
-          {/* <Route path="/chat" element={<Chat />}/> */}
-        </Routes>
+        <Suspense fallback={<PageLoader />}>
+          <Routes>
+            <Route path="/" element={<Introduction />} />
+            <Route path="/pfp" element={<ProfileNFT />} />
+            <Route path="/buy-ceo" element={<BuyCEOPage />} />
+            <Route path="/memes" element={<MemeGen />} />
+            <Route path="/admin" element={<AdminPage />} />
+            <Route path="/blueprint" element={<Blueprint />} />
+          </Routes>
+        </Suspense>
       </div>
       <Analytics />
     </div>

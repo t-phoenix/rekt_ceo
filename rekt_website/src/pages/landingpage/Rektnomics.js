@@ -29,7 +29,7 @@ export default function Rektnomics() {
       </h1>
       <div className="rektnomics-box">
         {/* COLUMN 1 */}
-        <img src={ceo_swag} alt="" className="rekt-image" />
+        <img src={ceo_swag} alt="" className="rekt-image" loading="lazy" />
 
         {/* COLUMN 2 */}
         <div className="rekt-info">

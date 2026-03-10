@@ -80,14 +80,26 @@ export default function Introduction() {
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://www.rektceo.club/" />
         <meta property="og:title" content="REKT CEO ($CEO) - Be Your Own CEO" />
-        <meta property="og:description" content="The Best Memecoin Community on Base L2 and Solana." />
-        <meta property="og:image" content="https://www.rektceo.club/rekt.jpg" />
+        <meta property="og:description" content="Join the REKT CEO movement — AI meme generator, NFT PFPs, and the best memecoin community on Base L2 and Solana." />
+        <meta property="og:image" content="https://www.rektceo.club/rekt.webp" />
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
 
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:site" content="@rektceo" />
-        <meta name="twitter:image" content="https://www.rektceo.club/rekt.jpg" />
+        <meta name="twitter:site" content="@rekt_ceo" />
+        <meta name="twitter:image" content="https://www.rektceo.club/rekt.webp" />
+        <script type="application/ld+json">{JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "FAQPage",
+          "mainEntity": faqData.map(item => ({
+            "@type": "Question",
+            "name": item.question,
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": item.answer
+            }
+          }))
+        })}</script>
       </Helmet>
       <section
         id="welcome"
@@ -164,7 +176,7 @@ export default function Introduction() {
         </div>
         <div className="end-box">
           <p>DISCLAIMER: $CEO is a meme coin created for fun with absolutely no intrinsic value or any expectation of financial return. The token for entertainment purposes only and we take zero responsibility for the value of this token. $CEO is inspired by @MustStopMurad to be the king of meme coins.</p>
-          <p style={{ marginBlock: '2%', display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>2024 <MdCopyright size={16} /> RektCeo. All right reserved.</p>
+          <p style={{ marginBlock: '2%', display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>2026 <MdCopyright size={16} /> REKT CEO. All rights reserved.</p>
         </div>
 
       </section>

@@ -161,12 +161,20 @@ export default function ProfileNFT() {
         <meta property="og:url" content="https://www.rektceo.club/pfp" />
         <meta property="og:title" content="PFP Minting | REKT CEO ($CEO)" />
         <meta property="og:description" content="Mint your REKT CEO ($CEO) profile picture NFT." />
-        <meta property="og:image" content="https://www.rektceo.club/rekt.jpg" />
+        <meta property="og:image" content="https://www.rektceo.club/rekt.webp" />
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:site" content="@rektceo" />
-        <meta name="twitter:image" content="https://www.rektceo.club/rekt.jpg" />
+        <meta name="twitter:image" content="https://www.rektceo.club/rekt.webp" />
+        <script type="application/ld+json">{JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "WebApplication",
+          "name": "REKT CEO PFP Minter",
+          "url": "https://www.rektceo.club/pfp",
+          "applicationCategory": "FinanceApplication",
+          "description": "Mint your REKT CEO PFP NFT — a unique on-chain identity collectible on Base L2."
+        })}</script>
       </Helmet>
       <InteractiveGlow />
       <main className="pfp-gen-main">

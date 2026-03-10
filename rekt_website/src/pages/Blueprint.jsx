@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { Helmet } from "react-helmet-async";
 import { Document, Page, pdfjs } from "react-pdf";
 import { MdChevronLeft, MdChevronRight, MdDownload, MdContentCopy } from "react-icons/md";
 import toast, { Toaster } from 'react-hot-toast';
@@ -104,7 +105,7 @@ const BrandKit = () => {
                 <div className="brand-card logo-box">
                     <h3>OFFICIAL LOGO</h3>
                     <div className="logo-preview">
-                        <img src={RektLogo} alt="Rekt CEO Logo" />
+                        <img src={RektLogo} alt="REKT CEO Logo" width="200" height="200" loading="lazy" />
                     </div>
                     <a href={RektLogo} download="Rekt_CEO_Logo.png" className="action-btn-small">
                         <MdDownload /> DOWNLOAD LOGO
@@ -141,6 +142,16 @@ const Blueprint = () => {
 
     return (
         <div className="blueprint-container">
+            <Helmet>
+                <title>REKT CEO Blueprint & Roadmap | $CEO Token</title>
+                <meta name="description" content="The official REKT CEO blueprint — our vision, roadmap, and strategy for building the best memecoin community on Base L2 and Solana." />
+                <link rel="canonical" href="https://www.rektceo.club/blueprint" />
+                <meta property="og:type" content="website" />
+                <meta property="og:url" content="https://www.rektceo.club/blueprint" />
+                <meta property="og:title" content="REKT CEO Blueprint & Roadmap | $CEO Token" />
+                <meta property="og:description" content="The official REKT CEO blueprint — our vision, roadmap, and strategy." />
+                <meta property="og:image" content="https://www.rektceo.club/rekt.webp" />
+            </Helmet>
             <Toaster position="bottom-center" />
             <div className="blueprint-header">
                 <h1 className="blueprint-title">THE BLUEPRINT</h1>
