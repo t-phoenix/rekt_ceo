@@ -12,4 +12,4 @@ export { MarketDataDisplay } from './MarketDataDisplay'
 export { ContractManagerPage } from './ContractManagerPage'
 export { ContractExplorer } from './ContractExplorer'
 export { AttributesModal, DUMMY_PFP_ATTRIBUTES, DUMMY_MEME_ATTRIBUTES } from './AttributesModal'
-
+export { WorkflowsPage } from './WorkflowsPage'
