@@ -1092,14 +1092,14 @@
 }
 
 
-/* Scroll hint arrows */
+/* Scroll hint arrows – compact, not full-height so they adapt to container changes */
 .scroll-hint {
   position: absolute;
-  top: 50%;
+  top: 0%;
   transform: translateY(-50%);
   font-size: 3rem;
   font-weight: bold;
-  color: rgba(255, 255, 255, 0.9);
+  color: rgba(255, 255, 255, 0.5);
   background: linear-gradient(to right, rgba(0, 0, 0, 0.3), transparent);
   pointer-events: none;
   z-index: 10;
@@ -1110,7 +1110,7 @@
   width: 50px;
   transition: all 0.3s ease;
   user-select: none;
-  animation: pulse 2s ease-in-out infinite;
+  animation: pulse 10s ease-in-out infinite;
 }
 
 @keyframes pulse {

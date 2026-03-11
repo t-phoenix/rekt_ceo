@@ -196,28 +196,28 @@
     left: 100%;
 }
 
+/* Brand colors: primary = magenta, secondary = yellow (match story.css for consistent dev + prod) */
 .story-btn.primary {
-    background: linear-gradient(135deg, var(--color-purple), var(--color-blue-primary));
+    background: var(--background-color-third);
     color: var(--color-white);
-    box-shadow: 0 8px 24px rgba(123, 97, 255, 0.4), 0 4px 12px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 8px 24px rgba(216, 30, 91, 0.4), 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
 .story-btn.primary:hover {
-    box-shadow: 0 12px 32px rgba(123, 97, 255, 0.6), 0 6px 16px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 12px 32px rgba(216, 30, 91, 0.6), 0 6px 16px rgba(0, 0, 0, 0.4);
     transform: translateY(-4px) scale(1.05);
 }
 
 .story-btn.secondary {
-    background: rgba(255, 255, 255, 0.1);
-    color: var(--color-white);
-    border: 2px solid rgba(255, 255, 255, 0.5);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+    background: var(--color-yellow);
+    color: var(--color-black);
+    border: none;
+    box-shadow: 0 8px 24px rgba(248, 200, 38, 0.4), 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 .story-btn.secondary:hover {
-    background: rgba(255, 255, 255, 0.2);
-    border-color: rgba(255, 255, 255, 0.8);
-    box-shadow: 0 12px 32px rgba(255, 255, 255, 0.2), 0 6px 16px rgba(0, 0, 0, 0.3);
+    background: #ffd700;
+    box-shadow: 0 12px 32px rgba(248, 200, 38, 0.5), 0 6px 16px rgba(0, 0, 0, 0.3);
     transform: translateY(-4px) scale(1.05);
 }
 

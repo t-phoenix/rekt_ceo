@@ -151,6 +151,25 @@ const Blueprint = () => {
                 <meta property="og:title" content="REKT CEO Blueprint & Roadmap | $CEO Token" />
                 <meta property="og:description" content="The official REKT CEO blueprint — our vision, roadmap, and strategy." />
                 <meta property="og:image" content="https://www.rektceo.club/rekt.webp" />
+                <meta name="twitter:card" content="summary_large_image" />
+                <meta name="twitter:site" content="@rekt_ceo" />
+                <meta name="twitter:image" content="https://www.rektceo.club/rekt.webp" />
+                <script type="application/ld+json">{JSON.stringify({
+                    "@context": "https://schema.org",
+                    "@type": "WebPage",
+                    "name": "REKT CEO Blueprint & Roadmap",
+                    "description": "Official REKT CEO blueprint: pitch deck, whitepaper, and brand kit. Vision, roadmap, and strategy for the $CEO memecoin community on Base and Solana.",
+                    "url": "https://www.rektceo.club/blueprint"
+                })}</script>
+                <script type="application/ld+json">{JSON.stringify({
+                    "@context": "https://schema.org",
+                    "@type": "FAQPage",
+                    "mainEntity": [
+                        { "@type": "Question", "name": "What is the REKT CEO blueprint?", "acceptedAnswer": { "@type": "Answer", "text": "The blueprint is the official set of documents for REKT CEO: the pitch deck (vision and roadmap), the whitepaper (manifesto and tokenomics), and the brand kit (colors and assets)." } },
+                        { "@type": "Question", "name": "Where can I download the whitepaper?", "acceptedAnswer": { "@type": "Answer", "text": "On this page, use the DOWNLOAD WHITEPAPER button in the Whitepaper section. The pitch deck can be viewed in-browser or downloaded via DOWNLOAD DECK." } },
+                        { "@type": "Question", "name": "What is the REKT CEO brand kit?", "acceptedAnswer": { "@type": "Answer", "text": "The brand kit shows official REKT CEO colors (REKT Red, CEO Yellow, Deep Magenta, Off White) and assets for community and partner use." } }
+                    ]
+                })}</script>
             </Helmet>
             <Toaster position="bottom-center" />
             <div className="blueprint-header">
@@ -179,6 +198,21 @@ const Blueprint = () => {
 
                 <BrandKit />
             </div>
+
+            <section aria-label="About the Blueprint" style={{ position: 'absolute', width: '1px', height: '1px', padding: 0, margin: '-1px', overflow: 'hidden', clip: 'rect(0,0,0,0)', whiteSpace: 'nowrap', border: 0 }}>
+                <h2>About the REKT CEO Blueprint</h2>
+                <p>This page holds the official REKT CEO ($CEO) blueprint: our pitch deck, whitepaper, and brand kit. The pitch deck outlines vision and roadmap; the whitepaper is the full manifesto and tokenomics; the brand kit defines colors and assets for the community.</p>
+                <p>All documents are for the $CEO memecoin community on Base L2 and Solana. Download the whitepaper or deck from the sections above.</p>
+                <h3>Frequently asked questions</h3>
+                <dl>
+                    <dt>What is the REKT CEO blueprint?</dt>
+                    <dd>The official set of documents: pitch deck (vision and roadmap), whitepaper (manifesto and tokenomics), and brand kit (colors and assets).</dd>
+                    <dt>Where can I download the whitepaper?</dt>
+                    <dd>Use the DOWNLOAD WHITEPAPER button in the Whitepaper section on this page. The pitch deck can be downloaded via DOWNLOAD DECK.</dd>
+                    <dt>What is the REKT CEO brand kit?</dt>
+                    <dd>Official colors (REKT Red, CEO Yellow, Deep Magenta, Off White) and assets for community and partner use.</dd>
+                </dl>
+            </section>
         </div>
     );
 };

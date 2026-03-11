@@ -423,7 +423,7 @@ const MemeGen = () => {
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:site" content="@rektceo" />
+        <meta name="twitter:site" content="@rekt_ceo" />
         <meta name="twitter:image" content="https://www.rektceo.club/rekt.webp" />
         <script type="application/ld+json">{JSON.stringify({
           "@context": "https://schema.org",
@@ -431,13 +431,19 @@ const MemeGen = () => {
           "name": "CEO Meme Generator",
           "url": "https://www.rektceo.club/memes",
           "applicationCategory": "EntertainmentApplication",
-          "description": "Free AI-powered crypto meme generator for the REKT CEO ($CEO) community.",
-          "offers": {
-            "@type": "Offer",
-            "price": "0",
-            "priceCurrency": "USD"
-          }
+          "description": "Free AI-powered crypto meme generator for the REKT CEO ($CEO) community. Create, customize, and mint memes as NFTs on Base.",
+          "featureList": "Template library, AI generation, custom text and fonts, NFT minting, social sharing",
+          "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
         })}</script>
+        {/* <script type="application/ld+json">{JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "FAQPage",
+          "mainEntity": [
+            { "@type": "Question", "name": "How do I create a meme?", "acceptedAnswer": { "@type": "Answer", "text": "Choose a template from the library, add top and bottom text, pick fonts and colors. You can also generate images with AI or upload your own. Hit share or mint to save as an NFT on Base." } },
+            { "@type": "Question", "name": "Is the REKT CEO meme generator free?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. Creating and sharing memes is free. Minting memes as NFTs may use a small amount of $CEO token or gas on Base." } },
+            { "@type": "Question", "name": "What chains does the meme generator support?", "acceptedAnswer": { "@type": "Answer", "text": "Meme creation works in-browser. NFT minting is on Base L2. $CEO token is on Base and Solana." } }
+          ]
+        })}</script> */}
       </Helmet>
       <InteractiveGlow />
 
@@ -528,6 +534,21 @@ const MemeGen = () => {
 
         </section>
       </main>
+
+      {/* <section className="meme-gen-about" aria-label="About the Meme Generator" style={{ position: 'absolute', width: '1px', height: '1px', padding: 0, margin: '-1px', overflow: 'hidden', clip: 'rect(0,0,0,0)', whiteSpace: 'nowrap', border: 0 }}>
+        <h2>About the CEO Meme Generator</h2>
+        <p>The REKT CEO meme generator lets you create crypto memes in seconds. Pick from curated templates, add your own text, or use AI to generate images. Customize fonts, colors, and frames, then share to socials or mint your meme as an NFT on Base.</p>
+        <p>Built for the $CEO community — free to use, no signup required to create. Connect your wallet to mint and own your memes on-chain.</p>
+        <h3>Frequently asked questions</h3>
+        <dl>
+          <dt>How do I create a meme?</dt>
+          <dd>Choose a template, add top and bottom text, pick fonts and colors. You can also generate images with AI or upload your own. Share or mint to save as an NFT on Base.</dd>
+          <dt>Is the meme generator free?</dt>
+          <dd>Yes. Creating and sharing memes is free. Minting as NFTs may use a small amount of $CEO or gas on Base.</dd>
+          <dt>What chains are supported?</dt>
+          <dd>Meme creation works in your browser. NFT minting is on Base L2. $CEO is on Base and Solana.</dd>
+        </dl>
+      </section> */}
 
       {/* AI Generate Modal */}
       <AiGenerateModal

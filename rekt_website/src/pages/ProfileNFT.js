@@ -165,7 +165,7 @@ export default function ProfileNFT() {
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:site" content="@rektceo" />
+        <meta name="twitter:site" content="@rekt_ceo" />
         <meta name="twitter:image" content="https://www.rektceo.club/rekt.webp" />
         <script type="application/ld+json">{JSON.stringify({
           "@context": "https://schema.org",
@@ -173,7 +173,17 @@ export default function ProfileNFT() {
           "name": "REKT CEO PFP Minter",
           "url": "https://www.rektceo.club/pfp",
           "applicationCategory": "FinanceApplication",
-          "description": "Mint your REKT CEO PFP NFT — a unique on-chain identity collectible on Base L2."
+          "description": "Mint your REKT CEO PFP NFT — a unique on-chain identity collectible on Base L2. Customize layers and mint your profile picture.",
+          "featureList": "Layer-based customization, randomize options, NFT minting on Base, social sharing"
+        })}</script>
+        <script type="application/ld+json">{JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "FAQPage",
+          "mainEntity": [
+            { "@type": "Question", "name": "What is the REKT CEO PFP?", "acceptedAnswer": { "@type": "Answer", "text": "The REKT CEO PFP is an on-chain profile picture NFT. You customize layers (background, hoodie, pants, shoes, skin, face, jewellery, coin) and mint a unique collectible for the $CEO community on Base." } },
+            { "@type": "Question", "name": "How do I customize my PFP?", "acceptedAnswer": { "@type": "Answer", "text": "Use the Options panel to switch layers for each trait. Click Randomise to generate a random combination, then mint when you are happy with the preview." } },
+            { "@type": "Question", "name": "On which chain can I mint the PFP?", "acceptedAnswer": { "@type": "Answer", "text": "REKT CEO PFPs mint on Base L2. Connect a Base-compatible wallet and use $CEO token to mint." } }
+          ]
         })}</script>
       </Helmet>
       <InteractiveGlow />
@@ -277,6 +287,21 @@ export default function ProfileNFT() {
           </div>
         </section>
       </main>
+
+      <section aria-label="About PFP Minting" style={{ position: 'absolute', width: '1px', height: '1px', padding: 0, margin: '-1px', overflow: 'hidden', clip: 'rect(0,0,0,0)', whiteSpace: 'nowrap', border: 0 }}>
+        <h2>About REKT CEO PFP Minting</h2>
+        <p>Mint your unique REKT CEO profile picture NFT on Base. Customize eight layers — background, hoodie, pants, shoes, skin, face, jewellery, and coin — to build a one-of-one identity for the $CEO community.</p>
+        <p>Use Randomise to explore combinations, then connect your wallet and mint. PFPs are on-chain collectibles, not financial products.</p>
+        <h3>Frequently asked questions</h3>
+        <dl>
+          <dt>What is the REKT CEO PFP?</dt>
+          <dd>An on-chain profile picture NFT. You customize layers and mint a unique collectible for the $CEO community on Base.</dd>
+          <dt>How do I customize my PFP?</dt>
+          <dd>Use the Options panel to change each trait. Click Randomise for a random combo, then mint when you like the preview.</dd>
+          <dt>On which chain can I mint?</dt>
+          <dd>PFPs mint on Base L2. Connect a Base-compatible wallet and use $CEO to mint.</dd>
+        </dl>
+      </section>
 
       {/* Mint Confirmation Modal */}
       <MintConfirmModal
