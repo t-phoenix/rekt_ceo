@@ -6,8 +6,11 @@ import toast, { Toaster } from 'react-hot-toast';
 import "./Blueprint.css";
 import RektLogo from "../creatives/Rekt_logo_illustration.png"
 
-// Set worker URL for react-pdf
-pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
+// Set worker URL for react-pdf using local bundled worker (avoids external CDN + CSP issues)
+pdfjs.GlobalWorkerOptions.workerSrc = new URL(
+    "pdfjs-dist/build/pdf.worker.min.mjs",
+    import.meta.url
+).toString();
 
 const PresentationViewer = ({ file, title }) => {
     const [numPages, setNumPages] = useState(null);
