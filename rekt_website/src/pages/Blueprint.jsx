@@ -6,9 +6,10 @@ import toast, { Toaster } from 'react-hot-toast';
 import "./Blueprint.css";
 import RektLogo from "../creatives/Rekt_logo_illustration.png"
 
-// Set worker URL for react-pdf using local bundled worker (avoids external CDN + CSP issues)
+// Set worker URL for react-pdf using the recommended local worker path.
+// CRA/Webpack will bundle `pdf.worker.min.mjs` alongside this file, and CSP `script-src 'self'` will allow it.
 pdfjs.GlobalWorkerOptions.workerSrc = new URL(
-    "pdfjs-dist/build/pdf.worker.min.mjs",
+    "pdf.worker.min.mjs",
     import.meta.url
 ).toString();
 
