@@ -6,24 +6,23 @@ import toast, { Toaster } from 'react-hot-toast';
 import "./Blueprint.css";
 import RektLogo from "../creatives/Rekt_logo_illustration.png"
 
-// Set worker URL for react-pdf using the recommended local worker path.
-// CRA/Webpack will bundle `pdf.worker.min.mjs` alongside this file, and CSP `script-src 'self'` will allow it.
-pdfjs.GlobalWorkerOptions.workerSrc = new URL(
-    "pdf.worker.min.mjs",
-    import.meta.url
-).toString();
+// Use locally hosted worker to avoid CSP / CDN issues
+pdfjs.GlobalWorkerOptions.workerSrc = "/pdf.worker.min.mjs";
 
-const PresentationViewer = ({ file, title }) => {
+const PresentationViewer = ({ file }) => {
     const [numPages, setNumPages] = useState(null);
     const [pageNumber, setPageNumber] = useState(1);
 
     function onDocumentLoadSuccess({ numPages }) {
         setNumPages(numPages);
+        // Clamp current page if total pages shrank for any reason
+        setPageNumber((prev) => Math.min(prev, numPages || 1));
     }
 
     const changePage = (offset) => {
         setPageNumber(prevPageNumber => {
             const newPage = prevPageNumber + offset;
+            if (!numPages) return prevPageNumber;
             return Math.max(1, Math.min(newPage, numPages));
         });
     };
@@ -36,7 +35,9 @@ const PresentationViewer = ({ file, title }) => {
     return (
         <div className="presentation-container">
             <div className="viewer-controls top">
-                <span className="page-count">SLIDE {pageNumber} / {numPages || "?"}</span>
+                <span className="page-count">
+                    SLIDE {pageNumber} / {numPages || "?"}
+                </span>
             </div>
 
             <div className="slide-wrapper">
@@ -60,13 +61,15 @@ const PresentationViewer = ({ file, title }) => {
                     className="nav-btn prev"
                     onClick={() => changePage(-1)}
                     disabled={pageNumber <= 1}
+                    aria-label="Previous slide"
                 >
                     <MdChevronLeft />
                 </button>
                 <button
                     className="nav-btn next"
                     onClick={() => changePage(1)}
-                    disabled={pageNumber >= numPages}
+                    disabled={numPages ? pageNumber >= numPages : true}
+                    aria-label="Next slide"
                 >
                     <MdChevronRight />
                 </button>
@@ -80,7 +83,6 @@ const PresentationViewer = ({ file, title }) => {
         </div>
     );
 };
-
 
 const BrandKit = () => {
     const colors = [
@@ -187,7 +189,7 @@ const Blueprint = () => {
             <div className="blueprint-grid">
                 <section className="doc-section deck">
                     <h2 className="doc-title yellow">PITCH DECK</h2>
-                    <PresentationViewer file="/showcase/pitch.pdf" title="Pitch Deck" />
+                    <PresentationViewer file="/showcase/pitch.pdf" />
                 </section>
 
                 <section className="doc-section paper">
