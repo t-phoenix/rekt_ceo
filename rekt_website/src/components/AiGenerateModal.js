@@ -1,11 +1,17 @@
-import { useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import './AiGenerateModal.css';
+
+const FOCUSABLE_SELECTOR =
+    'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
 const AiGenerateModal = ({ isOpen, onClose, onGenerate, isLoading }) => {
     const [inputMode, setInputMode] = useState('topic'); // 'topic' or 'content'
     const [topic, setTopic] = useState('');
     const [content, setContent] = useState('');
     const [generatedOptions, setGeneratedOptions] = useState(null); // Will store the 3 options
+    const modalContentRef = useRef(null);
+    const previouslyFocusedElementRef = useRef(null);
+    const modalTitleId = 'ai-generate-modal-title';
 
     const handleSubmit = async () => {
         const inputValue = inputMode === 'topic' ? topic : content;
@@ -34,7 +40,7 @@ const AiGenerateModal = ({ isOpen, onClose, onGenerate, isLoading }) => {
         setContent('');
     };
 
-    const handleKeyPress = (e) => {
+    const handleInputKeyDown = (e) => {
         if (e.key === 'Enter' && inputMode === 'topic' && topic.trim() && !isLoading) {
             handleSubmit();
         }
@@ -44,21 +50,104 @@ const AiGenerateModal = ({ isOpen, onClose, onGenerate, isLoading }) => {
         setInputMode(prev => prev === 'topic' ? 'content' : 'topic');
     };
 
-    const handleClose = () => {
+    const handleClose = useCallback(() => {
         setGeneratedOptions(null);
         onClose();
-    };
+    }, [onClose]);
+
+    useEffect(() => {
+        if (!isOpen) return undefined;
+
+        previouslyFocusedElementRef.current = document.activeElement;
+
+        const modal = modalContentRef.current;
+        if (modal) {
+            const autoFocusElement = modal.querySelector('[autofocus]');
+            if (autoFocusElement instanceof HTMLElement) {
+                autoFocusElement.focus();
+            } else {
+                modal.focus();
+            }
+        }
+
+        const handleModalKeyDown = (e) => {
+            if (e.key === 'Escape') {
+                e.preventDefault();
+                handleClose();
+                return;
+            }
+
+            if (e.key !== 'Tab') return;
+
+            const currentModal = modalContentRef.current;
+            if (!currentModal) return;
+
+            const focusableElements = Array.from(
+                currentModal.querySelectorAll(FOCUSABLE_SELECTOR)
+            );
+
+            if (focusableElements.length === 0) {
+                e.preventDefault();
+                currentModal.focus();
+                return;
+            }
+
+            const firstElement = focusableElements[0];
+            const lastElement = focusableElements[focusableElements.length - 1];
+            const activeElement = document.activeElement;
+
+            if (!currentModal.contains(activeElement)) {
+                e.preventDefault();
+                firstElement.focus();
+                return;
+            }
+
+            if (e.shiftKey) {
+                if (activeElement === firstElement || activeElement === currentModal) {
+                    e.preventDefault();
+                    lastElement.focus();
+                }
+                return;
+            }
+
+            if (activeElement === lastElement) {
+                e.preventDefault();
+                firstElement.focus();
+            }
+        };
+
+        document.addEventListener('keydown', handleModalKeyDown);
+
+        return () => {
+            document.removeEventListener('keydown', handleModalKeyDown);
+
+            if (
+                previouslyFocusedElementRef.current instanceof HTMLElement &&
+                document.contains(previouslyFocusedElementRef.current)
+            ) {
+                previouslyFocusedElementRef.current.focus();
+            }
+        };
+    }, [isOpen, handleClose]);
 
     if (!isOpen) return null;
 
     return (
         <div className="ai-modal-overlay" onClick={handleClose}>
-            <div className="ai-modal-content" onClick={(e) => e.stopPropagation()}>
+            <div
+                ref={modalContentRef}
+                className="ai-modal-content"
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby={modalTitleId}
+                tabIndex={-1}
+                onClick={(e) => e.stopPropagation()}
+            >
                 <div className="ai-modal-header">
-                    <h2 className="ai-modal-title">
+                    <h2 id={modalTitleId} className="ai-modal-title">
                         {generatedOptions ? '✨ Choose Your Favorite' : '✨ AI Meme Generator'}
                     </h2>
-                    <button className="ai-modal-close" onClick={handleClose}>
+                    <button className="ai-modal-close" onClick={handleClose} aria-label="Close AI meme generator modal">
                         ✕
                     </button>
                 </div>
@@ -88,7 +177,7 @@ const AiGenerateModal = ({ isOpen, onClose, onGenerate, isLoading }) => {
                                     placeholder="e.g., crypto market crash, NFT hype, diamond hands..."
                                     value={topic}
                                     onChange={(e) => setTopic(e.target.value)}
-                                    onKeyPress={handleKeyPress}
+                                    onKeyDown={handleInputKeyDown}
                                     disabled={isLoading}
                                     autoFocus
                                 />
@@ -156,8 +245,9 @@ const AiGenerateModal = ({ isOpen, onClose, onGenerate, isLoading }) => {
                             </p>
                             <div className="ai-options-grid">
                                 {generatedOptions.options.map((option, index) => (
-                                    <div
+                                    <button
                                         key={index}
+                                        type="button"
                                         className="ai-option-card"
                                         onClick={() => handleSelectOption(option)}
                                     >
@@ -180,7 +270,7 @@ const AiGenerateModal = ({ isOpen, onClose, onGenerate, isLoading }) => {
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
+                                    </button>
                                 ))}
                             </div>
                         </div>

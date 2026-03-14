@@ -222,9 +222,12 @@
 }
 
 .ai-option-card {
+    appearance: none;
+    -webkit-appearance: none;
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid rgba(255, 255, 255, 0.15);
     border-radius: 10px;
+    color: inherit;
     padding: 0.75rem;
     cursor: pointer;
     transition: all 0.3s ease;
@@ -233,6 +236,9 @@
     display: flex;
     gap: 0.75rem;
     align-items: stretch;
+    text-align: left;
+    width: 100%;
+    font: inherit;
 }
 
 .ai-option-card::before {
@@ -257,6 +263,11 @@
 
 .ai-option-card:hover::before {
     opacity: 0.1;
+}
+
+.ai-option-card:focus-visible {
+    border-color: var(--background-color-third);
+    box-shadow: 0 0 0 2px rgba(185, 255, 72, 0.35);
 }
 
 /* Rank badge on the left side */
@@ -351,4 +362,46 @@
 
 .ai-options-body::-webkit-scrollbar-thumb:hover {
     background: rgba(255, 255, 255, 0.3);
+}
+
+/* Responsive: Mobile */
+@media screen and (max-width: 768px) {
+    .ai-modal-content {
+        width: 95%;
+        max-width: none;
+        margin: 1rem;
+    }
+
+    .ai-modal-header {
+        padding: 1rem;
+    }
+
+    .ai-modal-title {
+        font-size: 1.1rem;
+    }
+
+    .ai-modal-body {
+        padding: 1.25rem 1rem;
+    }
+
+    .ai-modal-footer {
+        padding: 0.75rem 1rem;
+        flex-wrap: wrap;
+    }
+
+    .ai-options-body {
+        max-height: 60vh;
+    }
+
+    .ai-option-card {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .ai-option-rank-badge {
+        min-width: unset;
+        width: fit-content;
+        padding: 0.3rem 0.6rem;
+        font-size: 0.85rem;
+    }
 }
