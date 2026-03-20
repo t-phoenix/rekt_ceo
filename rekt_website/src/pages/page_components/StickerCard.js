@@ -13,6 +13,8 @@ import hodlBubble from "../../creatives/rekt_stickers/hodl_bubble.png";
 import rktController from "../../creatives/rekt_stickers/rkt_controller.png";
 import rektlogo from "../../creatives/rekt_stickers/Rekt_logo_2D.png";
 import rektlogo3D from "../../creatives/rekt_stickers/Rekt_logo_3D.png";
+import happyGlass from "../../creatives/rekt_stickers/happy_glass.png";
+
 
 // Sticker configuration using actual rekt_sticker images
 const STICKERS = [
@@ -26,7 +28,9 @@ const STICKERS = [
   { id: "wagm", name: "WAGM", image: wagm, category: "REKT" },
   { id: "rekted_ready", name: "Rekted & Ready", image: rektedReady, category: "REKT" },
   { id: "degen_activated", name: "Degen Activated", image: degenActivated, category: "REKT" },
-  { id: "ceo_badge", name: "CEO Badge", image: ceoBadge, category: "CEO" }
+  { id: "ceo_badge", name: "CEO Badge", image: ceoBadge, category: "CEO" },
+  { id: "happy_glass", name: "Happy Glass", image: happyGlass, category: "REKT" }
+
 ];
 
 const StickerCard = ({ onAddSticker, onRemoveAllStickers, showRemoveAll = true }) => {
