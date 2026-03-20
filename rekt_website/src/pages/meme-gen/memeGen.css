@@ -1092,10 +1092,10 @@
 }
 
 
-/* Scroll hint arrows – compact, not full-height so they adapt to container changes */
+/* Scroll hint arrows */
 .scroll-hint {
   position: absolute;
-  top: 0%;
+  top: 50%;
   transform: translateY(-50%);
   font-size: 3rem;
   font-weight: bold;
