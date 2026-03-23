@@ -5,8 +5,8 @@ import { useAuth } from '../hooks/useAuth'
 import { useTheme } from '../context/ThemeContext'
 
 interface HeaderProps {
-  currentPage?: 'home' | 'liquidity' | 'contracts' | 'workflows'
-  onNavigate?: (page: 'home' | 'liquidity' | 'contracts' | 'workflows') => void
+  currentPage?: 'home' | 'liquidity' | 'contracts' | 'workflows' | 'arbitrage'
+  onNavigate?: (page: 'home' | 'liquidity' | 'contracts' | 'workflows' | 'arbitrage') => void
 }
 
 export const Header = ({ currentPage = 'home', onNavigate }: HeaderProps) => {
@@ -73,6 +73,15 @@ export const Header = ({ currentPage = 'home', onNavigate }: HeaderProps) => {
                   }`}
               >
                 Workflows
+              </button>
+              <button
+                onClick={() => onNavigate('arbitrage')}
+                className={`px-3 py-2 text-sm font-medium rounded transition-colors ${currentPage === 'arbitrage'
+                  ? 'text-indigo-600 bg-indigo-50 dark:bg-indigo-900/20'
+                  : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-700'
+                  }`}
+              >
+                Arbitrage
               </button>
             </nav>
           )}

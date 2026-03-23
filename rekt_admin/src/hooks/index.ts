@@ -5,6 +5,7 @@ export { useNftPricing } from './useNftPricing'
 export { useUserInfo } from './useUserInfo'
 export { useWorkflows } from './useWorkflows'
 export type { TableName } from './useWorkflows'
+export { useArbBot } from './useArbBot'
 
 // Auth hooks
 export { useAuth } from './useAuth'
