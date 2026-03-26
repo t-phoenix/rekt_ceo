@@ -149,6 +149,90 @@ export interface BaseVolumeStartBody {
   runDurationMinutes?: number
 }
 
+export interface PricingData {
+  solana: {
+    price: number
+    priceUsd: number
+    liquidity: number
+    liquidityUsd: number
+    marketCapUsd?: number
+  }
+  base: {
+    price: number
+    priceUsd: number
+    liquidity: number
+    liquidityUsd: number
+  }
+  priceDifference?: {
+    absolute: number
+    percent: number
+  }
+  timestamp?: number
+}
+
+export interface BalancesData {
+  solana: {
+    sol: number
+    solUsd: number
+    token: number
+    tokenUsd: number
+    totalUsd: number
+  }
+  base: {
+    eth: number
+    ethUsd: number
+    usdc: number
+    token: number
+    totalUsd: number
+  }
+  combined?: {
+    totalUsd: number
+  }
+  timestamp?: number
+}
+
+export interface PoolsData {
+  solana: {
+    chain: string
+    dex: string
+    reserves?: {
+      virtual?: {
+        solFormatted?: number
+        tokensFormatted?: number
+      }
+      real?: {
+        solFormatted?: number
+        tokensFormatted?: number
+      }
+    }
+    liquidity?: number
+    liquidityUsd?: number
+    price?: number
+    priceUsd?: number
+  }
+  base: {
+    chain: string
+    dex: string
+    reserves?: {
+      usdcFormatted?: number
+      tokensFormatted?: number
+    }
+    liquidity?: number
+    liquidityUsd?: number
+    price?: number
+    priceUsd?: number
+  }
+  comparison?: {
+    priceDifference?: {
+      absolute: number
+      percent: number
+    }
+    liquidityRatio?: number
+    recommendedDirection?: string
+  }
+  timestamp?: number
+}
+
 async function request<T>(
   path: string,
   init?: RequestInit
@@ -162,9 +246,20 @@ async function request<T>(
         ...init?.headers,
       },
     })
-    const json = (await res.json()) as ApiEnvelope<T>
-    if (!json.success) {
-      return { ok: false, error: json.error || res.statusText || 'Request failed' }
+    let json: ApiEnvelope<T> | null = null
+    try {
+      json = (await res.json()) as ApiEnvelope<T>
+    } catch {
+      json = null
+    }
+
+    if (!res.ok) {
+      const msg = json?.error || `HTTP ${res.status}: ${res.statusText || 'Request failed'}`
+      return { ok: false, error: msg }
+    }
+
+    if (!json?.success) {
+      return { ok: false, error: json?.error || 'Request failed' }
     }
     return { ok: true, data: json.data as T }
   } catch (e) {
@@ -284,6 +379,19 @@ export const rebalancerApi = {
     { ok: true; data: { message: string } } | { ok: false; error: string }
   > {
     return request<{ message: string }>('/volume/base/stop', { method: 'POST', body: '{}' })
+  },
+
+  // —— New pricing/balance/pool endpoints ——
+  async getPricing(): Promise<{ ok: true; data: PricingData } | { ok: false; error: string }> {
+    return request<PricingData>('/api/pricing')
+  },
+
+  async getBalances(): Promise<{ ok: true; data: BalancesData } | { ok: false; error: string }> {
+    return request<BalancesData>('/api/balances')
+  },
+
+  async getPools(): Promise<{ ok: true; data: PoolsData } | { ok: false; error: string }> {
+    return request<PoolsData>('/api/pools')
   },
 }
 

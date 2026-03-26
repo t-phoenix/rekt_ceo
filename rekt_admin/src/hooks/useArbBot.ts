@@ -12,6 +12,9 @@ import {
   type BaseTradeRecord,
   type SolanaVolumeStartBody,
   type BaseVolumeStartBody,
+  type PricingData,
+  type BalancesData,
+  type PoolsData,
 } from '../services/rebalancerApi'
 
 const FEED_MAX = 80
@@ -69,6 +72,13 @@ export function useArbBot() {
   const [solVolumeTrades, setSolVolumeTrades] = useState<SolanaTradeRecord[]>([])
   const [baseVolumeTrades, setBaseVolumeTrades] = useState<BaseTradeRecord[]>([])
   const [volumeError, setVolumeError] = useState<string | null>(null)
+  const [pricingData, setPricingData] = useState<PricingData | null>(null)
+  const [balancesData, setBalancesData] = useState<BalancesData | null>(null)
+  const [poolsData, setPoolsData] = useState<PoolsData | null>(null)
+  const [marketError, setMarketError] = useState<string | null>(null)
+  const [pricingError, setPricingError] = useState<string | null>(null)
+  const [balancesError, setBalancesError] = useState<string | null>(null)
+  const [poolsError, setPoolsError] = useState<string | null>(null)
 
   const refreshHealth = useCallback(async () => {
     const r = await rebalancerApi.getHealth()
@@ -116,6 +126,40 @@ export function useArbBot() {
     if (bst.ok) setBaseVolumeStats(bst.data)
   }, [])
 
+  const loadMarketSnapshot = useCallback(async () => {
+    const [pricing, balances, pools] = await Promise.all([
+      rebalancerApi.getPricing(),
+      rebalancerApi.getBalances(),
+      rebalancerApi.getPools(),
+    ])
+    if (pricing.ok) {
+      setPricingData(pricing.data)
+      setPricingError(null)
+    } else {
+      setPricingData(null)
+      setPricingError(pricing.error)
+    }
+    if (balances.ok) {
+      setBalancesData(balances.data)
+      setBalancesError(null)
+    } else {
+      setBalancesData(null)
+      setBalancesError(balances.error)
+    }
+    if (pools.ok) {
+      setPoolsData(pools.data)
+      setPoolsError(null)
+    } else {
+      setPoolsData(null)
+      setPoolsError(pools.error)
+    }
+
+    const errors = [pricing.ok ? null : pricing.error, balances.ok ? null : balances.error, pools.ok ? null : pools.error]
+      .filter(Boolean)
+      .join(' | ')
+    setMarketError(errors || null)
+  }, [])
+
   const loadAll = useCallback(async () => {
     setLoading(true)
     setActionError(null)
@@ -137,8 +181,9 @@ export function useArbBot() {
     const stats = await rebalancerApi.getArbStats()
     if (stats.ok) setArbStats(stats.data)
     await loadVolumeSnapshot()
+    await loadMarketSnapshot()
     setLoading(false)
-  }, [refreshHealth, loadVolumeSnapshot])
+  }, [refreshHealth, loadVolumeSnapshot, loadMarketSnapshot])
 
   useEffect(() => {
     if (typeof window === 'undefined') return
@@ -166,10 +211,18 @@ export function useArbBot() {
       void refreshHealth()
       void refreshArbStats()
       void loadVolumeSnapshot()
+      void loadMarketSnapshot()
     }
     document.addEventListener('visibilitychange', onVis)
     return () => document.removeEventListener('visibilitychange', onVis)
-  }, [refreshHealth, refreshArbStats, loadVolumeSnapshot])
+  }, [refreshHealth, refreshArbStats, loadVolumeSnapshot, loadMarketSnapshot])
+
+  useEffect(() => {
+    const id = window.setInterval(() => {
+      void loadMarketSnapshot()
+    }, 7000)
+    return () => window.clearInterval(id)
+  }, [loadMarketSnapshot])
 
   const handleSseMessage = useCallback(
     (ev: MessageEvent) => {
@@ -440,6 +493,7 @@ export function useArbBot() {
     analysisNote,
     loadAll,
     loadVolumeSnapshot,
+    loadMarketSnapshot,
     refreshHealth,
     refreshArbConfig,
     refreshArbStats,
@@ -457,6 +511,13 @@ export function useArbBot() {
     baseVolumeTrades,
     volumeError,
     setVolumeError,
+    pricingData,
+    balancesData,
+    poolsData,
+    marketError,
+    pricingError,
+    balancesError,
+    poolsError,
     startSolanaVolume,
     stopSolanaVolume,
     startBaseVolume,

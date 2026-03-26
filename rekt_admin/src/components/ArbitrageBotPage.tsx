@@ -94,6 +94,14 @@ export const ArbitrageBotPage = () => {
     baseVolumeTrades,
     volumeError,
     setVolumeError,
+    pricingData,
+    balancesData,
+    poolsData,
+    marketError,
+    pricingError,
+    balancesError,
+    poolsError,
+    loadMarketSnapshot,
     startSolanaVolume,
     stopSolanaVolume,
     startBaseVolume,
@@ -320,6 +328,11 @@ export const ArbitrageBotPage = () => {
       {actionError && (
         <div className="rounded-lg border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20 px-4 py-3 text-sm text-red-800 dark:text-red-300">
           {actionError}
+        </div>
+      )}
+      {marketError && (
+        <div className="rounded-lg border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20 px-4 py-3 text-sm text-amber-900 dark:text-amber-200">
+          Market snapshot warning: {marketError}
         </div>
       )}
 
@@ -601,6 +614,119 @@ export const ArbitrageBotPage = () => {
                 )}
               </div>
             )}
+          </div>
+
+          <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800/50 p-6">
+            <div className="flex items-center justify-between gap-3 mb-4">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Realtime price & balances</h3>
+              <button
+                type="button"
+                onClick={() => void loadMarketSnapshot()}
+                className="px-3 py-1.5 text-xs rounded-lg border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
+              >
+                Retry market fetch
+              </button>
+            </div>
+
+            {(pricingError || balancesError || poolsError) && (
+              <div className="mb-4 rounded-lg border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20 px-4 py-3 text-sm text-red-800 dark:text-red-300 space-y-1">
+                {pricingError && <p>Pricing unavailable: {pricingError}</p>}
+                {balancesError && <p>Balances unavailable: {balancesError}</p>}
+                {poolsError && <p>Pools unavailable: {poolsError}</p>}
+              </div>
+            )}
+
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3 mb-4">
+              <div className="rounded-lg border border-gray-100 dark:border-gray-700 p-3">
+                <p className="text-xs text-gray-500 dark:text-gray-400">Solana token price</p>
+                <p className="font-mono text-gray-900 dark:text-white">
+                  {pricingData?.solana?.priceUsd != null ? formatCurrency(pricingData.solana.priceUsd) : '—'}
+                </p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  Raw: {pricingData?.solana?.price != null ? formatNumber(pricingData.solana.price, { maxDecimals: 12 }) : '—'}
+                </p>
+              </div>
+              <div className="rounded-lg border border-gray-100 dark:border-gray-700 p-3">
+                <p className="text-xs text-gray-500 dark:text-gray-400">Base token price</p>
+                <p className="font-mono text-gray-900 dark:text-white">
+                  {pricingData?.base?.priceUsd != null ? formatCurrency(pricingData.base.priceUsd) : '—'}
+                </p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  Raw: {pricingData?.base?.price != null ? formatNumber(pricingData.base.price, { maxDecimals: 12 }) : '—'}
+                </p>
+              </div>
+              <div className="rounded-lg border border-gray-100 dark:border-gray-700 p-3">
+                <p className="text-xs text-gray-500 dark:text-gray-400">Price diff</p>
+                <p className={`font-medium ${
+                  pricingData?.priceDifference?.percent != null && Math.abs(pricingData.priceDifference.percent) > 25
+                    ? 'text-amber-600 dark:text-amber-400'
+                    : 'text-gray-900 dark:text-white'
+                }`}>
+                  {pricingData?.priceDifference?.percent != null
+                    ? formatNumber(pricingData.priceDifference.percent, { suffix: '%' })
+                    : '—'}
+                </p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  USD: {pricingData?.priceDifference?.absolute != null ? formatCurrency(pricingData.priceDifference.absolute) : '—'}
+                </p>
+              </div>
+              <div className="rounded-lg border border-gray-100 dark:border-gray-700 p-3">
+                <p className="text-xs text-gray-500 dark:text-gray-400">Combined wallet value</p>
+                <p className="font-medium text-gray-900 dark:text-white">
+                  {balancesData?.combined?.totalUsd != null ? formatCurrency(balancesData.combined.totalUsd) : '—'}
+                </p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  Updated: {pricingData?.timestamp != null ? new Date(pricingData.timestamp).toLocaleTimeString() : '—'}
+                </p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+              <div className="rounded-lg border border-gray-100 dark:border-gray-700 p-4">
+                <p className="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-2">Solana wallet</p>
+                <div className="space-y-1 text-sm">
+                  <p>SOL: <span className="font-mono">{balancesData?.solana?.sol != null ? formatNumber(balancesData.solana.sol, { maxDecimals: 6 }) : '—'}</span> ({balancesData?.solana?.solUsd != null ? formatCurrency(balancesData.solana.solUsd) : '—'})</p>
+                  <p>Token: <span className="font-mono">{balancesData?.solana?.token != null ? formatNumber(balancesData.solana.token, { compact: true, maxDecimals: 4 }) : '—'}</span> ({balancesData?.solana?.tokenUsd != null ? formatCurrency(balancesData.solana.tokenUsd) : '—'})</p>
+                  <p>Total: <span className="font-semibold">{balancesData?.solana?.totalUsd != null ? formatCurrency(balancesData.solana.totalUsd) : '—'}</span></p>
+                </div>
+              </div>
+              <div className="rounded-lg border border-gray-100 dark:border-gray-700 p-4">
+                <p className="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-2">Base wallet</p>
+                <div className="space-y-1 text-sm">
+                  <p>ETH: <span className="font-mono">{balancesData?.base?.eth != null ? formatNumber(balancesData.base.eth, { maxDecimals: 6 }) : '—'}</span> ({balancesData?.base?.ethUsd != null ? formatCurrency(balancesData.base.ethUsd) : '—'})</p>
+                  <p>USDC: <span className="font-mono">{balancesData?.base?.usdc != null ? formatNumber(balancesData.base.usdc, { maxDecimals: 2 }) : '—'}</span></p>
+                  <p>Token: <span className="font-mono">{balancesData?.base?.token != null ? formatNumber(balancesData.base.token, { compact: true, maxDecimals: 4 }) : '—'}</span></p>
+                  <p>Total: <span className="font-semibold">{balancesData?.base?.totalUsd != null ? formatCurrency(balancesData.base.totalUsd) : '—'}</span></p>
+                </div>
+              </div>
+            </div>
+
+            {(!pricingData || !balancesData || !poolsData) && (
+              <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">
+                Some market sections are hidden because backend returns real-data errors (no mock fallback).
+                Start/configure arb bot and use retry.
+              </p>
+            )}
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="rounded-lg border border-gray-100 dark:border-gray-700 p-4">
+                <p className="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-2">Solana pool (Pump.fun)</p>
+                <div className="space-y-1 text-sm">
+                  <p>Liquidity: {poolsData?.solana?.liquidityUsd != null ? formatCurrency(poolsData.solana.liquidityUsd) : '—'}</p>
+                  <p>Virtual reserves: SOL {poolsData?.solana?.reserves?.virtual?.solFormatted != null ? formatNumber(poolsData.solana.reserves.virtual.solFormatted, { maxDecimals: 4 }) : '—'} / Token {poolsData?.solana?.reserves?.virtual?.tokensFormatted != null ? formatNumber(poolsData.solana.reserves.virtual.tokensFormatted, { compact: true, maxDecimals: 2 }) : '—'}</p>
+                  <p>Real reserves: SOL {poolsData?.solana?.reserves?.real?.solFormatted != null ? formatNumber(poolsData.solana.reserves.real.solFormatted, { maxDecimals: 4 }) : '—'} / Token {poolsData?.solana?.reserves?.real?.tokensFormatted != null ? formatNumber(poolsData.solana.reserves.real.tokensFormatted, { compact: true, maxDecimals: 2 }) : '—'}</p>
+                </div>
+              </div>
+              <div className="rounded-lg border border-gray-100 dark:border-gray-700 p-4">
+                <p className="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-2">Base pool (Uniswap V2)</p>
+                <div className="space-y-1 text-sm">
+                  <p>Liquidity: {poolsData?.base?.liquidityUsd != null ? formatCurrency(poolsData.base.liquidityUsd) : '—'}</p>
+                  <p>Reserves: USDC {poolsData?.base?.reserves?.usdcFormatted != null ? formatNumber(poolsData.base.reserves.usdcFormatted, { maxDecimals: 2 }) : '—'} / Token {poolsData?.base?.reserves?.tokensFormatted != null ? formatNumber(poolsData.base.reserves.tokensFormatted, { compact: true, maxDecimals: 2 }) : '—'}</p>
+                  <p>Direction: <span className="font-medium">{poolsData?.comparison?.recommendedDirection ?? '—'}</span></p>
+                  <p>Liquidity ratio: {poolsData?.comparison?.liquidityRatio != null ? formatNumber(poolsData.comparison.liquidityRatio, { maxDecimals: 2 }) : '—'}</p>
+                </div>
+              </div>
+            </div>
           </div>
         </section>
       </div>
