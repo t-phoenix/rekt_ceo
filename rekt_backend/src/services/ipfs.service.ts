@@ -17,7 +17,7 @@ class IPFSService {
   /**
    * Upload image to IPFS
    */
-  async uploadImage(imageData: string, filename: string): Promise<string> {
+  async uploadImage(imageData: string, filename: string, nftType: 'PFP' | 'MEME'): Promise<string> {
     try {
       logger.info('Validating image...');
       const imageBuffer = await validateImage(imageData);
@@ -28,7 +28,9 @@ class IPFSService {
       const file = new File([imageBuffer], filename, { type: 'image/png' });
 
       // Upload to Pinata (new SDK uses upload.public.file)
-      const upload = await this.pinata.upload.public.file(file);
+      const groupId = nftType === 'PFP' ? config.pfpImageGroupId : config.memeImageGroupId;
+      const uploadBuilder = this.pinata.upload.public.file(file);
+      const upload = await (groupId ? uploadBuilder.group(groupId) : uploadBuilder);
 
       const ipfsHash = upload.cid;
       const uri = `ipfs://${ipfsHash}`;
@@ -53,7 +55,7 @@ class IPFSService {
   /**
    * Upload metadata JSON to IPFS
    */
-  async uploadMetadata(metadata: NFTMetadata, filename: string): Promise<string> {
+  async uploadMetadata(metadata: NFTMetadata, filename: string, nftType: 'PFP' | 'MEME'): Promise<string> {
     try {
       logger.info('Uploading metadata to IPFS...', { name: metadata.name });
 
@@ -62,7 +64,9 @@ class IPFSService {
       const file = new File([jsonString], filename, { type: 'application/json' });
 
       // Upload to Pinata
-      const upload = await this.pinata.upload.public.file(file);
+      const groupId = nftType === 'PFP' ? config.pfpMetadataGroupId : config.memeMetadataGroupId;
+      const uploadBuilder = this.pinata.upload.public.file(file);
+      const upload = await (groupId ? uploadBuilder.group(groupId) : uploadBuilder);
 
       const ipfsHash = upload.cid;
       const uri = `ipfs://${ipfsHash}`;

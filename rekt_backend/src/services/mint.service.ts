@@ -72,7 +72,8 @@ class MintService {
     logger.info('Uploading image to IPFS', { user: userAddress, fileName: baseFileName });
     const imageURI = await ipfsService.uploadImage(
       imageData,
-      `${baseFileName}.png`
+      `${baseFileName}.png`,
+      nftType
     );
 
     // Step 6: Generate and upload metadata with the correct tokenId
@@ -85,7 +86,7 @@ class MintService {
       task.attributes
     );
 
-    const metadataURI = await ipfsService.uploadMetadata(metadata, `${baseFileName}.json`);
+    const metadataURI = await ipfsService.uploadMetadata(metadata, `${baseFileName}.json`, nftType);
     logger.info('Metadata uploaded to IPFS', { metadataURI });
 
     // Step 7: Update the on-chain token URI to the final IPFS metadata

@@ -25,6 +25,10 @@ const configSchema = z.object({
   // IPFS/Pinata
   pinataJwt: z.string().min(1),
   pinataGateway: z.string().url(),
+  pfpImageGroupId: z.string().min(1).optional(),
+  pfpMetadataGroupId: z.string().min(1).optional(),
+  memeImageGroupId: z.string().min(1).optional(),
+  memeMetadataGroupId: z.string().min(1).optional(),
 
   // JWT
   jwtSecret: z.string().min(32),
@@ -58,6 +62,10 @@ const env = {
   ceoTokenAddress: process.env.CEO_TOKEN_ADDRESS!,
   pinataJwt: process.env.PINATA_JWT!,
   pinataGateway: process.env.PINATA_GATEWAY || 'https://gateway.pinata.cloud',
+  pfpImageGroupId: process.env.PINATA_PFP_IMAGE_GROUP_ID,
+  pfpMetadataGroupId: process.env.PINATA_PFP_METADATA_GROUP_ID,
+  memeImageGroupId: process.env.PINATA_MEME_IMAGE_GROUP_ID,
+  memeMetadataGroupId: process.env.PINATA_MEME_METADATA_GROUP_ID,
   jwtSecret: process.env.JWT_SECRET!,
   jwtExpiry: process.env.JWT_EXPIRY || '24h',
   corsOrigin: [process.env.CORS_ORIGIN, process.env.CORS_ORIGIN_2].filter(Boolean).join(','),
