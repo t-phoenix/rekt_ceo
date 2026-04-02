@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { Document, Page, pdfjs } from "react-pdf";
 import { MdChevronLeft, MdChevronRight, MdDownload, MdContentCopy } from "react-icons/md";
@@ -27,10 +27,15 @@ const PresentationViewer = ({ file }) => {
         });
     };
 
-    const options = {
-        disableRange: true,
-        disableStream: true,
-    };
+    // Stable reference required: react-pdf <Document> reloads the PDF whenever `options` changes
+    // by reference. A new object each render caused destroy/reload on every prev/next → worker race.
+    const options = useMemo(
+        () => ({
+            disableRange: true,
+            disableStream: true,
+        }),
+        []
+    );
 
     return (
         <div className="presentation-container">
