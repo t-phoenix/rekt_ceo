@@ -36,7 +36,7 @@ export default function Navbar({ setShow }) {
     }
 
     const handleScroll = () => {
-      const sections = ["story", "launch", "buyceo", "roadmap", "pienomics", "exchange", "faq"];
+      const sections = ["story", "buyceo", "roadmap", "pienomics", "exchange", "faq"];
       const scrollPosition = window.scrollY + window.innerHeight / 3;
 
       for (let i = sections.length - 1; i >= 0; i--) {
@@ -103,9 +103,9 @@ export default function Navbar({ setShow }) {
               <div onClick={() => { scrollToSection("story"); }} className={getNavItemClass("story")}>
                 STORY
               </div>
-              <div onClick={() => { scrollToSection("launch"); }} className={getNavItemClass("launch")}>
+              {/* <div onClick={() => { scrollToSection("launch"); }} className={getNavItemClass("launch")}>
                 LAUNCH MECH
-              </div>
+              </div> */}
               <div onClick={() => { scrollToSection("buyceo"); }} className={getNavItemClass("buyceo")}>
                 HOW TO BUY
               </div>

@@ -1,0 +1,756 @@
+.launch-mechanism-interactive {
+    width: 100%;
+    padding: 60px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    /* Removed z-index to resolve header overlap issue */
+}
+
+.lmi-header {
+    text-align: center;
+    margin-bottom: 50px;
+}
+
+.lmi-subtitle {
+    color: var(--color-offwhite);
+    font-size: 1.2rem;
+    font-weight: 300;
+    margin-top: 10px;
+    letter-spacing: 2px;
+}
+
+.lmi-container {
+    display: flex;
+    max-width: 1100px;
+    width: 100%;
+    background: rgba(20, 10, 16, 0.4);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-radius: 24px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), inset 0 0 0 1px rgba(255, 255, 255, 0.02);
+    overflow: hidden;
+    min-height: 500px;
+}
+
+.lmi-visuals {
+    flex: 1.4;
+    background: radial-gradient(circle at top right, rgba(59, 28, 50, 0.6) 0%, rgba(20, 10, 16, 0.8) 100%);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.lmi-illustration {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    position: relative;
+    overflow: hidden;
+}
+
+.lmi-progress {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.2);
+    position: relative;
+    z-index: 2;
+}
+
+.progress-dot {
+    width: 40px;
+    height: 4px;
+    border-radius: 2px;
+    background: rgba(255, 255, 255, 0.1);
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.progress-dot:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.progress-dot.completed {
+    background: var(--color-blue);
+}
+
+.progress-dot.active {
+    background: var(--color-yellow);
+    width: 60px;
+    box-shadow: 0 0 10px rgba(248, 200, 38, 0.4);
+}
+
+.lmi-content-panel {
+    flex: 1;
+    padding: 50px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.phase-indicator {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--color-yellow);
+    font-family: 'Lilita One', cursive;
+    font-size: 0.9rem;
+    margin-bottom: 20px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    background: rgba(248, 200, 38, 0.1);
+    padding: 6px 14px;
+    border-radius: 6px;
+    width: fit-content;
+    border: 1px solid rgba(248, 200, 38, 0.2);
+}
+
+.phase-title {
+    font-size: 2.2rem;
+    color: var(--color-white);
+    margin-bottom: 20px;
+    line-height: 1.2;
+    text-transform: uppercase;
+    font-family: 'Passion One', cursive;
+    letter-spacing: 1px;
+}
+
+.phase-desc {
+    color: var(--color-offwhite);
+    font-size: 1.05rem;
+    line-height: 1.7;
+    margin-bottom: 30px;
+    flex: 1;
+    font-weight: 300;
+}
+
+.lmi-controls {
+    display: flex;
+    gap: 15px;
+}
+
+.nav-btn-game {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 14px 28px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    color: var(--color-white);
+    font-family: 'Lilita One', cursive;
+    font-size: 1rem;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.nav-btn-game.cta {
+    background: var(--color-yellow);
+    color: var(--color-magenta);
+    border: 1px solid var(--color-yellow);
+    margin-top: 10px;
+    width: 100%;
+    padding: 18px 24px;
+    font-size: 1.1rem;
+}
+
+.nav-btn-game.cta:hover {
+    background: var(--color-magenta);
+    color: var(--color-yellow);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(248, 200, 38, 0.4);
+}
+
+.nav-btn-game:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateY(-2px);
+}
+
+.nav-btn-game:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+.nav-btn-game.primary {
+    background: linear-gradient(135deg, var(--color-blue), #3f7982);
+    border-color: transparent;
+    color: var(--color-white);
+}
+
+.nav-btn-game.primary:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(82, 149, 157, 0.4);
+}
+
+/* ================= PREMIUM ILLUSTRATION ASSETS ================= */
+
+/* Stage 1: Curve */
+.illo-curve {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.curve-svg {
+    width: 90%;
+    height: auto;
+    max-height: 250px;
+    overflow: visible;
+}
+
+.curve-path {
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    filter: drop-shadow(0 4px 12px rgba(248, 200, 38, 0.4));
+    stroke-dasharray: 1000;
+    stroke-dashoffset: 1000;
+    animation: drawPath 1.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.curve-point {
+    filter: drop-shadow(0 0 8px currentColor);
+    transform-origin: center;
+    transform-box: fill-box;
+    animation: scaleIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+    animation-delay: 1s;
+}
+
+.curve-text {
+    opacity: 0;
+    animation: smoothFadeIn 0.8s ease forwards;
+    animation-delay: 1.2s;
+    font-family: 'Passion One';
+    font-size: 16px;
+    letter-spacing: 1px;
+}
+
+@keyframes drawPath {
+    to {
+        stroke-dashoffset: 0;
+    }
+}
+
+@keyframes scaleIn {
+    0% {
+        transform: scale(0);
+        opacity: 0;
+    }
+
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+@keyframes smoothFadeIn {
+    0% {
+        opacity: 0;
+        transform: translateY(5px);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Stage 2: Bridge */
+.illo-bridge {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    position: relative;
+}
+
+.network-box {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 25px 20px;
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    font-family: 'Passion One', cursive;
+    font-size: 1.2rem;
+    color: var(--color-white);
+    text-align: center;
+    min-width: 120px;
+    letter-spacing: 1px;
+    backdrop-filter: blur(10px);
+}
+
+.network-box.solana {
+    border-bottom: 3px solid #14F195;
+}
+
+.network-box.base {
+    border-bottom: 3px solid #0052FF;
+}
+
+.bridge-path {
+    flex: 1;
+    max-width: 150px;
+    height: 2px;
+    background: repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.3) 0, rgba(255, 255, 255, 0.3) 5px, transparent 5px, transparent 10px);
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.nexus-node {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--color-white);
+    padding: 8px 16px;
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    font-size: 1rem;
+    font-family: 'Passion One';
+    z-index: 1;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    backdrop-filter: blur(10px);
+}
+
+.wormhole-icon {
+    width: 20px;
+    height: 20px;
+}
+
+.token-packet {
+    position: absolute;
+    top: -15px;
+    left: 0;
+    background: var(--color-red);
+    color: white;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-family: 'Lilita One';
+    box-shadow: 0 4px 15px rgba(231, 37, 94, 0.6);
+    /* Make packet render above knot */
+    z-index: 5;
+    animation: cleanBridgeTravel 3s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+@keyframes cleanBridgeTravel {
+    0% {
+        left: 0;
+        opacity: 0;
+        transform: scale(0.8);
+    }
+
+    15% {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    85% {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    100% {
+        left: calc(100% - 45px);
+        opacity: 0;
+        transform: scale(0.8);
+    }
+}
+
+/* Stage 3: Market */
+.illo-market {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+.pool-container {
+    background: rgba(255, 0, 122, 0.05);
+    /* very soft pink glass */
+    border: 1px solid rgba(255, 0, 122, 0.3);
+    border-radius: 20px;
+    overflow: hidden;
+    width: 90%;
+    max-width: 380px;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2), inset 0 0 20px rgba(255, 0, 122, 0.05);
+}
+
+.pool-header {
+    background: linear-gradient(90deg, #FF007A 0%, rgba(255, 0, 122, 0.6) 100%);
+    padding: 15px;
+    text-align: center;
+    font-family: 'Passion One';
+    font-size: 1.1rem;
+    color: white;
+    letter-spacing: 2px;
+}
+
+.pool-dev-action {
+    text-align: center;
+    font-family: 'Lilita One';
+    font-size: 0.9rem;
+    padding: 10px;
+    background: rgba(0, 0, 0, 0.2);
+}
+
+.text-yellow {
+    color: var(--color-yellow);
+}
+
+.text-blue {
+    color: var(--color-blue);
+}
+
+.pool-body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 30px;
+    padding: 30px 20px;
+}
+
+.launch-mechanism-interactive .token-icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 3px solid rgba(255, 255, 255, 0.15);
+    position: relative;
+    background: rgba(0, 0, 0, 0.5);
+    overflow: hidden;
+}
+
+.launch-mechanism-interactive .token-icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.launch-mechanism-interactive .token-side.ceo .token-icon {
+    box-shadow: 0 8px 20px rgba(248, 200, 38, 0.3);
+}
+
+.launch-mechanism-interactive .token-side.usdc .token-icon {
+    box-shadow: 0 8px 20px rgba(39, 117, 202, 0.3);
+}
+
+.pool-sync {
+    color: #FF007A;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 50%;
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(255, 0, 122, 0.2);
+    animation: rotateSync 6s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+/* Stage 4: Treasury */
+.illo-treasury {
+    width: 100%;
+}
+
+.treasury-flow {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    width: 100%;
+}
+
+.t-box {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    padding: 20px 15px;
+    text-align: center;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    width: 130px;
+    flex-shrink: 0;
+}
+
+.t-box.clickable {
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    text-decoration: none;
+    display: block;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(248, 200, 38, 0.2);
+    animation: boxSoftPulse 3s ease-in-out infinite;
+    position: relative;
+}
+
+.t-box.clickable::before {
+    content: 'CLICK';
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    background: var(--color-yellow);
+    color: var(--color-magenta);
+    font-size: 0.6rem;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: 'Lilita One';
+    transform: rotate(15deg);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    opacity: 0.8;
+}
+
+.t-box.clickable:hover {
+    transform: scale(1.08) translateY(-5px);
+    background: rgba(255, 255, 255, 0.12);
+    border-color: var(--color-yellow);
+    box-shadow: 0 10px 25px rgba(248, 200, 38, 0.3);
+    animation: none;
+}
+
+@keyframes boxSoftPulse {
+    0%, 100% { 
+        border-color: rgba(248, 200, 38, 0.2); 
+        box-shadow: 0 0 0px rgba(248, 200, 38, 0);
+    }
+    50% { 
+        border-color: rgba(248, 200, 38, 0.5); 
+        box-shadow: 0 0 12px rgba(248, 200, 38, 0.15);
+    }
+}
+
+.t-col-split {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    position: relative;
+}
+
+.t-arrow-wrap {
+    color: var(--color-yellow);
+    opacity: 0.8;
+}
+
+.user-box {
+    border-bottom: 3px solid var(--color-blue);
+}
+
+.nft-box {
+    border-bottom: 3px solid var(--color-yellow);
+}
+
+.vault-box {
+    border-bottom: 3px solid var(--color-red);
+}
+
+.t-title {
+    font-family: 'Passion One';
+    color: var(--color-white);
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+}
+
+.t-val {
+    font-family: 'Lilita One';
+    color: var(--color-offwhite);
+    font-size: 0.9rem;
+}
+
+.t-arrow {
+    color: var(--color-yellow);
+    opacity: 0.8;
+}
+
+/* Stage 5: Grand Vision */
+.illo-grand {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 30px;
+    width: 100%;
+}
+
+.world-nodes {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    width: 100%;
+    background: rgba(0, 0, 0, 0.2);
+    padding: 20px;
+    border-radius: 16px;
+    border: 1px solid rgba(248, 200, 38, 0.2);
+    gap: 10px;
+}
+
+.wnode {
+    font-family: 'Passion One';
+    font-size: 1rem;
+    padding: 10px 15px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.node-logo {
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
+}
+
+.wnode.sol {
+    color: #14F195;
+    border-bottom: 2px solid #14F195;
+}
+
+.wnode.base {
+    color: #0052FF;
+    border-bottom: 2px solid #0052FF;
+}
+
+.warbitrage {
+    color: var(--color-yellow);
+    font-family: 'Lilita One';
+    font-size: 1.1rem;
+    animation: pulseBot 1s infinite alternate;
+}
+
+.world-down-arrow {
+    font-family: 'Lilita One';
+    color: var(--color-offwhite);
+    font-size: 1rem;
+    letter-spacing: 2px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.world-perks {
+    display: flex;
+    justify-content: space-between;
+    width: 95%;
+    gap: 15px;
+}
+
+.perk {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 15px;
+    border-radius: 16px;
+    font-family: 'Passion One';
+    color: var(--color-white);
+    font-size: 1.15rem;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+    text-align: center;
+    line-height: 1.2;
+}
+
+.perk-icon-wrapper {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.perk-icon-wrapper.red {
+    background: rgba(231, 37, 94, 0.1);
+    color: var(--color-red);
+    border: 1px solid rgba(231, 37, 94, 0.3);
+}
+
+.perk-icon-wrapper.yellow {
+    background: rgba(248, 200, 38, 0.1);
+    color: var(--color-yellow);
+    border: 1px solid rgba(248, 200, 38, 0.3);
+}
+
+.perk-icon-wrapper.blue {
+    background: rgba(82, 149, 157, 0.1);
+    color: var(--color-blue);
+    border: 1px solid rgba(82, 149, 157, 0.3);
+}
+
+.warbitrage {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--color-yellow);
+    font-family: 'Lilita One';
+    font-size: 1.1rem;
+}
+
+.pulse-icon {
+    animation: pulseBot 1s infinite alternate;
+}
+
+@keyframes pulseBot {
+    to {
+        transform: scale(1.05);
+        text-shadow: 0 0 10px rgba(248, 200, 38, 0.5);
+    }
+}
+
+
+/* Responsive */
+@media (max-width: 900px) {
+    .lmi-container {
+        flex-direction: column;
+    }
+
+    .lmi-visuals {
+        border-right: none;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        min-height: 300px;
+    }
+
+    .phase-title {
+        font-size: 1.8rem;
+    }
+
+    .lmi-content-panel {
+        padding: 30px 20px;
+    }
+
+    .treasury-flow {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .t-box {
+        width: 80%;
+    }
+
+    .t-arrow {
+        transform: rotate(90deg);
+    }
+
+    .world-nodes,
+    .world-perks {
+        flex-direction: column;
+        gap: 15px;
+        align-items: center;
+    }
+}

@@ -63,9 +63,7 @@
   animation: titleGlow 2s ease-in-out infinite alternate;
 }
 
-.section-title {
-  margin-block: 1%;
-}
+
 
 @keyframes titleGlow {
   from {

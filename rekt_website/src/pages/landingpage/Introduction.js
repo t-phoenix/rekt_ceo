@@ -8,7 +8,8 @@ import ceo_office from "../../creatives/ceo_office2.jpg";
 import HeroAnimation from "./HeroAnimation";
 import HowToBuy from "./HowToBuy";
 import StorySection from "./StorySection";
-import LaunchSection from "./LaunchSection";
+// import LaunchSection from "./LaunchSection";
+import LaunchStrip from "./LaunchStrip";
 import { Pienomics } from "./Pienomics";
 import Roadmap from "./Roadmap";
 import Banner from "../../components/Banner";
@@ -130,7 +131,7 @@ export default function Introduction() {
 
       <StorySection />
 
-      <LaunchSection />
+      <LaunchStrip />
 
       <HowToBuy />
 

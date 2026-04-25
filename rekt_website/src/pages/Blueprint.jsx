@@ -5,6 +5,7 @@ import { MdChevronLeft, MdChevronRight, MdDownload, MdContentCopy } from "react-
 import toast, { Toaster } from 'react-hot-toast';
 import "./Blueprint.css";
 import RektLogo from "../creatives/Rekt_logo_illustration.png"
+import LaunchMechanismInteractive from "./page_components/LaunchMechanismInteractive";
 
 // Use locally hosted worker to avoid CSP / CDN issues
 pdfjs.GlobalWorkerOptions.workerSrc = "/pdf.worker.min.mjs";
@@ -191,6 +192,7 @@ const Blueprint = () => {
                 </p>
             </div>
 
+
             <div className="blueprint-grid">
                 <section className="doc-section deck">
                     <h2 className="doc-title yellow">PITCH DECK</h2>
@@ -207,8 +209,13 @@ const Blueprint = () => {
                     </div>
                 </section>
 
+                <LaunchMechanismInteractive />
+
+
                 <BrandKit />
             </div>
+
+
 
             <section aria-label="About the Blueprint" style={{ position: 'absolute', width: '1px', height: '1px', padding: 0, margin: '-1px', overflow: 'hidden', clip: 'rect(0,0,0,0)', whiteSpace: 'nowrap', border: 0 }}>
                 <h2>About the REKT CEO Blueprint</h2>
