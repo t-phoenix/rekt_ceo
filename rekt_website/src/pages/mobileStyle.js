@@ -1,4 +1,4 @@
-import penthouse from "../creatives/penthouse.jpeg";
+const penthouse = "/assets/media/penthouse.jpeg";
 
 
 export const styles = {

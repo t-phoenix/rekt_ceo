@@ -1,3 +1,4 @@
+@import url("https://fonts.googleapis.com/css2?family=Passion+One:wght@400;700;900&family=Bebas+Neue&family=Chakra+Petch:wght@400;700&family=Space+Grotesk:wght@400;700&display=swap");
 @import "tailwindcss";
 
 @theme {
@@ -34,7 +35,6 @@
 
 /* Fonts Import */
 /* @import url("https://fonts.googleapis.com/css2?family=Passion+One:wght@400;700;900&display=swap"); */
-@import url("https://fonts.googleapis.com/css2?family=Passion+One:wght@400;700;900&family=Bebas+Neue&family=Chakra+Petch:wght@400;700&family=Space+Grotesk:wght@400;700&display=swap");
 
 
 @font-face {
@@ -130,10 +130,10 @@ code {
   /* Comic Font Styles */
   /* --body-font: "Bangers", cursive; */
 
-  --body-font: "Lilita One", cursive;
-  --second-font: "Passion One", cursive;
-  --accent-font: "Lilita One", cursive;
-  --alt-font: "Lilita One", cursive;
+  --body-font: "Lilita One", "Passion One", "Bebas Neue", sans-serif;
+  --second-font: "Passion One", "Lilita One", "Bebas Neue", sans-serif;
+  --accent-font: "Lilita One", "Passion One", sans-serif;
+  --alt-font: "Lilita One", "Passion One", sans-serif;
 
   --h2-font-size: 1.25rem;
   --small-font-size: 0.813rem;

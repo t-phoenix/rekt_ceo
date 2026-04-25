@@ -1,8 +1,6 @@
 import React from "react";
 import "./styles/intro.css";
 import "./styles/buy.css";
-import penthouse2 from "../../creatives/penthouse2.jpg";
-
 import { MdRocketLaunch, MdShoppingCart, MdSwapHoriz, MdAccountBox } from "react-icons/md";
 import { useNavigate } from "react-router-dom";
 
@@ -19,7 +17,7 @@ export default function HowToBuy() {
     return (
         <section
             id="buyceo"
-            style={{ backgroundImage: `url(${penthouse2})` }}
+            style={{ backgroundImage: "url(/assets/media/penthouse2.jpg)" }}
             className="buy-section"
         >
             <h1 className="section-title" style={{ color: 'var(--color-yellow)', fontSize: '4rem' }}>HOW TO BUY</h1>

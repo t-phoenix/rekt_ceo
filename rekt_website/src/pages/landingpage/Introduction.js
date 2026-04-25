@@ -3,8 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import "./styles/intro.css";
 import "./styles/faq.css";
-
-import ceo_office from "../../creatives/ceo_office2.jpg";
 import HeroAnimation from "./HeroAnimation";
 import HowToBuy from "./HowToBuy";
 import StorySection from "./StorySection";
@@ -18,6 +16,9 @@ import { MdCopyright, MdMail } from "react-icons/md";
 import { FaInstagram, FaTwitter } from "react-icons/fa"
 import { SiFarcaster } from "react-icons/si";
 import Exchange from "./Exchange";
+import { SolanaWalletProvider } from "../../config/SolanaWalletProvider";
+
+const ceo_office = "/assets/media/ceo_office2.jpg";
 
 
 export default function Introduction() {
@@ -139,7 +140,9 @@ export default function Introduction() {
 
       <Roadmap />
 
-      <Exchange />
+      <SolanaWalletProvider>
+        <Exchange />
+      </SolanaWalletProvider>
 
       <section id="faq" className="faq-section" style={{ backgroundImage: `url(${ceo_office})` }}>
         <div className="faq-overlay"></div>

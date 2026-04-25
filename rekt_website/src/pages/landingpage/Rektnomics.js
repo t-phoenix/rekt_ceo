@@ -3,9 +3,6 @@
 import React from "react";
 import "./styles/intro.css";
 import "./styles/rektnomics.css";
-
-import neon_penthouse from "../../creatives/neon_penthouse.jpg";
-import ceo_swag from "../../creatives/ceo_swag.jpg";
 import {
   MdCurrencyExchange,
   MdFace2,
@@ -16,6 +13,9 @@ import {
   MdVolunteerActivism,
   MdWaterDrop,
 } from "react-icons/md";
+
+const neon_penthouse = "/assets/media/neon_penthouse.jpg";
+const ceo_swag = "/assets/media/ceo_swag.jpg";
 
 export default function Rektnomics() {
   return (

@@ -19,11 +19,12 @@ const BuyCEOPage = lazy(() => import("./pages/BuyCEOPage"));
 
 
 function App() {
+  const isDev = process.env.NODE_ENV === "development";
 
   return (
     <div className="App">
       <InitNexusOnConnect />
-      <CustomCursor />
+      {!isDev && <CustomCursor />}
       <Header />
 
       <div className="body">

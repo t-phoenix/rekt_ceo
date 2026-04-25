@@ -11,7 +11,6 @@ import { WagmiProvider, QueryClientProvider, queryClient, config } from './confi
 import NexusProvider from './components/nexus/NexusProvider';
 import { Buffer } from 'buffer';
 import process from 'process';
-import { SolanaWalletProvider } from './config/SolanaWalletProvider';
 
 window.Buffer = Buffer;
 window.process = process;
@@ -24,11 +23,9 @@ root.render(
       <WagmiProvider config={config}>
         <QueryClientProvider client={queryClient}>
           <NexusProvider>
-            <SolanaWalletProvider>
-              <BrowserRouter>
-                <App />
-              </BrowserRouter>
-            </SolanaWalletProvider>
+            <BrowserRouter>
+              <App />
+            </BrowserRouter>
           </NexusProvider>
         </QueryClientProvider>
       </WagmiProvider>

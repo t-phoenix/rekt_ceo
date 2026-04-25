@@ -1,10 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react';
 import './styles/heroAnimation.css';
-import heroVideo from '../../creatives/ai_image/Hero_Anim.webm';
+const heroVideo = '/assets/media/Hero_Anim.webm';
 
 export default function HeroAnimation() {
     const videoRef = useRef(null);
     const [isVideoLoaded, setIsVideoLoaded] = useState(false);
+    const isDev = process.env.NODE_ENV === "development";
 
     useEffect(() => {
         const video = videoRef.current;
@@ -23,13 +24,15 @@ export default function HeroAnimation() {
             video.addEventListener('loadeddata', handleLoadedData);
             video.addEventListener('error', handleError);
 
-            // Ensure video plays on mount
-            const playPromise = video.play();
-            if (playPromise !== undefined) {
-                playPromise.catch(error => {
-                    console.log('Autoplay prevented:', error);
-                    // Autoplay was prevented, video will play when user interacts
-                });
+            // In development, keep media light to reduce CPU/GPU pressure.
+            if (!isDev) {
+                const playPromise = video.play();
+                if (playPromise !== undefined) {
+                    playPromise.catch(error => {
+                        console.log('Autoplay prevented:', error);
+                        // Autoplay was prevented, video will play when user interacts
+                    });
+                }
             }
 
             return () => {
@@ -37,18 +40,18 @@ export default function HeroAnimation() {
                 video.removeEventListener('error', handleError);
             };
         }
-    }, []);
+    }, [isDev]);
 
     return (
         <div className="hero-animation-container">
             <video
                 ref={videoRef}
                 className={`hero-video ${isVideoLoaded ? 'loaded' : ''}`}
-                autoPlay
+                autoPlay={!isDev}
                 loop
                 muted
                 playsInline
-                preload="auto"
+                preload={isDev ? "metadata" : "auto"}
             >
                 <source src={heroVideo} type="video/webm" />
                 {/* Fallback message for browsers that don't support video */}
