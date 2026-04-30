@@ -2,6 +2,7 @@
   "name": "rekt_website",
   "version": "0.1.0",
   "private": true,
+  "packageManager": "yarn@1.22.22",
   "module": "commonjs",
   "dependencies": {
     "@avail-project/nexus-core": "^1.0.0",

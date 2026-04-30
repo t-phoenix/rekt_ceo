@@ -2147,7 +2147,7 @@ function useLaunchHubMasonry(containerRef, layout, data, showInvite, walletAddre
        measure short on the first paint while Framer opacity stagger finishes). */
     placeAll();
     placeAll();
-  }, []);
+  }, [containerRef]);
 
   useLayoutEffect(() => {
     const root = containerRef.current;
@@ -2181,7 +2181,7 @@ function useLaunchHubMasonry(containerRef, layout, data, showInvite, walletAddre
       cancelAnimationFrame(raf);
       clearSlotInlineLayout(root);
     };
-  }, [runLayout, layout, data, showInvite, walletAddress]);
+  }, [runLayout, layout, data, showInvite, walletAddress, containerRef]);
 }
 
 export default function LaunchBlockRenderer({

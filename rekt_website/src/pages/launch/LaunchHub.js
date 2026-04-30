@@ -16,10 +16,6 @@ import wormholeLogo from "../../creatives/crypto/wormhole.png";
 import uniswapLogo from "../../creatives/crypto/uniswap.png";
 import usdcLogo from "../../creatives/crypto/usdc.png";
 
-import ceoBadge from "../../creatives/rekt_stickers/ceo_badge.png";
-import degenSticker from "../../creatives/rekt_stickers/degen-mode-activated.png";
-import wagmSticker from "../../creatives/rekt_stickers/wagm.png";
-import logoSticker from "../../creatives/rekt_stickers/Rekt_logo_3D.png";
 import ceoArt from "../../creatives/rekt ceo guy.jpg";
 
 import "./launchHub.css";
@@ -165,7 +161,7 @@ export default function LaunchHub() {
         }
       }
     },
-    [address, isConnected, authenticated],
+    [address, isConnected],
   );
 
   useEffect(() => {
