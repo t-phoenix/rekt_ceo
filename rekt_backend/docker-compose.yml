@@ -1,14 +1,46 @@
 version: '3.8'
 
+# Local dev stack for the Launch Hub.
+# Start everything:    docker compose up -d
+# Start only Redis:    docker compose up -d redis
+# Start Redis + PG:    docker compose --profile postgres up -d
+# Tear it all down:    docker compose down -v   (the -v wipes volumes)
+
 services:
   redis:
     image: redis:7-alpine
+    container_name: rekt_redis
     ports:
       - "6379:6379"
     volumes:
       - redis_data:/data
     command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  # Postgres lives behind the `postgres` profile so the default `up` command
+  # remains lightweight while we're still Redis-only.
+  postgres:
+    image: postgres:16-alpine
+    container_name: rekt_postgres
+    profiles: ["postgres"]
+    environment:
+      POSTGRES_USER: rekt
+      POSTGRES_PASSWORD: rekt
+      POSTGRES_DB: rekt_ceo
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U rekt -d rekt_ceo"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
 
 volumes:
   redis_data:
-
+  postgres_data:

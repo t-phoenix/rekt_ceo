@@ -17,23 +17,37 @@ app.use(helmet());
 
 // CORS configuration - allow multiple origins
 const allowedOrigins = [
-  ...config.corsOrigin.split(','), // Split comma-separated origins from env
-  'https://rekt.ceo', // Production
-  'https://www.rekt.ceo', // Production
-].filter(Boolean); // Remove any undefined values
+  ...config.corsOrigin.split(',').map((s) => s.trim()),
+  'https://rekt.ceo',
+  'https://www.rekt.ceo',
+].filter(Boolean);
+
+// In non-production, accept any localhost / 127.0.0.1 origin so dev servers on
+// 3000 / 3001 / 5173 / 5174 / Vite-randomised ports all work without re-editing .env.
+const isDevLikeOrigin = (origin: string): boolean => {
+  if (config.nodeEnv === 'production') return false;
+  try {
+    const url = new URL(origin);
+    return (
+      url.hostname === 'localhost' ||
+      url.hostname === '127.0.0.1' ||
+      url.hostname === '0.0.0.0'
+    );
+  } catch {
+    return false;
+  }
+};
 
 app.use(cors({
   origin: (origin, callback) => {
-    // Allow requests with no origin (like mobile apps or curl requests)
     if (!origin) return callback(null, true);
-
-    if (allowedOrigins.indexOf(origin) !== -1) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
+    if (allowedOrigins.includes(origin) || isDevLikeOrigin(origin)) {
+      return callback(null, true);
     }
+    logger.warn(`CORS rejected origin: ${origin}`);
+    return callback(new Error('Not allowed by CORS'));
   },
-  credentials: true
+  credentials: true,
 }));
 
 // Body parsing
@@ -56,7 +70,6 @@ app.use('/api/auth', authRoutes);
 app.use('/api/info', infoRoutes);
 app.use('/api/mint', mintRoutes);
 app.use('/api/health', healthRoutes);
-
 // Root endpoint
 app.get('/', (req, res) => {
   res.json({

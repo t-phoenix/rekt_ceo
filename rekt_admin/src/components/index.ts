@@ -15,3 +15,4 @@ export { AttributesModal, DUMMY_PFP_ATTRIBUTES, DUMMY_MEME_ATTRIBUTES } from './
 export { WorkflowsPage } from './WorkflowsPage'
 export { ArbitrageBotPage } from './ArbitrageBotPage'
 export { VolumeBotsPanel } from './VolumeBotsPanel'
+export { CampaignsPage } from './CampaignsPage'

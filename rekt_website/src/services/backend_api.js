@@ -1,5 +1,6 @@
 /*global BigInt*/
-const API_URL = process.env.REACT_APP_BACKEND_API_URL
+const API_URL = process.env.REACT_APP_BACKEND_API_URL || "";
+
 export const api = {
   // Health check
   async checkHealth() {
@@ -14,6 +15,9 @@ export const api = {
 
   // Get nonce for SIWE
   async getNonce(address) {
+    if (!API_URL?.trim()) {
+      throw new Error("Set REACT_APP_BACKEND_API_URL — SIWE nonce is served by the main backend, not the campaigns API.");
+    }
     const res = await fetch(`${API_URL}/api/auth/nonce`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -28,6 +32,9 @@ export const api = {
 
   // Verify signature and get JWT
   async verifySignature(message, signature) {
+    if (!API_URL?.trim()) {
+      throw new Error("Set REACT_APP_BACKEND_API_URL — JWT is issued by the main backend.");
+    }
     const res = await fetch(`${API_URL}/api/auth/verify`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

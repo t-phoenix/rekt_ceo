@@ -5,6 +5,7 @@ import { getBlock, readContract } from 'wagmi/actions';
 import { ethers } from 'ethers';
 import { config } from '../config/walletConfig';
 import { api } from '../services/backend_api';
+import { clearStoredAuthToken, getValidStoredAuthToken, setStoredAuthToken } from '../utils/evmAuthToken';
 import CEOTokenABI from '../abi/CEOToken.json';
 
 // EIP-2612 Permit typed data
@@ -138,11 +139,7 @@ export const useMint = (token, pricingData) => {
     const getAuthToken = useCallback(async () => {
         if (token) return token; // Use actively passed token if it exists
 
-        const cachedTokenKey = `authToken_${address}`;
-        let activeToken = localStorage.getItem(cachedTokenKey);
-
-        // Basic check if token exists, we'll try to use it. 
-        // If it's expired, the backend will throw 401 later.
+        const activeToken = getValidStoredAuthToken(address);
         if (activeToken) return activeToken;
 
         console.log("No auth token found. Requesting SIWE signature...");
@@ -161,7 +158,7 @@ export const useMint = (token, pricingData) => {
         // 4. Verify & Obtain Token
         const data = await api.verifySignature(message, signature);
         if (data && data.token) {
-            localStorage.setItem(cachedTokenKey, data.token);
+            setStoredAuthToken(address, data.token);
             return data.token;
         }
 
@@ -273,7 +270,7 @@ export const useMint = (token, pricingData) => {
         } catch (err) {
             const message = err.shortMessage || err.message || 'Mint preparation failed';
             if (message.includes('401') || message.includes('Missing or invalid auth')) {
-                localStorage.removeItem(`authToken_${address}`);
+                clearStoredAuthToken(address);
             }
             setError(message);
             setCurrentStep(MintStep.ERROR);
@@ -362,7 +359,7 @@ export const useMint = (token, pricingData) => {
         } catch (err) {
             const msg = err.shortMessage || err.message || 'Mint submission failed';
             if (msg.includes('401') || msg.includes('Missing or invalid auth')) {
-                localStorage.removeItem(`authToken_${address}`);
+                clearStoredAuthToken(address);
             }
             setError(msg);
             setCurrentStep(MintStep.ERROR);

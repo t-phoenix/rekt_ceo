@@ -14,6 +14,7 @@ const AdminPage = lazy(() => import("./pages/Admin"));
 const MemeGen = lazy(() => import("./pages/MemeGen"));
 const Blueprint = lazy(() => import("./pages/Blueprint"));
 const BuyCEOPage = lazy(() => import("./pages/BuyCEOPage"));
+const LaunchHub = lazy(() => import("./pages/launch/LaunchHub"));
 
 
 
@@ -34,6 +35,7 @@ function App() {
             <Route path="/pfp" element={<ProfileNFT />} />
             <Route path="/buy-ceo" element={<BuyCEOPage />} />
             <Route path="/memes" element={<MemeGen />} />
+            <Route path="/launch" element={<LaunchHub />} />
             <Route path="/admin" element={<AdminPage />} />
             <Route path="/blueprint" element={<Blueprint />} />
           </Routes>

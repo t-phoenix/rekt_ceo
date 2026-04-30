@@ -15,6 +15,7 @@ function createLazyRedisLimiter(opts: {
   windowMs: number;
   max: number;
   message: object;
+  keyGenerator?: (req: Request) => string;
 }): (req: Request, res: Response, next: NextFunction) => void {
   let limiter: RateLimitRequestHandler | null = null;
   let initialising = false;
@@ -25,6 +26,7 @@ function createLazyRedisLimiter(opts: {
     standardHeaders: true,
     legacyHeaders: false,
     message: opts.message,
+    ...(opts.keyGenerator ? { keyGenerator: opts.keyGenerator } : {}),
   });
 
   const buildRedisLimiter = async (): Promise<RateLimitRequestHandler> => {
@@ -41,6 +43,7 @@ function createLazyRedisLimiter(opts: {
       standardHeaders: true,
       legacyHeaders: false,
       message: opts.message,
+      ...(opts.keyGenerator ? { keyGenerator: opts.keyGenerator } : {}),
       store: new RedisStore({
         prefix: `rl:${opts.prefix}:`,
         sendCommand: (...args: string[]) => (client as any).call(...args),

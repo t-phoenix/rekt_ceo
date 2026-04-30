@@ -188,6 +188,16 @@ export default function Navbar({ setShow }) {
 
       <div
         onClick={() => {
+          navigate("/launch");
+          isTab && setShow(false);
+        }}
+        className={location.pathname === "/launch" ? "links-style selected-link" : "links-style"}
+      >
+        LAUNCH HUB
+      </div>
+
+      <div
+        onClick={() => {
           navigate("/blueprint");
           isTab && setShow(false);
         }}
