@@ -48,6 +48,21 @@ curl -H "x-admin-key: <ADMIN_API_KEY>" \
 
 If any admin call returns 503, `ADMIN_API_KEY` is not set on the service.
 
+### Campaigns / Launch Hub API (`rekt_campaigns` Web Service)
+
+Deploy this folder as a **separate Web Service** when the campaigns API runs
+standalone from `rekt_backend`:
+
+1. **Root Directory**: **`rekt_campaigns`** — Render must run install/build here.
+   If this is empty (repo root), `node_modules` never lands next to `package.json`
+   and `tsc` fails with **TS2307** (“Cannot find module …”) for every dependency.
+2. **Build Command**: **`pnpm run build:ci`** — runs `pnpm install --frozen-lockfile`
+   then `tsc` so a full dependency tree (including `typescript` and `@types/*`)
+   exists before compile.
+3. **Start Command**: `pnpm start` (or `node dist/index.js`).
+4. Use **pnpm only** in this package: keep **`pnpm-lock.yaml`** committed and do not
+   add `package-lock.json` (mixed locks can send Render down the wrong install path).
+
 ## 2. Website (`rekt_website`) as a Static Site
 
 1. **New → Static Site**, point at your repo, set:
