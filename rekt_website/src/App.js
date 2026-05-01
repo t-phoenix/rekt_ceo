@@ -7,6 +7,7 @@ import CustomCursor from "./components/CustomCursor";
 import PageLoader from "./components/PageLoader";
 import { InitNexusOnConnect } from "./components/nexus/InitNexusOnConnect";
 import { Analytics } from '@vercel/analytics/react';
+import { SolanaWalletProvider } from "./config/SolanaWalletProvider";
 
 const Introduction = lazy(() => import("./pages/landingpage/Introduction"));
 const ProfileNFT = lazy(() => import("./pages/ProfileNFT"));
@@ -35,7 +36,14 @@ function App() {
             <Route path="/pfp" element={<ProfileNFT />} />
             <Route path="/buy-ceo" element={<BuyCEOPage />} />
             <Route path="/memes" element={<MemeGen />} />
-            <Route path="/launch" element={<LaunchHub />} />
+            <Route
+              path="/launch"
+              element={
+                <SolanaWalletProvider>
+                  <LaunchHub />
+                </SolanaWalletProvider>
+              }
+            />
             <Route path="/admin" element={<AdminPage />} />
             <Route path="/blueprint" element={<Blueprint />} />
           </Routes>

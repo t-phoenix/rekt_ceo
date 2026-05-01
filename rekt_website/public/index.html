@@ -46,9 +46,8 @@
   <!-- Buffer polyfill for Nexus SDK dependencies -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/buffer/6.0.3/buffer.min.js"></script>
   <script>
-    // Make Buffer globally available
+    // UMD build exposes Buffer on window — do not reference lowercase `buffer` (undefined ReferenceError).
     window.global = window;
-    window.Buffer = window.Buffer || buffer.Buffer;
   </script>
   <script type="application/ld+json">
 [
