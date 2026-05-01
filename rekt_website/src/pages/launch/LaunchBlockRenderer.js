@@ -436,7 +436,8 @@ function TelegramLinkRow({ identity, walletAddress, onRefresh, optional = true, 
   useEffect(() => {
     if (linked) return;
     if (!config?.configured || !config?.botUsername) return;
-    if (!widgetRef.current) return;
+    const mountEl = widgetRef.current;
+    if (!mountEl) return;
     if (!walletAddress) return;
 
     window.__rektOnTelegramAuth = async (payload) => {
@@ -470,7 +471,7 @@ function TelegramLinkRow({ identity, walletAddress, onRefresh, optional = true, 
     };
 
     setWidgetFailed(false);
-    widgetRef.current.innerHTML = "";
+    mountEl.innerHTML = "";
     const script = document.createElement("script");
     script.async = true;
     script.src = "https://telegram.org/js/telegram-widget.js?22";
@@ -479,7 +480,7 @@ function TelegramLinkRow({ identity, walletAddress, onRefresh, optional = true, 
     script.setAttribute("data-radius", "8");
     script.setAttribute("data-onauth", "__rektOnTelegramAuth(user)");
     script.setAttribute("data-request-access", "write");
-    widgetRef.current.appendChild(script);
+    mountEl.appendChild(script);
 
     // Telegram's widget refuses to render when the page origin isn't
     // registered with the bot via @BotFather → /setdomain. The script
@@ -487,8 +488,8 @@ function TelegramLinkRow({ identity, walletAddress, onRefresh, optional = true, 
     // Probe after a short delay and surface a helpful hint instead of
     // leaving an empty space the user can't debug.
     const probe = setTimeout(() => {
-      if (!widgetRef.current) return;
-      const hasIframe = !!widgetRef.current.querySelector("iframe");
+      if (!mountEl.isConnected) return;
+      const hasIframe = !!mountEl.querySelector("iframe");
       setWidgetFailed(!hasIframe);
     }, 2000);
 
@@ -499,7 +500,7 @@ function TelegramLinkRow({ identity, walletAddress, onRefresh, optional = true, 
       } catch (_) {
         window.__rektOnTelegramAuth = undefined;
       }
-      if (widgetRef.current) widgetRef.current.innerHTML = "";
+      mountEl.innerHTML = "";
     };
   }, [config, walletAddress, linked, onRefresh, ensureToken]);
 
