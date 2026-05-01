@@ -12,9 +12,12 @@ import { generalLimiter } from './middleware/rate-limit';
 
 const app: Express = express();
 
-/** Render / reverse proxies send X-Forwarded-For; required for accurate req.ip and express-rate-limit. */
-if (config.nodeEnv === 'production') {
-  app.set('trust proxy', 1);
+/** Reverse proxies send X-Forwarded-For; required for accurate req.ip and express-rate-limit. */
+const trustProxy =
+  config.nodeEnv === 'production' || process.env.RENDER === 'true' || process.env.TRUST_PROXY === '1';
+if (trustProxy) {
+  const hops = Number(process.env.TRUST_PROXY_HOPS || '1');
+  app.set('trust proxy', Number.isFinite(hops) && hops > 0 ? hops : 1);
 }
 
 app.use(helmet());
