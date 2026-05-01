@@ -12,6 +12,11 @@ import { generalLimiter } from './middleware/rate-limit';
 
 const app: Express = express();
 
+/** Render / reverse proxies send X-Forwarded-For; required for accurate req.ip and express-rate-limit. */
+if (config.nodeEnv === 'production') {
+  app.set('trust proxy', 1);
+}
+
 app.use(helmet());
 
 const allowedOrigins = [...config.corsOrigin.split(',').map((s) => s.trim())].filter(Boolean);
