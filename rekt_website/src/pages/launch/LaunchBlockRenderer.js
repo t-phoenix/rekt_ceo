@@ -499,8 +499,13 @@ function TelegramLinkRow({ identity, walletAddress, onRefresh, optional = true, 
       } catch (_) {
         window.__rektOnTelegramAuth = undefined;
       }
+      if (widgetRef.current) widgetRef.current.innerHTML = "";
     };
   }, [config, walletAddress, linked, onRefresh, ensureToken]);
+
+  const revealTelegramWidget = useCallback(() => {
+    widgetRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+  }, []);
 
   const unlink = async () => {
     if (!walletAddress) return;
@@ -529,7 +534,14 @@ function TelegramLinkRow({ identity, walletAddress, onRefresh, optional = true, 
       handleValue={handleValue}
       busy={busy}
       onUnlink={unlink}
-      onConnect={null}
+      onConnect={
+        linked ||
+        !walletAddress ||
+        !config?.configured ||
+        !config?.botUsername
+          ? null
+          : revealTelegramWidget
+      }
       statusBadge={groupBadge}
       optional={!!optional}
       linkXpReward={linkXpReward}
@@ -548,8 +560,10 @@ function TelegramLinkRow({ identity, walletAddress, onRefresh, optional = true, 
               {optional
                 ? "Telegram is optional. "
                 : "Telegram is required. "}
-              Bot must already be added to the Rekt CEO group as admin.
-              Use the widget below.
+              Tap <strong>Connect</strong> to jump to Telegram&apos;s official
+              button, sign in there, then we attach it to this wallet{" "}
+              {optional ? "(same unlink flow as other social rows)." : "."}{" "}
+              Join the Rekt CEO group first if your campaign requires it.
             </p>
           )}
           <div ref={widgetRef} className="telegram-widget-mount" />

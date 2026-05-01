@@ -28,12 +28,17 @@ class TelegramService {
   private botToken() { return process.env.TELEGRAM_BOT_TOKEN || ''; }
   private chatId() { return process.env.TELEGRAM_CHAT_ID || ''; }
 
-  isConfigured(): boolean {
-    return !!this.botToken();
+  /**
+   * Login Widget expects the bot username only (letters, digits, underscore), no `@`.
+   * Empty TELEGRAM_BOT_USERNAME with token set yields Telegram iframe "Username Invalid".
+   */
+  botUsername(): string {
+    const raw = (process.env.TELEGRAM_BOT_USERNAME || '').trim().replace(/^@+/, '');
+    return raw;
   }
 
-  botUsername(): string {
-    return process.env.TELEGRAM_BOT_USERNAME || '';
+  isConfigured(): boolean {
+    return !!this.botToken() && this.botUsername().length >= 3;
   }
 
   verifyLoginPayload(payload: Record<string, any>): { ok: boolean; reason?: string } {
