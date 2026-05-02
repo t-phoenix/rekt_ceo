@@ -57,6 +57,14 @@ export const campaignIcon = {
   solana: solanaLogo,
 };
 
+/** Official joins / profiles — surfaced when follow / guild / group checks fail */
+export const socialJoinUrls = {
+  /** X profile to follow (@rekt_ceo) */
+  xRektCeo: "https://x.com/rekt_ceo",
+  discordInvite: "https://discord.gg/tzUrNgehZd",
+  telegramGroup: "https://t.me/rektceoclub",
+};
+
 export const providerMeta = {
   x: {
     label: "X (TWITTER)",

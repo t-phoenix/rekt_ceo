@@ -1,5 +1,7 @@
 import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
-import { motion, useReducedMotion } from "framer-motion";
+import { createPortal } from "react-dom";
+import { Link } from "react-router-dom";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import toast from "react-hot-toast";
 import {
   FaRegCopy,
@@ -21,28 +23,42 @@ import {
   FaQuestionCircle,
   FaLock,
   FaSyncAlt,
+  FaImage,
 } from "react-icons/fa";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { useWalletModal } from "@solana/wallet-adapter-react-ui";
 import { campaignApi } from "../../services/campaign_api";
-import { campaignIcon, providerMeta, sticker } from "./launchAssets";
+import { campaignIcon, providerMeta, socialJoinUrls, sticker } from "./launchAssets";
+import { readLastReward, writeLastReward, xMissionMemoryKind } from "./launchRewardMemory";
 import { useSiweAuth } from "../../hooks/useSiweAuth";
 
-function SectionCard({ title, subtitle, children, right, id, sticker: stickerSrc, accent }) {
+function SectionCard({
+  title,
+  subtitle,
+  subtitleFullWidth,
+  children,
+  right,
+  id,
+  sticker: stickerSrc,
+  accent,
+}) {
   return (
     <section className={`launch-card${accent ? ` accent-${accent}` : ""}`} id={id}>
-      <div className="launch-card-head">
+      <div className={`launch-card-head${subtitleFullWidth ? " launch-card-head--subtitle-below" : ""}`}>
         <div className="launch-card-titlewrap">
           {stickerSrc ? (
             <img src={stickerSrc} alt="" className="launch-card-sticker" />
           ) : null}
           <div>
             <h3>{title}</h3>
-            {subtitle ? <p>{subtitle}</p> : null}
+            {subtitle && !subtitleFullWidth ? <p>{subtitle}</p> : null}
           </div>
         </div>
         {right}
       </div>
+      {subtitle && subtitleFullWidth ? (
+        <p className="launch-card-subtitle-full">{subtitle}</p>
+      ) : null}
       <div>{children}</div>
     </section>
   );
@@ -247,6 +263,32 @@ function XLinkRow({ identity, walletAddress, onRefresh, optional, linkXpReward }
   const [error, setError] = useState(null);
   const { ensureToken } = useSiweAuth();
 
+  const verifySocialStatus = useCallback(async () => {
+    if (!walletAddress) return;
+    setBusy(true);
+    setError(null);
+    try {
+      const token = await ensureToken();
+      let res = await campaignApi.refreshSocialMembership(walletAddress, {
+        token,
+        force: true,
+      });
+      if (!res.ok && res.status === 401) {
+        const fresh = await ensureToken();
+        res = await campaignApi.refreshSocialMembership(walletAddress, {
+          token: fresh,
+          force: true,
+        });
+      }
+      if (res.ok) await onRefresh();
+      else setError(res.message || "Could not refresh follow status.");
+    } catch (err) {
+      setError(err?.message || "Could not refresh follow status.");
+    } finally {
+      setBusy(false);
+    }
+  }, [walletAddress, ensureToken, onRefresh]);
+
   const connect = async () => {
     if (!walletAddress) return;
     setBusy(true);
@@ -314,10 +356,40 @@ function XLinkRow({ identity, walletAddress, onRefresh, optional, linkXpReward }
           @rekt_ceo, and (when X grants the scope) capture your email so we
           can send airdrop and reward updates.
         </p>
-      ) : identity.xFollowsRektCeo === false ? (
-        <p className="link-form-copy">
-          You aren't following @rekt_ceo. Follow on X, then re-link.
-        </p>
+      ) : null}
+      {linked && identity.xFollowsRektCeo !== true ? (
+        <>
+          <div className="social-status-actions">
+            <a
+              className="launch-btn cta small"
+              href={socialJoinUrls.xRektCeo}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <FaTwitter /> OPEN @REKT_CEO ON X
+            </a>
+            <button
+              type="button"
+              className="launch-btn ghost small"
+              disabled={busy}
+              onClick={verifySocialStatus}
+            >
+              <FaSyncAlt /> VERIFY AGAIN
+            </button>
+          </div>
+          {identity.xFollowsRektCeo === false ? (
+            <p className="link-form-copy">
+              You aren&apos;t following @rekt_ceo yet. Follow on X, then tap Verify
+              again — we refresh status daily when you load Launch Hub too.
+            </p>
+          ) : (
+            <p className="link-form-copy muted">
+              Automated follow-check isn&apos;t available or was skipped. Ensure{" "}
+              <code>TWITTERAPI_IO_KEY</code> is set on campaigns, follow @rekt_ceo,
+              then tap Verify again.
+            </p>
+          )}
+        </>
       ) : null}
     </LinkRowShell>
   );
@@ -329,6 +401,32 @@ function DiscordLinkRow({ identity, walletAddress, onRefresh, optional, linkXpRe
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(null);
   const { ensureToken } = useSiweAuth();
+
+  const verifySocialStatus = useCallback(async () => {
+    if (!walletAddress) return;
+    setBusy(true);
+    setError(null);
+    try {
+      const token = await ensureToken();
+      let res = await campaignApi.refreshSocialMembership(walletAddress, {
+        token,
+        force: true,
+      });
+      if (!res.ok && res.status === 401) {
+        const fresh = await ensureToken();
+        res = await campaignApi.refreshSocialMembership(walletAddress, {
+          token: fresh,
+          force: true,
+        });
+      }
+      if (res.ok) await onRefresh();
+      else setError(res.message || "Could not refresh Discord status.");
+    } catch (err) {
+      setError(err?.message || "Could not refresh Discord status.");
+    } finally {
+      setBusy(false);
+    }
+  }, [walletAddress, ensureToken, onRefresh]);
 
   const connect = async () => {
     if (!walletAddress) return;
@@ -403,12 +501,42 @@ function DiscordLinkRow({ identity, walletAddress, onRefresh, optional, linkXpRe
       {error ? <p className="link-form-error">{error}</p> : null}
       {!linked ? (
         <p className="link-form-copy muted">
-          Sign in to Discord — we'll verify guild membership via the bot.
+          Sign in to Discord — we&apos;ll verify you&apos;re in the Rekt CEO server.
         </p>
-      ) : identity.discordInGuild === false ? (
-        <p className="link-form-copy">
-          You're not in the Rekt CEO Discord. Join the server, then re-link.
-        </p>
+      ) : null}
+      {linked && identity.discordInGuild !== true ? (
+        <>
+          <div className="social-status-actions">
+            <a
+              className="launch-btn cta small"
+              href={socialJoinUrls.discordInvite}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <FaDiscord /> JOIN REKT CEO DISCORD
+            </a>
+            <button
+              type="button"
+              className="launch-btn ghost small"
+              disabled={busy}
+              onClick={verifySocialStatus}
+            >
+              <FaSyncAlt /> VERIFY AGAIN
+            </button>
+          </div>
+          {identity.discordInGuild === false ? (
+            <p className="link-form-copy">
+              You&apos;re not in the Rekt CEO Discord server yet. Join via the link, then tap
+              Verify again. Launch Hub also re-checks periodically.
+            </p>
+          ) : (
+            <p className="link-form-copy muted">
+              We couldn&apos;t confirm server membership (configure{" "}
+              <code>DISCORD_BOT_TOKEN</code> + <code>DISCORD_GUILD_ID</code> on campaigns). Join
+              Discord, then Verify again.
+            </p>
+          )}
+        </>
       ) : null}
     </LinkRowShell>
   );
@@ -504,6 +632,32 @@ function TelegramLinkRow({ identity, walletAddress, onRefresh, optional = true, 
     };
   }, [config, walletAddress, linked, onRefresh, ensureToken]);
 
+  const verifySocialStatus = useCallback(async () => {
+    if (!walletAddress) return;
+    setBusy(true);
+    setError(null);
+    try {
+      const token = await ensureToken();
+      let res = await campaignApi.refreshSocialMembership(walletAddress, {
+        token,
+        force: true,
+      });
+      if (!res.ok && res.status === 401) {
+        const fresh = await ensureToken();
+        res = await campaignApi.refreshSocialMembership(walletAddress, {
+          token: fresh,
+          force: true,
+        });
+      }
+      if (res.ok) await onRefresh();
+      else setError(res.message || "Could not refresh Telegram group status.");
+    } catch (err) {
+      setError(err?.message || "Could not refresh Telegram group status.");
+    } finally {
+      setBusy(false);
+    }
+  }, [walletAddress, ensureToken, onRefresh]);
+
   const revealTelegramWidget = useCallback(() => {
     widgetRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
   }, []);
@@ -588,7 +742,62 @@ function TelegramLinkRow({ identity, walletAddress, onRefresh, optional = true, 
           ) : null}
           {error ? <p className="link-form-error">{error}</p> : null}
         </div>
-      ) : null}
+      ) : (
+        <div className="link-form column">
+          {error ? <p className="link-form-error">{error}</p> : null}
+          {!identity.telegramUserId ? (
+            <p className="link-form-copy muted">
+              Unlink and connect Telegram once more so we can store your Telegram id for automatic
+              group checks.
+            </p>
+          ) : null}
+          {!identity.telegramUserId ? (
+            <div className="social-status-actions">
+              <a
+                className="launch-btn ghost small"
+                href={socialJoinUrls.telegramGroup}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <FaTelegramPlane /> OPEN REKT CEO TELEGRAM
+              </a>
+            </div>
+          ) : null}
+          {identity.telegramUserId && identity.telegramInGroup !== true ? (
+            <>
+              <div className="social-status-actions">
+                <a
+                  className="launch-btn cta small"
+                  href={socialJoinUrls.telegramGroup}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <FaTelegramPlane /> OPEN REKT CEO TELEGRAM
+                </a>
+                <button
+                  type="button"
+                  className="launch-btn ghost small"
+                  disabled={busy}
+                  onClick={verifySocialStatus}
+                >
+                  <FaSyncAlt /> VERIFY AGAIN
+                </button>
+              </div>
+              {identity.telegramInGroup === false ? (
+                <p className="link-form-copy">
+                  You&apos;re not in the public Rekt CEO group yet. Join, then Verify again (Launch Hub also
+                  re-checks periodically when you reload).
+                </p>
+              ) : (
+                <p className="link-form-copy muted">
+                  Configure <code>TELEGRAM_CHAT_ID</code> + bot in the group so we can confirm membership, then Verify
+                  again.
+                </p>
+              )}
+            </>
+          ) : null}
+        </div>
+      )}
     </LinkRowShell>
   );
 }
@@ -851,22 +1060,183 @@ function StreakStrip({ count }) {
   );
 }
 
+const REWARD_KIND_CHECKIN = "checkin";
+const REWARD_KIND_SPIN = "spin";
+
+function useAnimatedXp(target, active, prefersReducedMotion) {
+  const [value, setValue] = useState(0);
+  useEffect(() => {
+    if (!active) {
+      setValue(0);
+      return;
+    }
+    if (prefersReducedMotion) {
+      setValue(target);
+      return;
+    }
+    let raf = 0;
+    const start = performance.now();
+    const duration = 820;
+    const tick = (now) => {
+      const t = Math.min(1, (now - start) / duration);
+      const eased = 1 - (1 - t) ** 3;
+      setValue(Math.round(target * eased));
+      if (t < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [active, target, prefersReducedMotion]);
+  return value;
+}
+
+function RewardCelebrationModal({ open, onClose, variant, xp, breakdown, credits }) {
+  const prefersReducedMotion = useReducedMotion();
+  const animatedXp = useAnimatedXp(xp || 0, open, prefersReducedMotion);
+
+  useEffect(() => {
+    if (!open) return undefined;
+    const onKey = (e) => {
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [open, onClose]);
+
+  const title =
+    variant === "checkin" ? "Daily check-in" : variant === "spin" ? "Daily spin" : "Daily X mission";
+  const eyebrow =
+    variant === "checkin"
+      ? "Streak secured — XP credited"
+      : variant === "spin"
+        ? "Wheel payout locked in"
+        : "Verification payout";
+
+  const detailLines = [];
+  if (variant === "checkin" && breakdown && typeof breakdown === "object") {
+    const base = breakdown.base;
+    const sb = breakdown.streakBonus;
+    const sd = breakdown.streakDays;
+    if (Number.isFinite(Number(base))) detailLines.push(`${Number(base)} XP base`);
+    if (Number.isFinite(Number(sb))) detailLines.push(`+${Number(sb)} XP streak bonus`);
+    if (Number.isFinite(Number(sd))) detailLines.push(`${Number(sd)}-day streak`);
+  }
+  if (variant === "x_mission" && Array.isArray(credits) && credits.length) {
+    credits.slice(0, 8).forEach((c) => {
+      if (c && Number.isFinite(Number(c.xp))) detailLines.push(`+${c.xp} XP · ${c.taskId || "task"}`);
+    });
+  }
+
+  return createPortal(
+    <AnimatePresence>
+      {open ? (
+        <motion.div
+          className="reward-modal-overlay"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: prefersReducedMotion ? 0 : 0.24 }}
+          onClick={onClose}
+          role="presentation"
+        >
+          <motion.div
+            className="reward-modal-shell"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="reward-modal-title"
+            initial={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, scale: 0.92, y: 32 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, scale: 0.96, y: 14 }}
+            transition={
+              prefersReducedMotion ? { duration: 0.14 } : { type: "spring", stiffness: 360, damping: 26 }
+            }
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="reward-modal-glow" aria-hidden />
+            <div className="reward-modal-sparkles" aria-hidden />
+            <button type="button" className="reward-modal-close" onClick={onClose} aria-label="Close dialog">
+              ×
+            </button>
+            <p className="reward-modal-eyebrow">{eyebrow}</p>
+            <h2 id="reward-modal-title" className="reward-modal-title">
+              {title}
+            </h2>
+            <div className="reward-modal-xp-wrap">
+              <span className="reward-modal-xp-label">You earned</span>
+              <motion.div
+                className="reward-modal-xp-hero"
+                initial={prefersReducedMotion ? false : { scale: 0.88, opacity: 0.85 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={
+                  prefersReducedMotion ? { duration: 0 } : { type: "spring", stiffness: 420, damping: 22 }
+                }
+              >
+                +{animatedXp.toLocaleString()}
+                <span className="reward-modal-xp-suffix"> XP</span>
+              </motion.div>
+            </div>
+            {detailLines.length ? (
+              <ul className="reward-modal-detail">
+                {detailLines.map((line, i) => (
+                  <motion.li
+                    key={`${line}-${i}`}
+                    initial={prefersReducedMotion ? false : { opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: prefersReducedMotion ? 0 : 0.1 + i * 0.045 }}
+                  >
+                    {line}
+                  </motion.li>
+                ))}
+              </ul>
+            ) : null}
+            <button type="button" className="launch-btn cta reward-modal-cta" onClick={onClose}>
+              Continue
+            </button>
+          </motion.div>
+        </motion.div>
+      ) : null}
+    </AnimatePresence>,
+    document.body,
+  );
+}
+
+function LastRewardHighlight({ prefix, record }) {
+  if (!record || typeof record.xp !== "number") return null;
+  return (
+    <div className="last-reward-highlight" role="status">
+      <span className="last-reward-highlight-prefix">{prefix}</span>
+      <span className="last-reward-highlight-xp">+{record.xp.toLocaleString()} XP</span>
+      {record.dateUtc ? <span className="last-reward-highlight-date">UTC {record.dateUtc}</span> : null}
+    </div>
+  );
+}
+
 function DailyCheckinBlock({ data, onRefresh, walletAddress }) {
   const [loading, setLoading] = useState(false);
   const [lastAward, setLastAward] = useState(null);
+  const [lastWinRecord, setLastWinRecord] = useState(null);
+  const [celebrate, setCelebrate] = useState(null);
   const claimed = data?.daily?.checkinClaimed;
   const streak = data?.daily?.streak?.count || 0;
   const xr = data?.xpRewards;
   const baseXp = xr?.dailyCheckinBase ?? 10;
   const streakCap = xr?.dailyCheckinStreakBonusMax ?? 20;
 
+  useEffect(() => {
+    setLastWinRecord(walletAddress ? readLastReward(walletAddress, REWARD_KIND_CHECKIN) : null);
+  }, [walletAddress]);
+
   const handleClaim = async () => {
     if (!walletAddress) return;
     setLoading(true);
     const result = await campaignApi.claimDailyCheckin(walletAddress);
-    if (result.ok) {
-      setLastAward(result.awarded || 0);
-      toast.success(`+${result.awarded ?? 0} XP — daily check-in locked in.`);
+    if (result.ok && result.claimed && (result.awarded ?? 0) > 0) {
+      const xp = result.awarded ?? 0;
+      setLastAward(xp);
+      writeLastReward(walletAddress, REWARD_KIND_CHECKIN, xp, result.breakdown ?? null);
+      setLastWinRecord(readLastReward(walletAddress, REWARD_KIND_CHECKIN));
+      setCelebrate({ variant: "checkin", xp, breakdown: result.breakdown ?? null });
+    } else if (result.ok) {
+      toast.error(result.reason || result.message || "Check-in already claimed or unavailable today.");
     } else {
       toast.error(result.message || "Check-in failed.");
     }
@@ -875,29 +1245,42 @@ function DailyCheckinBlock({ data, onRefresh, walletAddress }) {
   };
 
   return (
-    <SectionCard
-      title="Daily Check-In"
-      subtitle={`+${baseXp} XP every UTC day you claim, plus up to +${streakCap} bonus XP from your streak (extra +1 per consecutive day, capped).`}
-      sticker={sticker.beer}
-      accent="green"
-      right={<span className="phase-chip">STREAK {streak}D</span>}
-    >
-      <p className="daily-checkin-formula">
-        <strong>Today’s formula:</strong> {baseXp} base + min(streak−1, {streakCap}) streak bonus (after you
-        claim).
-      </p>
-      <StreakStrip count={Math.min(7, streak)} />
-      <div className="daily-row spaced">
-        <button
-          className="launch-btn cta"
-          disabled={loading || claimed || !walletAddress}
-          onClick={handleClaim}
-        >
-          {claimed ? "CLAIMED FOR TODAY" : loading ? "CLAIMING…" : "CLAIM CHECK-IN"}
-        </button>
-        {lastAward !== null ? <p className="award-text">+{lastAward} XP credited</p> : null}
-      </div>
-    </SectionCard>
+    <>
+      <RewardCelebrationModal
+        open={Boolean(celebrate)}
+        onClose={() => setCelebrate(null)}
+        variant={celebrate?.variant || "checkin"}
+        xp={celebrate?.xp ?? 0}
+        breakdown={celebrate?.breakdown}
+        credits={celebrate?.credits}
+      />
+      <SectionCard
+        title="Daily Check-In"
+        subtitle={`+${baseXp} XP every UTC day you claim, plus up to +${streakCap} bonus XP from your streak (extra +1 per consecutive day, capped).`}
+        sticker={sticker.beer}
+        accent="green"
+        right={<span className="phase-chip">STREAK {streak}D</span>}
+      >
+        <LastRewardHighlight prefix="Last check-in win" record={lastWinRecord} />
+        <p className="daily-checkin-formula">
+          <strong>Today’s formula:</strong> {baseXp} base + min(streak−1, {streakCap}) streak bonus (after you
+          claim).
+        </p>
+        <StreakStrip count={Math.min(7, streak)} />
+        <div className="daily-row spaced">
+          <button
+            className="launch-btn cta"
+            disabled={loading || claimed || !walletAddress}
+            onClick={handleClaim}
+          >
+            {claimed ? "CLAIMED FOR TODAY" : loading ? "CLAIMING…" : "CLAIM CHECK-IN"}
+          </button>
+          {lastAward !== null ? (
+            <p className="award-text award-text--prominent">Just now · +{lastAward.toLocaleString()} XP</p>
+          ) : null}
+        </div>
+      </SectionCard>
+    </>
   );
 }
 
@@ -948,8 +1331,10 @@ function SpinWheel({ busy, rotationDeg, buckets, lastAward }) {
         </div>
       </div>
       <div className="spin-wheel-pin" aria-hidden />
-      <div className="spin-wheel-center">
-        {lastAward !== null ? <span>+{lastAward}</span> : <span>SPIN</span>}
+      <div
+        className={`spin-wheel-center${lastAward !== null ? " spin-wheel-center--has-win" : ""}`}
+      >
+        {lastAward !== null ? <span>+{lastAward.toLocaleString()}</span> : <span>SPIN</span>}
       </div>
     </div>
   );
@@ -958,6 +1343,10 @@ function SpinWheel({ busy, rotationDeg, buckets, lastAward }) {
 function DailySpinBlock({ data, onRefresh, walletAddress }) {
   const [loading, setLoading] = useState(false);
   const [lastAward, setLastAward] = useState(null);
+  const [lastWinRecord, setLastWinRecord] = useState(null);
+  const [celebrate, setCelebrate] = useState(null);
+  const prefersReducedMotion = useReducedMotion();
+  const spinRevealTimerRef = useRef(null);
   const claimed = data?.daily?.spinClaimed;
   const xr = data?.xpRewards;
   const buckets = useMemo(() => {
@@ -967,13 +1356,24 @@ function DailySpinBlock({ data, onRefresh, walletAddress }) {
   const angleRef = useRef(0);
   const [wheelTurn, setWheelTurn] = useState(0);
 
+  useEffect(() => {
+    setLastWinRecord(walletAddress ? readLastReward(walletAddress, REWARD_KIND_SPIN) : null);
+  }, [walletAddress]);
+
+  useEffect(() => {
+    return () => {
+      if (spinRevealTimerRef.current) window.clearTimeout(spinRevealTimerRef.current);
+    };
+  }, []);
+
   const handleSpin = async () => {
     if (!walletAddress) return;
     setLoading(true);
     try {
       const result = await campaignApi.claimDailySpin(walletAddress);
-      if (result.ok) {
-        setLastAward(result.awarded ?? 0);
+      if (result.ok && result.claimed && (result.awarded ?? 0) > 0) {
+        const xp = result.awarded ?? 0;
+        setLastAward(xp);
         if (typeof result.bucketIndex === "number" && buckets.length) {
           const slice = 360 / buckets.length;
           const mid = (result.bucketIndex + 0.5) * slice;
@@ -985,7 +1385,17 @@ function DailySpinBlock({ data, onRefresh, walletAddress }) {
           angleRef.current += fullSpins * 360 + delta;
           setWheelTurn(angleRef.current);
         }
-        toast.success(`Wheel dropped +${result.awarded ?? 0} XP.`);
+        writeLastReward(walletAddress, REWARD_KIND_SPIN, xp, {
+          bucketIndex: result.bucketIndex ?? null,
+        });
+        setLastWinRecord(readLastReward(walletAddress, REWARD_KIND_SPIN));
+        if (spinRevealTimerRef.current) window.clearTimeout(spinRevealTimerRef.current);
+        const delayMs = prefersReducedMotion ? 350 : 2600;
+        spinRevealTimerRef.current = window.setTimeout(() => {
+          setCelebrate({ variant: "spin", xp });
+        }, delayMs);
+      } else if (result.ok) {
+        toast.error(result.reason || result.message || "Spin already used today.");
       } else {
         toast.error(result.message || "Spin failed.");
       }
@@ -998,34 +1408,72 @@ function DailySpinBlock({ data, onRefresh, walletAddress }) {
   const bucketLine = buckets.join(", ");
 
   return (
-    <SectionCard
-      title="Daily Spin"
-      subtitle="One spin per UTC day. You always win one of the XP values on the wheel."
-      sticker={sticker.degenSticker}
-      accent="red"
-    >
-      <div className="spin-block-grid">
-        <SpinWheel busy={loading} rotationDeg={wheelTurn} buckets={buckets} lastAward={lastAward} />
-        <div className="spin-info">
-          <p>
-            <strong>Possible prizes (XP):</strong> {bucketLine}. Configurable in the admin hub — whatever
-            slices you see here match the backend payout table.
-          </p>
-          <button
-            className="launch-btn cta"
-            disabled={loading || claimed || !walletAddress}
-            onClick={handleSpin}
-          >
-            {claimed ? "USED TODAY" : loading ? "SPINNING…" : "SPIN NOW"}
-          </button>
-          {lastAward !== null ? <p className="award-text">You won +{lastAward} XP</p> : null}
+    <>
+      <RewardCelebrationModal
+        open={Boolean(celebrate)}
+        onClose={() => setCelebrate(null)}
+        variant={celebrate?.variant || "spin"}
+        xp={celebrate?.xp ?? 0}
+        breakdown={celebrate?.breakdown}
+        credits={celebrate?.credits}
+      />
+      <SectionCard
+        title="Daily Spin"
+        subtitle="One spin per UTC day. You always win one of the XP values on the wheel."
+        sticker={sticker.degenSticker}
+        accent="red"
+      >
+        <LastRewardHighlight prefix="Last spin win" record={lastWinRecord} />
+        <div className="spin-block-grid">
+          <SpinWheel busy={loading} rotationDeg={wheelTurn} buckets={buckets} lastAward={lastAward} />
+          <div className="spin-info">
+            <p>
+              <strong>Possible prizes (XP):</strong> {bucketLine}. Configurable in the admin hub — whatever
+              slices you see here match the backend payout table.
+            </p>
+            <button
+              className="launch-btn cta"
+              disabled={loading || claimed || !walletAddress}
+              onClick={handleSpin}
+            >
+              {claimed ? "USED TODAY" : loading ? "SPINNING…" : "SPIN NOW"}
+            </button>
+            {lastAward !== null ? (
+              <p className="award-text award-text--prominent">You won +{lastAward.toLocaleString()} XP</p>
+            ) : null}
+          </div>
         </div>
-      </div>
-    </SectionCard>
+      </SectionCard>
+    </>
+  );
+}
+
+/** In-app CTA between “mention” and “attach meme” mission rows — distinct from static rule chips. */
+function XMissionMemeMakerLink() {
+  return (
+    <Link
+      to="/memes"
+      className="x-rule x-rule--meme-maker-link"
+      aria-label="Make Rekt CEO Meme — opens the meme generator"
+    >
+      <span className="x-rule-icon x-rule-icon--meme-maker">
+        <FaImage aria-hidden />
+      </span>
+      <span className="x-rule-meme-maker-copy">
+        <strong>Make Rekt CEO Meme</strong>
+        <span className="x-rule-meme-maker-sub">
+          On-site meme studio <FaArrowRight className="x-rule-meme-maker-arrow" aria-hidden />
+        </span>
+      </span>
+      <span className="x-rule-meme-maker-go" aria-hidden>
+        Open
+      </span>
+    </Link>
   );
 }
 
 function XShareTaskBlock({ data, walletAddress, onRefresh }) {
+  const X_VERIFY_COOLDOWN_MS = 2 * 60 * 1000;
   const xTaskRules = data?.xTaskRules || {};
   const xMission = data?.xMission || {};
   const missionTasks = xMission.tasks || [];
@@ -1037,6 +1485,55 @@ function XShareTaskBlock({ data, walletAddress, onRefresh }) {
   const [verifying, setVerifying] = useState(false);
   const [rulesOpen, setRulesOpen] = useState(false);
   const [verifyPanel, setVerifyPanel] = useState(null);
+  const [missionCelebrate, setMissionCelebrate] = useState(null);
+  const [lastMissionWin, setLastMissionWin] = useState(null);
+  /** Timestamp (ms); verify throttled server + client except skip when mission already credited. */
+  const [cooldownUntil, setCooldownUntil] = useState(0);
+  const [nowTs, setNowTs] = useState(() => Date.now());
+  const missionMemoryKind = useMemo(() => xMissionMemoryKind(xTaskRules.presetId), [xTaskRules.presetId]);
+
+  const cooldownStorageKey =
+    walletAddress && typeof walletAddress === "string"
+      ? `rekt_launch_x_verify_cd_${walletAddress.toLowerCase()}`
+      : null;
+
+  useEffect(() => {
+    if (!cooldownStorageKey || typeof sessionStorage === "undefined") return;
+    const raw = sessionStorage.getItem(cooldownStorageKey);
+    const until = raw ? Number.parseInt(raw, 10) : 0;
+    if (Number.isFinite(until) && until > Date.now()) {
+      setCooldownUntil(until);
+    }
+  }, [cooldownStorageKey]);
+
+  useEffect(() => {
+    setLastMissionWin(walletAddress ? readLastReward(walletAddress, missionMemoryKind) : null);
+  }, [walletAddress, missionMemoryKind]);
+
+  useEffect(() => {
+    if (!(cooldownUntil > Date.now())) return;
+    const id = window.setInterval(() => setNowTs(Date.now()), 1000);
+    return () => window.clearInterval(id);
+  }, [cooldownUntil]);
+
+  const cooldownSecsLeft =
+    cooldownUntil > nowTs ? Math.max(0, Math.ceil((cooldownUntil - nowTs) / 1000)) : 0;
+
+  const persistCooldownUntil = useCallback(
+    (untilMs) => {
+      setCooldownUntil(untilMs);
+      if (cooldownStorageKey && typeof sessionStorage !== "undefined") {
+        sessionStorage.setItem(cooldownStorageKey, String(untilMs));
+      }
+    },
+    [cooldownStorageKey],
+  );
+
+  const formatCooldown = useCallback((sec) => {
+    const m = Math.floor(sec / 60);
+    const s = sec % 60;
+    return `${m}:${s.toString().padStart(2, "0")}`;
+  }, []);
 
   const taskIcon = (kind) => {
     if (kind === "mention") return <FaTwitter />;
@@ -1077,10 +1574,19 @@ function XShareTaskBlock({ data, walletAddress, onRefresh }) {
       toast.error("Connect and sign in with your wallet first.", { id: "x-verify-auth", duration: 12000 });
       return;
     }
+    if (cooldownSecsLeft > 0) {
+      toast.error(`Verify cooldown — ${formatCooldown(cooldownSecsLeft)} left.`, {
+        id: "x-verify-cooldown",
+        duration: 5000,
+      });
+      return;
+    }
     setVerifying(true);
+    let applyCooldownAfter = false;
     try {
       const res = await campaignApi.verifyXMission(walletAddress, xTaskRules.presetId);
       if (!res.ok) {
+        applyCooldownAfter = true;
         const msg = res.message || "Could not verify yet.";
         setVerifyPanel({
           kind: "error",
@@ -1117,6 +1623,8 @@ function XShareTaskBlock({ data, walletAddress, onRefresh }) {
               })),
             };
 
+      applyCooldownAfter = !verification?.skippedTweetFetch;
+
       setVerifyPanel({
         kind: "result",
         verification,
@@ -1125,8 +1633,18 @@ function XShareTaskBlock({ data, walletAddress, onRefresh }) {
       });
 
       if ((res.awarded ?? 0) > 0) {
-        const bits = (res.credits || []).map((c) => `+${c.xp} (${c.taskId})`).join(", ");
-        toast.success(`Credited ${bits}`, { id: "x-verify-ok", duration: 8500 });
+        const credits = Array.isArray(res.credits) ? res.credits : [];
+        writeLastReward(walletAddress, missionMemoryKind, res.awarded, { credits });
+        setLastMissionWin(readLastReward(walletAddress, missionMemoryKind));
+        setMissionCelebrate({
+          variant: "x_mission",
+          xp: res.awarded,
+          credits,
+        });
+        toast.success(`+${res.awarded} XP · see breakdown in the summary`, {
+          id: "x-verify-ok",
+          duration: 4000,
+        });
       } else if (res.allTasksComplete) {
         toast.success("Every mission row is squared away for UTC today.", {
           id: "x-verify-ok",
@@ -1143,6 +1661,9 @@ function XShareTaskBlock({ data, walletAddress, onRefresh }) {
       await onRefresh();
     } finally {
       setVerifying(false);
+      if (applyCooldownAfter) {
+        persistCooldownUntil(Date.now() + X_VERIFY_COOLDOWN_MS);
+      }
     }
   };
 
@@ -1160,25 +1681,41 @@ function XShareTaskBlock({ data, walletAddress, onRefresh }) {
         <span className="launch-card-infobtn-label">RULES</span>
       </button>
       {allDone ? (
-        <span className="phase-chip ok">
-          {earned}/{totalAvail} XP
+        <span className="phase-chip phase-chip--xp-hero ok">
+          <span className="phase-chip-xp-earned">{earned}</span>
+          <span className="phase-chip-xp-sep">/</span>
+          <span className="phase-chip-xp-cap">{totalAvail}</span>
+          <span className="phase-chip-xp-suffix"> XP</span>
         </span>
       ) : (
-        <span className="phase-chip">
-          {earned}/{totalAvail} XP
+        <span className="phase-chip phase-chip--xp-hero">
+          <span className="phase-chip-xp-earned">{earned}</span>
+          <span className="phase-chip-xp-sep">/</span>
+          <span className="phase-chip-xp-cap">{totalAvail}</span>
+          <span className="phase-chip-xp-suffix"> XP</span>
         </span>
       )}
     </div>
   );
 
   return (
-    <SectionCard
-      title="Daily X Mission"
-      subtitle={`Earn up to ${totalAvail} XP. Required checks can span multiple posts; each optional bonus only pays on a single post that also clears every required row. Uses UTC calendar day (${xMission.today || "today"}) · ${delayMin > 0 ? `~${delayMin}m cooldown after posting before verify.` : "no cooldown configured."}${minLikes24h ? ` · ${minLikes24h}+ likes needed after 24h if enforced.` : ""}`}
-      sticker={sticker.bottle}
-      accent="blue"
-      right={headRight}
-    >
+    <>
+      <RewardCelebrationModal
+        open={Boolean(missionCelebrate)}
+        onClose={() => setMissionCelebrate(null)}
+        variant={missionCelebrate?.variant || "x_mission"}
+        xp={missionCelebrate?.xp ?? 0}
+        breakdown={missionCelebrate?.breakdown}
+        credits={missionCelebrate?.credits}
+      />
+      <SectionCard
+        title="Daily X Mission"
+        subtitleFullWidth
+        subtitle={`Earn up to ${totalAvail} XP. Required checks can span multiple posts; each optional bonus only pays on a single post that also clears every required row. Uses UTC calendar day (${xMission.today || "today"}) · ${delayMin > 0 ? `~${delayMin}m cooldown after posting before verify.` : "no cooldown configured."}${minLikes24h ? ` · ${minLikes24h}+ likes needed after 24h if enforced.` : ""}`}
+        sticker={sticker.bottle}
+        accent="blue"
+        right={headRight}
+      >
       {rulesOpen ? (
         <div className="x-mission-explainer" id="x-mission-rules-explainer" role="region" aria-label="Mission rules">
           <p className="x-mission-explainer-lead">
@@ -1218,47 +1755,84 @@ function XShareTaskBlock({ data, walletAddress, onRefresh }) {
         </div>
       ) : null}
 
+      <LastRewardHighlight prefix="Last verify payout (this mission)" record={lastMissionWin} />
+
       <div className="x-task-grid">
         <div className="x-task-rules">
-          {missionTasks.map((task) => (
-            <div className={`x-rule${task.creditedToday ? " x-rule--done" : ""}`} key={task.id}>
-              <span className="x-rule-icon">{taskIcon(task.kind)}</span>
-              <span>
-                <strong>{task.label}</strong>
-                <span className="x-rule-xp-note">
-                  {" "}
-                  +{task.xp} XP · {task.required ? "required" : "optional"}
-                  {task.creditedToday ? " · credited" : ""}
-                </span>
-              </span>
-            </div>
-          ))}
+          {(() => {
+            const isMemeAttach = (t) => t.kind === "meme_image" || t.id === "meme_image";
+            const hasMemeImage = missionTasks.some(isMemeAttach);
+            const mentionIdx = missionTasks.findIndex((t) => t.kind === "mention" || t.id === "mention");
+            const rows = [];
+            let promoInserted = false;
+            missionTasks.forEach((task, index) => {
+              if (!promoInserted && hasMemeImage && isMemeAttach(task)) {
+                rows.push(<XMissionMemeMakerLink key="x-mission-meme-maker" />);
+                promoInserted = true;
+              }
+              rows.push(
+                <div className={`x-rule${task.creditedToday ? " x-rule--done" : ""}`} key={task.id}>
+                  <span className="x-rule-icon">{taskIcon(task.kind)}</span>
+                  <span>
+                    <strong>{task.label}</strong>
+                    <span className="x-rule-xp-note">
+                      {" "}
+                      <span className="x-rule-xp-value">+{task.xp} XP</span>
+                      {" · "}
+                      {task.required ? "required" : "optional"}
+                      {task.creditedToday ? " · credited" : ""}
+                    </span>
+                  </span>
+                </div>,
+              );
+              if (!promoInserted && !hasMemeImage && index === mentionIdx) {
+                rows.push(<XMissionMemeMakerLink key="x-mission-meme-maker" />);
+                promoInserted = true;
+              }
+            });
+            if (!promoInserted && missionTasks.length > 0) {
+              rows.unshift(<XMissionMemeMakerLink key="x-mission-meme-maker" />);
+            }
+            return rows;
+          })()}
         </div>
         <div className="x-task-cta">
           <p className="x-task-cta-copy">
             Prefer the rulebook here? Tap <strong>RULES</strong> beside the XP chip — it explains required vs optional. After you post, tap verify; we&apos;ll show what cleared and what still needs love.
           </p>
-          <a
-            className="launch-btn cta inline"
-            href={`https://twitter.com/intent/tweet?text=${text}`}
-            target="_blank"
-            rel="noreferrer"
-          >
-            OPEN POST COMPOSER <FaArrowRight />
-          </a>
-          <div className="x-mission-toolbar">
-            <button
-              type="button"
-              className="launch-btn ghost small"
-              disabled={verifying || !walletAddress}
-              onClick={() => void handleVerify()}
+          <div className="x-task-cta-actions">
+            <div className="x-mission-toolbar">
+              <button
+                type="button"
+                className="launch-btn ghost small x-mission-verify-btn"
+                disabled={verifying || !walletAddress || cooldownSecsLeft > 0}
+                onClick={() => void handleVerify()}
+              >
+                <FaSyncAlt className={verifying ? "spin-icon-busy" : ""} />{" "}
+                {allDone
+                  ? "REFRESH STATUS"
+                  : verifying
+                    ? "CHECKING…"
+                    : cooldownSecsLeft > 0
+                      ? `WAIT ${formatCooldown(cooldownSecsLeft)}`
+                      : "VERIFY POSTS"}
+              </button>
+              {!walletAddress ? (
+                <span className="link-handle x-mission-verify-hint">Sign in with your EVM wallet to verify.</span>
+              ) : cooldownSecsLeft > 0 ? (
+                <span className="link-handle x-mission-verify-hint">
+                  2 min cooldown between verify runs (saves API quota).
+                </span>
+              ) : null}
+            </div>
+            <a
+              className="launch-btn cta inline x-task-cta-composer"
+              href={`https://twitter.com/intent/tweet?text=${text}`}
+              target="_blank"
+              rel="noreferrer"
             >
-              <FaSyncAlt className={verifying ? "spin-icon-busy" : ""} />{" "}
-              {allDone ? "REFRESH STATUS" : verifying ? "CHECKING…" : "VERIFY POSTS"}
-            </button>
-            {!walletAddress ? (
-              <span className="link-handle">Sign in with your EVM wallet to verify.</span>
-            ) : null}
+             POST MEME ON X (Twitter) <FaArrowRight />
+            </a>
           </div>
         </div>
       </div>
@@ -1321,6 +1895,7 @@ function XShareTaskBlock({ data, walletAddress, onRefresh }) {
         </div>
       ) : null}
     </SectionCard>
+    </>
   );
 }
 

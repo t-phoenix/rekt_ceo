@@ -7,6 +7,8 @@ import { INVITE_LOOKUP_ADMIN_SENTINEL } from '../constants/invite';
 import { inviteHistoryService } from './invite-history.service';
 import { analyticsService } from './analytics.service';
 import { twitterService } from './twitter.service';
+import { discordService } from './discord.service';
+import { telegramService } from './telegram.service';
 import { evaluateOnchainRule } from './onchain-verifier.service';
 import type { OnchainRule } from '../schemas/campaign-def.schema';
 
@@ -40,6 +42,10 @@ const KEY = {
     `campaign:onchain:done:${String(campaignId).toLowerCase()}:${addr.toLowerCase()}`,
   onchainHoldAnchor: (campaignId: string, addr: string) =>
     `campaign:onchain:hold:${String(campaignId).toLowerCase()}:${addr.toLowerCase()}`,
+  /** Per-wallet throttle before expensive twitterapi tweet pull for X mission verify */
+  xVerifyThrottle: (addr: string) => `campaign:xverify:throttle:${addr.toLowerCase()}`,
+  /** Throttle auto follow/guild/group re-check during Launch Hub bootstrap (seconds). */
+  socialRefreshThrottle: (addr: string) => `campaign:socialRefresh:${addr.toLowerCase()}`,
 };
 
 export type XpRewardsConfig = {
@@ -1689,6 +1695,28 @@ class CampaignService {
       };
     }
 
+    const cooldownParsed = Number(process.env.X_MISSION_VERIFY_COOLDOWN_SEC ?? '120');
+    const verifyCooldownSec = Number.isFinite(cooldownParsed) && cooldownParsed >= 0 ? Math.min(900, cooldownParsed) : 120;
+
+    if (verifyCooldownSec > 0) {
+      const throttleKey = KEY.xVerifyThrottle(address);
+      const allowed = await this.withRedis(async (client) => {
+        const nx = await client.set(throttleKey, '1', 'NX', 'EX', verifyCooldownSec);
+        return nx === 'OK';
+      }, () => true);
+      if (!allowed) {
+        return {
+          ok: false,
+          error: 'verify_cooldown',
+          message:
+            verifyCooldownSec >= 60
+              ? `Verify is rate-limited — try again in about ${Math.ceil(verifyCooldownSec / 60)} min.`
+              : `Verify is rate-limited — try again in about ${verifyCooldownSec}s.`,
+          presetId: effectiveId,
+        };
+      }
+    }
+
     let tweets: any[];
     try {
       tweets = await twitterService.listRecentTweets(handle);
@@ -1796,6 +1824,7 @@ class CampaignService {
       discordEmailVerified: null as boolean | null,
       discordInGuild: null as boolean | null,
       telegramLinked: false,
+      telegramUserId: null as string | null,
       telegramInGroup: null as boolean | null,
       baseBalanceEligible: false,
       baseBalanceUsd: 0,
@@ -1812,6 +1841,91 @@ class CampaignService {
       },
       () => ({ ...baseIdentity, ...(this.memCache.get(KEY.identity(address)) || {}), evmConnected: true }),
     );
+  }
+
+  /**
+   * Re-check X → @rekt_ceo follow (twitterapi.io), Discord guild membership, and Telegram group
+   * membership from data already stored on the Redis identity blob, then persist updated flags.
+   * Called on throttled bootstrap and via POST /identity/refresh-social (manual).
+   */
+  async refreshSocialMembership(addressRaw: string): Promise<Record<string, unknown>> {
+    const addr = addressRaw.trim().toLowerCase();
+    if (!addr) return {};
+    const id = await this.getIdentity(addr);
+    const patch: Record<string, unknown> = {};
+
+    const xRaw = id?.handles?.x;
+    const xHandle =
+      typeof xRaw === 'string'
+        ? xRaw.replace(/^@/, '').trim()
+        : '';
+    const followTarget = (process.env.X_FOLLOW_TARGET || 'rekt_ceo').replace(/^@/, '');
+    if (id?.xLinked && xHandle && twitterService.isConfigured()) {
+      const follows = await twitterService.checkFollows(xHandle, followTarget);
+      if (follows !== null) patch.xFollowsRektCeo = follows;
+    }
+
+    const discordUserId = id?.discordId;
+    if (id?.discordLinked && discordUserId) {
+      const inGuild = await discordService.isMember(String(discordUserId));
+      if (inGuild !== null) patch.discordInGuild = inGuild;
+    }
+
+    const tgUserId = id?.telegramUserId;
+    if (id?.telegramLinked && tgUserId != null && tgUserId !== '' && telegramService.isConfigured()) {
+      const member = await telegramService.isMember(tgUserId);
+      if (member !== null) patch.telegramInGroup = member;
+    }
+
+    if (Object.keys(patch).length === 0) return {};
+    await this.setIdentityField(addr, patch);
+    return patch;
+  }
+
+  /**
+   * Throttled refresh during Launch Hub bootstrap (default 86400 s). Bypass with `force: true`.
+   */
+  async maybeRefreshSocialMembership(
+    addrRaw: string,
+    opts?: { force?: boolean },
+  ): Promise<boolean> {
+    const addr = addrRaw.trim().toLowerCase();
+    if (!addr) return false;
+
+    const ttlParsed = Number(process.env.SOCIAL_MEMBERSHIP_REFRESH_TTL_SEC || '86400');
+    const ttlSec =
+      Number.isFinite(ttlParsed) && ttlParsed >= 0 ? Math.floor(ttlParsed) : 86400;
+
+    const throttleKey = KEY.socialRefreshThrottle(addr);
+
+    if (opts?.force) {
+      await this.withRedis(
+        async (client) => {
+          await client.del(throttleKey);
+          return true;
+        },
+        () => true,
+      );
+    } else if (ttlSec > 0) {
+      const throttleHit = await this.withRedis(async (client) => {
+        const exists = await client.exists(throttleKey);
+        return exists === 1;
+      }, () => false);
+      if (throttleHit) return false;
+    }
+
+    await this.refreshSocialMembership(addr);
+
+    if (ttlSec > 0) {
+      await this.withRedis(
+        async (client) => {
+          await client.set(throttleKey, '1', 'EX', ttlSec);
+          return true;
+        },
+        () => true,
+      );
+    }
+    return true;
   }
 
   async setIdentityField(address: string, patch: Record<string, any>) {

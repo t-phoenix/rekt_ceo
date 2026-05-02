@@ -93,7 +93,11 @@ class IdentityService {
 
     if (provider === 'x') patch.xLinked = false;
     if (provider === 'discord') patch.discordLinked = false;
-    if (provider === 'telegram') patch.telegramLinked = false;
+    if (provider === 'telegram') {
+      patch.telegramLinked = false;
+      patch.telegramInGroup = null;
+      patch.telegramUserId = null;
+    }
     if (provider === 'solana') patch.solanaLinked = false;
 
     return campaignService.setIdentityField(address, patch);

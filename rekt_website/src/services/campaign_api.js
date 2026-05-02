@@ -294,6 +294,7 @@ export const campaignApi = {
         awarded: d?.awarded ?? 10,
         claimed: d?.claimed ?? true,
         breakdown: d?.breakdown ?? null,
+        reason: d?.reason ?? null,
       };
     } catch (error) {
       return {
@@ -315,6 +316,7 @@ export const campaignApi = {
         claimed: d?.claimed ?? true,
         buckets: d?.buckets ?? null,
         bucketIndex: d?.bucketIndex ?? null,
+        reason: d?.reason ?? null,
       };
     } catch (error) {
       return {
@@ -576,6 +578,34 @@ export const campaignApi = {
         opts,
       );
       return { ok: !!res?.success, data: res?.data };
+    } catch (error) {
+      return {
+        ok: false,
+        status: error?.status,
+        error: error?.body?.error || "request_failed",
+        message: error?.body?.message || error.message,
+      };
+    }
+  },
+
+  /**
+   * Re-check X follow (twitterapi.io), Discord guild, Telegram group vs Redis identity.
+   * Call after user follows/joins; `force: true` bypasses bootstrap throttle entry.
+   */
+  async refreshSocialMembership(address, opts = {}) {
+    try {
+      const payload = await getJSON(
+        "/api/identity/refresh-social",
+        {
+          method: "POST",
+          body: JSON.stringify({
+            force: opts.force !== false,
+          }),
+        },
+        address,
+        opts,
+      );
+      return { ok: !!payload?.success, data: payload?.data };
     } catch (error) {
       return {
         ok: false,

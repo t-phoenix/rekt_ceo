@@ -311,6 +311,29 @@ export class IdentityController {
 
   // ── Telegram Login Widget ───────────────────────────────────────────
 
+  /** Re-run follow / Discord guild / Telegram group checks using twitterapi.io + bot tokens (throttled elsewhere). */
+  async refreshSocialMembership(req: Request, res: Response, next: NextFunction) {
+    try {
+      const address = req.user?.address;
+      if (!address) throw new AppError(401, 'Authentication required');
+      const force =
+        req.body?.force === true ||
+        String(req.body?.force ?? '').toLowerCase() === 'true';
+
+      await campaignService.maybeRefreshSocialMembership(address, { force });
+      const identity = await campaignService.getIdentity(address);
+      const gateConfig = await campaignService.getGateConfig();
+      const eligibility = campaignService.computeEligibility(identity, gateConfig);
+
+      res.json({
+        success: true,
+        data: { identity, eligibility },
+      } as ApiResponse);
+    } catch (error) {
+      next(error);
+    }
+  }
+
   async telegramConfig(req: Request, res: Response, next: NextFunction) {
     try {
       res.json({
@@ -340,7 +363,9 @@ export class IdentityController {
       const member = await telegramService.isMember(payload.id);
       const handle = telegramService.formatHandle(payload);
       await identityService.markLinked(address, 'telegram', handle);
+      const telegramUserId = String(payload.id);
       const identity = await campaignService.setIdentityField(address, {
+        telegramUserId,
         telegramInGroup: member,
       });
 

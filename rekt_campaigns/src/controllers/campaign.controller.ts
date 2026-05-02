@@ -31,6 +31,10 @@ export class CampaignController {
         address,
       );
 
+      if (viewerIsOwner && address) {
+        await campaignService.maybeRefreshSocialMembership(address);
+      }
+
       const [
         identity,
         xp,
@@ -106,6 +110,9 @@ export class CampaignController {
       if (!result.ok) {
         if (result.error === 'twitterapi_unconfigured') {
           throw new AppError(503, result.message);
+        }
+        if (result.error === 'verify_cooldown') {
+          throw new AppError(429, result.message);
         }
         throw new AppError(400, result.message);
       }

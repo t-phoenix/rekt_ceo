@@ -9,6 +9,9 @@ router.get('/me', authMiddleware, (req, res, next) => identityController.getMine
 router.post('/link', authMiddleware, (req, res, next) => identityController.link(req, res, next));
 router.post('/unlink', authMiddleware, (req, res, next) => identityController.unlink(req, res, next));
 router.post('/invite', authMiddleware, (req, res, next) => identityController.issueInvite(req, res, next));
+router.post('/refresh-social', authMiddleware, (req, res, next) =>
+  identityController.refreshSocialMembership(req, res, next),
+);
 
 // X (Twitter) OAuth 2.0 (PKCE)
 router.get('/x/oauth-url', authMiddleware, (req, res, next) =>
