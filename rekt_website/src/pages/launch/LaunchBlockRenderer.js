@@ -32,6 +32,115 @@ import { campaignIcon, providerMeta, socialJoinUrls, sticker } from "./launchAss
 import { readLastReward, writeLastReward, xMissionMemoryKind } from "./launchRewardMemory";
 import { useSiweAuth } from "../../hooks/useSiweAuth";
 
+function utcCalendarDayString() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+function msUntilNextUtcMidnight() {
+  const now = Date.now();
+  const u = new Date(now);
+  const nextMid = Date.UTC(u.getUTCFullYear(), u.getUTCMonth(), u.getUTCDate() + 1, 0, 0, 0, 0);
+  return Math.max(0, nextMid - now);
+}
+
+function formatUtcCountdownHms(totalMs) {
+  const s = Math.max(0, Math.floor(totalMs / 1000));
+  const h = Math.floor(s / 3600);
+  const m = Math.floor((s % 3600) / 60);
+  const sec = s % 60;
+  return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(sec).padStart(2, "0")}`;
+}
+
+/**
+ * While Launch Hub is open, detects crossing midnight UTC and prompts a reload so daily claim state matches the server.
+ */
+export function UtcDayRolloverWatcher() {
+  const [open, setOpen] = useState(false);
+  const lastUtcDayRef = useRef(utcCalendarDayString());
+  const prefersReducedMotion = useReducedMotion();
+
+  useEffect(() => {
+    const id = window.setInterval(() => {
+      const today = utcCalendarDayString();
+      if (today !== lastUtcDayRef.current) {
+        lastUtcDayRef.current = today;
+        setOpen(true);
+      }
+    }, 1000);
+    return () => window.clearInterval(id);
+  }, []);
+
+  useEffect(() => {
+    if (!open) return undefined;
+    const onKey = (e) => {
+      if (e.key === "Escape") setOpen(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [open]);
+
+  return createPortal(
+    <AnimatePresence>
+      {open ? (
+        <motion.div
+          className="utc-reset-modal-overlay"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: prefersReducedMotion ? 0 : 0.24 }}
+          onClick={() => setOpen(false)}
+          role="presentation"
+        >
+          <motion.div
+            className="utc-reset-modal-shell"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="utc-reset-modal-title"
+            initial={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, scale: 0.92, y: 28 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, scale: 0.96, y: 12 }}
+            transition={
+              prefersReducedMotion ? { duration: 0.14 } : { type: "spring", stiffness: 360, damping: 26 }
+            }
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="utc-reset-modal-glow" aria-hidden />
+            <button
+              type="button"
+              className="utc-reset-modal-close"
+              onClick={() => setOpen(false)}
+              aria-label="Close"
+            >
+              ×
+            </button>
+            <h2 id="utc-reset-modal-title" className="utc-reset-modal-title">
+              Daily rewards reset
+            </h2>
+            <p className="utc-reset-modal-body">
+              It&apos;s a new UTC day — check-in, spin, and X mission windows have refreshed. Complete today&apos;s
+              rewards to keep earning XP. <strong>Reload the page</strong> so claim buttons and streaks match the
+              server; the countdown timer will restart after reload.
+            </p>
+            <div className="utc-reset-modal-actions">
+              <button type="button" className="launch-btn ghost small" onClick={() => setOpen(false)}>
+                Not now
+              </button>
+              <button
+                type="button"
+                className="launch-btn cta small utc-reset-modal-reload"
+                onClick={() => window.location.reload()}
+              >
+                <FaSyncAlt aria-hidden /> Reload page
+              </button>
+            </div>
+          </motion.div>
+        </motion.div>
+      ) : null}
+    </AnimatePresence>,
+    document.body,
+  );
+}
+
 function SectionCard({
   title,
   subtitle,
@@ -66,6 +175,15 @@ function SectionCard({
 
 function SeasonStripBlock({ data }) {
   const season = data.season || { title: "Season 1", endsInDays: "—", focus: "" };
+  const [untilUtcMidnightMs, setUntilUtcMidnightMs] = useState(() => msUntilNextUtcMidnight());
+
+  useEffect(() => {
+    const id = window.setInterval(() => setUntilUtcMidnightMs(msUntilNextUtcMidnight()), 1000);
+    return () => window.clearInterval(id);
+  }, []);
+
+  const liveTimer = formatUtcCountdownHms(untilUtcMidnightMs);
+
   return (
     <section className="season-strip">
       <div className="season-strip-left">
@@ -74,9 +192,11 @@ function SeasonStripBlock({ data }) {
         <p>{season.focus}</p>
       </div>
       <div className="season-strip-right">
-        <div className="season-stat">
-          <span>ENDS IN</span>
-          <strong>{season.endsInDays}D</strong>
+        <div className="season-daily-reset" role="timer" aria-live="polite" aria-atomic="true">
+          <span className="season-daily-reset-label">Daily Rewards reset in:</span>
+          <span className="season-daily-reset-time" title="Time until midnight UTC">
+            {liveTimer}
+          </span>
         </div>
         <img src={sticker.controller} alt="" className="season-sticker" />
       </div>
@@ -1199,10 +1319,10 @@ function RewardCelebrationModal({ open, onClose, variant, xp, breakdown, credits
   );
 }
 
-function LastRewardHighlight({ prefix, record }) {
+function LastRewardHighlight({ prefix, record, className }) {
   if (!record || typeof record.xp !== "number") return null;
   return (
-    <div className="last-reward-highlight" role="status">
+    <div className={["last-reward-highlight", className].filter(Boolean).join(" ")} role="status">
       <span className="last-reward-highlight-prefix">{prefix}</span>
       <span className="last-reward-highlight-xp">+{record.xp.toLocaleString()} XP</span>
       {record.dateUtc ? <span className="last-reward-highlight-date">UTC {record.dateUtc}</span> : null}
@@ -1256,15 +1376,14 @@ function DailyCheckinBlock({ data, onRefresh, walletAddress }) {
       />
       <SectionCard
         title="Daily Check-In"
-        subtitle={`+${baseXp} XP every UTC day you claim, plus up to +${streakCap} bonus XP from your streak (extra +1 per consecutive day, capped).`}
+        subtitle={`Once per UTC day · ${baseXp} XP base + up to ${streakCap} streak bonus (+1 per day in streak, capped).`}
         sticker={sticker.beer}
         accent="green"
         right={<span className="phase-chip">STREAK {streak}D</span>}
       >
         <LastRewardHighlight prefix="Last check-in win" record={lastWinRecord} />
-        <p className="daily-checkin-formula">
-          <strong>Today’s formula:</strong> {baseXp} base + min(streak−1, {streakCap}) streak bonus (after you
-          claim).
+        <p className="daily-checkin-formula daily-checkin-formula--compact">
+          After claim: <strong>{baseXp}</strong> + min(streak−1, {streakCap}) XP today.
         </p>
         <StreakStrip count={Math.min(7, streak)} />
         <div className="daily-row spaced">
@@ -1405,8 +1524,6 @@ function DailySpinBlock({ data, onRefresh, walletAddress }) {
     }
   };
 
-  const bucketLine = buckets.join(", ");
-
   return (
     <>
       <RewardCelebrationModal
@@ -1419,27 +1536,33 @@ function DailySpinBlock({ data, onRefresh, walletAddress }) {
       />
       <SectionCard
         title="Daily Spin"
-        subtitle="One spin per UTC day. You always win one of the XP values on the wheel."
+        subtitle="One spin per UTC day · wedges are XP."
         sticker={sticker.degenSticker}
         accent="red"
+        right={<span className="phase-chip phase-chip--subtle">UTC DAY</span>}
       >
-        <LastRewardHighlight prefix="Last spin win" record={lastWinRecord} />
         <div className="spin-block-grid">
           <SpinWheel busy={loading} rotationDeg={wheelTurn} buckets={buckets} lastAward={lastAward} />
-          <div className="spin-info">
-            <p>
-              <strong>Possible prizes (XP):</strong> {bucketLine}. Configurable in the admin hub — whatever
-              slices you see here match the backend payout table.
-            </p>
+          <div className="spin-actions">
+            <ul className="spin-rules" aria-label="Daily spin rules">
+              <li>One spin each UTC calendar day · resets midnight UTC.</li>
+              <li>The pin settles on a wedge — that XP is credited to your Launch Hub balance.</li>
+              <li>Connect and sign in (SIWE) with your Launch Hub wallet to spin.</li>
+            </ul>
+            <LastRewardHighlight
+              prefix="Last spin win"
+              record={lastWinRecord}
+              className="last-reward-highlight--spin-column"
+            />
             <button
-              className="launch-btn cta"
+              className="launch-btn cta spin-actions-btn"
               disabled={loading || claimed || !walletAddress}
               onClick={handleSpin}
             >
               {claimed ? "USED TODAY" : loading ? "SPINNING…" : "SPIN NOW"}
             </button>
             {lastAward !== null ? (
-              <p className="award-text award-text--prominent">You won +{lastAward.toLocaleString()} XP</p>
+              <p className="award-text award-text--prominent spin-actions-win">+{lastAward.toLocaleString()} XP</p>
             ) : null}
           </div>
         </div>

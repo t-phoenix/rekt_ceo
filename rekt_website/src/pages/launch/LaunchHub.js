@@ -7,7 +7,7 @@ import ConnectWalletButton from "../../components/ConnectWalletButton";
 import { campaignApi } from "../../services/campaign_api";
 import { useSiweAuth } from "../../hooks/useSiweAuth";
 import { hasValidStoredAuthToken } from "../../utils/evmAuthToken";
-import LaunchBlockRenderer from "./LaunchBlockRenderer";
+import LaunchBlockRenderer, { UtcDayRolloverWatcher } from "./LaunchBlockRenderer";
 
 import baseLogo from "../../creatives/crypto/base.png";
 import solanaLogo from "../../creatives/crypto/solana.png";
@@ -605,6 +605,7 @@ export default function LaunchHub() {
           </section>
         ) : (
           <>
+            <UtcDayRolloverWatcher />
             {!hubCampaignsOpen ? (
               <motion.section
                 className="launch-gate"
