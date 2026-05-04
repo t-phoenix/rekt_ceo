@@ -115,7 +115,7 @@ Editors in **rekt_admin → Campaigns** can define **schema v2** rows: display c
 
 1. **Deploy main backend** (Render/Fly/etc.) — auth + mint only; **`JWT_SECRET`** is the source of truth for SIWE.
 2. **Deploy campaigns service** — build from `rekt_campaigns/` (`pnpm install && pnpm build` / `npm run build`), set `PORT` (platform often injects `$PORT`). Set **`JWT_SECRET`** identical to step 1, **`REDIS_URL`**, **`DATABASE_URL`** if using invite Postgres ledger, **`CORS_ORIGIN`** for prod web + admin origins, **`ADMIN_API_KEY`**, integration keys (`X_*`, Discord, Telegram, `TWITTERAPI_IO_KEY`).
-3. Run **Postgres migration** once: `rekt_campaigns/migrations/001_invite_history.sql` when `DATABASE_URL` is configured.
+3. Run **Postgres migration** once: `rekt_campaigns/migrations/001_schema.sql` when `DATABASE_URL` is configured.
 4. **Deploy frontend** — set **`REACT_APP_BACKEND_API_URL`**, **`REACT_APP_CAMPAIGN_API_URL`**, **`VITE_API_URL`**, **`VITE_CAMPAIGN_API_URL`** to HTTPS URLs for each service.
 5. **Render:** add a second Web Service with **`rootDir: rekt_campaigns`** — use the same `.env.example` patterns (health: `GET /health`).
 

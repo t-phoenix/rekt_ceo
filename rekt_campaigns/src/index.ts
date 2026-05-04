@@ -9,6 +9,7 @@ import identityRoutes from './routes/identity.routes';
 import adminRoutes from './routes/admin.routes';
 import { errorHandler } from './middleware/error-handler';
 import { generalLimiter } from './middleware/rate-limit';
+import { supabaseSync } from './services/supabase-sync.service';
 
 const app: Express = express();
 
@@ -81,6 +82,12 @@ app.use(errorHandler);
 const PORT = config.port;
 app.listen(PORT, () => {
   logger.info(`Rekt Campaigns API on port ${PORT} (${config.nodeEnv})`);
+  
+  // Setup 24h cron for daily snapshots (runs every 1 hour to check if new day)
+  // But wait, the snapshot function just runs when called. Better to run it every 24h.
+  setInterval(() => {
+    void supabaseSync.runDailySnapshot();
+  }, 24 * 60 * 60 * 1000);
 });
 
 export default app;

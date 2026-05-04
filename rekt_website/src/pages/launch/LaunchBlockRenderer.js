@@ -24,6 +24,7 @@ import {
   FaLock,
   FaSyncAlt,
   FaImage,
+  FaClock,
 } from "react-icons/fa";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { useWalletModal } from "@solana/wallet-adapter-react-ui";
@@ -1596,7 +1597,7 @@ function XMissionMemeMakerLink() {
 }
 
 function XShareTaskBlock({ data, walletAddress, onRefresh }) {
-  const X_VERIFY_COOLDOWN_MS = 2 * 60 * 1000;
+  const X_VERIFY_COOLDOWN_MS = 1 * 60 * 1000;
   const xTaskRules = data?.xTaskRules || {};
   const xMission = data?.xMission || {};
   const missionTasks = xMission.tasks || [];
@@ -1604,10 +1605,19 @@ function XShareTaskBlock({ data, walletAddress, onRefresh }) {
   const minLikes24h = Number(xMission.rules?.minLikesAfter24h ?? xTaskRules.minLikesAfter24h) || 0;
   const totalAvail = xMission.totalXpAvailable ?? missionTasks.reduce((s, t) => s + (t.xp || 0), 0);
   const earned = xMission.totalXpEarnedToday ?? missionTasks.filter((t) => t.creditedToday).reduce((s, t) => s + (t.xp || 0), 0);
+
+
   const allDone = !!xMission.allTasksCredited;
   const [verifying, setVerifying] = useState(false);
   const [rulesOpen, setRulesOpen] = useState(false);
   const [verifyPanel, setVerifyPanel] = useState(null);
+
+  const [autoRedeemSecsLeft, setAutoRedeemSecsLeft] = useState(0);
+  const pendingTasks = verifyPanel?.verification?.tasks?.filter(t => t.outcome === "pending_cooldown") || [];
+  const pendingXp = pendingTasks.reduce((sum, t) => sum + t.xp, 0);
+  const maxUnlocksAt = pendingTasks.length > 0 ? Math.max(...pendingTasks.map(t => t.unlocksAt)) : null;
+
+
   const [missionCelebrate, setMissionCelebrate] = useState(null);
   const [lastMissionWin, setLastMissionWin] = useState(null);
   /** Timestamp (ms); verify throttled server + client except skip when mission already credited. */
@@ -1678,6 +1688,13 @@ function XShareTaskBlock({ data, walletAddress, onRefresh }) {
       return {
         Icon: FaCheckCircle,
         label: "Already credited · UTC today",
+        rowClass: "x-verify-task--done",
+      };
+    }
+    if (outcome === "pending_cooldown") {
+      return {
+        Icon: FaClock,
+        label: "Auto-crediting soon",
         rowClass: "x-verify-task--done",
       };
     }
@@ -1764,17 +1781,23 @@ function XShareTaskBlock({ data, walletAddress, onRefresh }) {
           xp: res.awarded,
           credits,
         });
-        toast.success(`+${res.awarded} XP · see breakdown in the summary`, {
+        toast.success(`+${res.awarded} XP credited! Check the breakdown below.`, {
           id: "x-verify-ok",
           duration: 4000,
         });
       } else if (res.allTasksComplete) {
-        toast.success("Every mission row is squared away for UTC today.", {
+        toast.success("All tasks complete for today — nice work!", {
+          id: "x-verify-ok",
+          duration: 8000,
+        });
+      } else if (res.pendingCredits && res.pendingCredits.length > 0) {
+        const pendingXp = res.pendingCredits.reduce((s, c) => s + c.xp, 0);
+        toast.success(`Valid post! ${pendingXp} XP will auto-credit when the cooldown finishes.`, {
           id: "x-verify-ok",
           duration: 8000,
         });
       } else {
-        toast(`Some rows are still open — scroll to “Last verification” below to see what failed.`, {
+        toast(`Some tasks are still open — check the results below. Post again to cover the rest!`, {
           id: "x-verify-hint",
           duration: 16000,
           icon: "ℹ️",
@@ -1789,6 +1812,25 @@ function XShareTaskBlock({ data, walletAddress, onRefresh }) {
       }
     }
   };
+
+  useEffect(() => {
+    if (!maxUnlocksAt) {
+      setAutoRedeemSecsLeft(0);
+      return;
+    }
+    const tick = () => {
+      const left = Math.max(0, Math.ceil((maxUnlocksAt - Date.now()) / 1000));
+      setAutoRedeemSecsLeft(left);
+      if (left <= 0 && pendingTasks.length > 0 && !verifying) {
+         void handleVerify();
+      }
+    };
+    tick();
+    const iv = setInterval(tick, 1000);
+    return () => clearInterval(iv);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [maxUnlocksAt, pendingTasks.length, verifying]);
+
 
   const headRight = (
     <div className="launch-card-head-aside">
@@ -1834,11 +1876,51 @@ function XShareTaskBlock({ data, walletAddress, onRefresh }) {
       <SectionCard
         title="Daily X Mission"
         subtitleFullWidth
-        subtitle={`Earn up to ${totalAvail} XP. Required checks can span multiple posts; each optional bonus only pays on a single post that also clears every required row. Uses UTC calendar day (${xMission.today || "today"}) · ${delayMin > 0 ? `~${delayMin}m cooldown after posting before verify.` : "no cooldown configured."}${minLikes24h ? ` · ${minLikes24h}+ likes needed after 24h if enforced.` : ""}`}
+        subtitle={`Earn up to ${totalAvail} XP · UTC day ${xMission.today || "today"}. Post on X, then tap "Task Completed" — XP is auto-credited after the cooldown.`}
         sticker={sticker.bottle}
         accent="blue"
         right={headRight}
       >
+      {/* ── Prominent cooldown banner ── */}
+      {!allDone && pendingTasks.length > 0 && maxUnlocksAt ? (
+        <div className="x-cooldown-hero x-cooldown-hero--pending" role="status">
+          <div className="x-cooldown-hero-icon"><FaClock aria-hidden /></div>
+          <div className="x-cooldown-hero-copy">
+            <span className="x-cooldown-hero-time">{formatCooldown(autoRedeemSecsLeft)}</span>
+            <span className="x-cooldown-hero-label">until +{pendingXp} XP unlocks</span>
+          </div>
+          <p className="x-cooldown-hero-explain">
+            We found a valid post! Keep this tab open or come back later. 
+            Once the timer ends, your <strong>{pendingXp} XP</strong> will auto-credit.
+          </p>
+        </div>
+      ) : !allDone && delayMin > 0 ? (
+        <div className="x-cooldown-hero" role="status">
+          <div className="x-cooldown-hero-icon"><FaClock aria-hidden /></div>
+          <div className="x-cooldown-hero-copy">
+            <span className="x-cooldown-hero-time">{delayMin} min</span>
+            <span className="x-cooldown-hero-label">auto-credit cooldown</span>
+          </div>
+          <p className="x-cooldown-hero-explain">
+            After you post on X, your XP is <strong>automatically credited</strong> once the {delayMin}-minute cooldown passes.
+            No need to keep checking — we'll verify your post and notify you.
+            {minLikes24h ? ` Posts older than 24h need ${minLikes24h}+ likes.` : ""}
+          </p>
+        </div>
+      ) : null}
+      {allDone ? (
+        <div className="x-cooldown-hero x-cooldown-hero--done" role="status">
+          <div className="x-cooldown-hero-icon x-cooldown-hero-icon--done"><FaCheckCircle aria-hidden /></div>
+          <div className="x-cooldown-hero-copy">
+            <span className="x-cooldown-hero-time">All done!</span>
+            <span className="x-cooldown-hero-label">every task credited for today</span>
+          </div>
+          <p className="x-cooldown-hero-explain">
+            You've earned <strong>{earned} / {totalAvail} XP</strong> from today's X mission. Come back tomorrow for another round!
+          </p>
+        </div>
+      ) : null}
+
       {rulesOpen ? (
         <div className="x-mission-explainer" id="x-mission-rules-explainer" role="region" aria-label="Mission rules">
           <p className="x-mission-explainer-lead">
@@ -1920,34 +2002,18 @@ function XShareTaskBlock({ data, walletAddress, onRefresh }) {
           })()}
         </div>
         <div className="x-task-cta">
-          <p className="x-task-cta-copy">
-            Prefer the rulebook here? Tap <strong>RULES</strong> beside the XP chip — it explains required vs optional. After you post, tap verify; we&apos;ll show what cleared and what still needs love.
-          </p>
+          <div className="x-task-cta-howto">
+            <strong className="x-task-cta-howto-title">How it works</strong>
+            <ol className="x-task-cta-steps">
+              <li><strong>Post on X</strong> — include the required items from the checklist.</li>
+              <li><strong>Tap "Task Completed"</strong> — we check which tasks your post satisfies.</li>
+              <li><strong>XP auto-credits after {delayMin || 30} min</strong> — no need to re-check. We'll notify you when it's done.</li>
+            </ol>
+            <p className="x-task-cta-note">
+              Incomplete? No worries — post again to cover remaining tasks. Only uncredited rows are checked.
+            </p>
+          </div>
           <div className="x-task-cta-actions">
-            <div className="x-mission-toolbar">
-              <button
-                type="button"
-                className="launch-btn ghost small x-mission-verify-btn"
-                disabled={verifying || !walletAddress || cooldownSecsLeft > 0}
-                onClick={() => void handleVerify()}
-              >
-                <FaSyncAlt className={verifying ? "spin-icon-busy" : ""} />{" "}
-                {allDone
-                  ? "REFRESH STATUS"
-                  : verifying
-                    ? "CHECKING…"
-                    : cooldownSecsLeft > 0
-                      ? `WAIT ${formatCooldown(cooldownSecsLeft)}`
-                      : "VERIFY POSTS"}
-              </button>
-              {!walletAddress ? (
-                <span className="link-handle x-mission-verify-hint">Sign in with your EVM wallet to verify.</span>
-              ) : cooldownSecsLeft > 0 ? (
-                <span className="link-handle x-mission-verify-hint">
-                  2 min cooldown between verify runs (saves API quota).
-                </span>
-              ) : null}
-            </div>
             <a
               className="launch-btn cta inline x-task-cta-composer"
               href={`https://twitter.com/intent/tweet?text=${text}`}
@@ -1956,6 +2022,29 @@ function XShareTaskBlock({ data, walletAddress, onRefresh }) {
             >
              POST MEME ON X (Twitter) <FaArrowRight />
             </a>
+            <div className="x-mission-toolbar">
+              <button
+                type="button"
+                className={`launch-btn ${allDone ? "ghost" : "cta"} small x-mission-verify-btn`}
+                disabled={verifying || !walletAddress || cooldownSecsLeft > 0}
+                onClick={() => void handleVerify()}
+              >
+                {allDone
+                  ? <><FaSyncAlt className={verifying ? "spin-icon-busy" : ""} /> REFRESH STATUS</>
+                  : verifying
+                    ? <><FaSyncAlt className="spin-icon-busy" /> CHECKING…</>
+                    : cooldownSecsLeft > 0
+                      ? <><FaClock /> WAIT {formatCooldown(cooldownSecsLeft)}</>
+                      : <><FaCheckCircle /> TASK COMPLETED</>}
+              </button>
+              {!walletAddress ? (
+                <span className="link-handle x-mission-verify-hint">Connect your wallet to submit.</span>
+              ) : cooldownSecsLeft > 0 ? (
+                <span className="link-handle x-mission-verify-hint">
+                  Cooldown active — {formatCooldown(cooldownSecsLeft)} left.
+                </span>
+              ) : null}
+            </div>
           </div>
         </div>
       </div>
@@ -1963,20 +2052,20 @@ function XShareTaskBlock({ data, walletAddress, onRefresh }) {
       {verifyPanel?.kind === "error" ? (
         <div className="x-verify-feedback x-verify-feedback--error" role="alert">
           <div className="x-verify-feedback-head">
-            <strong>Verification failed</strong>
+            <strong>Could not check your post yet</strong>
             {verifyPanel.status ? <span className="x-verify-feedback-code">HTTP {verifyPanel.status}</span> : null}
           </div>
           <p className="x-verify-feedback-body">{verifyPanel.detail}</p>
-          <p className="x-verify-feedback-hint">Fix the issue below, wait if the server asked you to retry, then press verify again.</p>
+          <p className="x-verify-feedback-hint">Fix the issue, then tap "Task Completed" again. XP will auto-credit once your post passes all checks.</p>
         </div>
       ) : null}
 
       {verifyPanel?.kind === "result" && verifyPanel.verification ? (
         <div className="x-verify-feedback x-verify-feedback--result" aria-live="polite">
           <div className="x-verify-feedback-head">
-            <strong>Last verification</strong>
+            <strong>Task check results</strong>
             <span className="x-verify-feedback-meta">
-              UTC {verifyPanel.verification.todayUtc}&nbsp;&middot;&nbsp;tweets fetched {verifyPanel.verification.tweetsFetched}
+              UTC {verifyPanel.verification.todayUtc}&nbsp;&middot;&nbsp;posts scanned {verifyPanel.verification.tweetsFetched}
               {" · "}UTC-today posts {verifyPanel.verification.postsTodayUtc}&nbsp;&middot;&nbsp;
               qualify after timers {verifyPanel.verification.postsEligibleAfterGuards}
             </span>

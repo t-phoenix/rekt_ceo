@@ -2201,6 +2201,155 @@
   animation: rekt-spin-icon 0.9s linear infinite;
 }
 
+/* ---------- X MISSION COOLDOWN HERO ---------- */
+
+.x-cooldown-hero {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-rows: auto auto;
+  gap: 4px 16px;
+  padding: 20px 22px;
+  margin-bottom: 18px;
+  border-radius: 16px;
+  border: 1.5px solid rgba(82, 149, 157, 0.4);
+  background:
+    linear-gradient(145deg, rgba(82, 149, 157, 0.14) 0%, rgba(10, 6, 12, 0.55) 100%);
+  box-shadow: 0 0 40px rgba(82, 149, 157, 0.08);
+}
+
+.x-cooldown-hero--done {
+  border-color: rgba(45, 198, 100, 0.4);
+  background:
+    linear-gradient(145deg, rgba(45, 198, 100, 0.1) 0%, rgba(10, 6, 12, 0.55) 100%);
+  box-shadow: 0 0 40px rgba(45, 198, 100, 0.06);
+}
+
+.x-cooldown-hero-icon {
+  grid-row: 1 / 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 54px;
+  height: 54px;
+  border-radius: 14px;
+  background: rgba(82, 149, 157, 0.18);
+  color: var(--color-blue);
+  font-size: 1.55rem;
+}
+
+.x-cooldown-hero-icon--done {
+  background: rgba(45, 198, 100, 0.15);
+  color: #7ee9a8;
+}
+
+.x-cooldown-hero-copy {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.x-cooldown-hero-time {
+  font-family: var(--second-font);
+  font-size: clamp(1.65rem, 5vw, 2.2rem);
+  font-weight: 800;
+  line-height: 1.1;
+  color: var(--color-yellow);
+  text-shadow: 0 0 32px rgba(248, 200, 38, 0.25);
+}
+
+.x-cooldown-hero--done .x-cooldown-hero-time {
+  color: #7ee9a8;
+  text-shadow: 0 0 32px rgba(45, 198, 100, 0.2);
+}
+
+.x-cooldown-hero-label {
+  font-family: var(--second-font);
+  font-size: 0.78rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(232, 223, 240, 0.65);
+}
+
+.x-cooldown-hero-explain {
+  grid-column: 2;
+  margin: 2px 0 0;
+  font-size: 0.86rem;
+  line-height: 1.5;
+  color: var(--color-offwhite);
+}
+
+.x-cooldown-hero-explain strong {
+  color: var(--color-yellow);
+}
+
+.x-cooldown-hero--done .x-cooldown-hero-explain strong {
+  color: #7ee9a8;
+}
+
+/* ---------- X TASK HOW-IT-WORKS ---------- */
+
+.x-task-cta-howto {
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.22);
+  border: 1px solid rgba(82, 149, 157, 0.15);
+}
+
+.x-task-cta-howto-title {
+  display: block;
+  font-family: var(--second-font);
+  font-size: 0.82rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-yellow);
+  margin-bottom: 10px;
+}
+
+.x-task-cta-steps {
+  margin: 0 0 10px;
+  padding-left: 1.2rem;
+  font-size: 0.86rem;
+  line-height: 1.55;
+  color: var(--color-offwhite);
+}
+
+.x-task-cta-steps li {
+  margin-bottom: 6px;
+}
+
+.x-task-cta-steps li:last-child {
+  margin-bottom: 0;
+}
+
+.x-task-cta-steps strong {
+  color: #fff;
+}
+
+.x-task-cta-note {
+  margin: 0;
+  font-size: 0.78rem;
+  color: rgba(232, 223, 240, 0.6);
+  line-height: 1.45;
+}
+
+@media (max-width: 600px) {
+  .x-cooldown-hero {
+    grid-template-columns: 1fr;
+    text-align: center;
+  }
+  .x-cooldown-hero-icon {
+    grid-row: auto;
+    margin: 0 auto 4px;
+  }
+  .x-cooldown-hero-copy {
+    justify-content: center;
+  }
+  .x-cooldown-hero-explain {
+    grid-column: 1;
+  }
+}
+
 /* ---------- X TASK ---------- */
 
 .x-rule--done {

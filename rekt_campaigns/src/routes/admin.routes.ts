@@ -28,4 +28,8 @@ router.get('/analytics/summary', (req, res, next) => adminController.getAnalytic
 router.get('/users/:address', (req, res, next) => adminController.getAdminUser(req, res, next));
 router.get('/leaderboard', (req, res, next) => adminController.getAdminLeaderboard(req, res, next));
 
+router.post('/snapshot', (req, res, next) => adminController.triggerSnapshot(req, res, next));
+router.post('/season-reset', (req, res, next) => adminController.triggerSeasonReset(req, res, next));
+router.post('/recover-redis', (req, res, next) => adminController.triggerRedisRecovery(req, res, next));
+
 export default router;

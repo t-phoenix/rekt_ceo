@@ -11,6 +11,7 @@ import { discordService } from './discord.service';
 import { telegramService } from './telegram.service';
 import { evaluateOnchainRule } from './onchain-verifier.service';
 import type { OnchainRule } from '../schemas/campaign-def.schema';
+import { supabaseSync } from './supabase-sync.service';
 
 const KEY = {
   identity: (addr: string) => `campaign:identity:${addr.toLowerCase()}`,
@@ -282,7 +283,7 @@ const DEFAULT_X_PRESETS = [
     label: 'Daily Meme Share',
     rules: {
       mention: '@rekt_ceo',
-      mustHaveMemeImage: true,
+      mustHaveMemeImage: false,
       minFriendTags: 2,
       hashtags: ['#RektCEO', '#RektMeme', '#GMRekt'],
       minAccountAgeDays: 60,
@@ -304,8 +305,8 @@ const DEFAULT_X_PRESETS = [
         id: 'meme_image',
         label: 'Attach a meme image',
         kind: 'meme_image',
-        required: true,
-        xp: 40,
+        required: false,
+        xp: 200,
       },
       {
         id: 'friend_tags',
@@ -488,6 +489,13 @@ function tweetHasImageMedia(tweet: any): boolean {
       if (t === 'photo' || t === 'animated_gif' || t === 'video') return true;
     }
   }
+  // twitterapi.io often provides `media` as an array of URLs or objects
+  if (Array.isArray(tweet?.media) && tweet.media.length > 0) return true;
+  if (tweet?.entities?.media && Array.isArray(tweet.entities.media) && tweet.entities.media.length > 0) return true;
+  // some variations put media directly at the root
+  if (Array.isArray(tweet?.photos) && tweet.photos.length > 0) return true;
+  if (Array.isArray(tweet?.video) && tweet.video.length > 0) return true;
+  if (tweet?.media?.photos && Array.isArray(tweet.media.photos) && tweet.media.photos.length > 0) return true;
   return false;
 }
 
@@ -533,8 +541,8 @@ function deriveMissionTasksFromRules(rules: any): NormalizedMissionTask[] {
       id: 'meme_image',
       label: 'Attach a meme image',
       kind: 'meme_image',
-      required: true,
-      xp: 40,
+      required: false,
+      xp: 200,
     },
   ];
   if (Number(rules?.minFriendTags) > 0) {
@@ -576,9 +584,9 @@ export function normalizeMissionTasks(preset: any): NormalizedMissionTask[] {
           ? t.hashtags.map((h: any) => String(h))
           : kind === 'hashtags' && typeof t.hashtags === 'string'
             ? t.hashtags
-                .split(',')
-                .map((s: string) => s.trim())
-                .filter(Boolean)
+              .split(',')
+              .map((s: string) => s.trim())
+              .filter(Boolean)
             : undefined;
       out.push({
         id,
@@ -750,7 +758,7 @@ function explainPendingXMissionTask(
   return `${taskMismatchHintForKind(task, rules)} If you edited the post recently, changes can take time to propagate — wait and verify again.`;
 }
 
-type XMTaskVerificationOutcome = 'credited_now' | 'already_credited' | 'pending';
+type XMTaskVerificationOutcome = 'credited_now' | 'already_credited' | 'pending' | 'pending_cooldown';
 
 function buildXMissionVerificationReport(args: {
   today: string;
@@ -762,6 +770,7 @@ function buildXMissionVerificationReport(args: {
   rules: any;
   newCredits: Array<{ taskId: string; xp: number }>;
   creditedIdsFinal: Set<string>;
+  pendingCredits: Array<{ taskId: string; xp: number; unlocksAt: number }>;
 }): {
   todayUtc: string;
   tweetsFetched: number;
@@ -776,6 +785,7 @@ function buildXMissionVerificationReport(args: {
     xp: number;
     outcome: XMTaskVerificationOutcome;
     detail?: string;
+    unlocksAt?: number;
   }>;
 } {
   const {
@@ -788,6 +798,7 @@ function buildXMissionVerificationReport(args: {
     rules,
     newCredits,
     creditedIdsFinal,
+    pendingCredits,
   } = args;
   const globalHints: string[] = [];
   if (tweetsFetched === 0) {
@@ -830,6 +841,19 @@ function buildXMissionVerificationReport(args: {
         xp: t.xp,
         outcome: 'already_credited' as const,
         detail: 'Already counted for UTC today.',
+      };
+    }
+    const pendingCredit = pendingCredits.find((c) => c.taskId === t.id);
+    if (pendingCredit) {
+      return {
+        taskId: t.id,
+        label: t.label,
+        kind: t.kind,
+        required: t.required,
+        xp: t.xp,
+        outcome: 'pending_cooldown' as const,
+        detail: `Valid post detected! Auto-crediting in ~${Math.ceil(Math.max(0, pendingCredit.unlocksAt - Date.now()) / 60000)}m.`,
+        unlocksAt: pendingCredit.unlocksAt,
       };
     }
     return {
@@ -1067,6 +1091,7 @@ class CampaignService {
         return true;
       },
     );
+    void supabaseSync.snapshotAdminConfig('layout', layout);
     return layout;
   }
 
@@ -1081,6 +1106,7 @@ class CampaignService {
         return true;
       },
     );
+    void supabaseSync.snapshotAdminConfig('campaigns', campaigns);
     return campaigns;
   }
 
@@ -1233,19 +1259,19 @@ class CampaignService {
   async verifyOnchainCampaign(wallet: string, campaignId: string): Promise<
     | { ok: true; already: boolean; xp: any }
     | {
-        ok: false;
-        code:
-          | 'not_found'
-          | 'not_verifiable'
-          | 'already_completed'
-          | 'rpc_error'
-          | 'rule_not_met'
-          | 'hold_started'
-          | 'hold_pending'
-          | 'gate_blocked';
-        message: string;
-        holdStartedAt?: string;
-      }
+      ok: false;
+      code:
+      | 'not_found'
+      | 'not_verifiable'
+      | 'already_completed'
+      | 'rpc_error'
+      | 'rule_not_met'
+      | 'hold_started'
+      | 'hold_pending'
+      | 'gate_blocked';
+      message: string;
+      holdStartedAt?: string;
+    }
   > {
     const lookup = await this._campaignById(campaignId);
     if (!lookup) return { ok: false, code: 'not_found', message: 'Unknown campaign id' };
@@ -1384,6 +1410,7 @@ class CampaignService {
     }
     const xp = await this.addXp(wallet, xpAmount, `onchain_campaign_${campaignId}`);
     await this._clearHoldAnchor(campaignId, wallet);
+    void supabaseSync.recordOnchainCompletion(campaignId, wallet, xpAmount);
     return { ok: true, already: false, xp };
   }
 
@@ -1410,6 +1437,7 @@ class CampaignService {
         return true;
       },
     );
+    void supabaseSync.snapshotAdminConfig('x_presets', presets);
     return presets;
   }
 
@@ -1440,6 +1468,7 @@ class CampaignService {
         return true;
       },
     );
+    void supabaseSync.snapshotAdminConfig('xp_rewards', merged);
     return merged;
   }
 
@@ -1566,6 +1595,7 @@ class CampaignService {
 
     if (!firstTime) return { awarded: 0, reason: 'already_claimed' };
     const xp = await this.addXp(address, amount, `account_link_${provider}`);
+    void supabaseSync.recordLinkXpClaim(address, provider, amount);
     return { awarded: amount, xp };
   }
 
@@ -1574,30 +1604,32 @@ class CampaignService {
     presetId?: string,
   ): Promise<
     | {
-        ok: true;
-        presetId: string;
-        credits: Array<{ taskId: string; xp: number }>;
-        awarded: number;
-        xp: any;
-        allTasksComplete: boolean;
-        verification: {
-          todayUtc: string;
-          tweetsFetched: number;
-          postsTodayUtc: number;
-          postsEligibleAfterGuards: number;
-          globalHints: string[];
-          skippedTweetFetch?: boolean;
-          tasks: Array<{
-            taskId: string;
-            label: string;
-            kind: string;
-            required: boolean;
-            xp: number;
-            outcome: 'credited_now' | 'already_credited' | 'pending';
-            detail?: string;
-          }>;
-        };
-      }
+      ok: true;
+      presetId: string;
+      credits: Array<{ taskId: string; xp: number }>;
+      awarded: number;
+      xp: any;
+      allTasksComplete: boolean;
+      verification: {
+        todayUtc: string;
+        tweetsFetched: number;
+        postsTodayUtc: number;
+        postsEligibleAfterGuards: number;
+        globalHints: string[];
+        skippedTweetFetch?: boolean;
+        tasks: Array<{
+          taskId: string;
+          label: string;
+          kind: string;
+          required: boolean;
+          xp: number;
+          outcome: 'credited_now' | 'already_credited' | 'pending' | 'pending_cooldown';
+          detail?: string;
+          unlocksAt?: number;
+        }>;
+      };
+      pendingCredits?: Array<{ taskId: string; xp: number; unlocksAt: number }>;
+    }
     | { ok: false; error: string; message: string; presetId?: string }
   > {
     const layout = await this.getLayout();
@@ -1695,8 +1727,8 @@ class CampaignService {
       };
     }
 
-    const cooldownParsed = Number(process.env.X_MISSION_VERIFY_COOLDOWN_SEC ?? '120');
-    const verifyCooldownSec = Number.isFinite(cooldownParsed) && cooldownParsed >= 0 ? Math.min(900, cooldownParsed) : 120;
+    const cooldownParsed = Number(process.env.X_MISSION_VERIFY_COOLDOWN_SEC ?? '60');
+    const verifyCooldownSec = Number.isFinite(cooldownParsed) && cooldownParsed >= 0 ? Math.min(900, cooldownParsed) : 60;
 
     if (verifyCooldownSec > 0) {
       const throttleKey = KEY.xVerifyThrottle(address);
@@ -1731,25 +1763,45 @@ class CampaignService {
     }
 
     const utcTodayPosts = tweets.filter((t) => tweetUtcDateKey(t) === today);
-    const todays = utcTodayPosts
-      .filter((t) => tweetPassesPresetTweetGuards(t, rules))
-      .sort((a, b) => (tweetCreatedMs(b) || 0) - (tweetCreatedMs(a) || 0));
+    const sortedPosts = utcTodayPosts.sort((a, b) => (tweetCreatedMs(b) || 0) - (tweetCreatedMs(a) || 0));
 
     const newCredits: Array<{ taskId: string; xp: number }> = [];
+    const pendingCredits: Array<{ taskId: string; xp: number; unlocksAt: number }> = [];
 
-    for (const tweet of todays) {
+    const delayMin = Number(rules?.delayBeforeCreditMinutes) || 0;
+    const minLikes = Number(rules?.minLikesAfter24h) || 0;
+
+    for (const tweet of sortedPosts) {
+      const created = tweetCreatedMs(tweet) || Date.now();
+      const ageMin = (Date.now() - created) / 60_000;
+      const passesAge = delayMin <= 0 || ageMin >= delayMin;
+      const unlocksAt = passesAge ? 0 : created + delayMin * 60_000;
+
+      let passesLikes = true;
+      if (minLikes > 0 && ageMin >= 24 * 60) {
+        const likes = tweetLikeCount(tweet);
+        if (likes != null && likes < minLikes) passesLikes = false;
+      }
+      if (!passesLikes) continue;
+
       const passesRequiredBundle = matchesAllRequiredMissionTasks(tweet, tasks, rules);
+
       for (const task of tasks) {
         if (creditedIds.has(task.id)) continue;
+        if (pendingCredits.some(p => p.taskId === task.id)) continue;
         if (task.xp <= 0) continue;
         if (!matchesMissionTask(tweet, task, rules)) continue;
         if (!task.required && !passesRequiredBundle) continue;
 
-        const locked = await this.tryCreditXMissionTask(address, today, effectiveId, task.id);
-        if (locked) {
-          await this.addXp(address, task.xp, `x_mission_${effectiveId}_${task.id}`);
-          newCredits.push({ taskId: task.id, xp: task.xp });
-          creditedIds.add(task.id);
+        if (passesAge) {
+          const locked = await this.tryCreditXMissionTask(address, today, effectiveId, task.id);
+          if (locked) {
+            await this.addXp(address, task.xp, `x_mission_${effectiveId}_${task.id}`);
+            newCredits.push({ taskId: task.id, xp: task.xp });
+            creditedIds.add(task.id);
+          }
+        } else {
+          pendingCredits.push({ taskId: task.id, xp: task.xp, unlocksAt });
         }
       }
     }
@@ -1758,22 +1810,31 @@ class CampaignService {
     const xp = await this.getXp(address);
     const allTasksComplete = tasks.every((t) => creditedIds.has(t.id));
 
+    // For backwards compatibility in guardedPosts logs, only pass those that passed age check
+    const guardedPosts = sortedPosts.filter((tweet) => {
+      const created = tweetCreatedMs(tweet) || Date.now();
+      const ageMin = (Date.now() - created) / 60_000;
+      return delayMin <= 0 || ageMin >= delayMin;
+    });
+
     const verification = buildXMissionVerificationReport({
       today,
       tweetsFetched: tweets.length,
       postsTodayUtc: utcTodayPosts.length,
       utcTodayPosts,
-      guardedPosts: todays,
+      guardedPosts,
       tasks,
       rules,
       newCredits,
       creditedIdsFinal: creditedIds,
+      pendingCredits,
     });
 
     return {
       ok: true,
       presetId: effectiveId,
       credits: newCredits,
+      pendingCredits,
       awarded,
       xp,
       allTasksComplete,
@@ -1807,6 +1868,7 @@ class CampaignService {
         return true;
       },
     );
+    void supabaseSync.snapshotAdminConfig('gate_config', merged);
     return merged;
   }
 
@@ -1941,6 +2003,7 @@ class CampaignService {
       },
       () => true,
     );
+    void supabaseSync.upsertUser(address, next);
     return next;
   }
 
@@ -2140,6 +2203,9 @@ class CampaignService {
       () => true,
     );
 
+    void supabaseSync.updateUserXp(address, next);
+    void supabaseSync.recordXpEvent(address, amount, reason);
+
     return next;
   }
 
@@ -2207,6 +2273,7 @@ class CampaignService {
     );
 
     const xp = await this.addXp(address, awarded, 'daily_checkin');
+    void supabaseSync.updateStreak(address, newCount, today);
     return {
       awarded,
       claimed: true,
@@ -2308,6 +2375,7 @@ class CampaignService {
         })),
       );
     }
+    void supabaseSync.upsertInviteSlots(address, batch.batchId, batch.codes);
     return batch;
   }
 
@@ -2461,11 +2529,11 @@ class CampaignService {
   ): Promise<
     | { ok: true; already: true; activation: InviteActivationRecord }
     | {
-        ok: true;
-        already: false;
-        activation: InviteActivationRecord;
-        xp: { invitee: Record<string, unknown>; inviter: Record<string, unknown> | null };
-      }
+      ok: true;
+      already: false;
+      activation: InviteActivationRecord;
+      xp: { invitee: Record<string, unknown>; inviter: Record<string, unknown> | null };
+    }
     | { ok: false; error: string; message: string }
   > {
     const invitee = inviteeAddr.toLowerCase();
@@ -2500,12 +2568,12 @@ class CampaignService {
       | { kind: 'invalid' }
       | { kind: 'self' }
       | {
-          kind: 'ok';
-          activation: InviteActivationRecord;
-          xpI: number;
-          xpR: number;
-          inviterForXp: string | null;
-        }
+        kind: 'ok';
+        activation: InviteActivationRecord;
+        xpI: number;
+        xpR: number;
+        inviterForXp: string | null;
+      }
       | { kind: 'redis_down' };
 
     const lock = await this.withRedis<RedeemLock>(
@@ -2572,6 +2640,7 @@ class CampaignService {
         };
 
         await client.set(KEY.inviteActivationV2(invitee), JSON.stringify(activation));
+        void supabaseSync.recordInviteLookupClaim(code, invitee);
         return {
           kind: 'ok' as const,
           activation,

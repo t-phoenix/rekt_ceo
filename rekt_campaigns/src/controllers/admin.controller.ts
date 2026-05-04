@@ -4,6 +4,8 @@ import { campaignService } from '../services/campaign.service';
 import { inviteHistoryService } from '../services/invite-history.service';
 import { analyticsService } from '../services/analytics.service';
 import { parseValidatedCampaignPut } from '../schemas/campaign-def.schema';
+import { supabaseSync } from '../services/supabase-sync.service';
+import { recoveryService } from '../services/recovery.service';
 
 export class AdminController {
   async getLayout(_req: Request, res: Response, next: NextFunction) {
@@ -181,6 +183,37 @@ export class AdminController {
         throw new AppError(400, 'xpRewards must be an object');
       }
       const data = await campaignService.setXpRewardsConfig(body);
+      res.json({ success: true, data } as ApiResponse);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async triggerSnapshot(req: Request, res: Response, next: NextFunction) {
+    try {
+      await supabaseSync.runDailySnapshot();
+      res.json({ success: true, message: 'Snapshot triggered' } as ApiResponse);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async triggerSeasonReset(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { currentSeason, newSeason } = req.body;
+      if (!currentSeason || !newSeason) {
+        throw new AppError(400, 'currentSeason and newSeason required in body');
+      }
+      const data = await supabaseSync.performSeasonReset(currentSeason, newSeason);
+      res.json({ success: true, data } as ApiResponse);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async triggerRedisRecovery(req: Request, res: Response, next: NextFunction) {
+    try {
+      const data = await recoveryService.rebuildRedisFromSupabase();
       res.json({ success: true, data } as ApiResponse);
     } catch (error) {
       next(error);

@@ -1,17 +1,5 @@
-import { Pool } from 'pg';
+import { getPool } from '../utils/db';
 import { logger } from '../utils/logger';
-
-let pool: Pool | null = null;
-
-function getPool(): Pool | null {
-  const url = process.env.DATABASE_URL?.trim();
-  if (!url) return null;
-  if (!pool) {
-    pool = new Pool({ connectionString: url, max: 8, idleTimeoutMillis: 30_000 });
-    pool.on('error', (err) => logger.error('Postgres pool error', { err: err.message }));
-  }
-  return pool;
-}
 
 export type IssuedRow = {
   id: string;
