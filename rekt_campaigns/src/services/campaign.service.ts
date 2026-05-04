@@ -481,7 +481,12 @@ function tweetLikeCount(tweet: any): number | null {
 }
 
 function tweetHasImageMedia(tweet: any): boolean {
-  const buckets = [tweet?.extended_entities?.media, tweet?.entities?.media, tweet?.media];
+  const buckets = [
+    tweet?.extended_entities?.media,
+    tweet?.extendedEntities?.media,
+    tweet?.entities?.media,
+    tweet?.media,
+  ];
   for (const list of buckets) {
     if (!Array.isArray(list)) continue;
     for (const m of list) {
