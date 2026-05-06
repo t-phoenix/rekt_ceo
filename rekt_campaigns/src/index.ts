@@ -79,15 +79,18 @@ app.get('/health', (_req, res) => {
 
 app.use(errorHandler);
 
+import cron from 'node-cron';
+
 const PORT = config.port;
 app.listen(PORT, () => {
   logger.info(`Rekt Campaigns API on port ${PORT} (${config.nodeEnv})`);
   
-  // Setup 24h cron for daily snapshots (runs every 1 hour to check if new day)
-  // But wait, the snapshot function just runs when called. Better to run it every 24h.
-  setInterval(() => {
-    void supabaseSync.runDailySnapshot();
-  }, 24 * 60 * 60 * 1000);
+  // Setup 24h cron to run exactly at Midnight UTC every day
+  cron.schedule('0 0 * * *', async () => {
+    logger.info('Starting midnight backup routines...');
+    await supabaseSync.runDailySnapshot();
+    await supabaseSync.runFullStateBackup();
+  });
 });
 
 export default app;

@@ -242,6 +242,107 @@ export const supabaseSync = {
   },
 
   /**
+   * FULL STATE BACKUP (Cron reconciliation)
+   */
+  async runFullStateBackup(): Promise<void> {
+    try {
+      logger.info('supabaseSync: Running full state backup from Redis to Supabase...');
+      const { redisManager } = await import('../utils/redis.js');
+      const client = await redisManager.getClient();
+      if (!client) {
+        logger.warn('supabaseSync: runFullStateBackup failed - Redis client not available');
+        return;
+      }
+
+      // 1. Identity (campaign:identity:*)
+      let cursor = '0';
+      do {
+        const scanRes = await client.scan(cursor, 'MATCH', 'campaign:identity:*', 'COUNT', 100);
+        cursor = scanRes[0];
+        const keys = scanRes[1];
+        for (const key of keys) {
+          const wallet = key.split(':').pop();
+          if (!wallet) continue;
+          const raw = await client.get(key);
+          if (raw) {
+            try {
+              const data = JSON.parse(raw);
+              await this.upsertUser(wallet, data);
+            } catch (e) {}
+          }
+        }
+      } while (cursor !== '0');
+
+      // 2. XP (campaign:xp:*)
+      cursor = '0';
+      do {
+        const scanRes = await client.scan(cursor, 'MATCH', 'campaign:xp:*', 'COUNT', 100);
+        cursor = scanRes[0];
+        const keys = scanRes[1];
+        for (const key of keys) {
+          const wallet = key.split(':').pop();
+          if (!wallet) continue;
+          const raw = await client.get(key);
+          if (raw) {
+            try {
+              const data = JSON.parse(raw);
+              await this.updateUserXp(wallet, {
+                lifetime: data.lifetime || 0,
+                season: data.season || 0,
+                level: data.level || 1,
+              });
+            } catch (e) {}
+          }
+        }
+      } while (cursor !== '0');
+
+      // 3. Streak (campaign:streak:*)
+      cursor = '0';
+      do {
+        const scanRes = await client.scan(cursor, 'MATCH', 'campaign:streak:*', 'COUNT', 100);
+        cursor = scanRes[0];
+        const keys = scanRes[1];
+        for (const key of keys) {
+          const wallet = key.split(':').pop();
+          if (!wallet) continue;
+          const raw = await client.get(key);
+          if (raw) {
+            try {
+              const data = JSON.parse(raw);
+              await this.updateStreak(wallet, data.count || 0, data.lastDate || '');
+            } catch (e) {}
+          }
+        }
+      } while (cursor !== '0');
+
+      // 4. Invite Slots (campaign:invite:slots:v2:*)
+      cursor = '0';
+      do {
+        const scanRes = await client.scan(cursor, 'MATCH', 'campaign:invite:slots:v2:*', 'COUNT', 100);
+        cursor = scanRes[0];
+        const keys = scanRes[1];
+        for (const key of keys) {
+          const wallet = key.split(':').pop();
+          if (!wallet) continue;
+          const raw = await client.get(key);
+          if (raw) {
+            try {
+              const data = JSON.parse(raw);
+              if (data.batchId && Array.isArray(data.codes)) {
+                await this.upsertInviteSlots(wallet, data.batchId, data.codes);
+              }
+            } catch (e) {}
+          }
+        }
+      } while (cursor !== '0');
+
+      logger.info('supabaseSync: Full state backup complete.');
+    } catch (e) {
+      logger.error('supabaseSync: runFullStateBackup failed', { error: (e as Error).message });
+    }
+  },
+
+  /**
    * SEASON RESET FLOW
    */
   async performSeasonReset(currentSeason: string, newSeason: string): Promise<{ success: boolean; message: string }> {
