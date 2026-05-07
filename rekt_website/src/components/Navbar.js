@@ -192,8 +192,12 @@ export default function Navbar({ setShow }) {
           isTab && setShow(false);
         }}
         className={location.pathname === "/launch" ? "links-style selected-link" : "links-style"}
+        style={{ position: "relative" }}
       >
         LAUNCH HUB
+        <div className="join-sticker-wrapper">
+          <div className="join-sticker">JOIN</div>
+        </div>
       </div>
 
       <div

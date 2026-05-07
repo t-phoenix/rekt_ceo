@@ -118,8 +118,8 @@ export default function Introduction() {
             {splitText('A Memecoin Movement')}
           </p>
           <div className="story-buttons">
-            <button className="story-btn primary" onClick={(e) => handleButtonClick("/pfp", e)}>
-              LAUNCHING SOON
+            <button className="story-btn primary" onClick={(e) => handleButtonClick("/launch", e)}>
+              JOIN CAMPAIGN
             </button>
             <button className="story-btn secondary" onClick={(e) => handleButtonClick("/memes", e)}>
               CREATE MEME
