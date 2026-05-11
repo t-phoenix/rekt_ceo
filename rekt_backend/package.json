@@ -34,6 +34,7 @@
     "sharp": "^0.33.5",
     "siwe": "^2.3.2",
     "winston": "^3.18.3",
+    "zkarb-sdk": "1.0.5",
     "zod": "^3.25.76"
   },
   "devDependencies": {
