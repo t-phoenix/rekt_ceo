@@ -8,21 +8,19 @@ const ERC20_ABI = [
 export async function verifyHolderCampaign({
   wallet,
   minBalance,
-  tokenAddress
 }: {
   wallet: string
-    minBalance: string
-  tokenAddress : string
+  minBalance: string
 }) {
 
   // Create provider
   const provider = new ethers.JsonRpcProvider(
-    process.env.RPC_URL
+    "https://ethereum-sepolia-rpc.publicnode.com"
   )
-
+  
   // ERC20 contract
   const token = new ethers.Contract(
-    tokenAddress,
+    process.env.CEO_TOKEN_ADDRESS,
     ERC20_ABI,
     provider
   )

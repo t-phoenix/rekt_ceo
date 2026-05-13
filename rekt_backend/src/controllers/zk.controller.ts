@@ -13,14 +13,12 @@ export async function verifyHolderController(
 
     const {
       wallet,
-      tokenAddress,
       minBalance,
     } = req.body
 
     const result =
       await verifyHolderCampaign({
         wallet,
-        tokenAddress,
         minBalance,
       })
 

@@ -9,7 +9,7 @@ template BalanceThresholdProof() {
 
     signal output isEligible;
 
-    component gte = GreaterEqThan(64);
+    component gte = GreaterEqThan(252);
 
     gte.in[0] <== balance;
     gte.in[1] <== minBalance;
