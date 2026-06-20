@@ -4,8 +4,23 @@
 
 import { MemeApiError, MemeApiErrorCode } from './memeApiErrors';
 
-const API_BASE_URL =
-  process.env.REACT_APP_MEME_API_URL || 'https://rekt-automations.onrender.com';
+const DEFAULT_PROD_URL = 'https://rekt-automations.onrender.com';
+
+/**
+ * In local dev, use same-origin /api/meme (craco proxy → Render) to avoid CORS.
+ * In production, call the meme API directly (requires CORS_ORIGINS on the server).
+ */
+function resolveMemeApiBaseUrl() {
+  if (process.env.REACT_APP_MEME_API_URL) {
+    return process.env.REACT_APP_MEME_API_URL.replace(/\/$/, '');
+  }
+  if (process.env.NODE_ENV === 'development') {
+    return '/meme-api';
+  }
+  return DEFAULT_PROD_URL;
+}
+
+const API_BASE_URL = resolveMemeApiBaseUrl();
 
 class MemeApiService {
   get baseUrl() {
@@ -23,6 +38,58 @@ class MemeApiService {
     } catch {
       return { payment: null };
     }
+  }
+
+  /**
+   * Combined health + payment + supported LLM presets for the AI Suggest modal.
+   */
+  async fetchConnectionStatus() {
+    let health = null;
+    let online = false;
+    let connectionError = null;
+
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 15000);
+      const healthRes = await fetch(`${API_BASE_URL}/api/meme/health`, {
+        signal: controller.signal,
+      });
+      clearTimeout(timeoutId);
+      if (healthRes.ok) {
+        health = await healthRes.json();
+        online = true;
+      } else {
+        connectionError = `Health check failed (${healthRes.status})`;
+      }
+    } catch (err) {
+      connectionError =
+        err?.name === 'TimeoutError'
+          ? 'Meme API timed out — the server may be waking up. Try again.'
+          : 'Could not reach the meme API.';
+    }
+
+    const info = online ? await this.fetchApiInfo() : {};
+    let llmPresets = [];
+    let defaultLlm = null;
+
+    if (online) {
+      try {
+        const llms = await this.fetchAvailableLLMs();
+        llmPresets = llms.presets || [];
+        defaultLlm = llms.default || llms.presets?.[0]?.id || null;
+      } catch {
+        connectionError = connectionError || 'Connected, but failed to load AI models.';
+      }
+    }
+
+    return {
+      online,
+      health,
+      paymentInfo: info?.payment || null,
+      llmPresets,
+      defaultLlm,
+      error: connectionError,
+    };
   }
 
   /**
@@ -85,9 +152,12 @@ class MemeApiService {
       });
     } catch (err) {
       if (err instanceof MemeApiError) throw err;
+      const isNetworkFailure =
+        err?.message?.includes('Failed to fetch') ||
+        err?.name === 'TypeError';
       throw new MemeApiError(
-        err?.message?.includes('Failed to fetch')
-          ? 'Could not reach the meme API. Check your connection.'
+        isNetworkFailure
+          ? 'Could not reach the meme API. This is often a CORS issue when calling Render directly from localhost — restart the dev server to use the local proxy, or redeploy the meme API with CORS middleware fixed.'
           : err?.message || 'Network error while generating meme text.',
         { code: MemeApiErrorCode.NETWORK }
       );

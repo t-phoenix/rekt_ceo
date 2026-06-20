@@ -19,6 +19,9 @@ const MemeControls = ({
     font,
     setFont,
     handleOpenAiModal,
+    aiSuggestLabel = '✨ AI Suggest',
+    aiSuggestPrice = null,
+    memeApiOnline = true,
     textColor,
     setTextColor,
     strokeColor,
@@ -153,13 +156,28 @@ const MemeControls = ({
                             </div>
                             <div className="meme-control-item">
                                 <label className="meme-label">AI assist</label>
-                                <button
-                                    onClick={handleOpenAiModal}
-                                    className="story-btn primary"
-                                    style={{ width: "100%" }}
-                                >
-                                    ✨ AI Suggest
-                                </button>
+                                <div className="meme-ai-suggest-wrap">
+                                    <button
+                                        onClick={handleOpenAiModal}
+                                        className="story-btn primary meme-ai-suggest-btn"
+                                        title={memeApiOnline ? 'Generate meme captions with AI' : 'Meme API offline — open to retry'}
+                                    >
+                                        <span className="meme-ai-suggest-label">{aiSuggestLabel}</span>
+                                        {aiSuggestPrice && (
+                                            <span className="meme-ai-pay-badge" aria-label={`${aiSuggestPrice} USDC per generation`}>
+                                                <span className="meme-ai-pay-badge-glow" aria-hidden="true" />
+                                                <span className="meme-ai-pay-badge-inner">
+                                                    <span className="meme-ai-pay-coin">◎</span>
+                                                    <span className="meme-ai-pay-amount">{aiSuggestPrice}</span>
+                                                    <span className="meme-ai-pay-unit">USDC</span>
+                                                </span>
+                                            </span>
+                                        )}
+                                    </button>
+                                    {!memeApiOnline && (
+                                        <p className="meme-ai-status meme-ai-status--offline">API offline</p>
+                                    )}
+                                </div>
                             </div>
                         </div>
 

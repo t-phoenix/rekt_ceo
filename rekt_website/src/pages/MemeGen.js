@@ -12,6 +12,9 @@ import MintSuccessModal from "../components/MintSuccessModal.js";
 import memeApiService from "../services/MemeApiService.js";
 import { getMemeApiUserMessage, MemeApiError, MemeApiErrorCode } from "../services/memeApiErrors.js";
 import { useMemeApiPayment } from "../hooks/useMemeApiPayment.js";
+import { useMemeApiConnection } from "../hooks/useMemeApiConnection.js";
+import { useAiSuggestionMemory } from "../hooks/useAiSuggestionMemory.js";
+import { markLlmFailed, clearLlmFailure } from "../hooks/useLlmPreflight.js";
 import { useAccount } from 'wagmi';
 import { useTierData, useUserData } from "../hooks/useNftData";
 
@@ -27,13 +30,40 @@ const MemeGen = () => {
   const { activeTier, isLoading } = useTierData('MEME');
   const { address, isConnected } = useAccount();
   const { data: userData } = useUserData(address);
+
+  const {
+    status: connectionStatus,
+    paymentInfo,
+    llmPresets,
+    defaultLlm,
+    error: connectionError,
+    isLoading: connectionLoading,
+    refresh: refreshConnection,
+  } = useMemeApiConnection({ enabled: true });
+
+  const priceLabel = paymentInfo?.price_per_call || '$0.05';
+
   const {
     paidFetch,
     ensureBaseChain,
+    ensurePaymentReady,
     isOnBase,
     isSwitchingChain,
-  } = useMemeApiPayment();
-  const [paymentInfo, setPaymentInfo] = useState(null);
+    usdcBalance,
+    isBalanceLoading,
+    hasSufficientUsdc,
+    shortAddress,
+  } = useMemeApiPayment(priceLabel);
+
+  const {
+    sessionId: aiSessionId,
+    allGenerations: aiHistory,
+    sessionsGrouped: aiSessionsGrouped,
+    saveGeneration: saveAiGeneration,
+    removeGeneration: removeAiGeneration,
+    clearSession: clearAiSessionHistory,
+    clearAll: clearAllAiHistory,
+  } = useAiSuggestionMemory();
 
   const [topText, setTopText] = useState("");
   const [bottomText, setBottomText] = useState("");
@@ -44,6 +74,17 @@ const MemeGen = () => {
   const [activeCategory, setActiveCategory] = useState(memeCategories[0] || "");
   const [selectedTemplate, setSelectedTemplate] = useState(null);
   const [screenWidth, setScreenWidth] = useState(window.innerWidth);
+
+  const getTemplateName = useCallback(() => {
+    if (selectedTemplate) {
+      return (
+        Object.values(categorizedMemeTemplates)
+          .flat()
+          .find((t) => t.id === selectedTemplate)?.name || 'Custom Upload'
+      );
+    }
+    return imageSrc ? 'Custom Upload' : 'Template';
+  }, [selectedTemplate, imageSrc]);
 
   // Canvas dimensions and frame state
   const [canvasFormat, setCanvasFormat] = useState("dynamic"); // square, portrait, landscape, dynamic
@@ -285,11 +326,13 @@ const MemeGen = () => {
     return () => clearTimeout(timer);
   }, [randomizeMemeTemplate]);
 
-  useEffect(() => {
-    memeApiService.fetchApiInfo().then((info) => {
-      if (info?.payment) setPaymentInfo(info.payment);
-    });
-  }, []);
+  const handleSwitchToBase = async () => {
+    try {
+      await ensureBaseChain();
+    } catch (chainError) {
+      showToast(getMemeApiUserMessage(chainError));
+    }
+  };
 
   if (screenWidth < 992) {
     return <ResponsiveMessage screenWidth={screenWidth} />;
@@ -305,12 +348,44 @@ const MemeGen = () => {
 
   const handleCloseAiModal = (selectedOption) => {
     if (selectedOption && selectedOption.topText && selectedOption.bottomText) {
-      // User selected an option from the modal
       setTopText(selectedOption.topText.toUpperCase());
       setBottomText(selectedOption.bottomText.toUpperCase());
       showToast("✨ Meme text applied successfully!");
     }
     setIsAiModalOpen(false);
+  };
+
+  const handleReuseFromHistory = (option, generation) => {
+    if (generation.templateId) {
+      const templateCategory = Object.keys(categorizedMemeTemplates).find((category) =>
+        categorizedMemeTemplates[category].some((t) => t.id === generation.templateId)
+      );
+      if (templateCategory) {
+        setActiveCategory(templateCategory);
+      }
+      handleTemplateSelect(generation.templateId);
+    } else {
+      const src = generation.templateSrc || generation.templateThumbnail;
+      if (src) {
+        const img = new Image();
+        img.onload = () => {
+          setImageSrc(src);
+          setSelectedTemplate(null);
+          setImageDimensions({
+            width: img.naturalWidth,
+            height: img.naturalHeight,
+            ratio: img.naturalWidth / img.naturalHeight,
+          });
+        };
+        img.onerror = () => showToast('Could not restore template image from history.');
+        img.src = src;
+      }
+    }
+
+    setTopText(option.top_text.toUpperCase());
+    setBottomText(option.bottom_text.toUpperCase());
+    setIsAiModalOpen(false);
+    showToast(`✨ Applied "${generation.templateName}" with saved caption`);
   };
 
   const handleAiGenerate = async (topic, isTwitterPost = false, llmOptions = {}) => {
@@ -333,12 +408,12 @@ const MemeGen = () => {
       }
 
       try {
-        await ensureBaseChain();
-      } catch (chainError) {
+        await ensurePaymentReady();
+      } catch (paymentError) {
         return {
           error: {
-            code: chainError.code || MemeApiErrorCode.WRONG_CHAIN,
-            message: getMemeApiUserMessage(chainError),
+            code: paymentError.code || MemeApiErrorCode.PAYMENT_FAILED,
+            message: getMemeApiUserMessage(paymentError),
           },
         };
       }
@@ -358,11 +433,29 @@ const MemeGen = () => {
         paymentRequired,
       });
 
+      if (result?.options) {
+        if (llmOptions.llm) clearLlmFailure(llmOptions.llm);
+        await saveAiGeneration({
+          topic,
+          isTwitterPost,
+          llm: llmOptions.llm,
+          llmModel: llmOptions.llmModel,
+          templateId: selectedTemplate,
+          templateName: getTemplateName(),
+          templateSrc: imageSrc,
+          options: result.options,
+          metadata: result.metadata,
+        });
+      }
+
       return result;
     } catch (error) {
       console.error('Error generating meme:', error);
 
       const message = getMemeApiUserMessage(error);
+      if (llmOptions.llm && error instanceof MemeApiError && error.status >= 500) {
+        markLlmFailed(llmOptions.llm);
+      }
       const errorPayload = {
         message,
         code: error instanceof MemeApiError ? error.code : undefined,
@@ -562,6 +655,9 @@ const MemeGen = () => {
             font={font}
             setFont={setFont}
             handleOpenAiModal={handleOpenAiModal}
+            aiSuggestLabel="✨ AI Suggest"
+            aiSuggestPrice={paymentInfo?.protocol === 'x402' ? priceLabel : null}
+            memeApiOnline={connectionStatus === 'online'}
             textColor={textColor}
             setTextColor={setTextColor}
             strokeColor={strokeColor}
@@ -604,6 +700,27 @@ const MemeGen = () => {
         isOnBase={isOnBase}
         isSwitchingChain={isSwitchingChain}
         paymentInfo={paymentInfo}
+        connectionStatus={connectionStatus}
+        connectionError={connectionError}
+        llmPresets={llmPresets}
+        defaultLlm={defaultLlm}
+        llmsLoading={connectionLoading}
+        onRefreshConnection={refreshConnection}
+        usdcBalance={usdcBalance}
+        isBalanceLoading={isBalanceLoading}
+        hasSufficientUsdc={hasSufficientUsdc}
+        shortAddress={shortAddress}
+        onSwitchToBase={handleSwitchToBase}
+        priceLabel={priceLabel}
+        templateSrc={imageSrc}
+        templateName={getTemplateName()}
+        sessionsGrouped={aiSessionsGrouped}
+        currentSessionId={aiSessionId}
+        historyCount={aiHistory.length}
+        onReuseFromHistory={handleReuseFromHistory}
+        onRemoveGeneration={removeAiGeneration}
+        onClearSessionHistory={clearAiSessionHistory}
+        onClearAllHistory={clearAllAiHistory}
       />
 
       {/* Brandify Modal */}

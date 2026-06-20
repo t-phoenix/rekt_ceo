@@ -1448,3 +1448,92 @@
   border-top-color: var(--color-yellow, #ffd700);
   animation: spin 1s ease-in-out infinite;
 }
+
+.meme-ai-status {
+  margin: 0.35rem 0 0;
+  font-size: 0.7rem;
+  text-align: center;
+}
+
+.meme-ai-status--offline {
+  color: #fca5a5;
+}
+
+/* AI Suggest button with USDC payment badge */
+.meme-ai-suggest-wrap {
+  position: relative;
+  width: 100%;
+}
+
+.meme-ai-suggest-btn {
+  width: 100%;
+  position: relative;
+  overflow: visible;
+  padding-right: 5.5rem !important;
+  min-height: 44px;
+}
+
+.meme-ai-suggest-label {
+  display: block;
+  text-align: left;
+}
+
+.meme-ai-pay-badge {
+  position: absolute;
+  top: 50%;
+  right: -6px;
+  transform: translateY(-50%) rotate(3deg);
+  z-index: 2;
+  pointer-events: none;
+}
+
+.meme-ai-pay-badge-glow {
+  position: absolute;
+  inset: -4px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, var(--color-yellow, #F8C826), var(--background-color-third, #D81E5B));
+  opacity: 0.45;
+  filter: blur(6px);
+  animation: meme-pay-pulse 2.4s ease-in-out infinite;
+}
+
+@keyframes meme-pay-pulse {
+  0%, 100% { opacity: 0.35; transform: scale(1); }
+  50% { opacity: 0.65; transform: scale(1.04); }
+}
+
+.meme-ai-pay-badge-inner {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.2rem;
+  padding: 0.28rem 0.55rem;
+  border-radius: 8px;
+  background: linear-gradient(145deg, #1a1a1a 0%, #2d1020 100%);
+  border: 1.5px solid var(--color-yellow, #F8C826);
+  box-shadow:
+    0 4px 14px rgba(0, 0, 0, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+.meme-ai-pay-coin {
+  color: var(--color-yellow, #F8C826);
+  font-size: 0.75rem;
+  line-height: 1;
+}
+
+.meme-ai-pay-amount {
+  color: var(--color-yellow, #F8C826);
+  font-size: 0.72rem;
+}
+
+.meme-ai-pay-unit {
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 0.58rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}

@@ -1,9 +1,23 @@
 const path = require("path");
 
+const MEME_API_PROXY_TARGET =
+  process.env.REACT_APP_MEME_API_URL || "https://rekt-automations.onrender.com";
+
 module.exports = {
     style: {
         postcss: {
             mode: "file",
+        },
+    },
+    devServer: {
+        // Local dev: proxy all meme API routes to avoid CORS (especially x402 402 responses)
+        proxy: {
+            "/meme-api": {
+                target: MEME_API_PROXY_TARGET,
+                pathRewrite: { "^/meme-api": "" },
+                changeOrigin: true,
+                secure: true,
+            },
         },
     },
     webpack: {
