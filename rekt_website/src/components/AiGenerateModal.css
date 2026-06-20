@@ -36,6 +36,10 @@
     animation: slideIn 0.3s ease;
 }
 
+.ai-modal-content--wide {
+    max-width: 540px;
+}
+
 @keyframes slideIn {
     from {
         opacity: 0;
@@ -351,4 +355,127 @@
 
 .ai-options-body::-webkit-scrollbar-thumb:hover {
     background: rgba(255, 255, 255, 0.3);
+}
+
+.ai-payment-banner {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    margin-bottom: 1rem;
+    border-radius: 8px;
+    background: rgba(216, 30, 91, 0.12);
+    border: 1px solid rgba(216, 30, 91, 0.35);
+}
+
+.ai-payment-banner--action {
+    flex-wrap: wrap;
+}
+
+.ai-payment-icon {
+    font-size: 1.25rem;
+    flex-shrink: 0;
+}
+
+.ai-payment-copy {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    flex: 1;
+    min-width: 0;
+}
+
+.ai-payment-copy strong {
+    color: white;
+    font-size: 0.875rem;
+}
+
+.ai-payment-copy span {
+    color: rgba(255, 255, 255, 0.65);
+    font-size: 0.75rem;
+    line-height: 1.35;
+}
+
+.ai-connect-btn {
+    margin: 0 !important;
+    padding: 0.4rem 0.75rem !important;
+    font-size: 0.8rem !important;
+    white-space: nowrap;
+}
+
+.ai-error-banner {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    margin-bottom: 1rem;
+    border-radius: 8px;
+    background: rgba(220, 38, 38, 0.15);
+    border: 1px solid rgba(220, 38, 38, 0.4);
+    color: #fca5a5;
+    font-size: 0.8125rem;
+    line-height: 1.4;
+}
+
+.ai-error-action {
+    align-self: flex-start;
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    border-radius: 6px;
+    color: white;
+    cursor: pointer;
+    font-size: 0.75rem;
+    padding: 0.35rem 0.65rem;
+    transition: background 0.2s ease;
+}
+
+.ai-error-action:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.ai-error-countdown {
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.ai-llm-section {
+    margin-top: 1rem;
+}
+
+.ai-modal-select {
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    margin-top: 0.35rem;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.05);
+    color: white;
+    font-size: 0.875rem;
+    cursor: pointer;
+}
+
+.ai-modal-select:focus {
+    outline: none;
+    border-color: var(--background-color-third);
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.ai-modal-select option {
+    background: #1a1a2e;
+    color: white;
+}
+
+.ai-openrouter-input {
+    margin-top: 0.5rem;
+}
+
+.ai-modal-hint--warn {
+    color: rgba(251, 191, 36, 0.85);
+}
+
+.ai-model-used {
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.55);
+    margin: 0 0 0.75rem;
+    text-align: center;
 }

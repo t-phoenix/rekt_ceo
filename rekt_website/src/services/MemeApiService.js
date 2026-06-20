@@ -1,143 +1,214 @@
 /**
- * MemeApiService - Service for interacting with the meme generation API
+ * MemeApiService - Client for the meme generation API (LLM picker + x402 payments).
  */
 
-const API_BASE_URL = 'https://rekt-automations.onrender.com';
+import { MemeApiError, MemeApiErrorCode } from './memeApiErrors';
+
+const API_BASE_URL =
+  process.env.REACT_APP_MEME_API_URL || 'https://rekt-automations.onrender.com';
 
 class MemeApiService {
-    /**
-     * Generate meme text options based on topic and template image
-     * @param {string} topic - The topic text or full Twitter post
-     * @param {boolean} isTwitterPost - True if input is a full Twitter post
-     * @param {File} templateImage - The template image file
-     * @param {Object} options - Optional parameters (tone, humor_type)
-     * @returns {Promise<{options: Array, metadata: Object}>}
-     */
-    async generateMemeText(topic, isTwitterPost = false, templateImage, options = {}) {
-        try {
-            const formData = new FormData();
+  get baseUrl() {
+    return API_BASE_URL;
+  }
 
-            // Add the topic text
-            formData.append('topic', topic);
+  /**
+   * Fetch API info including x402 payment metadata when enabled.
+   */
+  async fetchApiInfo() {
+    try {
+      const res = await fetch(`${API_BASE_URL}/`);
+      if (!res.ok) return { payment: null };
+      return res.json();
+    } catch {
+      return { payment: null };
+    }
+  }
 
-            // Add is_twitter_post flag
-            formData.append('is_twitter_post', isTwitterPost.toString());
+  /**
+   * Fetch available LLM presets from the server.
+   */
+  async fetchAvailableLLMs(fetchFn = fetch) {
+    const res = await fetchFn(`${API_BASE_URL}/api/meme/llms`);
+    if (!res.ok) {
+      throw new MemeApiError('Failed to load AI model options.', {
+        status: res.status,
+        code: MemeApiErrorCode.NETWORK,
+      });
+    }
+    return res.json();
+  }
 
-            // Add template image
-            formData.append('template_image', templateImage);
+  /**
+   * Generate meme text options based on topic and template image.
+   * @param {string} topic
+   * @param {boolean} isTwitterPost
+   * @param {File} templateImage
+   * @param {Object} options - { tone, humor_type, llm, llmModel, fetchFn, paymentRequired }
+   */
+  async generateMemeText(
+    topic,
+    isTwitterPost = false,
+    templateImage,
+    options = {}
+  ) {
+    const {
+      tone,
+      humor_type: humorType,
+      llm,
+      llmModel,
+      fetchFn = fetch,
+      paymentRequired = false,
+    } = options;
 
-            // Add optional parameters if provided
-            if (options.tone) {
-                formData.append('tone', options.tone);
-            }
-            if (options.humor_type) {
-                formData.append('humor_type', options.humor_type);
-            }
-
-            const response = await fetch(`${API_BASE_URL}/api/meme/generate`, {
-                method: 'POST',
-                body: formData
-            });
-
-            if (!response.ok) {
-                const errorData = await response.json().catch(() => ({}));
-                throw new Error(errorData.detail || `API request failed with status ${response.status}`);
-            }
-
-            const data = await response.json();
-
-            if (!data.options || !Array.isArray(data.options) || data.options.length === 0) {
-                throw new Error('Invalid response format from API');
-            }
-
-            return {
-                options: data.options,
-                metadata: data.metadata
-            };
-        } catch (error) {
-            console.error('Error generating meme text:', error);
-            throw error;
-        }
+    if (paymentRequired && fetchFn === fetch) {
+      throw new MemeApiError(
+        'Connect your wallet on Base to pay for AI meme generation.',
+        { code: MemeApiErrorCode.WALLET_REQUIRED, status: 402 }
+      );
     }
 
-    /**
-     * Generate AI-branded meme template by intelligently blending brand elements
-     * @param {File} templateImage - Meme template image (JPEG, PNG, WebP)
-     * @param {string} brandName - Brand name (1-50 characters)
-     * @param {string} primaryColor - Primary brand color in hex format (e.g., #00D4FF)
-     * @param {string} userPrompt - How to blend brand (10-500 characters)
-     * @param {string} secondaryColor - Optional secondary brand color in hex format
-     * @param {File} logoImage - Optional brand logo image
-     * @returns {Promise<{brandedTemplateBase64: string, metadata: Object}>}
-     */
-    async generateBrandedTemplate(
-        templateImage,
-        brandName,
-        primaryColor,
-        userPrompt,
-        secondaryColor = null,
-        logoImage = null
-    ) {
-        try {
-            const formData = new FormData();
+    const formData = new FormData();
+    formData.append('topic', topic);
+    formData.append('is_twitter_post', isTwitterPost.toString());
+    formData.append('template_image', templateImage);
+    if (tone) formData.append('tone', tone);
+    if (humorType) formData.append('humor_type', humorType);
+    if (llm) formData.append('llm', llm);
+    if (llmModel) formData.append('llm_model', llmModel);
 
-            // Add required fields
-            formData.append('template_image', templateImage);
-            formData.append('brand_name', brandName);
-            formData.append('primary_color', primaryColor);
-            formData.append('user_prompt', userPrompt);
-
-            // Add optional fields if provided
-            if (secondaryColor) {
-                formData.append('secondary_color', secondaryColor);
-            }
-            if (logoImage) {
-                formData.append('logo_image', logoImage);
-            }
-
-            const response = await fetch(`${API_BASE_URL}/api/meme/template/brand`, {
-                method: 'POST',
-                body: formData
-            });
-
-            if (!response.ok) {
-                const errorData = await response.json().catch(() => ({}));
-                throw new Error(errorData.detail || `API request failed with status ${response.status}`);
-            }
-
-            const data = await response.json();
-
-            if (!data.branded_template_base64) {
-                throw new Error('Invalid response format from API');
-            }
-
-            return {
-                brandedTemplateBase64: data.branded_template_base64,
-                metadata: data.metadata
-            };
-        } catch (error) {
-            console.error('Error generating branded template:', error);
-            throw error;
-        }
+    let response;
+    try {
+      response = await fetchFn(`${API_BASE_URL}/api/meme/generate`, {
+        method: 'POST',
+        body: formData,
+      });
+    } catch (err) {
+      if (err instanceof MemeApiError) throw err;
+      throw new MemeApiError(
+        err?.message?.includes('Failed to fetch')
+          ? 'Could not reach the meme API. Check your connection.'
+          : err?.message || 'Network error while generating meme text.',
+        { code: MemeApiErrorCode.NETWORK }
+      );
     }
 
-    /**
-     * Check if the API is reachable
-     * @returns {Promise<boolean>}
-     */
-    async healthCheck() {
-        try {
-            const response = await fetch(`${API_BASE_URL}/health`, {
-                method: 'GET'
-            });
-            return response.ok;
-        } catch (error) {
-            console.error('API health check failed:', error);
-            return false;
-        }
+    if (response.status === 402) {
+      throw new MemeApiError(
+        'Payment required — connect your wallet on Base to continue.',
+        { status: 402, code: MemeApiErrorCode.PAYMENT_REQUIRED }
+      );
     }
+
+    if (response.status === 429) {
+      const retryAfter = response.headers.get('Retry-After');
+      const retryAfterMs = retryAfter ? Number(retryAfter) * 1000 : 120000;
+      throw new MemeApiError(
+        'Rate limited — you can generate again in about 2 minutes.',
+        {
+          status: 429,
+          code: MemeApiErrorCode.RATE_LIMITED,
+          retryAfterMs,
+        }
+      );
+    }
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      const detail =
+        typeof errorData.detail === 'string'
+          ? errorData.detail
+          : Array.isArray(errorData.detail)
+            ? errorData.detail.map((d) => d.msg || d).join(', ')
+            : null;
+
+      if (response.status === 400) {
+        throw new MemeApiError(detail || 'Invalid request.', {
+          status: 400,
+          code: MemeApiErrorCode.VALIDATION,
+          detail,
+        });
+      }
+
+      if (response.status >= 500) {
+        throw new MemeApiError('Server error while generating meme text.', {
+          status: response.status,
+          code: MemeApiErrorCode.SERVER_ERROR,
+          detail,
+        });
+      }
+
+      throw new MemeApiError(detail || `Request failed (${response.status})`, {
+        status: response.status,
+        detail,
+      });
+    }
+
+    const data = await response.json();
+
+    if (!data.options || !Array.isArray(data.options) || data.options.length === 0) {
+      throw new MemeApiError('Invalid response from meme API — no options returned.', {
+        code: MemeApiErrorCode.SERVER_ERROR,
+      });
+    }
+
+    return {
+      options: data.options,
+      metadata: data.metadata,
+    };
+  }
+
+  /**
+   * Generate AI-branded meme template (no x402 on this route yet).
+   */
+  async generateBrandedTemplate(
+    templateImage,
+    brandName,
+    primaryColor,
+    userPrompt,
+    secondaryColor = null,
+    logoImage = null
+  ) {
+    const formData = new FormData();
+    formData.append('template_image', templateImage);
+    formData.append('brand_name', brandName);
+    formData.append('primary_color', primaryColor);
+    formData.append('user_prompt', userPrompt);
+    if (secondaryColor) formData.append('secondary_color', secondaryColor);
+    if (logoImage) formData.append('logo_image', logoImage);
+
+    const response = await fetch(`${API_BASE_URL}/api/meme/template/brand`, {
+      method: 'POST',
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new MemeApiError(errorData.detail || `API request failed (${response.status})`, {
+        status: response.status,
+      });
+    }
+
+    const data = await response.json();
+    if (!data.branded_template_base64) {
+      throw new MemeApiError('Invalid response format from API');
+    }
+
+    return {
+      brandedTemplateBase64: data.branded_template_base64,
+      metadata: data.metadata,
+    };
+  }
+
+  async healthCheck() {
+    try {
+      const response = await fetch(`${API_BASE_URL}/health`);
+      return response.ok;
+    } catch {
+      return false;
+    }
+  }
 }
 
-// Export a singleton instance
 const memeApiService = new MemeApiService();
 export default memeApiService;

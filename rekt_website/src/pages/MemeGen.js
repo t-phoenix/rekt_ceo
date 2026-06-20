@@ -10,6 +10,8 @@ import BrandifyModal from "../components/BrandifyModal.js";
 import MintConfirmModal from "../components/MintConfirmModal.js";
 import MintSuccessModal from "../components/MintSuccessModal.js";
 import memeApiService from "../services/MemeApiService.js";
+import { getMemeApiUserMessage, MemeApiError, MemeApiErrorCode } from "../services/memeApiErrors.js";
+import { useMemeApiPayment } from "../hooks/useMemeApiPayment.js";
 import { useAccount } from 'wagmi';
 import { useTierData, useUserData } from "../hooks/useNftData";
 
@@ -25,6 +27,13 @@ const MemeGen = () => {
   const { activeTier, isLoading } = useTierData('MEME');
   const { address, isConnected } = useAccount();
   const { data: userData } = useUserData(address);
+  const {
+    paidFetch,
+    ensureBaseChain,
+    isOnBase,
+    isSwitchingChain,
+  } = useMemeApiPayment();
+  const [paymentInfo, setPaymentInfo] = useState(null);
 
   const [topText, setTopText] = useState("");
   const [bottomText, setBottomText] = useState("");
@@ -276,6 +285,12 @@ const MemeGen = () => {
     return () => clearTimeout(timer);
   }, [randomizeMemeTemplate]);
 
+  useEffect(() => {
+    memeApiService.fetchApiInfo().then((info) => {
+      if (info?.payment) setPaymentInfo(info.payment);
+    });
+  }, []);
+
   if (screenWidth < 992) {
     return <ResponsiveMessage screenWidth={screenWidth} />;
   }
@@ -298,38 +313,67 @@ const MemeGen = () => {
     setIsAiModalOpen(false);
   };
 
-  const handleAiGenerate = async (topic, isTwitterPost = false) => {
+  const handleAiGenerate = async (topic, isTwitterPost = false, llmOptions = {}) => {
     if (!imageSrc) {
       showToast("Please select a meme template first!");
       setIsAiModalOpen(false);
-      return;
+      return { error: { message: "Please select a meme template first!" } };
+    }
+
+    const paymentRequired = paymentInfo?.protocol === 'x402';
+
+    if (paymentRequired) {
+      if (!isConnected || !paidFetch) {
+        return {
+          error: {
+            code: MemeApiErrorCode.WALLET_REQUIRED,
+            message: `Connect your wallet on Base to pay ${paymentInfo?.price_per_call || '$0.05'} per generation.`,
+          },
+        };
+      }
+
+      try {
+        await ensureBaseChain();
+      } catch (chainError) {
+        return {
+          error: {
+            code: chainError.code || MemeApiErrorCode.WRONG_CHAIN,
+            message: getMemeApiUserMessage(chainError),
+          },
+        };
+      }
     }
 
     setIsGenerating(true);
 
     try {
-      // Convert the current image to a blob/file for the API
       const response = await fetch(imageSrc);
       const blob = await response.blob();
       const file = new File([blob], 'template.jpg', { type: 'image/jpeg' });
 
-      // Call the API with topic, isTwitterPost flag, and template image
-      const result = await memeApiService.generateMemeText(topic, isTwitterPost, file);
+      const result = await memeApiService.generateMemeText(topic, isTwitterPost, file, {
+        llm: llmOptions.llm,
+        llmModel: llmOptions.llmModel,
+        fetchFn: paymentRequired ? paidFetch : fetch,
+        paymentRequired,
+      });
 
-      // Return the result so the modal can display the options
       return result;
     } catch (error) {
       console.error('Error generating meme:', error);
 
-      let errorMessage = "Failed to generate meme text. ";
-      if (error.message.includes('Failed to fetch')) {
-        errorMessage += "Is the backend running on localhost:8001?";
-      } else {
-        errorMessage += error.message;
+      const message = getMemeApiUserMessage(error);
+      const errorPayload = {
+        message,
+        code: error instanceof MemeApiError ? error.code : undefined,
+        retryAfterMs: error instanceof MemeApiError ? error.retryAfterMs : undefined,
+      };
+
+      if (!(error instanceof MemeApiError)) {
+        showToast(message);
       }
 
-      showToast(errorMessage);
-      return null;
+      return { error: errorPayload };
     } finally {
       setIsGenerating(false);
     }
@@ -556,6 +600,10 @@ const MemeGen = () => {
         onClose={handleCloseAiModal}
         onGenerate={handleAiGenerate}
         isLoading={isGenerating}
+        isConnected={isConnected}
+        isOnBase={isOnBase}
+        isSwitchingChain={isSwitchingChain}
+        paymentInfo={paymentInfo}
       />
 
       {/* Brandify Modal */}
