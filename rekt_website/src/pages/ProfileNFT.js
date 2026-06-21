@@ -16,6 +16,7 @@ import LayerNavbar from "./page_components/LayerNavbar";
 import LayerOptions from "./page_components/LayerOptions";
 
 import sharingService from "../services/SharingService.js";
+import { exportNodeToPng } from "../utils/exportImage";
 import CurrentTier from "../components/CurrentTier.js";
 import TierDataSkeleton from "../components/TierDataSkeleton.js";
 import { useAccount } from 'wagmi';
@@ -97,13 +98,11 @@ export default function ProfileNFT() {
         return;
       }
 
-      // Use html2canvas to capture the composite
-      const html2canvas = (await import('html2canvas')).default;
-      const canvas = await html2canvas(compositeElement, {
-        useCORS: true,
-        backgroundColor: null
-      });
-      const preview = canvas.toDataURL('image/png');
+      const preview = await exportNodeToPng(compositeElement);
+      if (!preview) {
+        showToast("Failed to capture PFP preview");
+        return;
+      }
 
       setMintPreviewImage(preview);
       setShowMintConfirm(true);
