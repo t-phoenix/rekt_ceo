@@ -31,17 +31,11 @@ export function useAiSuggestionMemory() {
 
   const sessionId = useMemo(() => getOrCreateSessionId(), []);
 
-  const sessionGenerations = useMemo(
-    () => getSessionGenerations(sessionId),
-    [sessionId, historyRevision]
-  );
-
-  const allGenerations = useMemo(() => getAllGenerations(), [historyRevision]);
-
-  const sessionsGrouped = useMemo(
-    () => getGenerationsGroupedBySession(),
-    [historyRevision]
-  );
+  // historyRevision triggers re-render when localStorage changes
+  void historyRevision;
+  const sessionGenerations = getSessionGenerations(sessionId);
+  const allGenerations = getAllGenerations();
+  const sessionsGrouped = getGenerationsGroupedBySession();
 
   const persistGeneration = useCallback(async (entry) => {
     const record = await saveGeneration(entry);
