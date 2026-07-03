@@ -3,6 +3,8 @@ import "./header.css";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useMediaQuery } from "react-responsive";
 import pumpFunLogo from "../creatives/crypto/pump_fun.png";
+import baseLogo from "../creatives/crypto/base.png";
+import ConnectWalletButton from './ConnectWalletButton';
 
 export default function Navbar({ setShow }) {
   const navigate = useNavigate();
@@ -11,6 +13,8 @@ export default function Navbar({ setShow }) {
 
   const [scrollTarget, setScrollTarget] = useState(null);
   const [activeSection, setActiveSection] = useState("");
+  // Wallet logic moved to ConnectWalletButton
+
 
   // Effect to handle scrolling after navigation
   useEffect(() => {
@@ -32,7 +36,7 @@ export default function Navbar({ setShow }) {
     }
 
     const handleScroll = () => {
-      const sections = ["story", "launch", "buyceo", "roadmap", "pienomics", "exchange", "faq"];
+      const sections = ["story", "buyceo", "roadmap", "pienomics", "exchange", "faq"];
       const scrollPosition = window.scrollY + window.innerHeight / 3;
 
       for (let i = sections.length - 1; i >= 0; i--) {
@@ -99,9 +103,9 @@ export default function Navbar({ setShow }) {
               <div onClick={() => { scrollToSection("story"); }} className={getNavItemClass("story")}>
                 STORY
               </div>
-              <div onClick={() => { scrollToSection("launch"); }} className={getNavItemClass("launch")}>
+              {/* <div onClick={() => { scrollToSection("launch"); }} className={getNavItemClass("launch")}>
                 LAUNCH MECH
-              </div>
+              </div> */}
               <div onClick={() => { scrollToSection("buyceo"); }} className={getNavItemClass("buyceo")}>
                 HOW TO BUY
               </div>
@@ -159,7 +163,7 @@ export default function Navbar({ setShow }) {
           isTab && setShow(false);
         }}
       >
-        BUY $CEO
+        BUY $CEO <img src={baseLogo} alt="base" style={{ height: '20px', marginLeft: '8px', verticalAlign: 'middle', borderRadius: '10%' }} />
       </div>
 
       {/* Links to other pages */}
@@ -184,6 +188,20 @@ export default function Navbar({ setShow }) {
 
       <div
         onClick={() => {
+          navigate("/launch");
+          isTab && setShow(false);
+        }}
+        className={location.pathname === "/launch" ? "links-style selected-link" : "links-style"}
+        style={{ position: "relative" }}
+      >
+        LAUNCH HUB
+        <div className="join-sticker-wrapper">
+          <div className="join-sticker">JOIN</div>
+        </div>
+      </div>
+
+      <div
+        onClick={() => {
           navigate("/blueprint");
           isTab && setShow(false);
         }}
@@ -192,11 +210,7 @@ export default function Navbar({ setShow }) {
         THE BLUEPRINT
       </div>
 
-      <div className="connect-wallet-container">
-        <button className="connect-wallet-btn" onClick={() => console.log("Connect Wallet clicked")}>
-          CONNECT WALLET
-        </button>
-      </div>
+      {!isTab && <ConnectWalletButton />}
     </nav>
   );
 }

@@ -1,3 +1,6 @@
+import React, { useState, useEffect } from 'react';
+import { useMint } from '../hooks/useMint';
+import MintProgressModal from './MintProgressModal';
 import './MintConfirmModal.css';
 
 const MintConfirmModal = ({
@@ -5,14 +8,53 @@ const MintConfirmModal = ({
     onClose,
     onConfirm,
     imagePreview,
-    metadata = {},
     pricing = {},
-    type = 'MEME' // 'MEME' or 'PFP'
+    type = 'MEME', // 'MEME' or 'PFP'
+    userData,
+    isConnected,
+    token,
+    attributes = [],
 }) => {
+    const useMintInterface = useMint(token, pricing);
+    const { hasPendingMint } = useMintInterface;
+    const [showProgress, setShowProgress] = useState(false);
+
+    useEffect(() => {
+        if (hasPendingMint) setShowProgress(true);
+    }, [hasPendingMint]);
+
     if (!isOpen) return null;
 
-    const handleConfirm = () => {
-        onConfirm();
+    if (showProgress) {
+        return (
+            <MintProgressModal
+                isOpen={isOpen}
+                onClose={() => { onClose(); setShowProgress(false); }}
+                onConfirm={onConfirm}
+                useMintInterface={useMintInterface}
+                type={type}
+                imagePreview={imagePreview}
+                pricing={pricing}
+                isConnected={isConnected}
+                attributes={attributes}
+            />
+        );
+    }
+
+    const renderMintButton = () => {
+        if (!isConnected) {
+            return (
+                <button className="story-btn primary disabled" disabled style={{ margin: 0, opacity: 0.5 }}>
+                    Connect Wallet to Mint
+                </button>
+            );
+        }
+
+        return (
+            <button className="story-btn primary" onClick={() => setShowProgress(true)} style={{ margin: 0 }}>
+                🚀 Confirm & Proceed
+            </button>
+        );
     };
 
     return (
@@ -44,6 +86,19 @@ const MintConfirmModal = ({
                                 </div>
                             )}
                         </div>
+
+                        {/* Supply Info */}
+                        <div className="mint-supply-info">
+                            <div className="mint-supply-item">
+                                <span className="supply-icon">📊</span>
+                                <span className="supply-text">
+                                    {type === 'PFP'
+                                        ? `${pricing.currentSupply || '--'} / ${pricing.totalSupply || '999'} minted`
+                                        : `${pricing.currentSupply || '--'} / ${pricing.totalSupply || '10,000'} minted`
+                                    }
+                                </span>
+                            </div>
+                        </div>
                     </div>
 
                     {/* Details Section */}
@@ -74,33 +129,36 @@ const MintConfirmModal = ({
                             </div>
                         </div>
 
-                        {/* Metadata for PFP */}
-                        {type === 'PFP' && metadata.traits && (
-                            <div className="mint-metadata-card">
-                                <div className="mint-metadata-header">Traits</div>
-                                <div className="mint-metadata-grid">
-                                    {Object.entries(metadata.traits).map(([key, value]) => (
-                                        <div key={key} className="mint-trait-item">
-                                            <span className="mint-trait-label">{key}</span>
-                                            <span className="mint-trait-value">{value}</span>
+                        {/* Attributes for PFP and MEME */}
+                        {attributes && attributes.length > 0 && (
+                            <div className="mint-attributes-card">
+                                <div className="mint-attributes-header">{type === 'PFP' ? 'Traits' : 'Attributes'}</div>
+                                <div className="mint-attributes-grid">
+                                    {attributes.map(({ trait_type, value }) => (
+                                        <div key={trait_type} className="mint-trait-item">
+                                            <span className="mint-trait-label">{trait_type}</span>
+                                            <span className="mint-trait-value" style={{ wordBreak: 'break-word', whiteSpace: 'pre-wrap' }}>{value}</span>
                                         </div>
                                     ))}
                                 </div>
                             </div>
                         )}
 
-                        {/* Supply Info */}
-                        <div className="mint-supply-info">
-                            <div className="mint-supply-item">
-                                <span className="supply-icon">📊</span>
-                                <span className="supply-text">
-                                    {type === 'PFP'
-                                        ? `${pricing.currentSupply || '--'} / ${pricing.totalSupply || '999'} minted`
-                                        : `${pricing.currentSupply || '--'} / ${pricing.totalSupply || '10,000'} minted`
-                                    }
-                                </span>
+
+
+                        {/* User Data Info */}
+                        {isConnected && userData && (
+                            <div className="flex flex-column items-start gap-2 justify-between w-full mt-4 mb-1 px-1">
+                                <div className="flex flex-row items-center">
+                                    <span className="text-sm font-medium text-gray-400">Your Balance: </span>
+                                    <span className="text-md font-bold text-white !ml-0.5">{parseFloat(userData.ceoBalance?.balance || 0).toLocaleString()} CEO</span>
+                                </div>
+                                <div className="flex flex-row items-center">
+                                    <span className="text-sm font-medium text-gray-400">{type === 'PFP' ? 'PFPs Owned:' : 'Memes Owned:'} </span>
+                                    <span className="text-md font-bold text-white !ml-0.5">{userData.mintInfo?.[type.toLowerCase()]?.mintCount || 0} / {userData.mintInfo?.[type.toLowerCase()]?.maxMint || 0}</span>
+                                </div>
                             </div>
-                        </div>
+                        )}
                     </div>
                 </div>
 
@@ -112,13 +170,7 @@ const MintConfirmModal = ({
                     >
                         Cancel
                     </button>
-                    <button
-                        className="story-btn primary"
-                        onClick={handleConfirm}
-                        style={{ margin: 0 }}
-                    >
-                        🚀 Confirm Mint
-                    </button>
+                    {renderMintButton()}
                 </div>
             </div>
         </div>

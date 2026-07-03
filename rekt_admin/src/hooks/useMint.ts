@@ -3,7 +3,7 @@ import { useConnection, useSignTypedData, useWriteContract } from 'wagmi'
 import { getBlock, readContract } from 'wagmi/actions'
 import { config } from '../config/wagmi'
 import { api } from '../services/api'
-import type { TierInfo } from '../services/api'
+import type { TierInfo, NFTAttribute } from '../services/api'
 import { ethers } from 'ethers'
 import CEO_TOKEN_ABI from '../abi/CEOToken.json'
 
@@ -57,6 +57,7 @@ interface PersistedMintState {
   deadline: bigint
   value: string
   tokenName: string
+  attributes?: NFTAttribute[]
   signature?: string
   v?: number
   r?: string
@@ -87,7 +88,7 @@ function loadMintState(address: string): PersistedMintState | null {
     const key = `${STORAGE_KEY}_${address}`
     const stored = localStorage.getItem(key)
     if (!stored) return null
-    
+
     const parsed = JSON.parse(stored)
     return {
       ...parsed,
@@ -137,7 +138,7 @@ export const useMint = (token: string | null, pfpPricing: TierInfo | null, memeP
         setHasPendingMint(false)
         return
       }
-      
+
       const savedState = loadMintState(address)
       if (savedState && savedState.step !== MintStep.IDLE && savedState.step !== MintStep.COMPLETE) {
         const valid = await isStateValid(savedState)
@@ -185,13 +186,13 @@ export const useMint = (token: string | null, pfpPricing: TierInfo | null, memeP
     setError(null)
 
     try {
-      const { step, nftType, imageData, nonce, deadline, value, tokenName, signature, v, r, s, permitTxHash: _permitTxHash } = savedState
+      const { step, nftType, imageData, nonce, deadline, value, tokenName, attributes, signature, v, r, s, permitTxHash: _permitTxHash } = savedState
 
       // Resume from the appropriate step
       if (step === MintStep.SIGNING || step === MintStep.PREPARING) {
         // Need to sign again
         setCurrentStep(MintStep.SIGNING)
-        
+
         const newSignature = await signTypedDataAsync({
           domain: {
             name: tokenName,
@@ -211,7 +212,7 @@ export const useMint = (token: string | null, pfpPricing: TierInfo | null, memeP
         })
 
         const parsedSig = ethers.Signature.from(newSignature)
-        
+
         // Update state with signature
         saveMintState(address, {
           ...savedState,
@@ -236,7 +237,8 @@ export const useMint = (token: string | null, pfpPricing: TierInfo | null, memeP
             r: parsedSig.r,
             s: parsedSig.s,
           },
-          token
+          token,
+          attributes
         )
 
         // Clear state on success
@@ -263,7 +265,8 @@ export const useMint = (token: string | null, pfpPricing: TierInfo | null, memeP
             r,
             s,
           },
-          token
+          token,
+          attributes
         )
 
         // Clear state on success
@@ -276,7 +279,7 @@ export const useMint = (token: string | null, pfpPricing: TierInfo | null, memeP
       } else if (step === MintStep.MINTING && v !== undefined && r && s) {
         // Permit was done, just need to call mint API
         setCurrentStep(MintStep.MINTING)
-        
+
         const result = await api.initiateMint(
           nftType,
           imageData,
@@ -289,7 +292,8 @@ export const useMint = (token: string | null, pfpPricing: TierInfo | null, memeP
             r,
             s,
           },
-          token
+          token,
+          attributes
         )
 
         // Clear state on success
@@ -310,7 +314,7 @@ export const useMint = (token: string | null, pfpPricing: TierInfo | null, memeP
     }
   }, [token, address, signTypedDataAsync, writeContractAsync])
 
-  const mint = useCallback(async (nftType: 'PFP' | 'MEME') => {
+  const mint = useCallback(async (nftType: 'PFP' | 'MEME', attributes?: NFTAttribute[]) => {
     if (!token || !address) {
       throw new Error('Not authenticated')
     }
@@ -326,15 +330,15 @@ export const useMint = (token: string | null, pfpPricing: TierInfo | null, memeP
 
       // 2. Get permit nonce from backend or use 0 for testing
       const nonce = await api.getPermitNonce(address)
-      
+
       // 3. Create permit params - use block.timestamp for accurate deadline
       const block = await getBlock(config)
       const deadline = block.timestamp + BigInt(3600) // current block timestamp + 1 hour
       let value = BigInt('1000000000000000000000000') // 1,000,000 CEO token (placeholder)
 
-      if(nftType === 'PFP' && pfpPricing?.priceCEO) {
+      if (nftType === 'PFP' && pfpPricing?.priceCEO) {
         value = BigInt(ethers.parseUnits(pfpPricing.priceCEO, 18))
-      } else if(nftType === 'MEME' && memePricing?.priceCEO) {
+      } else if (nftType === 'MEME' && memePricing?.priceCEO) {
         value = BigInt(ethers.parseUnits(memePricing.priceCEO, 18))
       }
 
@@ -355,6 +359,7 @@ export const useMint = (token: string | null, pfpPricing: TierInfo | null, memeP
         deadline,
         value: value.toString(),
         tokenName,
+        attributes,
         timestamp: Date.now(),
       })
       setCurrentStep(MintStep.SIGNING)
@@ -395,6 +400,7 @@ export const useMint = (token: string | null, pfpPricing: TierInfo | null, memeP
         deadline,
         value: value.toString(),
         tokenName,
+        attributes,
         signature,
         v,
         r,
@@ -417,7 +423,8 @@ export const useMint = (token: string | null, pfpPricing: TierInfo | null, memeP
           r,
           s,
         },
-        token
+        token,
+        attributes
       )
 
       console.log('Mint complete .... result', result)
@@ -437,12 +444,12 @@ export const useMint = (token: string | null, pfpPricing: TierInfo | null, memeP
     }
   }, [token, address, signTypedDataAsync, writeContractAsync, pfpPricing, memePricing])
 
-  return { 
-    mint, 
+  return {
+    mint,
     resumeMint,
     clearPendingMint,
-    isMinting, 
-    error, 
+    isMinting,
+    error,
     currentStep,
     hasPendingMint,
   }

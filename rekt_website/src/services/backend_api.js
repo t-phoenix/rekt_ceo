@@ -1,0 +1,123 @@
+/*global BigInt*/
+const API_URL = process.env.REACT_APP_BACKEND_API_URL || "";
+
+export const api = {
+  // Health check
+  async checkHealth() {
+    try {
+      const res = await fetch(`${API_URL}/api/health`)
+      return res.ok
+    } catch (error) {
+      console.log("Backend is not healthy: ", error)
+      return false
+    }
+  },
+
+  // Get nonce for SIWE
+  async getNonce(address) {
+    if (!API_URL?.trim()) {
+      throw new Error("Set REACT_APP_BACKEND_API_URL — SIWE nonce is served by the main backend, not the campaigns API.");
+    }
+    const res = await fetch(`${API_URL}/api/auth/nonce`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ address }),
+    })
+
+
+    if (!res.ok) throw new Error('Failed to get nonce')
+    const data = await res.json()
+    return data.data.nonce
+  },
+
+  // Verify signature and get JWT
+  async verifySignature(message, signature) {
+    if (!API_URL?.trim()) {
+      throw new Error("Set REACT_APP_BACKEND_API_URL — JWT is issued by the main backend.");
+    }
+    const res = await fetch(`${API_URL}/api/auth/verify`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message, signature }),
+    })
+    if (!res.ok) throw new Error('Failed to verify signature')
+
+    const data = await res.json()
+    return data.data
+  },
+
+  // Get CEO token price
+  async getCEOPrice() {
+    const res = await fetch(`${API_URL}/api/info/ceo-price`)
+    if (!res.ok) throw new Error('Failed to get CEO price')
+    const data = await res.json()
+    return data.data.price
+  },
+
+  // Get NFT pricing by type (PFP or MEME)
+  async getPricing(nftType) {
+    const res = await fetch(`${API_URL}/api/info/pricing/${nftType}`)
+    if (!res.ok) throw new Error(`Failed to get ${nftType} pricing`)
+    const data = await res.json()
+    return data.data
+  },
+
+  // Get user mint info by address
+  async getUserInfo(address) {
+    const res = await fetch(`${API_URL}/api/info/user/${address}`)
+    if (!res.ok) throw new Error('Failed to get user info')
+    const data = await res.json()
+    return data.data
+  },
+
+  async getUserCEOBalance(address) {
+    const res = await fetch(`${API_URL}/api/info/ceo-balance/${address}`)
+    if (!res.ok) throw new Error('Failed to get user CEO balance')
+    const data = await res.json()
+    return data.data
+  },
+
+  // Get permit nonce for address
+  async getPermitNonce(address) {
+    const res = await fetch(`${API_URL}/api/info/permit-nonce/${address}`)
+    if (!res.ok) return 0n
+    const data = await res.json()
+    return BigInt(data.data?.nonce || 0)
+  },
+
+  // Initiate mint
+  // attributes: optional Array<{ trait_type: string, value: string | number }>
+  async initiateMint(
+    nftType,
+    imageData,
+    permitSignature,
+    token,
+    attributes
+  ) {
+    const headers = {
+      'Content-Type': 'application/json',
+    };
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+
+    const res = await fetch(`${API_URL}/api/mint/initiate`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({ nftType, imageData, permitSignature, attributes }),
+    })
+
+    const data = await res.json()
+    if (!res.ok) throw new Error(data.error || 'Mint failed')
+
+    return {
+      taskId: data.data?.id || 'unknown',
+      status: data.data?.status || 'queued',
+      message: data.message,
+      txHash: data.data?.txHash,
+      tokenId: data.data?.tokenId,
+      imageURI: data.data?.imageURI,
+      metadataURI: data.data?.metadataURI,
+    }
+  },
+}

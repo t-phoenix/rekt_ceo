@@ -1,4 +1,8 @@
+/*global BigInt*/
 import { useEffect, useState } from 'react';
+import { useChainId, useWalletClient } from 'wagmi';
+import { getTransactionReceipt } from 'wagmi/actions';
+import { config } from '../config/walletConfig';
 import './MintSuccessModal.css';
 
 const MintSuccessModal = ({
@@ -6,9 +10,19 @@ const MintSuccessModal = ({
     onClose,
     imagePreview,
     type = 'MEME', // 'MEME' or 'PFP'
-    onSocialShare
+    onSocialShare,
+    mintResult
 }) => {
+    const chainId = useChainId();
+    const { data: walletClient } = useWalletClient();
+
+    // Helper to get right explorer
+    const getExplorerUrl = (hash) => {
+        if (chainId === 8453) return `https://basescan.org/tx/${hash}`;
+        return `https://sepolia.etherscan.io/tx/${hash}`; // Default fallback
+    };
     const [showConfetti, setShowConfetti] = useState(false);
+    const [isAddingToWallet, setIsAddingToWallet] = useState(false);
 
     useEffect(() => {
         if (isOpen) {
@@ -24,6 +38,69 @@ const MintSuccessModal = ({
     const handleShare = (platform) => {
         if (onSocialShare) {
             onSocialShare(platform);
+        }
+    };
+
+    const handleAddNFTToWallet = async () => {
+        if (!mintResult?.txHash || mintResult?.tokenId === undefined) return;
+
+        try {
+            setIsAddingToWallet(true);
+
+            if (!walletClient) {
+                alert("Wallet not connected.");
+                return;
+            }
+
+            // Fetch the transaction receipt
+            const receipt = await getTransactionReceipt(config, {
+                hash: mintResult.txHash
+            });
+
+            if (!receipt || !receipt.logs) {
+                alert("Could not fetch transaction receipt details.");
+                return;
+            }
+
+            let collectionAddress = null;
+
+            // Find the Transfer event for this tokenId
+            for (const log of receipt.logs) {
+                console.log("Log: ", log);
+                // ERC721 Transfer log: topic0 = 0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef
+                if (
+                    log.topics[0] === '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef' &&
+                    log.topics.length === 4
+                ) {
+                    const logTokenId = BigInt(log.topics[3]).toString();
+                    if (logTokenId === String(mintResult.tokenId)) {
+                        collectionAddress = log.address;
+                        break;
+                    }
+                }
+            }
+
+            if (!collectionAddress) {
+                alert("Collection address not found in transaction logs.");
+                return;
+            }
+
+            // Request to add NFT to wallet
+            await walletClient.request({
+                method: 'wallet_watchAsset',
+                params: {
+                    type: 'ERC721', // Support varies by wallet extension, but it's proper standard
+                    options: {
+                        address: collectionAddress,
+                        tokenId: String(mintResult.tokenId),
+                    },
+                },
+            });
+
+        } catch (error) {
+            console.error("Error adding NFT to wallet:", error);
+        } finally {
+            setIsAddingToWallet(false);
         }
     };
 
@@ -88,6 +165,62 @@ const MintSuccessModal = ({
                         )}
                     </div>
                 </div>
+
+                {/* Transaction Details */}
+                {mintResult && (
+                    <div className="mint-transaction-details" style={{ marginTop: '1rem', padding: '1rem', backgroundColor: 'rgba(0,0,0,0.4)', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)' }}>
+                        <h4 style={{ margin: '0 0 10px 0', fontSize: '1rem', color: '#fff' }}>Transaction Details</h4>
+
+                        {mintResult.tokenId !== undefined && (
+                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                                <span style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.9rem' }}>NFT ID:</span>
+                                <span style={{ color: '#fff', fontWeight: 'bold' }}>#{mintResult.tokenId}</span>
+                            </div>
+                        )}
+
+                        {mintResult.amountSpent !== undefined && (
+                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                                <span style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.9rem' }}>Amount Spent:</span>
+                                <span style={{ color: '#fff', fontWeight: 'bold' }}>{mintResult.amountSpent} CEO</span>
+                            </div>
+                        )}
+
+                        {mintResult.txHash && (
+                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                                <span style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.9rem' }}>Transaction:</span>
+                                <a
+                                    href={getExplorerUrl(mintResult.txHash)}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    style={{ color: 'var(--color-yellow)', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '4px' }}
+                                >
+                                    {mintResult.txHash.slice(0, 6)}...{mintResult.txHash.slice(-4)}
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+                                </a>
+                            </div>
+                        )}
+
+                        {(mintResult.txHash && mintResult.tokenId !== undefined && walletClient) && (
+                            <button
+                                onClick={handleAddNFTToWallet}
+                                disabled={isAddingToWallet}
+                                className="story-btn secondary"
+                                style={{
+                                    width: '100%',
+                                    marginTop: '12px',
+                                    padding: '8px 12px',
+                                    fontSize: '0.9rem',
+                                    display: 'flex',
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                    gap: '6px'
+                                }}
+                            >
+                                {isAddingToWallet ? 'Adding...' : '🦊 Add NFT to Wallet'}
+                            </button>
+                        )}
+                    </div>
+                )}
 
                 {/* Social Share Section */}
                 <div className="mint-success-share">

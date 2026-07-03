@@ -1,30 +1,95 @@
-import { useRef, useState, useEffect, useCallback } from "react";
-import "./memeGen.css";
-import "../landingpage/styles/story.css";
+import { useState, useEffect, useCallback } from "react";
+import { Helmet } from "react-helmet-async";
+import "./meme-gen/memeGen.css";
+import "./landingpage/styles/story.css";
 import InteractiveGlow from "../components/InteractiveGlow.js";
-import StickerCard from "./page_components/StickerCard.js";
 import { categorizedMemeTemplates, memeCategories } from "../constants/memeData";
-import SocialShareFooter from "./page_components/SocialShareFooter.js";
 import sharingService from "../services/SharingService.js";
 import AiGenerateModal from "../components/AiGenerateModal.js";
 import BrandifyModal from "../components/BrandifyModal.js";
 import MintConfirmModal from "../components/MintConfirmModal.js";
 import MintSuccessModal from "../components/MintSuccessModal.js";
 import memeApiService from "../services/MemeApiService.js";
+import { getMemeApiUserMessage, MemeApiError, MemeApiErrorCode } from "../services/memeApiErrors.js";
+import { useMemeApiPayment } from "../hooks/useMemeApiPayment.js";
+import { useMemeApiConnection } from "../hooks/useMemeApiConnection.js";
+import { useAiSuggestionMemory } from "../hooks/useAiSuggestionMemory.js";
+import { markLlmFailed, clearLlmFailure } from "../hooks/useLlmPreflight.js";
+import { useAccount } from 'wagmi';
+import { useTierData, useUserData } from "../hooks/useNftData";
 
-
-
+// Components
+import MemeSidebar from "./meme-gen/MemeSidebar.js";
+import MemeCanvas from "./meme-gen/MemeCanvas.js";
+import MemeControls from "./meme-gen/MemeControls.js";
+import ResponsiveMessage from "./meme-gen/ResponsiveMessage.js";
+import { useMemeCanvasLogic } from "../hooks/useMemeCanvasLogic.js";
 
 const MemeGen = () => {
+  // Use custom hook for dynamic tier data
+  const { activeTier, isLoading } = useTierData('MEME');
+  const { address, isConnected } = useAccount();
+  const { data: userData } = useUserData(address);
+
+  const {
+    status: connectionStatus,
+    paymentInfo,
+    llmPresets,
+    defaultLlm,
+    error: connectionError,
+    isLoading: connectionLoading,
+    refresh: refreshConnection,
+  } = useMemeApiConnection({ enabled: true });
+
+  const priceLabel = paymentInfo?.price_per_call || '$0.05';
+
+  const {
+    paidFetch,
+    ensureBaseChain,
+    ensurePaymentReady,
+    isOnBase,
+    isSwitchingChain,
+    usdcBalance,
+    isBalanceLoading,
+    hasSufficientUsdc,
+    shortAddress,
+  } = useMemeApiPayment(priceLabel);
+
+  const {
+    sessionId: aiSessionId,
+    allGenerations: aiHistory,
+    sessionsGrouped: aiSessionsGrouped,
+    saveGeneration: saveAiGeneration,
+    removeGeneration: removeAiGeneration,
+    clearSession: clearAiSessionHistory,
+    clearAll: clearAllAiHistory,
+  } = useAiSuggestionMemory();
+
   const [topText, setTopText] = useState("");
   const [bottomText, setBottomText] = useState("");
-  const [font, setFont] = useState("display");
+  const [font, setFont] = useState("impact");
   const [textColor, setTextColor] = useState("#ffffff");
   const [strokeColor, setStrokeColor] = useState("#000000");
   const [imageSrc, setImageSrc] = useState(null);
   const [activeCategory, setActiveCategory] = useState(memeCategories[0] || "");
   const [selectedTemplate, setSelectedTemplate] = useState(null);
   const [screenWidth, setScreenWidth] = useState(window.innerWidth);
+
+  const getTemplateName = useCallback(() => {
+    if (selectedTemplate) {
+      return (
+        Object.values(categorizedMemeTemplates)
+          .flat()
+          .find((t) => t.id === selectedTemplate)?.name || 'Custom Upload'
+      );
+    }
+    return imageSrc ? 'Custom Upload' : 'Template';
+  }, [selectedTemplate, imageSrc]);
+
+  // Canvas dimensions and frame state
+  const [canvasFormat, setCanvasFormat] = useState("dynamic"); // square, portrait, landscape, dynamic
+  const [imageDimensions, setImageDimensions] = useState({ width: 1, height: 1, ratio: 1 });
+  const [frameVariant, setFrameVariant] = useState('red'); // none, red, yellow
 
   // AI modal state
   const [isAiModalOpen, setIsAiModalOpen] = useState(false);
@@ -37,34 +102,8 @@ const MemeGen = () => {
   // Mint modal state
   const [showMintConfirm, setShowMintConfirm] = useState(false);
   const [showMintSuccess, setShowMintSuccess] = useState(false);
-
-
-  // sticker instances on canvas
-  const [items, setItems] = useState([]);
-  const [activeId, setActiveId] = useState(null);
-
-  // text positioning and sizing state
-  const [textPositions, setTextPositions] = useState({
-    top: { x: 0.5, y: 0.1, scale: 1 },
-    bottom: { x: 0.5, y: 0.90, scale: 1 }
-  });
-  const [activeTextId, setActiveTextId] = useState(null);
-
-  // resize state
-  const [isResizing, setIsResizing] = useState(false);
-  const [resizeTarget, setResizeTarget] = useState(null);
-  const [resizeStartScale, setResizeStartScale] = useState(1);
-  const [resizeStartY, setResizeStartY] = useState(0);
-  const [resizeStartX, setResizeStartX] = useState(0);
-
-  // rotation state
-  const [isRotating, setIsRotating] = useState(false);
-  const [rotateTarget, setRotateTarget] = useState(null);
-  const [rotateStartAngle, setRotateStartAngle] = useState(0);
-  const [rotateStartY, setRotateStartY] = useState(0);
-  const [rotateStartX, setRotateStartX] = useState(0);
-
-  const stageRef = useRef(null);
+  const [mintPreviewImage, setMintPreviewImage] = useState(null);
+  const [mintResult, setMintResult] = useState(null);
 
   const showToast = useCallback((message) => {
     // Simple toast implementation
@@ -94,6 +133,31 @@ const MemeGen = () => {
     sharingService.setToastFunction(showToast);
   }, [showToast]);
 
+  // Use the canvas logic hook
+  const {
+    items,
+    setItems,
+    textPositions,
+    stageRef,
+    activeId,
+    setActiveId,
+    activeTextId,
+    setActiveTextId,
+    onAddSticker,
+    removeAllStickers,
+    removeSticker,
+    handlePointerDown,
+    handleTextPointerDown,
+    handlePointerMove,
+    handlePointerUp,
+    handleResizeStart,
+    handleResizeMove,
+    handleResizeEnd,
+    handleRotateStart,
+    handleRotateMove,
+    handleRotateEnd
+  } = useMemeCanvasLogic(showToast);
+
   // Function to get templates for selected category
   const getTemplatesForCategory = (category) => {
     return (
@@ -118,6 +182,7 @@ const MemeGen = () => {
       const img = new Image();
       img.onload = () => {
         setImageSrc(resolvedSrc);
+        setImageDimensions({ width: img.naturalWidth, height: img.naturalHeight, ratio: img.naturalWidth / img.naturalHeight });
         showToast(`Applied ${template.name} template!`);
       };
       img.onerror = () => {
@@ -126,6 +191,75 @@ const MemeGen = () => {
       img.src = `${resolvedSrc}`;
     }
   }, [showToast]);
+
+  // Generate attributes for Meme NFT minting
+  const getMemeAttributes = useCallback(() => {
+    const attributes = [];
+
+    // Meme template
+    const templateName = selectedTemplate
+      ? Object.values(categorizedMemeTemplates).flat().find(t => t.id === selectedTemplate)?.name || "Custom Upload"
+      : imageSrc ? "Custom Upload" : "None";
+
+    attributes.push({
+      trait_type: "Template",
+      value: templateName
+    });
+
+    // Dimension
+    attributes.push({
+      trait_type: "Dimension",
+      value: canvasFormat.charAt(0).toUpperCase() + canvasFormat.slice(1)
+    });
+
+    // Frame
+    attributes.push({
+      trait_type: "Frame",
+      value: frameVariant === 'none' ? 'None' : frameVariant.charAt(0).toUpperCase() + frameVariant.slice(1)
+    });
+
+    // Top text (if exists)
+    if (topText) {
+      attributes.push({
+        trait_type: "Top Text",
+        value: topText
+      });
+    }
+
+    // Bottom text (if exists)
+    if (bottomText) {
+      attributes.push({
+        trait_type: "Bottom Text",
+        value: bottomText
+      });
+    }
+
+    // Font
+    if (font) {
+      attributes.push({
+        trait_type: "Font",
+        value: font.charAt(0).toUpperCase() + font.slice(1)
+      });
+    }
+
+    // Stickers
+    if (items && items.length > 0) {
+      attributes.push({
+        trait_type: "Stickers Count",
+        value: items.length.toString()
+      });
+
+      const stickerNames = items.filter(i => i.name).map(i => i.name);
+      if (stickerNames.length > 0) {
+        attributes.push({
+          trait_type: "Stickers",
+          value: stickerNames.join(", ")
+        });
+      }
+    }
+
+    return attributes;
+  }, [selectedTemplate, imageSrc, canvasFormat, frameVariant, topText, bottomText, font, items]);
 
   // Function to handle category switching
   const handleCategorySwitch = (category) => {
@@ -157,13 +291,12 @@ const MemeGen = () => {
       setItems([]);
       setTopText("");
       setBottomText("");
-      setFont("display");
       setTextColor("#ffffff");
       setStrokeColor("#000000");
       handleTemplateSelect(randomTemplate.id);
       showToast(`Randomized to ${randomTemplate.name}!`);
     }
-  }, [showToast, handleTemplateSelect]);
+  }, [showToast, handleTemplateSelect, setItems, setActiveId, setActiveTextId]);
 
   // Check screen width on mount and resize
   useEffect(() => {
@@ -193,43 +326,17 @@ const MemeGen = () => {
     return () => clearTimeout(timer);
   }, [randomizeMemeTemplate]);
 
-  // Show responsive message for small screens
+  const handleSwitchToBase = async () => {
+    try {
+      await ensureBaseChain();
+    } catch (chainError) {
+      showToast(getMemeApiUserMessage(chainError));
+    }
+  };
+
   if (screenWidth < 992) {
-    return (
-      <div className="responsive-message-container">
-        <div className="responsive-message-card">
-          <div className="responsive-message-icon">💻</div>
-          <h1 className="responsive-message-title">CEO of Responsiveness</h1>
-          <p className="responsive-message-subtitle">
-            Our dev team is currently experiencing a severe shortage of coffee and sleep,
-            which has resulted in this masterpiece being desktop-exclusive.
-          </p>
-          <div className="responsive-message-requirements">
-            <div className="requirement-item">
-              <span className="requirement-icon">📱</span>
-              <span>Current: {screenWidth}px</span>
-            </div>
-            <div className="requirement-item">
-              <span className="requirement-icon">💻</span>
-              <span>Required: 992px+</span>
-            </div>
-          </div>
-          <p className="responsive-message-footer">
-            Please fire up your laptop or desktop for the full REKT CEO experience. 🚀
-            We welcome all devs to join the team and help us build the future of memes. 🏗️
-          </p>
-        </div>
-      </div>
-    );
+    return <ResponsiveMessage screenWidth={screenWidth} />;
   }
-
-
-
-
-
-
-
-
 
   const handleOpenAiModal = () => {
     if (!imageSrc) {
@@ -241,7 +348,6 @@ const MemeGen = () => {
 
   const handleCloseAiModal = (selectedOption) => {
     if (selectedOption && selectedOption.topText && selectedOption.bottomText) {
-      // User selected an option from the modal
       setTopText(selectedOption.topText.toUpperCase());
       setBottomText(selectedOption.bottomText.toUpperCase());
       showToast("✨ Meme text applied successfully!");
@@ -249,38 +355,118 @@ const MemeGen = () => {
     setIsAiModalOpen(false);
   };
 
-  const handleAiGenerate = async (topic, isTwitterPost = false) => {
+  const handleReuseFromHistory = (option, generation) => {
+    if (generation.templateId) {
+      const templateCategory = Object.keys(categorizedMemeTemplates).find((category) =>
+        categorizedMemeTemplates[category].some((t) => t.id === generation.templateId)
+      );
+      if (templateCategory) {
+        setActiveCategory(templateCategory);
+      }
+      handleTemplateSelect(generation.templateId);
+    } else {
+      const src = generation.templateSrc || generation.templateThumbnail;
+      if (src) {
+        const img = new Image();
+        img.onload = () => {
+          setImageSrc(src);
+          setSelectedTemplate(null);
+          setImageDimensions({
+            width: img.naturalWidth,
+            height: img.naturalHeight,
+            ratio: img.naturalWidth / img.naturalHeight,
+          });
+        };
+        img.onerror = () => showToast('Could not restore template image from history.');
+        img.src = src;
+      }
+    }
+
+    setTopText(option.top_text.toUpperCase());
+    setBottomText(option.bottom_text.toUpperCase());
+    setIsAiModalOpen(false);
+    showToast(`✨ Applied "${generation.templateName}" with saved caption`);
+  };
+
+  const handleAiGenerate = async (topic, isTwitterPost = false, llmOptions = {}) => {
     if (!imageSrc) {
       showToast("Please select a meme template first!");
       setIsAiModalOpen(false);
-      return;
+      return { error: { message: "Please select a meme template first!" } };
+    }
+
+    const paymentRequired = paymentInfo?.protocol === 'x402';
+
+    if (paymentRequired) {
+      if (!isConnected || !paidFetch) {
+        return {
+          error: {
+            code: MemeApiErrorCode.WALLET_REQUIRED,
+            message: `Connect your wallet on Base to pay ${paymentInfo?.price_per_call || '$0.05'} per generation.`,
+          },
+        };
+      }
+
+      try {
+        await ensurePaymentReady();
+      } catch (paymentError) {
+        return {
+          error: {
+            code: paymentError.code || MemeApiErrorCode.PAYMENT_FAILED,
+            message: getMemeApiUserMessage(paymentError),
+          },
+        };
+      }
     }
 
     setIsGenerating(true);
 
     try {
-      // Convert the current image to a blob/file for the API
       const response = await fetch(imageSrc);
       const blob = await response.blob();
       const file = new File([blob], 'template.jpg', { type: 'image/jpeg' });
 
-      // Call the API with topic, isTwitterPost flag, and template image
-      const result = await memeApiService.generateMemeText(topic, isTwitterPost, file);
+      const result = await memeApiService.generateMemeText(topic, isTwitterPost, file, {
+        llm: llmOptions.llm,
+        llmModel: llmOptions.llmModel,
+        fetchFn: paymentRequired ? paidFetch : fetch,
+        paymentRequired,
+      });
 
-      // Return the result so the modal can display the options
+      if (result?.options) {
+        if (llmOptions.llm) clearLlmFailure(llmOptions.llm);
+        await saveAiGeneration({
+          topic,
+          isTwitterPost,
+          llm: llmOptions.llm,
+          llmModel: llmOptions.llmModel,
+          templateId: selectedTemplate,
+          templateName: getTemplateName(),
+          templateSrc: imageSrc,
+          options: result.options,
+          metadata: result.metadata,
+        });
+      }
+
       return result;
     } catch (error) {
       console.error('Error generating meme:', error);
 
-      let errorMessage = "Failed to generate meme text. ";
-      if (error.message.includes('Failed to fetch')) {
-        errorMessage += "Is the backend running on localhost:8001?";
-      } else {
-        errorMessage += error.message;
+      const message = getMemeApiUserMessage(error);
+      if (llmOptions.llm && error instanceof MemeApiError && error.status >= 500) {
+        markLlmFailed(llmOptions.llm);
+      }
+      const errorPayload = {
+        message,
+        code: error instanceof MemeApiError ? error.code : undefined,
+        retryAfterMs: error instanceof MemeApiError ? error.retryAfterMs : undefined,
+      };
+
+      if (!(error instanceof MemeApiError)) {
+        showToast(message);
       }
 
-      showToast(errorMessage);
-      return null;
+      return { error: errorPayload };
     } finally {
       setIsGenerating(false);
     }
@@ -345,213 +531,12 @@ const MemeGen = () => {
   const onUpload = (file) => {
     const url = URL.createObjectURL(file);
     setImageSrc(url);
+    const img = new Image();
+    img.onload = () => {
+      setImageDimensions({ width: img.naturalWidth, height: img.naturalHeight, ratio: img.naturalWidth / img.naturalHeight });
+    };
+    img.src = url;
   };
-
-  const onAddSticker = (s) => {
-    setItems((prev) => [
-      ...prev,
-      {
-        id: `${s.id}-${crypto.randomUUID()}`,
-        x: 40 + prev.length * 16,
-        y: 40 + prev.length * 16,
-        image: s.image,
-        name: s.name,
-        scale: 1,
-        rotation: 0,
-      },
-    ]);
-  };
-
-  const handlePointerDown = (id) => (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setActiveId(id);
-    e.target.setPointerCapture(e.pointerId);
-  };
-
-  const handleTextPointerDown = (textId) => (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setActiveTextId(textId);
-    e.target.setPointerCapture(e.pointerId);
-  };
-
-  const handlePointerMove = (e) => {
-    if ((!activeId && !activeTextId) || !stageRef.current) return;
-
-    const rect = stageRef.current.getBoundingClientRect();
-    const x = e.clientX - rect.left - 16;
-    const y = e.clientY - rect.top - 16;
-
-    if (activeId) {
-      setItems((prev) =>
-        prev.map((it) =>
-          it.id === activeId
-            ? {
-              ...it,
-              x: Math.max(0, Math.min(rect.width - 32, x)),
-              y: Math.max(0, Math.min(rect.height - 32, y)),
-            }
-            : it
-        )
-      );
-    }
-
-    if (activeTextId) {
-      setTextPositions((prev) => ({
-        ...prev,
-        [activeTextId]: {
-          ...prev[activeTextId],
-          x: Math.max(0, Math.min(1, x / rect.width)),
-          y: Math.max(0, Math.min(1, y / rect.height)),
-        }
-      }));
-    }
-  };
-
-  const handlePointerUp = () => {
-    setActiveId(null);
-    setActiveTextId(null);
-  };
-
-
-
-  const handleResizeStart = (targetType, targetId, e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsResizing(true);
-    setResizeTarget({ type: targetType, id: targetId });
-
-    if (targetType === 'text') {
-      setResizeStartScale(textPositions[targetId].scale);
-    } else if (targetType === 'sticker') {
-      const sticker = items.find(item => item.id === targetId);
-      setResizeStartScale(sticker.scale);
-    }
-    setResizeStartY(e.clientY);
-    setResizeStartX(e.clientX);
-  };
-
-  const handleResizeMove = (e) => {
-    if (!isResizing || !resizeTarget) return;
-
-    const deltaY = e.clientY - resizeStartY;
-    const deltaX = e.clientX - resizeStartX;
-
-    // Since resize handle is at bottom-right corner:
-    // - Dragging southeast (down-right) should increase size
-    // - Dragging northwest (up-left) should decrease size
-    // We combine both X and Y movement for intuitive diagonal resizing
-    const scaleDelta = (deltaY + deltaX) * 0.003; // Combined movement for natural feel
-    const newScale = Math.max(0.5, Math.min(2, resizeStartScale + scaleDelta));
-
-    if (resizeTarget.type === 'text') {
-      setTextPositions((prev) => ({
-        ...prev,
-        [resizeTarget.id]: {
-          ...prev[resizeTarget.id],
-          scale: newScale
-        }
-      }));
-    } else if (resizeTarget.type === 'sticker') {
-      setItems((prev) =>
-        prev.map((item) =>
-          item.id === resizeTarget.id
-            ? { ...item, scale: newScale }
-            : item
-        )
-      );
-    }
-  };
-
-  const handleResizeEnd = () => {
-    setIsResizing(false);
-    setResizeTarget(null);
-    setResizeStartScale(1);
-    setResizeStartY(0);
-    setResizeStartX(0);
-  };
-
-  const handleRotateStart = (targetType, targetId, e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsRotating(true);
-    setRotateTarget({ type: targetType, id: targetId });
-
-    if (targetType === 'sticker') {
-      const sticker = items.find(item => item.id === targetId);
-      setRotateStartAngle(sticker.rotation || 0);
-    }
-    setRotateStartY(e.clientY);
-    setRotateStartX(e.clientX);
-  };
-
-  const handleRotateMove = (e) => {
-    if (!isRotating || !rotateTarget) return;
-
-    const rect = stageRef.current.getBoundingClientRect();
-    const sticker = items.find(item => item.id === rotateTarget.id);
-
-    if (!sticker) return;
-
-    // Calculate center of sticker
-    const stickerCenterX = sticker.x + 24; // 24 is half of max sticker size (48px)
-    const stickerCenterY = sticker.y + 24;
-
-    // Calculate mouse position relative to sticker center
-    const mouseX = e.clientX - rect.left - stickerCenterX;
-    const mouseY = e.clientY - rect.top - stickerCenterY;
-
-    // Calculate current angle from center to mouse
-    const currentAngle = Math.atan2(mouseY, mouseX) * (180 / Math.PI);
-
-    // Calculate start angle from center to initial mouse position
-    const startAngle = Math.atan2(rotateStartY - rect.top - stickerCenterY, rotateStartX - rect.left - stickerCenterX) * (180 / Math.PI);
-
-    // Calculate the difference and apply to start rotation
-    let deltaAngle = currentAngle - startAngle;
-
-    // Handle angle wrapping for smooth rotation
-    if (deltaAngle > 180) deltaAngle -= 360;
-    if (deltaAngle < -180) deltaAngle += 360;
-
-    // Apply rotation
-    const newRotation = (rotateStartAngle + deltaAngle) % 360;
-
-    if (rotateTarget.type === 'sticker') {
-      setItems((prev) =>
-        prev.map((item) =>
-          item.id === rotateTarget.id
-            ? { ...item, rotation: newRotation }
-            : item
-        )
-      );
-    }
-  };
-
-  const handleRotateEnd = () => {
-    setIsRotating(false);
-    setRotateTarget(null);
-    setRotateStartAngle(0);
-    setRotateStartY(0);
-    setRotateStartX(0);
-  };
-
-  const removeAllStickers = () => {
-    setItems([]);
-    setActiveId(null);
-    showToast("All stickers removed!");
-  };
-
-  const removeSticker = (stickerId) => {
-    setItems(items.filter(item => item.id !== stickerId));
-    if (activeId === stickerId) {
-      setActiveId(null);
-    }
-    showToast("Sticker removed!");
-  };
-
-
 
   const handleSocialShare = async (platform) => {
     await sharingService.handleSocialShare(platform, {
@@ -561,398 +546,149 @@ const MemeGen = () => {
     });
   };
 
-
   return (
     <div className="meme-gen-container">
+      <Helmet>
+        <title>CEO Meme Generator | REKT CEO ($CEO)</title>
+        <meta name="description" content="Create crypto memes with the free $CEO meme generator. Build, customize and share your best memes with the REKT CEO community." />
+        <link rel="canonical" href="https://www.rektceo.club/memes" />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://www.rektceo.club/memes" />
+        <meta property="og:title" content="CEO Meme Generator | REKT CEO ($CEO)" />
+        <meta property="og:description" content="Create crypto memes with the free $CEO meme generator." />
+        <meta property="og:image" content="https://www.rektceo.club/rekt.webp" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:site" content="@rekt_ceo" />
+        <meta name="twitter:image" content="https://www.rektceo.club/rekt.webp" />
+        <script type="application/ld+json">{JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "WebApplication",
+          "name": "CEO Meme Generator",
+          "url": "https://www.rektceo.club/memes",
+          "applicationCategory": "EntertainmentApplication",
+          "description": "Free AI-powered crypto meme generator for the REKT CEO ($CEO) community. Create, customize, and mint memes as NFTs on Base.",
+          "featureList": "Template library, AI generation, custom text and fonts, NFT minting, social sharing",
+          "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+        })}</script>
+        {/* <script type="application/ld+json">{JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "FAQPage",
+          "mainEntity": [
+            { "@type": "Question", "name": "How do I create a meme?", "acceptedAnswer": { "@type": "Answer", "text": "Choose a template from the library, add top and bottom text, pick fonts and colors. You can also generate images with AI or upload your own. Hit share or mint to save as an NFT on Base." } },
+            { "@type": "Question", "name": "Is the REKT CEO meme generator free?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. Creating and sharing memes is free. Minting memes as NFTs may use a small amount of $CEO token or gas on Base." } },
+            { "@type": "Question", "name": "What chains does the meme generator support?", "acceptedAnswer": { "@type": "Answer", "text": "Meme creation works in-browser. NFT minting is on Base L2. $CEO token is on Base and Solana." } }
+          ]
+        })}</script> */}
+      </Helmet>
       <InteractiveGlow />
 
       <main className="meme-gen-main">
+        {/* <section className="meme-intro" style={{ textAlign: "center", padding: "2rem", color: "white" }}>
+          <h1 style={{ fontSize: "2rem", marginBottom: "1rem" }}>Free AI Crypto Meme Generator</h1>
+          <p style={{ color: "#aaa" }}>Create $CEO memes in seconds. Choose a template, add your text, generate with AI, and share with the community. Own your memes as NFTs and earn royalties forever.</p>
+        </section> */}
+
         <header className="meme-gen-header">
           {/* <h1 className="meme-gen-title">Rekt CEO Meme Generator</h1> */}
-
         </header>
 
         <section className="meme-gen-grid">
           {/* Left Column - Mint Info & Ready */}
-          <div className="meme-left-column">
-
-
-            {/* Mint Info */}
-            <div className="meme-mint-card">
-              <div className="meme-mint-header">
-                <h3 className="meme-mint-title">REKT CEO MEME COLLECTION</h3>
-              </div>
-              <div className="meme-mint-content">
-                <div className="meme-mint-grid">
-                  <div className="meme-mint-item">
-                    <div className="meme-mint-label">Total supply</div>
-                    <div className="meme-mint-value">10,000</div>
-                  </div>
-                  <div className="meme-mint-item">
-                    <div className="meme-mint-label">Current supply</div>
-                    <div className="meme-mint-value">--</div>
-                  </div>
-                  <div className="meme-mint-item">
-                    <div className="meme-mint-label">Current price (CEO)</div>
-                    <div className="meme-mint-value">priceless</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Sticker Section */}
-            <StickerCard
-              onAddSticker={onAddSticker}
-              onRemoveAllStickers={removeAllStickers}
-            />
-
-            <div className="meme-subtitle-card">
-              <div className="meme-subtitle-content">
-                <p className="meme-gen-subtitle-mint">
-                  Craft memes with AI vibes, Own your digital creation with rekt CEO energy. One click to go viral.
-                </p>
-              </div>
-            </div>
-          </div>
+          <MemeSidebar
+            isLoading={isLoading}
+            onAddSticker={onAddSticker}
+            removeAllStickers={removeAllStickers}
+          />
 
           {/* Center Column - Canvas */}
-          <div className="meme-canvas-card">
-            <div className="meme-canvas-header">
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                }}
-              >
-                <h3 className="meme-canvas-title">Meme Preview</h3>
-                <div className="meme-canvas-actions">
-                  {/* <button onClick={handleOpenBrandifyModal} className="story-btn secondary meme-canvas-button">
-                    🎨 Brandify
-                  </button> */}
-                  <button
-                    onClick={randomizeMemeTemplate}
-                    className="story-btn secondary meme-canvas-primary"
-                  >
-                    🔮 Randomize
-                  </button>
-                </div>
-              </div>
-            </div>
-            <div className="meme-canvas-content">
-              <div
-                ref={stageRef}
-                onPointerDown={(e) => {
-                  // If clicking on the canvas itself (not on a sticker or text), release any active drag
-                  if (e.target === e.currentTarget) {
-                    setActiveId(null);
-                    setActiveTextId(null);
-                  }
-                }}
-                onPointerMove={(e) => {
-                  handlePointerMove(e);
-                  handleResizeMove(e);
-                  handleRotateMove(e);
-                }}
-                onPointerUp={(e) => {
-                  handlePointerUp(e);
-                  handleResizeEnd(e);
-                  handleRotateEnd(e);
-                }}
-                onDragOver={(e) => e.preventDefault()}
-                onDrop={(e) => e.preventDefault()}
-                className={`meme-canvas-stage ${imageSrc ? "has-image" : ""}`}
-                style={{
-                }}
-              >
-                {imageSrc && (
-                  <img
-                    key={selectedTemplate || 'bg'}
-                    src={imageSrc}
-                    alt=""
-                    draggable={false}
-                    className="meme-canvas-background"
-                  />
-                )}
-                {/* Top Text */}
-                <div
-                  className={`meme-text top ${font === "display"
-                    ? "font-display"
-                    : font === "tech"
-                      ? "font-tech"
-                      : "font-brand"
-                    }`}
-                  style={{
-                    color: textColor,
-                    WebkitTextStrokeColor: strokeColor,
-                    left: `${textPositions.top.x * 100}%`,
-                    top: `${textPositions.top.y * 100}%`,
-                    transform: `translate(-50%, -50%) scale(${textPositions.top.scale})`,
-                    cursor: 'move',
-                    position: 'absolute',
-                    zIndex: 5
-                  }}
-                  onPointerDown={handleTextPointerDown('top')}
-                >
-                  <span style={{ WebkitTextStrokeColor: strokeColor }}>
-                    {topText}
-                  </span>
-                  <div
-                    className="text-resize-handle"
-                    onPointerDown={(e) => handleResizeStart('text', 'top', e)}
-                  />
-                </div>
+          <MemeCanvas
+            stageRef={stageRef}
+            items={items}
+            textPositions={textPositions}
+            activeId={activeId}
+            activeTextId={activeTextId}
+            handlePointerDown={handlePointerDown}
+            handleTextPointerDown={handleTextPointerDown}
+            handlePointerMove={handlePointerMove}
+            handlePointerUp={handlePointerUp}
+            handleResizeStart={handleResizeStart}
+            handleResizeMove={handleResizeMove}
+            handleResizeEnd={handleResizeEnd}
+            handleRotateStart={handleRotateStart}
+            handleRotateMove={handleRotateMove}
+            handleRotateEnd={handleRotateEnd}
+            removeSticker={removeSticker}
+            setActiveId={setActiveId}
+            setActiveTextId={setActiveTextId}
 
-                {/* Stickers */}
-                {items.map((it) => (
-                  <div
-                    key={it.id}
-                    onPointerDown={handlePointerDown(it.id)}
-                    className="meme-sticker"
-                    style={{
-                      left: it.x,
-                      top: it.y,
-                      transform: `scale(${it.scale}) rotate(${it.rotation}deg)`
-                    }}
-                  >
-                    <img
-                      src={it.image}
-                      alt={it.name}
-                      draggable="false"
-                      onDragStart={(e) => e.preventDefault()}
-                      style={{ width: '60px', height: '60px', objectFit: 'contain' }}
-                    />
-                    <button
-                      className="sticker-delete-btn"
-                      onClick={() => removeSticker(it.id)}
-                      title="Remove sticker"
-                    >
-                      ✕
-                    </button>
-                    <div
-                      className="sticker-resize-handle"
-                      onPointerDown={(e) => handleResizeStart('sticker', it.id, e)}
-                    />
-                    <div
-                      className="sticker-rotate-handle"
-                      onPointerDown={(e) => handleRotateStart('sticker', it.id, e)}
-                    />
-                    <div className="sticker-rotation-indicator">
-                      {Math.round(it.rotation)}°
-                    </div>
-                  </div>
-                ))}
-
-                {/* Bottom Text */}
-                <div
-                  className={`meme-text bottom ${font === "display"
-                    ? "font-display"
-                    : font === "tech"
-                      ? "font-tech"
-                      : "font-brand"
-                    }`}
-                  style={{
-                    color: textColor,
-                    left: `${textPositions.bottom.x * 100}%`,
-                    bottom: `${(1 - textPositions.bottom.y) * 100}%`,
-                    transform: `translate(-50%, 50%) scale(${textPositions.bottom.scale})`,
-                    cursor: 'move',
-                    position: 'absolute',
-                    zIndex: 5
-                  }}
-                  onPointerDown={handleTextPointerDown('bottom')}
-                >
-                  <span style={{ WebkitTextStrokeColor: strokeColor }}>
-                    {bottomText}
-                  </span>
-                  <div
-                    className="text-resize-handle"
-                    onPointerDown={(e) => handleResizeStart('text', 'bottom', e)}
-                  />
-                </div>
-              </div>
-
-            </div>
-            {/* Social Share Footer */}
-            <SocialShareFooter onSocialShare={handleSocialShare} />
-          </div>
+            imageSrc={imageSrc}
+            selectedTemplate={selectedTemplate}
+            canvasFormat={canvasFormat}
+            setCanvasFormat={setCanvasFormat}
+            imageDimensions={imageDimensions}
+            topText={topText}
+            bottomText={bottomText}
+            font={font}
+            textColor={textColor}
+            strokeColor={strokeColor}
+            randomizeMemeTemplate={randomizeMemeTemplate}
+            handleSocialShare={handleSocialShare}
+            frameVariant={frameVariant}
+            setFrameVariant={setFrameVariant}
+          />
 
           {/* Right Column - Controls */}
-          <div className="right-column">
-            <div className="meme-controls-card">
-              <div className="meme-controls-header">
-                <h3 className="meme-controls-title">Controls</h3>
-              </div>
-              <div className="meme-controls-content">
-                <div className="meme-control-group">
-
-
-                  {/* Meme Template Selection */}
-                  <div className="meme-control-item">
-                    <label className="meme-label">Meme Templates</label>
-
-                    {/* Template Categories Navigation */}
-                    <div className="meme-template-categories">
-                      {memeCategories.map(
-                        (category) => (
-                          <button
-                            key={category}
-                            className={`meme-category-btn ${activeCategory === category ? "active" : ""
-                              }`}
-                            onClick={() => handleCategorySwitch(category)}
-                          >
-                            {category}
-                          </button>
-                        )
-                      )}
-                    </div>
-
-                    {/* Template Grid with Horizontal Scroll */}
-                    <div className="meme-template-container">
-                      <div className="meme-template-grid">
-                        {getTemplatesForCategory(activeCategory).map(
-                          (template) => (
-                            <div
-                              key={template.id}
-                              className={`meme-template-item ${selectedTemplate === template.id ? "selected" : ""
-                                }`}
-                              onClick={() => handleTemplateSelect(template.id)}
-                            >
-                              <img
-                                src={template.src}
-                                alt={template.name}
-                                loading="lazy"
-                                className="meme-template-image"
-                              />
-                            </div>
-                          )
-                        )}
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="meme-control-row">
-                    <div className="meme-control-item">
-                      <input
-                        type="file"
-                        accept="image/*"
-                        onChange={(e) => e.target.files && onUpload(e.target.files[0])}
-                        className="meme-file-input"
-                      />
-                    </div>
-                  </div>
-
-
-                  <div className="meme-control-row">
-                    <div className="meme-control-item">
-                      <label htmlFor="top" className="meme-label">
-                        Top text
-                      </label>
-                      <input
-                        id="top"
-                        placeholder="TOP TEXT"
-                        value={topText}
-                        onChange={(e) => setTopText(e.target.value.toUpperCase())}
-                        className="meme-input"
-                      />
-                    </div>
-                    <div className="meme-control-item">
-                      <label htmlFor="bottom" className="meme-label">
-                        Bottom text
-                      </label>
-                      <input
-                        id="bottom"
-                        placeholder="BOTTOM TEXT"
-                        value={bottomText}
-                        onChange={(e) =>
-                          setBottomText(e.target.value.toUpperCase())
-                        }
-                        className="meme-input"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="meme-control-row">
-                    <div className="meme-control-item">
-                      <label className="meme-label">Font</label>
-                      <select
-                        value={font}
-                        onChange={(e) => setFont(e.target.value)}
-                        className="meme-select"
-                      >
-                        <option value="display">Bebas Neue</option>
-                        <option value="tech">Chakra Petch</option>
-                        <option value="brand">Space Grotesk</option>
-                      </select>
-                    </div>
-                    <div className="meme-control-item">
-                      <label className="meme-label">AI assist</label>
-                      <button
-                        onClick={handleOpenAiModal}
-                        className="story-btn primary"
-                        style={{ width: "100%" }}
-                      >
-                        ✨ AI Suggest
-                      </button>
-                    </div>
-                  </div>
-
-                  <div className="meme-control-row">
-                    <div className="meme-control-item">
-                      <label className="meme-label">Text color</label>
-                      <input
-                        type="color"
-                        value={textColor}
-                        onChange={(e) => setTextColor(e.target.value)}
-                        className="meme-color-input"
-                      />
-                    </div>
-                    <div className="meme-control-item">
-                      <label className="meme-label">Outline</label>
-                      <input
-                        type="color"
-                        value={strokeColor}
-                        onChange={(e) => setStrokeColor(e.target.value)}
-                        className="meme-color-input"
-                      />
-                    </div>
-                  </div>
-
-                  {/* Ready Section */}
-                </div>
-              </div>
-            </div>
-
-            <div className="meme-ready-card">
-              <div className="meme-ready-header">
-                <h3 className="meme-ready-title">Ready to Own Your MEMEs?</h3>
-              </div>
-              <div className="meme-ready-content">
-                {/* <p className="meme-ready-text">Mint your meme to show the world the CEO of rekt you truly are.</p> */}
-                <button
-                  onClick={async () => {
-                    //DO NOT DELETE
-                    // if (!imageSrc) {
-                    //   showToast("Please select a meme template first!");
-                    //   return;
-                    // }
-                    // // Capture the canvas as image
-                    // const preview = await exportNodeToPng(stageRef.current);
-                    // setMintPreviewImage(preview);
-                    // setShowMintConfirm(true);
-                  }}
-                  className="story-btn secondary"
-                  style={{ width: '100%' }}
-                >
-                  Mint NFT (Coming Soon)
-                </button>
-              </div>
-            </div>
-          </div>
-
+          <MemeControls
+            activeCategory={activeCategory}
+            memeCategories={memeCategories}
+            handleCategorySwitch={handleCategorySwitch}
+            getTemplatesForCategory={getTemplatesForCategory}
+            selectedTemplate={selectedTemplate}
+            handleTemplateSelect={handleTemplateSelect}
+            onUpload={onUpload}
+            topText={topText}
+            setTopText={setTopText}
+            bottomText={bottomText}
+            setBottomText={setBottomText}
+            font={font}
+            setFont={setFont}
+            handleOpenAiModal={handleOpenAiModal}
+            aiSuggestLabel="✨ AI Suggest"
+            aiSuggestPrice={paymentInfo?.protocol === 'x402' ? priceLabel : null}
+            memeApiOnline={connectionStatus === 'online'}
+            textColor={textColor}
+            setTextColor={setTextColor}
+            strokeColor={strokeColor}
+            setStrokeColor={setStrokeColor}
+            isConnected={isConnected}
+            userData={userData}
+            imageSrc={imageSrc}
+            showToast={showToast}
+            stageRef={stageRef}
+            setMintPreviewImage={setMintPreviewImage}
+            setShowMintConfirm={setShowMintConfirm}
+            activeTier={activeTier}
+          />
 
         </section>
       </main>
+
+      {/* <section className="meme-gen-about" aria-label="About the Meme Generator" style={{ position: 'absolute', width: '1px', height: '1px', padding: 0, margin: '-1px', overflow: 'hidden', clip: 'rect(0,0,0,0)', whiteSpace: 'nowrap', border: 0 }}>
+        <h2>About the CEO Meme Generator</h2>
+        <p>The REKT CEO meme generator lets you create crypto memes in seconds. Pick from curated templates, add your own text, or use AI to generate images. Customize fonts, colors, and frames, then share to socials or mint your meme as an NFT on Base.</p>
+        <p>Built for the $CEO community — free to use, no signup required to create. Connect your wallet to mint and own your memes on-chain.</p>
+        <h3>Frequently asked questions</h3>
+        <dl>
+          <dt>How do I create a meme?</dt>
+          <dd>Choose a template, add top and bottom text, pick fonts and colors. You can also generate images with AI or upload your own. Share or mint to save as an NFT on Base.</dd>
+          <dt>Is the meme generator free?</dt>
+          <dd>Yes. Creating and sharing memes is free. Minting as NFTs may use a small amount of $CEO or gas on Base.</dd>
+          <dt>What chains are supported?</dt>
+          <dd>Meme creation works in your browser. NFT minting is on Base L2. $CEO is on Base and Solana.</dd>
+        </dl>
+      </section> */}
 
       {/* AI Generate Modal */}
       <AiGenerateModal
@@ -960,6 +696,31 @@ const MemeGen = () => {
         onClose={handleCloseAiModal}
         onGenerate={handleAiGenerate}
         isLoading={isGenerating}
+        isConnected={isConnected}
+        isOnBase={isOnBase}
+        isSwitchingChain={isSwitchingChain}
+        paymentInfo={paymentInfo}
+        connectionStatus={connectionStatus}
+        connectionError={connectionError}
+        llmPresets={llmPresets}
+        defaultLlm={defaultLlm}
+        llmsLoading={connectionLoading}
+        onRefreshConnection={refreshConnection}
+        usdcBalance={usdcBalance}
+        isBalanceLoading={isBalanceLoading}
+        hasSufficientUsdc={hasSufficientUsdc}
+        shortAddress={shortAddress}
+        onSwitchToBase={handleSwitchToBase}
+        priceLabel={priceLabel}
+        templateSrc={imageSrc}
+        templateName={getTemplateName()}
+        sessionsGrouped={aiSessionsGrouped}
+        currentSessionId={aiSessionId}
+        historyCount={aiHistory.length}
+        onReuseFromHistory={handleReuseFromHistory}
+        onRemoveGeneration={removeAiGeneration}
+        onClearSessionHistory={clearAiSessionHistory}
+        onClearAllHistory={clearAllAiHistory}
       />
 
       {/* Brandify Modal */}
@@ -975,29 +736,34 @@ const MemeGen = () => {
       <MintConfirmModal
         isOpen={showMintConfirm}
         onClose={() => setShowMintConfirm(false)}
-        onConfirm={() => {
+        onConfirm={(result) => {
           setShowMintConfirm(false);
+          setMintResult(result);
           setShowMintSuccess(true);
           showToast("🎉 Meme minted successfully!");
         }}
-        imagePreview={null}
+        imagePreview={mintPreviewImage}
         type="MEME"
         pricing={{
-          tier: "Standard",
-          usdPrice: "Free",
-          ceoPrice: "Priceless",
-          currentSupply: "--",
-          totalSupply: "10,000"
+          tier: activeTier?.name || "Standard",
+          usdPrice: activeTier?.priceUSD ? `$${activeTier.priceUSD}` : "Free",
+          ceoPrice: activeTier?.priceCEO ? `${activeTier.priceCEO.toLocaleString()} CEO` : "Priceless",
+          currentSupply: activeTier?.minted?.toLocaleString() || "--",
+          totalSupply: activeTier?.supply?.toLocaleString() || "10,000"
         }}
+        userData={userData}
+        isConnected={isConnected}
+        attributes={getMemeAttributes()}
       />
 
       {/* Mint Success Modal */}
       <MintSuccessModal
         isOpen={showMintSuccess}
         onClose={() => setShowMintSuccess(false)}
-        imagePreview={null}
+        imagePreview={mintPreviewImage}
         type="MEME"
         onSocialShare={handleSocialShare}
+        mintResult={mintResult}
       />
     </div>
   );

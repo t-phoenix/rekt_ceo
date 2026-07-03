@@ -40,7 +40,7 @@ The website is built using:
 - **Styling**: Vanilla CSS with Tailwind-style utility integrations.
 
 ## Disclaimer
-$CEO is a memecoin created for fun with absolutely no intrinsic value or any expectation of financial return. It is for entertainment purposes only. $CEO is inspired by the memecoin culture and community conviction.
+Rekt $CEO is a memecoin created for fun with absolutely no intrinsic value or any expectation of financial return. It is for entertainment purposes only. Rekt $CEO is inspired by the memecoin culture and community conviction.
 
 ---
 For more information, visit [rektceo.club](https://rektceo.club) or contact the team at [contact@rektceo.club](mailto:contact@rektceo.club).

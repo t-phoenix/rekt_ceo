@@ -9,37 +9,41 @@ const configSchema = z.object({
   // Server
   port: z.string().transform(Number).pipe(z.number().min(1).max(65535)),
   nodeEnv: z.enum(['development', 'production', 'test']),
-  
+
   // Blockchain
   chainId: z.string().transform(Number),
   rpcUrl: z.string().url(),
   rpcUrlFallback: z.string().url().optional(),
   backendPrivateKey: z.string().regex(/^0x[a-fA-F0-9]{64}$/),
-  
+
   // Contract addresses
   minterContractAddress: z.string().regex(/^0x[a-fA-F0-9]{40}$/),
   pfpCollectionAddress: z.string().regex(/^0x[a-fA-F0-9]{40}$/),
   memeCollectionAddress: z.string().regex(/^0x[a-fA-F0-9]{40}$/),
   ceoTokenAddress: z.string().regex(/^0x[a-fA-F0-9]{40}$/),
-  
+
   // IPFS/Pinata
   pinataJwt: z.string().min(1),
   pinataGateway: z.string().url(),
-  
+  pfpImageGroupId: z.string().min(1).optional(),
+  pfpMetadataGroupId: z.string().min(1).optional(),
+  memeImageGroupId: z.string().min(1).optional(),
+  memeMetadataGroupId: z.string().min(1).optional(),
+
   // JWT
   jwtSecret: z.string().min(32),
   jwtExpiry: z.string().default('24h'),
-  
+
   // CORS
   corsOrigin: z.string(),
-  
+
   // Redis (optional - will use default if not provided)
   redisUrl: z.string().url(),
-  
+
   // Rate limiting
   rateLimitWindowMs: z.string().transform(Number).default('60000'),
   rateLimitMaxRequests: z.string().transform(Number).default('100'),
-  
+
   // Logging
   logLevel: z.enum(['error', 'warn', 'info', 'debug']).default('info'),
 });
@@ -58,9 +62,13 @@ const env = {
   ceoTokenAddress: process.env.CEO_TOKEN_ADDRESS!,
   pinataJwt: process.env.PINATA_JWT!,
   pinataGateway: process.env.PINATA_GATEWAY || 'https://gateway.pinata.cloud',
+  pfpImageGroupId: process.env.PINATA_PFP_IMAGE_GROUP_ID,
+  pfpMetadataGroupId: process.env.PINATA_PFP_METADATA_GROUP_ID,
+  memeImageGroupId: process.env.PINATA_MEME_IMAGE_GROUP_ID,
+  memeMetadataGroupId: process.env.PINATA_MEME_METADATA_GROUP_ID,
   jwtSecret: process.env.JWT_SECRET!,
   jwtExpiry: process.env.JWT_EXPIRY || '24h',
-  corsOrigin: process.env.CORS_ORIGIN || process.env.CORS_ORIGIN_2,
+  corsOrigin: [process.env.CORS_ORIGIN, process.env.CORS_ORIGIN_2].filter(Boolean).join(','),
   redisUrl: process.env.REDIS_URL || 'redis://localhost:6379',
   rateLimitWindowMs: process.env.RATE_LIMIT_WINDOW_MS || '60000',
   rateLimitMaxRequests: process.env.RATE_LIMIT_MAX_REQUESTS || '100',

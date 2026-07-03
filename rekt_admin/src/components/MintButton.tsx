@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useMint, MintStep } from "../hooks";
 import type { TierInfo } from "../services/api";
+import { AttributesModal, DUMMY_PFP_ATTRIBUTES, DUMMY_MEME_ATTRIBUTES } from "./AttributesModal";
 
 interface MintButtonProps {
   token: string | null;
@@ -41,6 +42,7 @@ export function MintButton({
   memePricing,
 }: MintButtonProps) {
   const [selectedType, setSelectedType] = useState<"PFP" | "MEME">("PFP");
+  const [attributesOpen, setAttributesOpen] = useState(false);
   const [result, setResult] = useState<{
     taskId: string;
     status: string;
@@ -57,8 +59,9 @@ export function MintButton({
 
   const handleMint = async () => {
     setResult(null);
+    const attributes = selectedType === 'PFP' ? DUMMY_PFP_ATTRIBUTES : DUMMY_MEME_ATTRIBUTES;
     try {
-      const res = await mint(selectedType);
+      const res = await mint(selectedType, attributes);
       setResult(res);
     } catch {
       // Error handled in hook
@@ -209,6 +212,23 @@ export function MintButton({
               <span className="font-bold dark:text-gray-200 text-indigo-600 dark:text-indigo-400">{memePricing.priceCEO} CEO</span>
             </div>
           )}
+
+          {/* Attributes row */}
+          <div className="flex justify-between items-center text-sm px-1">
+            <span className="text-gray-500 dark:text-gray-400 font-medium">
+              Attributes:
+            </span>
+            <button
+              onClick={() => setAttributesOpen(true)}
+              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-bold bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800 hover:bg-indigo-100 dark:hover:bg-indigo-900/50 transition-colors"
+            >
+              <span>🏷️</span>
+              <span>
+                {selectedType === 'PFP' ? DUMMY_PFP_ATTRIBUTES.length : DUMMY_MEME_ATTRIBUTES.length} traits
+              </span>
+              <span className="opacity-60">›</span>
+            </button>
+          </div>
         </div>
 
         {/* Mint Button - Hidden when there's a pending mint */}
@@ -263,6 +283,13 @@ export function MintButton({
           </div>
         )}
       </div>
+
+      {/* Attributes Modal */}
+      <AttributesModal
+        nftType={selectedType}
+        isOpen={attributesOpen}
+        onClose={() => setAttributesOpen(false)}
+      />
     </div>
   );
 }
