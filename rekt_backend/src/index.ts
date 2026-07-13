@@ -7,6 +7,7 @@ import authRoutes from './routes/auth.routes';
 import infoRoutes from './routes/info.routes';
 import mintRoutes from './routes/mint.routes';
 import healthRoutes from './routes/health.routes';
+import zkRoutes from "./routes/zk.routes"
 import { errorHandler } from './middleware/error-handler';
 import { generalLimiter, authLimiter, mintLimiter } from './middleware/rate-limit';
 
@@ -64,6 +65,9 @@ app.use((req, res, next) => {
 app.use('/api/auth', authLimiter);
 app.use('/api/mint', mintLimiter);
 app.use('/api', generalLimiter);
+
+//zk routes
+app.use("/zk", zkRoutes)
 
 // Routes
 app.use('/api/auth', authRoutes);
