@@ -65,6 +65,11 @@ if (process.env.X402_RECEIVER_ADDRESS) {
   console.log('⚠️  No X402_RECEIVER_ADDRESS provided in .env — running API in FREE mode (no payments required)');
 }
 
+// Health check (used by Render)
+app.get('/health', (_req, res) => {
+  res.json({ status: 'ok', service: 'rekt-brandify' });
+});
+
 // Routes
 app.use(discoveryRoute);
 app.use('/api', apiRoutes);

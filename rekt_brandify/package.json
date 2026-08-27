@@ -8,6 +8,7 @@
     "single": "node scripts/brandify-single.js",
     "advanced": "node scripts/brandify-advanced.js",
     "interactive": "node scripts/brandify-interactive.js",
+    "start": "node server/setup-wallet.js && node server/server.js",
     "start-server": "node server/setup-wallet.js && node server/server.js",
     "status": "node scripts/status.js",
     "preview": "node scripts/preview-server.js"
