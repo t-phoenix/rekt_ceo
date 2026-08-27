@@ -16,6 +16,7 @@ npm-debug.log*
 output/
 logs/
 server/uploads/
+.live-tests/
 
 # AI tools & IDE configs
 .gemini/

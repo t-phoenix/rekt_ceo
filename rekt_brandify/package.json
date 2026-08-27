@@ -14,9 +14,11 @@
     "preview": "node scripts/preview-server.js"
   },
   "dependencies": {
+    "@coinbase/cdp-sdk": "^1.55.0",
     "@x402/core": "^2.23.0",
     "@x402/evm": "^2.23.0",
     "@x402/express": "^2.23.0",
+    "@x402/fetch": "^2.23.0",
     "chalk": "^5.4.1",
     "cli-table3": "^0.6.5",
     "cors": "^2.8.6",
