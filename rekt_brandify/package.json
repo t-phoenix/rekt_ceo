@@ -1,0 +1,37 @@
+{
+  "name": "rekt-brandify",
+  "version": "1.0.0",
+  "description": "AI-powered Rekt CEO meme template brandification pipeline",
+  "type": "module",
+  "scripts": {
+    "batch": "node scripts/brandify-batch.js",
+    "single": "node scripts/brandify-single.js",
+    "advanced": "node scripts/brandify-advanced.js",
+    "interactive": "node scripts/brandify-interactive.js",
+    "start-server": "node server/setup-wallet.js && node server/server.js",
+    "status": "node scripts/status.js",
+    "preview": "node scripts/preview-server.js"
+  },
+  "dependencies": {
+    "@x402/core": "^2.23.0",
+    "@x402/evm": "^2.23.0",
+    "@x402/express": "^2.23.0",
+    "chalk": "^5.4.1",
+    "cli-table3": "^0.6.5",
+    "cors": "^2.8.6",
+    "dotenv": "^16.6.1",
+    "express": "^5.2.1",
+    "form-data": "^4.0.6",
+    "inquirer": "^8.2.7",
+    "mongodb-memory-server": "^11.2.0",
+    "mongoose": "^9.9.4",
+    "multer": "^2.2.0",
+    "node-fetch": "^3.3.2",
+    "ora": "^8.1.1",
+    "sharp": "^0.34.2",
+    "uuid": "^14.0.2"
+  },
+  "allowScripts": {
+    "sharp@0.34.5": true
+  }
+}
