@@ -58,7 +58,7 @@ async function main() {
   console.log(`  Output    : ${outputPath}`);
 
   // Check balance
-  const balance = getBalance();
+  const balance = await getBalance();
   console.log(`\n💰 AgentCash balance: $${balance.toFixed(4)}`);
   if (balance < 0.15) {
     console.error('⚠️  Balance may be too low. Recommended minimum $0.15 per image.');
@@ -113,7 +113,7 @@ async function main() {
 
     // Step 3: Submit edit job
     console.log('\n🤖 Submitting GPT Image 2 edit job...');
-    const { jobId, pollUrl } = submitEditJob(imageUrl, prompt);
+    const { jobId, pollUrl } = await submitEditJob(imageUrl, prompt);
     logEntry.jobId = jobId;
     logEntry.steps.push({ step: 'job_submitted', ok: true, jobId });
     console.log('   Job ID:', jobId);
@@ -130,7 +130,7 @@ async function main() {
 
     // Step 5: Download result
     console.log('\n⬇️  Downloading branded image...');
-    downloadImage(result.imageUrl, outputPath);
+    await downloadImage(result.imageUrl, outputPath);
     logEntry.steps.push({ step: 'downloaded', ok: true });
 
     const durationMs = Date.now() - startTime;

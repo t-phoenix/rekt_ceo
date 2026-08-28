@@ -149,7 +149,7 @@ async function processItem(item, index, total) {
 
     // Submit job
     process.stdout.write('  🤖 Submitting edit job...');
-    const { jobId, pollUrl } = submitEditJob(imageUrl, prompt);
+    const { jobId, pollUrl } = await submitEditJob(imageUrl, prompt);
     process.stdout.write(` ✓ (${jobId})\n`);
 
     // Poll
@@ -161,7 +161,7 @@ async function processItem(item, index, total) {
 
     // Download
     process.stdout.write('  ⬇️  Downloading...');
-    downloadImage(jobResult.imageUrl, outputPath);
+    await downloadImage(jobResult.imageUrl, outputPath);
     process.stdout.write(' ✓\n');
 
     result.success = true;
@@ -192,7 +192,7 @@ async function main() {
   console.log(`  Dry run            : ${dryRun}`);
 
   if (!dryRun) {
-    const balance = getBalance();
+    const balance = await getBalance();
     console.log(`\n💰 AgentCash balance: $${balance >= 0 ? balance.toFixed(4) : 'unknown'}`);
     if (balance >= 0 && balance < 1.0) {
       console.error('\n⚠️  Low balance warning! Recommend at least $1.00 for batch processing.');

@@ -1,7 +1,6 @@
 import { existsSync, mkdirSync, writeFileSync, readdirSync, statSync } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { execSync } from 'child_process';
 import inquirer from 'inquirer';
 import {
   uploadImageToStableStudio,
@@ -9,6 +8,7 @@ import {
   pollJobUntilComplete,
   downloadImage,
   getBalance,
+  getVisionInteractiveStrategy,
 } from './agentcash-client.js';
 import { SOURCE_BASE, OUTPUT_BASE, LOGS_DIR } from '../config/brandify.config.js';
 
@@ -28,69 +28,10 @@ function getRandomImage(baseDir) {
   return { category: randomCategory, filename: randomFile, path: path.join(catPath, randomFile) };
 }
 
-async function getVisionInteractiveStrategy(imageUrl, customTarget = '') {
-  console.log('\n👁️  Asking Creative Director (Vision Agent) for interactive strategy...');
-  
-  const systemPrompt = `
-You are a highly creative Art Director for the "Rekt CEO" crypto brand ($CEO).
-BRAND COLORS: Rekt Red (#e7255e), CEO Yellow (#F8C826), Deep Magenta (#3B1C32), Off White (#FFFFFF)
-BRAND STYLE: High-fashion (like Gucci, Louis Vuitton monograms), subtle typography, neon signs, stylish streetwear.
-
-Analyze the image and find up to 3 existing elements to brandify (e.g. eyes, shirt, background wall).
-Also, suggest 1 or 2 NEW elements to superimpose/add (e.g. Rekt CEO glasses, a cap, a neon sign, a gold chain).
-For EACH element, provide 2 or 3 distinct, highly creative ideas on how to brandify it.
-${customTarget ? `\nCRITICAL INSTRUCTION: The user specifically requested to brandify: "${customTarget}". You MUST include this exact element in your 'elements' array as an 'existing' element and provide creative ideas for it.\n` : ''}
-Return in pure JSON format:
-{
-  "elements": [
-    {
-      "name": "Short name of element (e.g. The character's eyes)",
-      "type": "existing" | "new",
-      "reasoning": "Why this is a good idea",
-      "ideas": [
-        "Idea 1 description...",
-        "Idea 2 description...",
-        "Idea 3 description..."
-      ]
-    }
-  ]
-}
-`;
-
-  const payload = {
-    model: 'gpt-4o',
-    messages: [
-      { role: 'system', content: systemPrompt },
-      { 
-        role: 'user', 
-        content: [
-          { type: 'text', text: 'Analyze this image and return the interactive JSON strategy.' },
-          { type: 'image_url', image_url: { url: imageUrl } }
-        ]
-      }
-    ],
-    response_format: { type: 'json_object' }
-  };
-
-  const dataStr = JSON.stringify(payload).replace(/'/g, "'\\''");
-  const cmd = `npx agentcash@latest fetch "https://netintel.dev/openai/gpt-4o" -m POST -b '${dataStr}'`;
-  
-  try {
-    const output = execSync(cmd, { encoding: 'utf8', maxBuffer: 10 * 1024 * 1024 });
-    const response = JSON.parse(output);
-    const content = response.data?.choices?.[0]?.message?.content || response.choices?.[0]?.message?.content;
-    if (!content) throw new Error("Invalid response format from Vision model");
-    const cleanedContent = content.replace(/^```(json)?\n?/i, '').replace(/\n?```$/i, '').trim();
-    return JSON.parse(cleanedContent);
-  } catch (err) {
-    throw new Error(`Vision Agent failed: ${err.message}`);
-  }
-}
-
 async function main() {
   console.log('\n🚀 Rekt CEO Brandify — INTERACTIVE Agentic Pipeline\n');
   
-  const balance = getBalance();
+  const balance = await getBalance();
   if (balance < 0.30) {
     console.error('⚠️  Balance may be too low. Recommended minimum $0.30 per image.');
   }
@@ -191,7 +132,7 @@ async function main() {
     console.log('🤖 Submitting inpainting job based on curated strategy...');
     let result;
     try {
-      const { jobId, pollUrl } = submitEditJob(imageUrl, compiledPrompt);
+      const { jobId, pollUrl } = await submitEditJob(imageUrl, compiledPrompt);
       logEntry.jobId = jobId;
 
       console.log('⏳ Waiting for AI to process (Flux 2 Pro)...');
@@ -202,7 +143,7 @@ async function main() {
       if (err.message.includes('sensitive') || err.message.includes('E005')) {
         console.log(`\n⚠️  Flux moderation blocked the image. Falling back to GPT-Image-2...`);
         const fallbackEndpoint = '/api/generate/gpt-image-2/edit';
-        const { jobId, pollUrl } = submitEditJob(imageUrl, compiledPrompt, fallbackEndpoint);
+        const { jobId, pollUrl } = await submitEditJob(imageUrl, compiledPrompt, fallbackEndpoint);
         logEntry.jobId = jobId;
         console.log('⏳ Waiting for AI to process (GPT-Image-2)...');
         result = await pollJobUntilComplete(pollUrl, jobId, ({ attempt }) => {
@@ -215,7 +156,7 @@ async function main() {
 
     const outputPath = path.join(outputDir, `interactive-${filename}`);
     console.log('\n⬇️  Downloading branded image...');
-    downloadImage(result.imageUrl, outputPath);
+    await downloadImage(result.imageUrl, outputPath);
     console.log(`\n✨ SUCCESS! Interactive branded image saved to:\n   ${outputPath}`);
 
     // 7. Feedback

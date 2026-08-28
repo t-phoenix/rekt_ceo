@@ -50,7 +50,7 @@ async function main() {
   console.log('\n🎨 Rekt CEO Brandify — Status\n');
 
   // Balance
-  const balance = getBalance();
+  const balance = await getBalance();
   console.log(`💰 AgentCash balance: $${balance >= 0 ? balance.toFixed(4) : 'unknown'}\n`);
 
   // Table header

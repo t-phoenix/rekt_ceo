@@ -1,13 +1,13 @@
 import { existsSync, mkdirSync, writeFileSync } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { execSync } from 'child_process';
 import {
   uploadImageToStableStudio,
   submitEditJob,
   pollJobUntilComplete,
   downloadImage,
   getBalance,
+  runVisionJsonRequest,
 } from './agentcash-client.js';
 import { SOURCE_BASE, OUTPUT_BASE, LOGS_DIR } from '../config/brandify.config.js';
 
@@ -74,16 +74,8 @@ Return your strategy in pure JSON format:
     response_format: { type: 'json_object' }
   };
 
-  const dataStr = JSON.stringify(payload).replace(/'/g, "'\\''");
-  const cmd = `npx agentcash@latest fetch "https://netintel.dev/openai/gpt-4o" -m POST -b '${dataStr}'`;
-  
   try {
-    const output = execSync(cmd, { encoding: 'utf8', maxBuffer: 10 * 1024 * 1024 });
-    const response = JSON.parse(output);
-    const content = response.data?.choices?.[0]?.message?.content || response.choices?.[0]?.message?.content;
-    if (!content) throw new Error("Invalid response format from Vision model");
-    const cleanedContent = content.replace(/^```(json)?\n?/i, '').replace(/\n?```$/i, '').trim();
-    return JSON.parse(cleanedContent);
+    return await runVisionJsonRequest(payload);
   } catch (err) {
     throw new Error(`Vision Agent failed: ${err.message}`);
   }
@@ -93,7 +85,7 @@ async function main() {
   console.log('\n🚀 Rekt CEO Brandify — Advanced Agentic Pipeline\n');
   
   // Check balance
-  const balance = getBalance();
+  const balance = await getBalance();
   if (balance < 0.30) {
     console.error('⚠️  Balance may be too low. Recommended minimum $0.30 per image.');
     process.exit(1);
@@ -138,7 +130,7 @@ async function main() {
     
     let result;
     try {
-      const { jobId, pollUrl } = submitEditJob(imageUrl, finalPrompt);
+      const { jobId, pollUrl } = await submitEditJob(imageUrl, finalPrompt);
       logEntry.jobId = jobId;
 
       console.log('⏳ Waiting for AI to process (Flux 2 Pro)...');
@@ -150,7 +142,7 @@ async function main() {
         console.log(`\n⚠️  Flux moderation blocked the image. Falling back to GPT-Image-2...`);
         // Import API_CONFIG here dynamically or just hardcode the fallback path if not imported
         const fallbackEndpoint = '/api/generate/gpt-image-2/edit';
-        const { jobId, pollUrl } = submitEditJob(imageUrl, finalPrompt, fallbackEndpoint);
+        const { jobId, pollUrl } = await submitEditJob(imageUrl, finalPrompt, fallbackEndpoint);
         logEntry.jobId = jobId;
         console.log('⏳ Waiting for AI to process (GPT-Image-2)...');
         result = await pollJobUntilComplete(pollUrl, jobId, ({ attempt }) => {
@@ -163,7 +155,7 @@ async function main() {
     
     // 5. Download
     console.log('\n⬇️  Downloading branded image...');
-    downloadImage(result.imageUrl, outputPath);
+    await downloadImage(result.imageUrl, outputPath);
     
     console.log(`\n✨ SUCCESS! Advanced branded image saved to:\n   ${outputPath}`);
     

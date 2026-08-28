@@ -1,68 +1,16 @@
 import express from 'express';
 import multer from 'multer';
 import { v4 as uuidv4 } from 'uuid';
-import { execSync } from 'child_process';
 import { 
   uploadImageToStableStudio, 
   submitEditJob, 
-  pollJobUntilComplete 
+  pollJobUntilComplete,
+  getVisionInteractiveStrategy,
 } from '../../scripts/agentcash-client.js';
 import Session from '../models/Session.js';
 
 const router = express.Router();
 const upload = multer({ dest: 'server/uploads/' });
-
-// --- VISION AGENT LOGIC ---
-async function getVisionInteractiveStrategy(imageUrl, customTarget = '') {
-  const systemPrompt = `
-You are a highly creative Art Director for the "Rekt CEO" crypto brand ($CEO).
-BRAND COLORS: Rekt Red (#e7255e), CEO Yellow (#F8C826), Deep Magenta (#3B1C32), Off White (#FFFFFF)
-BRAND STYLE: High-fashion (like Gucci, Louis Vuitton monograms), neon signs, stylish streetwear.
-
-Analyze the image and find up to 3 existing elements to brandify.
-Also, suggest 1 or 2 NEW elements to superimpose/add.
-For EACH element, provide 2 or 3 distinct, highly creative ideas on how to brandify it.
-${customTarget ? `\nCRITICAL INSTRUCTION: The user specifically requested to brandify: "${customTarget}". You MUST include this exact element in your 'elements' array as an 'existing' element and provide creative ideas for it.\n` : ''}
-Return in pure JSON format:
-{
-  "elements": [
-    {
-      "name": "Short name",
-      "type": "existing" | "new",
-      "reasoning": "Why this is a good idea",
-      "ideas": ["Idea 1", "Idea 2", "Idea 3"]
-    }
-  ]
-}`;
-
-  const payload = {
-    model: 'gpt-4o',
-    messages: [
-      { role: 'system', content: systemPrompt },
-      { 
-        role: 'user', 
-        content: [
-          { type: 'text', text: 'Analyze this image and return the interactive JSON strategy.' },
-          { type: 'image_url', image_url: { url: imageUrl } }
-        ]
-      }
-    ],
-    response_format: { type: 'json_object' }
-  };
-
-  const dataStr = JSON.stringify(payload).replace(/'/g, "'\\''");
-  const cmd = `npx agentcash@latest fetch "https://netintel.dev/openai/gpt-4o" -m POST -b '${dataStr}'`;
-  
-  try {
-    const output = execSync(cmd, { encoding: 'utf8', maxBuffer: 10 * 1024 * 1024 });
-    const response = JSON.parse(output);
-    const content = response.data?.choices?.[0]?.message?.content || response.choices?.[0]?.message?.content;
-    const cleanedContent = content.replace(/^```(json)?\n?/i, '').replace(/\n?```$/i, '').trim();
-    return JSON.parse(cleanedContent);
-  } catch (err) {
-    throw new Error(`Vision Agent failed: ${err.message}`);
-  }
-}
 
 // GET public brandified variations for a meme template
 router.get('/templates/:templateId/variations', async (req, res) => {
@@ -155,7 +103,7 @@ router.post('/generate', async (req, res) => {
     let engineUsed = 'flux-2-pro';
     let result;
     try {
-      const { jobId, pollUrl } = submitEditJob(session.originalImageUrl, compiledPrompt);
+      const { jobId, pollUrl } = await submitEditJob(session.originalImageUrl, compiledPrompt);
       session.jobId = jobId;
       await session.save();
       result = await pollJobUntilComplete(pollUrl, jobId, () => {});
@@ -164,7 +112,7 @@ router.post('/generate', async (req, res) => {
         console.log('Fallback to GPT-Image-2');
         engineUsed = 'gpt-image-2';
         const fallbackEndpoint = '/api/generate/gpt-image-2/edit';
-        const { jobId, pollUrl } = submitEditJob(session.originalImageUrl, compiledPrompt, fallbackEndpoint);
+        const { jobId, pollUrl } = await submitEditJob(session.originalImageUrl, compiledPrompt, fallbackEndpoint);
         session.jobId = jobId;
         await session.save();
         result = await pollJobUntilComplete(pollUrl, jobId, () => {});

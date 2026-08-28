@@ -1,51 +1,123 @@
 /**
  * agentcash-client.js
- * 
+ *
  * Wrapper around AgentCash's StableStudio GPT Image 2 Edit API.
  * Based on the exact StableStudio OpenAPI schema (stablestudio.dev).
- * 
- * Upload flow:
- *   1. POST /api/upload (paid $0.01) → { uploadId, clientToken, pathname }
- *   2. PUT Vercel Blob with Bearer clientToken → { url: "https://...blob..." }
- *   3. POST /api/upload/confirm (SIWX) → confirms the blobUrl
- * 
- * Edit flow:
- *   1. POST /api/generate/gpt-image-2/edit { prompt, images: [url], ... } → { jobId, pollUrl }
- *   2. Poll pollUrl with SIWX → { status: "complete", result: { imageUrl } }
  */
 
-import { execSync } from 'child_process';
 import { readFileSync } from 'fs';
+import fetch from 'node-fetch';
 import { API_CONFIG } from '../config/brandify.config.js';
 import path from 'path';
+import { agentCashFetch } from './agentcash-runtime.js';
+
+const VISION_ENDPOINT = 'https://netintel.dev/openai/gpt-4o';
+const UPLOAD_TIMEOUT_MS = 120_000;
+const VISION_TIMEOUT_MS = 180_000;
+
+function parseVisionStrategyContent(content) {
+  if (!content || typeof content !== 'string') {
+    throw new Error('Vision model returned empty content');
+  }
+
+  const cleaned = content
+    .replace(/^```(?:json)?\n?/i, '')
+    .replace(/\n?```$/i, '')
+    .trim();
+
+  try {
+    return JSON.parse(cleaned);
+  } catch {
+    const match = cleaned.match(/\{[\s\S]*\}/);
+    if (match) {
+      return JSON.parse(match[0]);
+    }
+    throw new Error(`Vision model returned non-JSON response: ${cleaned.slice(0, 240)}`);
+  }
+}
+
+function extractOpenAiContent(response) {
+  const content =
+    response?.choices?.[0]?.message?.content ??
+    response?.data?.choices?.[0]?.message?.content;
+
+  if (typeof content === 'string') {
+    return content;
+  }
+
+  if (Array.isArray(content)) {
+    return content
+      .map((part) => (typeof part?.text === 'string' ? part.text : ''))
+      .join('\n')
+      .trim();
+  }
+
+  throw new Error(`Unexpected vision response shape: ${JSON.stringify(response).slice(0, 400)}`);
+}
+
+export async function runVisionJsonRequest(payload, { timeout = VISION_TIMEOUT_MS } = {}) {
+  const response = await agentCashFetch(VISION_ENDPOINT, {
+    method: 'POST',
+    body: payload,
+    timeout,
+  });
+  const content = extractOpenAiContent(response);
+  return parseVisionStrategyContent(content);
+}
 
 /**
- * Call AgentCash CLI to make a paid (or SIWX) API request.
- * Returns parsed JSON response object.
+ * Analyze a meme image and return brandify element strategy JSON.
  */
-function agentCashFetch(url, data = {}) {
-  const dataStr = JSON.stringify(data);
-  const escaped = dataStr.replace(/'/g, "'\\''");
-  // Correct flags: -m POST -b '<body>' (not --data)
-  const cmd = `npx agentcash@latest fetch "${url}" -m POST -b '${escaped}'`;
-  
-  try {
-    const output = execSync(cmd, { 
-      encoding: 'utf8',
-      maxBuffer: 10 * 1024 * 1024,
-      timeout: 60000,
-    });
-    return JSON.parse(output);
-  } catch (err) {
-    const msg = (err.stdout || err.stderr || err.message || '').slice(0, 800);
-    throw new Error(`AgentCash fetch failed for ${url}: ${msg}`);
+export async function getVisionInteractiveStrategy(imageUrl, customTarget = '') {
+  const systemPrompt = `
+You are a highly creative Art Director for the "Rekt CEO" crypto brand ($CEO).
+BRAND COLORS: Rekt Red (#e7255e), CEO Yellow (#F8C826), Deep Magenta (#3B1C32), Off White (#FFFFFF)
+BRAND STYLE: High-fashion (like Gucci, Louis Vuitton monograms), neon signs, stylish streetwear.
+
+Analyze the image and find up to 3 existing elements to brandify.
+Also, suggest 1 or 2 NEW elements to superimpose/add.
+For EACH element, provide 2 or 3 distinct, highly creative ideas on how to brandify it.
+${customTarget ? `\nCRITICAL INSTRUCTION: The user specifically requested to brandify: "${customTarget}". You MUST include this exact element in your 'elements' array as an 'existing' element and provide creative ideas for it.\n` : ''}
+Return ONLY valid JSON in this exact shape:
+{
+  "elements": [
+    {
+      "name": "Short name",
+      "type": "existing",
+      "reasoning": "Why this is a good idea",
+      "ideas": ["Idea 1", "Idea 2", "Idea 3"]
+    }
+  ]
+}`;
+
+  const payload = {
+    model: 'gpt-4o',
+    messages: [
+      { role: 'system', content: systemPrompt },
+      {
+        role: 'user',
+        content: [
+          { type: 'text', text: 'Analyze this image and return the interactive JSON strategy.' },
+          { type: 'image_url', image_url: { url: imageUrl } },
+        ],
+      },
+    ],
+    response_format: { type: 'json_object' },
+  };
+
+  const response = await runVisionJsonRequest(payload);
+
+  if (!Array.isArray(response?.elements)) {
+    throw new Error('Vision model response missing elements array');
   }
+
+  return response;
 }
 
 /**
  * Upload a local image file to StableStudio Vercel Blob.
  * @param {string} imagePath - Absolute local path to the image
- * @returns {string} Public HTTPS blob URL ready for use in edit requests
+ * @returns {Promise<string>} Public HTTPS blob URL ready for use in edit requests
  */
 export async function uploadImageToStableStudio(imagePath) {
   const filename = path.basename(imagePath);
@@ -55,86 +127,74 @@ export async function uploadImageToStableStudio(imagePath) {
     : ext === '.webp' ? 'image/webp'
     : 'image/jpeg';
 
-  // Step 1: Get upload token ($0.01 via AgentCash)
-  const tokenRes = agentCashFetch(`${API_CONFIG.baseUrl}/api/upload`, {
-    filename,
-    contentType,
+  const tokenRes = await agentCashFetch(`${API_CONFIG.baseUrl}/api/upload`, {
+    body: { filename, contentType },
+    timeout: UPLOAD_TIMEOUT_MS,
   });
 
-  if (!tokenRes?.success) {
-    throw new Error(`Upload token request failed: ${JSON.stringify(tokenRes)}`);
-  }
-
-  // Response fields per OpenAPI: uploadId, clientToken, pathname
-  const uploadData = tokenRes.data || tokenRes;
+  const uploadData = tokenRes?.data || tokenRes;
   const { uploadId, clientToken, pathname } = uploadData;
 
   if (!clientToken || !pathname) {
     throw new Error(`Missing clientToken/pathname in upload response: ${JSON.stringify(uploadData)}`);
   }
 
-  // Step 2: PUT binary file to Vercel Blob storage
   const vercelBlobUrl = `https://vercel.com/api/blob/?pathname=${encodeURIComponent(pathname)}`;
-  const curlCmd = `curl -sL -X PUT "${vercelBlobUrl}" \
-    -H "authorization: Bearer ${clientToken}" \
-    -H "x-content-type: ${contentType}" \
-    -H "x-api-version: 11" \
-    --data-binary @"${imagePath}"`;
+  const fileBuffer = readFileSync(imagePath);
 
-  let blobUrl;
-  try {
-    const blobOutput = execSync(curlCmd, { encoding: 'utf8', timeout: 60000 });
-    const blobResult = JSON.parse(blobOutput);
-    blobUrl = blobResult?.url;
-    if (!blobUrl) {
-      throw new Error(`No URL in blob response: ${JSON.stringify(blobResult)}`);
-    }
-  } catch (err) {
-    throw new Error(`Vercel Blob upload failed: ${err.message}`);
+  const blobResponse = await fetch(vercelBlobUrl, {
+    method: 'PUT',
+    headers: {
+      authorization: `Bearer ${clientToken}`,
+      'x-content-type': contentType,
+      'x-api-version': '11',
+    },
+    body: fileBuffer,
+    signal: AbortSignal.timeout(UPLOAD_TIMEOUT_MS),
+  });
+
+  if (!blobResponse.ok) {
+    const errText = await blobResponse.text().catch(() => '');
+    throw new Error(`Vercel Blob upload failed (${blobResponse.status}): ${errText.slice(0, 300)}`);
   }
 
-  // Step 3: Confirm upload with StableStudio (SIWX auth via AgentCash)
+  const blobResult = await blobResponse.json();
+  const blobUrl = blobResult?.url;
+  if (!blobUrl) {
+    throw new Error(`No URL in blob response: ${JSON.stringify(blobResult)}`);
+  }
+
   try {
-    const confirmRes = agentCashFetch(`${API_CONFIG.baseUrl}/api/upload/confirm`, {
-      uploadId,
-      blobUrl,
+    const confirmRes = await agentCashFetch(`${API_CONFIG.baseUrl}/api/upload/confirm`, {
+      body: { uploadId, blobUrl },
+      timeout: 60_000,
     });
-    // Return the confirmed URL (falls back to raw blobUrl if confirm doesn't return one)
     return confirmRes?.data?.upload?.blobUrl
       || confirmRes?.upload?.blobUrl
       || blobUrl;
   } catch {
-    // Confirm may fail for SIWX auth reasons but blobUrl is still publicly usable
     return blobUrl;
   }
 }
 
 /**
  * Submit a GPT Image 2 edit job.
- * Required fields per schema: prompt (string), images (array of URLs)
- * 
- * @param {string} imageUrl - Public URL of the source image
- * @param {string} prompt - The edit instruction prompt
- * @returns {{ jobId: string, pollUrl: string }}
  */
-export function submitEditJob(imageUrl, prompt, endpoint = API_CONFIG.editEndpoint) {
-  // Pass the source image as the first image, and the reference logos as subsequent images
-  // so the AI knows exactly what the logos look like and can use them directly.
+export async function submitEditJob(imageUrl, prompt, endpoint = API_CONFIG.editEndpoint) {
   const allImages = [imageUrl, ...(API_CONFIG.REFERENCE_LOGOS || [])];
 
-  const response = agentCashFetch(
-    `${API_CONFIG.baseUrl}${endpoint}`,
-    {
+  const response = await agentCashFetch(`${API_CONFIG.baseUrl}${endpoint}`, {
+    body: {
       prompt,
       images: allImages,
-      quality: 'high',          // 'high' to prevent pixelation/distortion
-      size: 'auto',             // preserve original aspect ratio
+      quality: 'high',
+      size: 'auto',
       output_format: 'png',
       moderation: 'low',
-    }
-  );
+    },
+    timeout: UPLOAD_TIMEOUT_MS,
+  });
 
-  // agentcash wraps response — try both direct and .data
   const payload = response?.data || response;
 
   if (!payload?.jobId || !payload?.pollUrl) {
@@ -146,92 +206,79 @@ export function submitEditJob(imageUrl, prompt, endpoint = API_CONFIG.editEndpoi
 
 /**
  * Poll a StableStudio job URL until it completes or times out.
- * Per StableStudio docs: GPT Image 2 should be polled every 10s.
- * Completed job response: { status: "complete", result: { imageUrl: "..." } }
- * 
- * @param {string} pollUrl - The poll URL returned from job submission
- * @param {string} jobId - For logging only
- * @param {function} onProgress - Called each poll with { attempt, maxAttempts }
- * @returns {{ imageUrl: string, cost: number }}
  */
 export async function pollJobUntilComplete(pollUrl, jobId, onProgress = () => {}) {
   const { maxPollAttempts } = API_CONFIG;
-  const pollIntervalMs = 10000; // 10s for GPT Image 2
+  const pollIntervalMs = 10000;
 
-  for (let attempt = 1; attempt <= maxPollAttempts; attempt++) {
+  for (let attempt = 1; attempt <= maxPollAttempts; attempt += 1) {
     await sleep(pollIntervalMs);
     onProgress({ attempt, maxAttempts: maxPollAttempts, jobId });
 
-    let statusResponse;
     try {
-      // Poll endpoint is GET — agentcash defaults to GET when no -m flag
-      // Note: do NOT send -m POST here or it 405s
-      const pollCmd = `npx agentcash@latest fetch "${pollUrl}"`;
-      const pollOut = execSync(pollCmd, {
-        encoding: 'utf8',
-        maxBuffer: 5 * 1024 * 1024,
-        timeout: 60000,
+      const statusResponse = await agentCashFetch(pollUrl, {
+        method: 'GET',
+        timeout: 60_000,
       });
-      statusResponse = JSON.parse(pollOut);
-    } catch (err) {
-      console.warn(`\n  ⚠️  Poll attempt ${attempt} errored (retrying): ${(err.message || '').slice(0, 200)}`);
-      continue;
-    }
 
-    const job = statusResponse?.data || statusResponse;
-    if (!job?.status) continue;
+      const job = statusResponse?.data || statusResponse;
+      if (!job?.status) continue;
 
-    if (job.status === 'complete' || job.status === 'completed') {
-      // Per OpenAPI schema: result at job.result.imageUrl
-      const resultUrl = job.result?.imageUrl
-        || job.result?.videoUrl
-        || job.imageUrl
-        || job.resultUrl;
+      if (job.status === 'complete' || job.status === 'completed') {
+        const resultUrl = job.result?.imageUrl
+          || job.result?.videoUrl
+          || job.imageUrl
+          || job.resultUrl;
 
-      if (!resultUrl) {
-        throw new Error(`Job complete but no imageUrl found: ${JSON.stringify(job)}`);
+        if (!resultUrl) {
+          throw new Error(`Job complete but no imageUrl found: ${JSON.stringify(job)}`);
+        }
+
+        return { imageUrl: resultUrl, cost: job.cost || 0 };
       }
 
-      return { imageUrl: resultUrl, cost: job.cost || 0 };
+      if (job.status === 'failed' || job.status === 'error') {
+        throw new Error(`Job failed: ${job.error || job.message || JSON.stringify(job)}`);
+      }
+    } catch (err) {
+      console.warn(`Poll attempt ${attempt} errored (retrying): ${(err.message || '').slice(0, 200)}`);
     }
-
-    if (job.status === 'failed' || job.status === 'error') {
-      throw new Error(`Job failed: ${job.error || job.message || JSON.stringify(job)}`);
-    }
-    // else: 'pending' | 'loading' — keep polling
   }
 
   throw new Error(`Job ${jobId} timed out after ${maxPollAttempts * pollIntervalMs / 1000}s`);
 }
 
-/**
- * Download a remote image URL to a local file path using curl.
- * Verifies the downloaded file is large enough to be a real image.
- */
-export function downloadImage(imageUrl, outputPath) {
-  execSync(`curl -sL "${imageUrl}" -o "${outputPath}"`, { timeout: 60000 });
-  const data = readFileSync(outputPath);
-  if (data.length < 1000) {
-    throw new Error(`Downloaded file is suspiciously small (${data.length} bytes)`);
+export async function downloadImage(imageUrl, outputPath) {
+  const response = await fetch(imageUrl, { signal: AbortSignal.timeout(60_000) });
+  if (!response.ok) {
+    throw new Error(`Download failed (${response.status}) for ${imageUrl}`);
   }
+  const buffer = Buffer.from(await response.arrayBuffer());
+  if (buffer.length < 1000) {
+    throw new Error(`Downloaded file is suspiciously small (${buffer.length} bytes)`);
+  }
+  const { writeFileSync } = await import('fs');
+  writeFileSync(outputPath, buffer);
 }
 
-/**
- * Check current AgentCash wallet balance.
- * @returns {number} Balance in USD, or -1 if unknown
- */
-export function getBalance() {
+export async function getBalance() {
   try {
-    const output = execSync('npx agentcash@latest balance', {
+    const { createRequire } = await import('module');
+    const { spawnSync } = await import('child_process');
+    const req = createRequire(import.meta.url);
+    const cli = path.join(path.dirname(req.resolve('agentcash/package.json')), 'dist/esm/index.js');
+    const output = spawnSync(process.execPath, [cli, 'balance'], {
       encoding: 'utf8',
-      timeout: 15000,
+      timeout: 20_000,
     });
-    return JSON.parse(output)?.data?.balance ?? 0;
+    if (output.status !== 0) return -1;
+    const parsed = JSON.parse(output.stdout);
+    return parsed?.data?.balance ?? 0;
   } catch {
     return -1;
   }
 }
 
 function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
