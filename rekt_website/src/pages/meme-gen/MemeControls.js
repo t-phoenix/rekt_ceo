@@ -1,8 +1,8 @@
 import React from 'react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import ComingSoonButton from '../../components/ComingSoonButton';
 // eslint-disable-next-line no-unused-vars
 import { exportNodeToPng } from "../../utils/exportImage.js";
-import "./memeGen.css";
 
 const MemeControls = ({
     activeCategory,
@@ -18,10 +18,6 @@ const MemeControls = ({
     setBottomText,
     font,
     setFont,
-    handleOpenAiModal,
-    aiSuggestLabel = '✨ AI Suggest',
-    aiSuggestPrice = null,
-    memeApiOnline = true,
     textColor,
     setTextColor,
     strokeColor,
@@ -51,7 +47,9 @@ const MemeControls = ({
 
                             {/* Template Categories Navigation */}
                             <div className="meme-template-categories-wrapper">
-                                <div className="scroll-hint left">‹</div>
+                                <div className="scroll-hint scroll-hint--left" aria-hidden="true">
+                                    <ChevronLeft size={28} strokeWidth={3} />
+                                </div>
                                 <div className="meme-template-categories">
                                     {memeCategories.map(
                                         (category) => (
@@ -66,12 +64,16 @@ const MemeControls = ({
                                         )
                                     )}
                                 </div>
-                                <div className="scroll-hint right">›</div>
+                                <div className="scroll-hint scroll-hint--right" aria-hidden="true">
+                                    <ChevronRight size={28} strokeWidth={3} />
+                                </div>
                             </div>
 
                             {/* Template Grid with Horizontal Scroll */}
                             <div className="meme-template-container-wrapper">
-                                <div className="scroll-hint left">‹</div>
+                                <div className="scroll-hint scroll-hint--left" aria-hidden="true">
+                                    <ChevronLeft size={28} strokeWidth={3} />
+                                </div>
                                 <div className="meme-template-container">
                                     <div className="meme-template-grid">
                                         {getTemplatesForCategory(activeCategory).map(
@@ -93,7 +95,9 @@ const MemeControls = ({
                                         )}
                                     </div>
                                 </div>
-                                <div className="scroll-hint right">›</div>
+                                <div className="scroll-hint scroll-hint--right" aria-hidden="true">
+                                    <ChevronRight size={28} strokeWidth={3} />
+                                </div>
                             </div>
                         </div>
 
@@ -153,31 +157,6 @@ const MemeControls = ({
                                     <option value="grotesk">Space Grotesk</option>
                                     <option value="lilita">Lilita One</option>
                                 </select>
-                            </div>
-                            <div className="meme-control-item">
-                                <label className="meme-label">AI assist</label>
-                                <div className="meme-ai-suggest-wrap">
-                                    <button
-                                        onClick={handleOpenAiModal}
-                                        className="story-btn primary meme-ai-suggest-btn"
-                                        title={memeApiOnline ? 'Generate meme captions with AI' : 'Meme API offline — open to retry'}
-                                    >
-                                        <span className="meme-ai-suggest-label">{aiSuggestLabel}</span>
-                                        {aiSuggestPrice && (
-                                            <span className="meme-ai-pay-badge" aria-label={`${aiSuggestPrice} USDC per generation`}>
-                                                <span className="meme-ai-pay-badge-glow" aria-hidden="true" />
-                                                <span className="meme-ai-pay-badge-inner">
-                                                    <span className="meme-ai-pay-coin">◎</span>
-                                                    <span className="meme-ai-pay-amount">{aiSuggestPrice}</span>
-                                                    <span className="meme-ai-pay-unit">USDC</span>
-                                                </span>
-                                            </span>
-                                        )}
-                                    </button>
-                                    {!memeApiOnline && (
-                                        <p className="meme-ai-status meme-ai-status--offline">API offline</p>
-                                    )}
-                                </div>
                             </div>
                         </div>
 

@@ -1,7 +1,7 @@
 "use client";
 import { useMemo, useState } from "react";
 import { Button } from "../../ui/button";
-import { CHAIN_METADATA } from "@avail-project/nexus-core";
+import { CHAIN_METADATA } from "../../../constants/nexusChains";
 import { DESTINATION_SWAP_TOKENS } from "../config/destination";
 import { DialogClose } from "../../ui/dialog";
 import {

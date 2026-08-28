@@ -12,6 +12,11 @@ import {
 import { cn } from "@/lib/utils";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 
+const formatFiat = (value) => {
+  const amount = Number.parseFloat(value);
+  return Number.isFinite(amount) ? amount.toFixed(2) : "0.00";
+};
+
 const BalanceSkeleton = ({ className }) => {
   return (
     <div className={cn(className)}>
@@ -111,7 +116,7 @@ const BalanceBreakdown = ({
                         })}
                       </p>
                       <p className="text-xs text-muted-foreground/70">
-                        ${token.balanceInFiat.toFixed(2)}
+                        ${formatFiat(token.balanceInFiat)}
                       </p>
                     </div>
                   </div>
@@ -144,7 +149,7 @@ const BalanceBreakdown = ({
                             })}
                           </p>
                           <p className="text-xs text-muted-foreground">
-                            ${chain.balanceInFiat.toFixed(2)}
+                            ${formatFiat(chain.balanceInFiat)}
                           </p>
                         </div>
                       </div>
@@ -169,14 +174,14 @@ const UnifiedBalance = ({
     if (!bridgableBalance) return "0.00";
 
     return bridgableBalance
-      .reduce((acc, fiat) => acc + fiat.balanceInFiat, 0)
+      .reduce((acc, fiat) => acc + (Number.parseFloat(fiat.balanceInFiat) || 0), 0)
       .toFixed(2);
   }, [bridgableBalance]);
 
   const swapTotalFiat = useMemo(() => {
     if (!swapBalance) return "0.00";
     return swapBalance
-      .reduce((acc, fiat) => acc + fiat.balanceInFiat, 0)
+      .reduce((acc, fiat) => acc + (Number.parseFloat(fiat.balanceInFiat) || 0), 0)
       .toFixed(2);
   }, [swapBalance]);
 

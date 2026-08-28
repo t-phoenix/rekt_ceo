@@ -16,13 +16,32 @@ const PORT = process.env.PORT || 3001;
 
 const FACILITATOR_URL = process.env.X402_FACILITATOR_URL || 'https://x402.org/facilitator';
 const USES_X402_ORG = FACILITATOR_URL.includes('x402.org');
-const X402_NETWORK_ID = process.env.X402_NETWORK === 'base-sepolia' || USES_X402_ORG
-  ? 'eip155:84532'
-  : 'eip155:8453';
+
+function resolveX402NetworkId() {
+  const configured = (process.env.X402_NETWORK || '').toLowerCase();
+  if (configured === 'base-sepolia' || configured === 'base_sepolia') {
+    return 'eip155:84532';
+  }
+  if (configured === 'base' || configured === 'base-mainnet' || configured === 'base_mainnet') {
+    return 'eip155:8453';
+  }
+  // x402.org public facilitator is testnet-only
+  if (USES_X402_ORG) {
+    return 'eip155:84532';
+  }
+  return 'eip155:8453';
+}
+
+const X402_NETWORK_ID = resolveX402NetworkId();
 const X402_NETWORK_LABEL = X402_NETWORK_ID === 'eip155:84532' ? 'Base Sepolia' : 'Base';
+const X402_PAYMENT_ACTIVE = Boolean(process.env.X402_RECEIVER_ADDRESS);
 
 // Middleware
-app.use(cors());
+const corsOrigins = process.env.CORS_ORIGINS
+  ? process.env.CORS_ORIGINS.split(',').map((o) => o.trim()).filter(Boolean)
+  : null;
+
+app.use(cors(corsOrigins ? { origin: corsOrigins, credentials: true } : undefined));
 app.use(express.json());
 
 // === x402 Paywall Configuration ===
@@ -72,7 +91,13 @@ if (process.env.X402_RECEIVER_ADDRESS) {
 
 // Health check (used by Render)
 app.get('/health', (_req, res) => {
-  res.json({ status: 'ok', service: 'rekt-brandify' });
+  res.json({
+    status: 'ok',
+    service: 'rekt-brandify',
+    payment: X402_PAYMENT_ACTIVE
+      ? { protocol: 'x402', network: X402_NETWORK_ID }
+      : null,
+  });
 });
 
 // Routes

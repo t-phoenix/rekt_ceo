@@ -4,14 +4,14 @@ import { useAppKit } from "@reown/appkit/react";
 import UnifiedBalance from "./unified-balance/unified-balance";
 import FastBridge from "./fast-bridge/fast-bridge";
 import SwapWidget from "./swaps/swap-widget";
-import { SUPPORTED_CHAINS } from "@avail-project/nexus-core";
+import { SUPPORTED_CHAINS } from "../constants/nexusChains";
 import { useNexus } from "./nexus/NexusProvider";
 import "./BuyCEO.css";
 
 export default function BuyCEO() {
   const { address, isConnected, connector } = useAccount();
   const { open } = useAppKit();
-  const { nexusSDK, handleInit, loading, fetchBridgableBalance, fetchSwapBalance } = useNexus();
+  const { nexusSDK, handleInit, loading, initError, fetchBridgableBalance, fetchSwapBalance } = useNexus();
   const [activeTab, setActiveTab] = useState("unified-balance");
 
   const handleWalletClick = () => {
@@ -44,7 +44,9 @@ export default function BuyCEO() {
     if (!nexusSDK) {
       return (
         <div className="flex flex-col items-center justify-center p-8 space-y-4 text-center">
-          <p className="text-gray-300 mb-4">Initialize Nexus SDK to continue</p>
+          <p className="text-gray-300 mb-4">
+            {initError ?? "Initialize Nexus SDK to continue"}
+          </p>
           <button
             className="connect-wallet-btn"
             onClick={handleInitClick}

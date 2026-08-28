@@ -20,7 +20,7 @@ services:
       - key: X402_RECEIVER_ADDRESS
         sync: false
       - key: X402_FACILITATOR_URL
-        value: https://x402.org/facilitator
+        value: https://api.cdp.coinbase.com/platform/v2/x402
       - key: X402_PRICE_SESSION_START
         value: "0.19"
       - key: X402_PRICE_GENERATE
@@ -29,3 +29,9 @@ services:
         value: "0.01"
       - key: X402_NETWORK
         value: base
+      - key: CORS_ORIGINS
+        sync: false
+      - key: CDP_API_KEY_ID
+        sync: false
+      - key: CDP_API_KEY_SECRET
+        sync: false

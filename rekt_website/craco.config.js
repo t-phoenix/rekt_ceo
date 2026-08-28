@@ -3,6 +3,9 @@ const path = require("path");
 const MEME_API_PROXY_TARGET =
   process.env.REACT_APP_MEME_API_URL || "https://rekt-automations.onrender.com";
 
+const BRANDIFY_API_PROXY_TARGET =
+  process.env.REACT_APP_BRANDIFY_API_URL || "https://rekt-ceo-brandification.onrender.com";
+
 module.exports = {
     style: {
         postcss: {
@@ -15,6 +18,12 @@ module.exports = {
             "/meme-api": {
                 target: MEME_API_PROXY_TARGET,
                 pathRewrite: { "^/meme-api": "" },
+                changeOrigin: true,
+                secure: true,
+            },
+            "/brandify-api": {
+                target: BRANDIFY_API_PROXY_TARGET,
+                pathRewrite: { "^/brandify-api": "" },
                 changeOrigin: true,
                 secure: true,
             },

@@ -64,10 +64,41 @@ Return in pure JSON format:
   }
 }
 
+// GET public brandified variations for a meme template
+router.get('/templates/:templateId/variations', async (req, res) => {
+  try {
+    const { templateId } = req.params;
+    const limit = Math.min(Math.max(parseInt(req.query.limit, 10) || 20, 1), 50);
+    const offset = Math.max(parseInt(req.query.offset, 10) || 0, 0);
+
+    const filter = {
+      templateId,
+      isPublic: true,
+      generatedImageUrl: { $ne: null },
+      error: null,
+    };
+
+    const [items, total] = await Promise.all([
+      Session.find(filter)
+        .sort({ timestamp: -1 })
+        .skip(offset)
+        .limit(limit)
+        .select('sessionId generatedImageUrl originalImageUrl userRating timestamp publishedAt')
+        .lean(),
+      Session.countDocuments(filter),
+    ]);
+
+    res.json({ templateId, total, items });
+  } catch (err) {
+    console.error('Variations fetch error:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // 1. START SESSION (Upload Image & Get Vision Strategy)
 router.post('/sessions/start', upload.single('image'), async (req, res) => {
   try {
-    const { customTarget } = req.body || {};
+    const { customTarget, templateId, category, templateFilename } = req.body || {};
     
     if (!req.file) {
       return res.status(400).json({ error: 'No image provided' });
@@ -84,6 +115,9 @@ router.post('/sessions/start', upload.single('image'), async (req, res) => {
       sessionId,
       originalImageUrl: imageUrl,
       userCustomTarget: customTarget || null,
+      templateId: templateId || null,
+      category: category || null,
+      templateFilename: templateFilename || null,
     });
     await session.save();
 
@@ -141,6 +175,8 @@ router.post('/generate', async (req, res) => {
 
     session.engineUsed = engineUsed;
     session.generatedImageUrl = result.imageUrl;
+    session.isPublic = true;
+    session.publishedAt = new Date();
     await session.save();
 
     res.json({ 

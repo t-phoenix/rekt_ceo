@@ -5,16 +5,20 @@ import "./landingpage/styles/story.css";
 import InteractiveGlow from "../components/InteractiveGlow.js";
 import { categorizedMemeTemplates, memeCategories } from "../constants/memeData";
 import sharingService from "../services/SharingService.js";
-import AiGenerateModal from "../components/AiGenerateModal.js";
-import BrandifyModal from "../components/BrandifyModal.js";
+import AiAssistModal from "../components/AiAssistModal.js";
+import VariationsModal from "../components/VariationsModal.js";
 import MintConfirmModal from "../components/MintConfirmModal.js";
 import MintSuccessModal from "../components/MintSuccessModal.js";
 import memeApiService from "../services/MemeApiService.js";
+import brandifyApiService from "../services/BrandifyApiService.js";
 import { getMemeApiUserMessage, MemeApiError, MemeApiErrorCode } from "../services/memeApiErrors.js";
 import { useMemeApiPayment } from "../hooks/useMemeApiPayment.js";
 import { useMemeApiConnection } from "../hooks/useMemeApiConnection.js";
+import { useBrandifyConnection } from "../hooks/useBrandifyConnection.js";
+import { useBrandifyPayment } from "../hooks/useBrandifyPayment.js";
 import { useAiSuggestionMemory } from "../hooks/useAiSuggestionMemory.js";
 import { markLlmFailed, clearLlmFailure } from "../hooks/useLlmPreflight.js";
+import { exportNodeToPng } from "../utils/exportImage.js";
 import { useAccount } from 'wagmi';
 import { useTierData, useUserData } from "../hooks/useNftData";
 
@@ -44,6 +48,14 @@ const MemeGen = () => {
   const priceLabel = paymentInfo?.price_per_call || '$0.05';
 
   const {
+    status: brandifyConnectionStatus,
+    prices: brandifyPrices,
+    paymentInfo: brandifyPaymentInfo,
+    error: brandifyConnectionError,
+    refresh: refreshBrandifyConnection,
+  } = useBrandifyConnection({ enabled: true });
+
+  const {
     paidFetch,
     ensureBaseChain,
     ensurePaymentReady,
@@ -54,6 +66,19 @@ const MemeGen = () => {
     hasSufficientUsdc,
     shortAddress,
   } = useMemeApiPayment(priceLabel);
+
+  const {
+    paidFetch: brandifyPaidFetch,
+    ensurePaymentReady: brandifyEnsurePaymentReady,
+    usdcBalance: brandifyUsdcBalance,
+    isBalanceLoading: brandifyIsBalanceLoading,
+    hasSufficientUsdc: brandifyHasSufficientUsdc,
+    shortAddress: brandifyShortAddress,
+  } = useBrandifyPayment(brandifyPrices?.sessionStart || '$0.19');
+
+  const aiAssistPriceLabel = paymentInfo?.protocol === 'x402'
+    ? priceLabel.replace(/^\$/, '')
+    : null;
 
   const {
     sessionId: aiSessionId,
@@ -91,13 +116,16 @@ const MemeGen = () => {
   const [imageDimensions, setImageDimensions] = useState({ width: 1, height: 1, ratio: 1 });
   const [frameVariant, setFrameVariant] = useState('red'); // none, red, yellow
 
-  // AI modal state
-  const [isAiModalOpen, setIsAiModalOpen] = useState(false);
+  // AI Assist modal state
+  const [isAiAssistOpen, setIsAiAssistOpen] = useState(false);
+  const [aiAssistTab, setAiAssistTab] = useState('text');
   const [isGenerating, setIsGenerating] = useState(false);
 
-  // Brandify modal state
-  const [isBrandifyModalOpen, setIsBrandifyModalOpen] = useState(false);
-  const [isBrandifying, setIsBrandifying] = useState(false);
+  // Variations modal state
+  const [isVariationsOpen, setIsVariationsOpen] = useState(false);
+  const [variations, setVariations] = useState({ total: 0, items: [] });
+  const [variationsLoading, setVariationsLoading] = useState(false);
+  const [variationsCount, setVariationsCount] = useState(0);
 
   // Mint modal state
   const [showMintConfirm, setShowMintConfirm] = useState(false);
@@ -166,9 +194,44 @@ const MemeGen = () => {
     );
   };
 
+  const getTemplateMeta = useCallback((templateId) => {
+    if (!templateId) return null;
+    for (const [category, templates] of Object.entries(categorizedMemeTemplates)) {
+      const template = templates.find((t) => t.id === templateId);
+      if (template) {
+        const filenamePart = templateId.includes('-')
+          ? templateId.split('-').slice(1).join('-')
+          : templateId;
+        return { template, category, templateFilename: filenamePart };
+      }
+    }
+    return null;
+  }, []);
+
+  const fetchVariationsForTemplate = useCallback(async (templateId) => {
+    if (!templateId) {
+      setVariations({ total: 0, items: [] });
+      setVariationsCount(0);
+      return;
+    }
+
+    setVariationsLoading(true);
+    try {
+      const data = await brandifyApiService.fetchVariations(templateId);
+      setVariations(data);
+      setVariationsCount(data.total || 0);
+    } catch {
+      setVariations({ total: 0, items: [] });
+      setVariationsCount(0);
+    } finally {
+      setVariationsLoading(false);
+    }
+  }, []);
+
   // Function to handle template selection
   const handleTemplateSelect = useCallback((templateId) => {
     setSelectedTemplate(templateId);
+    fetchVariationsForTemplate(templateId);
     const template = Object.values(categorizedMemeTemplates)
       .flat()
       .find((t) => t.id === templateId);
@@ -190,7 +253,7 @@ const MemeGen = () => {
       };
       img.src = `${resolvedSrc}`;
     }
-  }, [showToast]);
+  }, [showToast, fetchVariationsForTemplate]);
 
   // Generate attributes for Meme NFT minting
   const getMemeAttributes = useCallback(() => {
@@ -334,26 +397,61 @@ const MemeGen = () => {
     }
   };
 
-  if (screenWidth < 992) {
-    return <ResponsiveMessage screenWidth={screenWidth} />;
-  }
-
-  const handleOpenAiModal = () => {
+  const handleOpenAiAssist = useCallback((tab = 'text') => {
     if (!imageSrc) {
       showToast("Please select a meme template first!");
       return;
     }
-    setIsAiModalOpen(true);
+    setAiAssistTab(tab);
+    setIsAiAssistOpen(true);
+  }, [imageSrc, showToast]);
+
+  const handleCloseAiAssist = () => {
+    setIsAiAssistOpen(false);
   };
 
-  const handleCloseAiModal = (selectedOption) => {
-    if (selectedOption && selectedOption.topText && selectedOption.bottomText) {
+  const handleTextApplied = (selectedOption) => {
+    if (selectedOption?.topText && selectedOption?.bottomText) {
       setTopText(selectedOption.topText.toUpperCase());
       setBottomText(selectedOption.bottomText.toUpperCase());
       showToast("✨ Meme text applied successfully!");
     }
-    setIsAiModalOpen(false);
   };
+
+  const applyImageToCanvas = useCallback((url) => {
+    const img = new Image();
+    img.onload = () => {
+      setImageSrc(url);
+      setImageDimensions({
+        width: img.naturalWidth,
+        height: img.naturalHeight,
+        ratio: img.naturalWidth / img.naturalHeight,
+      });
+    };
+    img.onerror = () => showToast('Failed to load image.');
+    img.src = url;
+  }, [showToast]);
+
+  const handleUseVariation = (url) => {
+    applyImageToCanvas(url);
+    setIsVariationsOpen(false);
+    showToast('Community version applied!');
+  };
+
+  const handleBrandifyApply = (url) => {
+    applyImageToCanvas(url);
+  };
+
+  const handleBrandifyGenerationComplete = () => {
+    if (selectedTemplate) {
+      fetchVariationsForTemplate(selectedTemplate);
+    }
+  };
+
+  const exportCanvas = useCallback(async () => {
+    if (!stageRef.current) return null;
+    return exportNodeToPng(stageRef.current);
+  }, [stageRef]);
 
   const handleReuseFromHistory = (option, generation) => {
     if (generation.templateId) {
@@ -384,14 +482,14 @@ const MemeGen = () => {
 
     setTopText(option.top_text.toUpperCase());
     setBottomText(option.bottom_text.toUpperCase());
-    setIsAiModalOpen(false);
+    setIsAiAssistOpen(false);
     showToast(`✨ Applied "${generation.templateName}" with saved caption`);
   };
 
   const handleAiGenerate = async (topic, isTwitterPost = false, llmOptions = {}) => {
     if (!imageSrc) {
       showToast("Please select a meme template first!");
-      setIsAiModalOpen(false);
+      setIsAiAssistOpen(false);
       return { error: { message: "Please select a meme template first!" } };
     }
 
@@ -472,65 +570,12 @@ const MemeGen = () => {
     }
   };
 
-  const handleCloseBrandifyModal = (result) => {
-    // If user clicked "Use This", apply the branded template
-    if (result && result.useBrandedTemplate && result.brandedImage) {
-      const base64Image = `data:image/png;base64,${result.brandedImage}`;
-      setImageSrc(base64Image);
-      showToast("✨ Branded template applied successfully!");
-    }
-    setIsBrandifyModalOpen(false);
-  };
-
-  const handleBrandifyGenerate = async (brandData) => {
-    if (!imageSrc) {
-      showToast("Please select a meme template first!");
-      setIsBrandifyModalOpen(false);
-      return null;
-    }
-
-    setIsBrandifying(true);
-
-    try {
-      // Convert the current image to a blob/file for the API
-      const response = await fetch(imageSrc);
-      const blob = await response.blob();
-      const file = new File([blob], 'template.jpg', { type: 'image/jpeg' });
-
-      // Call the API with brand data and template image
-      const result = await memeApiService.generateBrandedTemplate(
-        file,
-        brandData.brandName,
-        brandData.primaryColor,
-        brandData.userPrompt,
-        brandData.secondaryColor,
-        brandData.logoFile
-      );
-
-      // Return result to modal for comparison view
-      return result;
-    } catch (error) {
-      console.error('Error generating branded template:', error);
-
-      let errorMessage = "Failed to generate branded template. ";
-      if (error.message.includes('Failed to fetch')) {
-        errorMessage += "Is the backend running on localhost:8001?";
-      } else if (error.message.includes('Rate')) {
-        errorMessage += "Rate limit exceeded. Please wait 3 minutes.";
-      } else {
-        errorMessage += error.message;
-      }
-
-      showToast(errorMessage);
-      return null;
-    } finally {
-      setIsBrandifying(false);
-    }
-  };
-
   const onUpload = (file) => {
     const url = URL.createObjectURL(file);
     setImageSrc(url);
+    setSelectedTemplate(null);
+    setVariations({ total: 0, items: [] });
+    setVariationsCount(0);
     const img = new Image();
     img.onload = () => {
       setImageDimensions({ width: img.naturalWidth, height: img.naturalHeight, ratio: img.naturalWidth / img.naturalHeight });
@@ -545,6 +590,10 @@ const MemeGen = () => {
       bottomText
     });
   };
+
+  if (screenWidth < 992) {
+    return <ResponsiveMessage screenWidth={screenWidth} />;
+  }
 
   return (
     <div className="meme-gen-container">
@@ -637,6 +686,11 @@ const MemeGen = () => {
             handleSocialShare={handleSocialShare}
             frameVariant={frameVariant}
             setFrameVariant={setFrameVariant}
+            onOpenAiAssist={() => handleOpenAiAssist('text')}
+            aiAssistPriceLabel={aiAssistPriceLabel}
+            onOpenVariations={() => setIsVariationsOpen(true)}
+            variationsCount={variationsCount}
+            variationsLoading={variationsLoading}
           />
 
           {/* Right Column - Controls */}
@@ -654,10 +708,6 @@ const MemeGen = () => {
             setBottomText={setBottomText}
             font={font}
             setFont={setFont}
-            handleOpenAiModal={handleOpenAiModal}
-            aiSuggestLabel="✨ AI Suggest"
-            aiSuggestPrice={paymentInfo?.protocol === 'x402' ? priceLabel : null}
-            memeApiOnline={connectionStatus === 'online'}
             textColor={textColor}
             setTextColor={setTextColor}
             strokeColor={strokeColor}
@@ -690,12 +740,12 @@ const MemeGen = () => {
         </dl>
       </section> */}
 
-      {/* AI Generate Modal */}
-      <AiGenerateModal
-        isOpen={isAiModalOpen}
-        onClose={handleCloseAiModal}
+      <AiAssistModal
+        isOpen={isAiAssistOpen}
+        onClose={handleCloseAiAssist}
+        initialTab={aiAssistTab}
         onGenerate={handleAiGenerate}
-        isLoading={isGenerating}
+        isTextLoading={isGenerating}
         isConnected={isConnected}
         isOnBase={isOnBase}
         isSwitchingChain={isSwitchingChain}
@@ -711,7 +761,7 @@ const MemeGen = () => {
         hasSufficientUsdc={hasSufficientUsdc}
         shortAddress={shortAddress}
         onSwitchToBase={handleSwitchToBase}
-        priceLabel={priceLabel}
+        textPriceLabel={priceLabel}
         templateSrc={imageSrc}
         templateName={getTemplateName()}
         sessionsGrouped={aiSessionsGrouped}
@@ -721,15 +771,38 @@ const MemeGen = () => {
         onRemoveGeneration={removeAiGeneration}
         onClearSessionHistory={clearAiSessionHistory}
         onClearAllHistory={clearAllAiHistory}
+        onTextApplied={handleTextApplied}
+        templateId={selectedTemplate}
+        templateCategory={getTemplateMeta(selectedTemplate)?.category}
+        templateFilename={getTemplateMeta(selectedTemplate)?.templateFilename}
+        exportCanvas={exportCanvas}
+        brandifyPrices={brandifyPrices}
+        brandifyPaymentInfo={brandifyPaymentInfo}
+        brandifyOnline={brandifyConnectionStatus === 'online'}
+        brandifyConnectionStatus={brandifyConnectionStatus}
+        brandifyError={brandifyConnectionError}
+        onRefreshBrandify={refreshBrandifyConnection}
+        brandifyPaidFetch={brandifyPaidFetch}
+        brandifyEnsurePaymentReady={brandifyEnsurePaymentReady}
+        brandifyUsdcBalance={brandifyUsdcBalance}
+        brandifyIsBalanceLoading={brandifyIsBalanceLoading}
+        brandifyHasSufficientUsdc={brandifyHasSufficientUsdc}
+        brandifyShortAddress={brandifyShortAddress}
+        onBrandifyApply={handleBrandifyApply}
+        onGenerationComplete={handleBrandifyGenerationComplete}
+        showToast={showToast}
       />
 
-      {/* Brandify Modal */}
-      <BrandifyModal
-        isOpen={isBrandifyModalOpen}
-        onClose={handleCloseBrandifyModal}
-        onGenerate={handleBrandifyGenerate}
-        isLoading={isBrandifying}
-        templateSrc={imageSrc}
+      <VariationsModal
+        isOpen={isVariationsOpen}
+        onClose={() => setIsVariationsOpen(false)}
+        templateName={getTemplateName()}
+        variations={variations}
+        onUseVariation={handleUseVariation}
+        onCreateOwn={() => {
+          setIsVariationsOpen(false);
+          handleOpenAiAssist('brandify');
+        }}
       />
 
       {/* Mint Confirmation Modal */}

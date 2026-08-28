@@ -27,8 +27,17 @@ const SessionSchema = new mongoose.Schema({
     enum: ['Like', 'Dislike', 'Neutral', null], 
     default: null 
   },
+
+  templateId: { type: String, default: null, index: true },
+  category: { type: String, default: null },
+  templateFilename: { type: String, default: null },
+  creatorWallet: { type: String, default: null },
+  isPublic: { type: Boolean, default: true },
+  publishedAt: { type: Date, default: null },
   
   error: { type: String, default: null }
 });
+
+SessionSchema.index({ templateId: 1, generatedImageUrl: 1, isPublic: 1, timestamp: -1 });
 
 export default mongoose.model('Session', SessionSchema);

@@ -260,7 +260,8 @@
 .meme-canvas-actions {
   display: flex;
   align-items: center;
-  gap: 0.25rem;
+  gap: 0.45rem;
+  flex-wrap: wrap;
 }
 
 /* Button styles are now imported from story.css */
@@ -1095,22 +1096,23 @@
 /* Scroll hint arrows */
 .scroll-hint {
   position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 3rem;
-  font-weight: bold;
+  top: 0;
+  bottom: 0;
+  width: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   color: rgba(255, 255, 255, 0.5);
   background: linear-gradient(to right, rgba(0, 0, 0, 0.3), transparent);
   pointer-events: none;
   z-index: 10;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
-  width: 50px;
-  transition: all 0.3s ease;
+  transition: opacity 0.3s ease;
   user-select: none;
   animation: pulse 10s ease-in-out infinite;
+}
+
+.scroll-hint svg {
+  flex-shrink: 0;
 }
 
 @keyframes pulse {
@@ -1125,15 +1127,13 @@
   }
 }
 
-.scroll-hint.left {
+.scroll-hint--left {
   left: 0;
   background: linear-gradient(to right, rgba(0, 0, 0, 0.6), transparent);
   border-radius: 12px 0 0 12px;
 }
 
-
-
-.scroll-hint.right {
+.scroll-hint--right {
   right: 0;
   background: linear-gradient(to left, rgba(0, 0, 0, 0.6), transparent);
   border-radius: 0 12px 12px 0;

@@ -131,7 +131,8 @@ const FastBridge = ({
                 <Skeleton className="h-4 w-36" />
               ) : (
                 <p className="text-sm font-light text-right">
-                  on {intent?.current?.intent?.destination?.chainName}
+                  on {intent?.current?.intent?.destination?.chain?.name ??
+                    intent?.current?.intent?.destination?.chainName}
                 </p>
               )}
             </div>

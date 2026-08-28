@@ -11,6 +11,7 @@ import { MessageCircleQuestion } from "lucide-react";
 
 const FeeBreakdown = ({ intent, isLoading = false }) => {
   const { nexusSDK } = useNexus();
+  const tokenMeta = intent?.destination?.token ?? intent?.token;
 
   const feeRows = [
     {
@@ -55,8 +56,8 @@ const FeeBreakdown = ({ intent, isLoading = false }) => {
             ) : (
               <p className="font-light text-base min-w-max">
                 {nexusSDK?.utils?.formatTokenBalance(intent.fees?.total, {
-                  symbol: intent.token?.symbol,
-                  decimals: intent?.token?.decimals,
+                  symbol: tokenMeta?.symbol,
+                  decimals: tokenMeta?.decimals,
                 })}
               </p>
             )}
@@ -87,8 +88,8 @@ const FeeBreakdown = ({ intent, isLoading = false }) => {
                     ) : (
                       <p className="text-sm font-light">
                         {nexusSDK?.utils?.formatTokenBalance(value, {
-                          symbol: intent.token?.symbol,
-                          decimals: intent?.token?.decimals,
+                          symbol: tokenMeta?.symbol,
+                          decimals: tokenMeta?.decimals,
                         })}
                       </p>
                     )}

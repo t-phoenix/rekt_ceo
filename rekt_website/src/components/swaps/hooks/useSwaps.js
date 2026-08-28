@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useReducer } from "react";
-import { NEXUS_EVENTS } from "@avail-project/nexus-core";
 import {
   useTransactionSteps,
   SWAP_EXPECTED_STEPS,
@@ -81,23 +80,26 @@ const useSwaps = ({
     reset: resetSteps,
   } = useTransactionSteps();
 
-  // Validation for exact-in mode
   const areExactInInputsValid = useMemo(() => {
-    return (state?.inputs?.fromChainID !== undefined &&
+    return (
+      state?.inputs?.fromChainID !== undefined &&
       state?.inputs?.toChainID !== undefined &&
       state?.inputs?.fromToken &&
       state?.inputs?.toToken &&
-      state?.inputs?.fromAmount && Number(state.inputs.fromAmount) > 0);
+      state?.inputs?.fromAmount &&
+      Number(state.inputs.fromAmount) > 0
+    );
   }, [state.inputs]);
 
-  // Validation for exact-out mode
   const areExactOutInputsValid = useMemo(() => {
-    return (state?.inputs?.toChainID !== undefined &&
+    return (
+      state?.inputs?.toChainID !== undefined &&
       state?.inputs?.toToken &&
-      state?.inputs?.toAmount && Number(state.inputs.toAmount) > 0);
+      state?.inputs?.toAmount &&
+      Number(state.inputs.toAmount) > 0
+    );
   }, [state.inputs]);
 
-  // Combined validation based on current mode
   const areInputsValid = useMemo(() => {
     return state.swapMode === "exactIn"
       ? areExactInInputsValid
@@ -106,26 +108,41 @@ const useSwaps = ({
 
   const handleNexusError = useNexusError();
 
-  // Event handler shared between exact-in and exact-out
   const handleSwapEvent = (event) => {
-    if (event.name === NEXUS_EVENTS.SWAP_STEP_COMPLETE) {
-      const step = event.args;
-
-      if (step?.type === "SOURCE_SWAP_HASH" && step.explorerURL) {
+    if (event.type === "plan_preview") {
+      seed(event.plan?.steps ?? SWAP_EXPECTED_STEPS);
+    }
+    if (event.type === "plan_progress") {
+      if (event.stepType === "source_swap" && event.explorerUrl) {
         dispatch({
           type: "setExplorerUrls",
-          payload: { sourceExplorerUrl: step.explorerURL },
+          payload: { sourceExplorerUrl: event.explorerUrl },
         });
       }
-      if (step?.type === "DESTINATION_SWAP_HASH" && step.explorerURL) {
+      if (event.stepType === "destination_swap" && event.explorerUrl) {
         dispatch({
           type: "setExplorerUrls",
-          payload: { destinationExplorerUrl: step.explorerURL },
+          payload: { destinationExplorerUrl: event.explorerUrl },
         });
       }
-      onStepComplete(step);
+      if (event.state === "confirmed" || event.state === "submitted") {
+        onStepComplete({
+          type: event.stepType?.toUpperCase(),
+          explorerURL: event.explorerUrl,
+          ...event.step,
+        });
+      }
     }
   };
+
+  const getSwapHooks = () => ({
+    hooks: {
+      onIntent: (data) => {
+        swapIntent.current = data;
+      },
+    },
+    onEvent: handleSwapEvent,
+  });
 
   const handleExactInSwap = async () => {
     if (
@@ -136,30 +153,32 @@ const useSwaps = ({
       !state?.inputs?.fromAmount ||
       !state?.inputs?.toChainID ||
       !state?.inputs?.fromChainID
-    )
+    ) {
       return;
-
-    const amountBigInt = nexusSDK.utils.parseUnits(state.inputs.fromAmount, state.inputs.fromToken.decimals);
-    const swapInput = {
-      from: [
-        {
-          chainId: state.inputs.fromChainID,
-          amount: amountBigInt,
-          tokenAddress: state.inputs.fromToken.contractAddress,
-        },
-      ],
-      toChainId: state.inputs.toChainID,
-      toTokenAddress: state.inputs.toToken.tokenAddress,
-    };
-
-    const result = await nexusSDK.swapWithExactIn(swapInput, {
-      onEvent: (event) =>
-        handleSwapEvent(event),
-    });
-
-    if (!result?.success) {
-      throw new Error(result?.error || "Swap failed");
     }
+
+    const fromTokenAddress =
+      state.inputs.fromToken.contractAddress ??
+      state.inputs.fromToken.tokenAddress;
+    const amountBigInt = nexusSDK.utils.parseUnits(
+      state.inputs.fromAmount,
+      state.inputs.fromToken.decimals
+    );
+
+    await nexusSDK.swapWithExactIn(
+      {
+        sources: [
+          {
+            chainId: state.inputs.fromChainID,
+            tokenAddress: fromTokenAddress,
+            amountRaw: amountBigInt,
+          },
+        ],
+        toChainId: state.inputs.toChainID,
+        toTokenAddress: state.inputs.toToken.tokenAddress,
+      },
+      getSwapHooks()
+    );
   };
 
   const handleExactOutSwap = async () => {
@@ -169,24 +188,23 @@ const useSwaps = ({
       !state?.inputs?.toToken ||
       !state?.inputs?.toAmount ||
       !state?.inputs?.toChainID
-    )
+    ) {
       return;
-
-    const amountBigInt = nexusSDK.utils.parseUnits(state.inputs.toAmount, state.inputs.toToken.decimals);
-    const swapInput = {
-      toAmount: amountBigInt,
-      toChainId: state.inputs.toChainID,
-      toTokenAddress: state.inputs.toToken.tokenAddress,
-    };
-
-    const result = await nexusSDK.swapWithExactOut(swapInput, {
-      onEvent: (event) =>
-        handleSwapEvent(event),
-    });
-
-    if (!result?.success) {
-      throw new Error(result?.error || "Swap failed");
     }
+
+    const amountBigInt = nexusSDK.utils.parseUnits(
+      state.inputs.toAmount,
+      state.inputs.toToken.decimals
+    );
+
+    await nexusSDK.swapWithExactOut(
+      {
+        toAmountRaw: amountBigInt,
+        toChainId: state.inputs.toChainID,
+        toTokenAddress: state.inputs.toToken.tokenAddress,
+      },
+      getSwapHooks()
+    );
   };
 
   const handleSwap = async () => {
@@ -234,17 +252,17 @@ const useSwaps = ({
       !swapBalance ||
       !state.inputs?.fromToken ||
       !state.inputs?.fromChainID
-    )
+    ) {
       return undefined;
-    return (swapBalance
-      ?.find((token) => token.symbol === state.inputs?.fromToken?.symbol)
-      ?.breakdown?.find((chain) => chain.chain?.id === state.inputs?.fromChainID) ?? undefined);
-  }, [
-    state.inputs?.fromToken,
-    state.inputs?.fromChainID,
-    swapBalance,
-    nexusSDK,
-  ]);
+    }
+    return (
+      swapBalance
+        ?.find((token) => token.symbol === state.inputs?.fromToken?.symbol)
+        ?.breakdown?.find(
+          (chain) => chain.chain?.id === state.inputs?.fromChainID
+        ) ?? undefined
+    );
+  }, [state.inputs?.fromToken, state.inputs?.fromChainID, swapBalance, nexusSDK]);
 
   const destinationBalance = useMemo(() => {
     if (
@@ -252,12 +270,22 @@ const useSwaps = ({
       !swapBalance ||
       !state.inputs?.toToken ||
       !state.inputs?.toChainID
-    )
+    ) {
       return undefined;
-    return (swapBalance
-      ?.find((token) => token.symbol === state?.inputs?.toToken?.symbol)
-      ?.breakdown?.find((chain) => chain.chain?.id === state?.inputs?.toChainID) ?? undefined);
-  }, [state?.inputs?.toToken, state?.inputs?.toChainID, swapBalance, nexusSDK]);
+    }
+    return (
+      swapBalance
+        ?.find((token) => token.symbol === state?.inputs?.toToken?.symbol)
+        ?.breakdown?.find(
+          (chain) => chain.chain?.id === state?.inputs?.toChainID
+        ) ?? undefined
+    );
+  }, [
+    state?.inputs?.toToken,
+    state?.inputs?.toChainID,
+    swapBalance,
+    nexusSDK,
+  ]);
 
   const availableStables = useMemo(() => {
     if (!nexusSDK || !swapBalance) return [];
@@ -267,15 +295,11 @@ const useSwaps = ({
     return filteredToken ?? [];
   }, [swapBalance, nexusSDK]);
 
-  const formatBalance = (
-    balance,
-    symbol,
-    decimals
-  ) => {
+  const formatBalance = (balance, symbol, decimals) => {
     if (!balance || !symbol || !decimals) return undefined;
     return nexusSDK?.utils?.formatTokenBalance(balance, {
-      symbol: symbol,
-      decimals: decimals,
+      symbol,
+      decimals,
     });
   };
 
@@ -286,19 +310,18 @@ const useSwaps = ({
   }, [swapBalance, fetchBalance]);
 
   useEffect(() => {
-    // Check validity based on current swap mode
     const isValidForCurrentMode =
       state.swapMode === "exactIn"
         ? areExactInInputsValid &&
-        state?.inputs?.fromAmount &&
-        state?.inputs?.fromChainID &&
-        state?.inputs?.fromToken &&
-        state?.inputs?.toChainID &&
-        state?.inputs?.toToken
+          state?.inputs?.fromAmount &&
+          state?.inputs?.fromChainID &&
+          state?.inputs?.fromToken &&
+          state?.inputs?.toChainID &&
+          state?.inputs?.toToken
         : areExactOutInputsValid &&
-        state?.inputs?.toAmount &&
-        state?.inputs?.toChainID &&
-        state?.inputs?.toToken;
+          state?.inputs?.toAmount &&
+          state?.inputs?.toChainID &&
+          state?.inputs?.toToken;
 
     if (!isValidForCurrentMode) {
       swapIntent.current?.deny();
@@ -315,7 +338,7 @@ const useSwaps = ({
     areExactOutInputsValid,
     state.status,
     debouncedSwapStart,
-    swapIntent
+    swapIntent,
   ]);
 
   const refreshSimulation = async () => {
@@ -341,10 +364,8 @@ const useSwaps = ({
     status: state.status,
     inputs: state.inputs,
     swapMode: state.swapMode,
-    setSwapMode: (mode) =>
-      dispatch({ type: "setSwapMode", payload: mode }),
-    setStatus: (status) =>
-      dispatch({ type: "setStatus", payload: status }),
+    setSwapMode: (mode) => dispatch({ type: "setSwapMode", payload: mode }),
+    setStatus: (status) => dispatch({ type: "setStatus", payload: status }),
     setInputs: (inputs) => {
       if (state.status === "error") {
         dispatch({ type: "setError", payload: null });
@@ -353,8 +374,7 @@ const useSwaps = ({
       dispatch({ type: "setInputs", payload: inputs });
     },
     txError: state.error,
-    setTxError: (error) =>
-      dispatch({ type: "setError", payload: error }),
+    setTxError: (error) => dispatch({ type: "setError", payload: error }),
     availableBalance,
     availableStables,
     destinationBalance,

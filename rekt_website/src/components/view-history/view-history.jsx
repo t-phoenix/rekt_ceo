@@ -8,7 +8,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Clock, LoaderPinwheel, SquareArrowOutUpRight } from "lucide-react";
-import { TOKEN_METADATA } from "@avail-project/nexus-core";
+import { TOKEN_METADATA } from "../../constants/nexusChains";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";

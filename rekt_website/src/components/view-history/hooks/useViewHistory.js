@@ -28,23 +28,36 @@ const useViewHistory = () => {
 
   const fetchIntentHistory = useCallback(async () => {
     try {
-      const history = await nexusSDK?.getMyIntents();
-      if (history) {
-        setHistory(history);
-        const firstPage = history.slice(0, ITEMS_PER_PAGE);
+      const result = await nexusSDK?.listIntents();
+      const intents =
+        result?.intents?.map((intent) => ({
+          ...intent,
+          id: intent.requestHash,
+        })) ?? [];
+
+      if (intents.length > 0) {
+        setHistory(intents);
+        const firstPage = intents.slice(0, ITEMS_PER_PAGE);
         setDisplayedHistory(firstPage);
-        setHasMore(history.length > ITEMS_PER_PAGE);
+        setHasMore(intents.length > ITEMS_PER_PAGE);
+      } else {
+        setHistory([]);
+        setDisplayedHistory([]);
+        setHasMore(false);
       }
     } catch (error) {
       console.error("Error fetching intent history:", error);
+      setHistory([]);
+      setDisplayedHistory([]);
+      setHasMore(false);
     }
   }, [nexusSDK]);
 
   useEffect(() => {
-    if (!history) {
+    if (!history && nexusSDK) {
       fetchIntentHistory();
     }
-  }, [history, fetchIntentHistory]);
+  }, [history, fetchIntentHistory, nexusSDK]);
 
   const loadMore = useCallback(() => {
     if (!history || isLoadingMore || !hasMore) return;
@@ -75,11 +88,14 @@ const useViewHistory = () => {
 
     const rootElement = sentinelNode.parentElement;
 
-    const observer = new IntersectionObserver((entries) => {
-      if (entries[0].isIntersecting && hasMore && !isLoadingMore) {
-        loadMore();
-      }
-    }, { threshold: 0.1, root: rootElement ?? null });
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasMore && !isLoadingMore) {
+          loadMore();
+        }
+      },
+      { threshold: 0.1, root: rootElement ?? null }
+    );
 
     observer.observe(sentinelNode);
 
@@ -89,14 +105,17 @@ const useViewHistory = () => {
   }, [sentinelNode, loadMore, hasMore, isLoadingMore, displayedHistory.length]);
 
   const getStatus = (pastIntent) => {
-    if (pastIntent?.fulfilled) {
-      return "Fulfilled";
-    } else if (pastIntent?.deposited) {
-      return "Deposited";
-    } else if (pastIntent?.refunded) {
-      return "Refunded";
-    } else {
-      return "Failed";
+    switch (pastIntent?.status) {
+      case "fulfilled":
+        return "Fulfilled";
+      case "deposited":
+        return "Deposited";
+      case "expired":
+        return "Failed";
+      case "created":
+        return "Deposited";
+      default:
+        return "Failed";
     }
   };
 

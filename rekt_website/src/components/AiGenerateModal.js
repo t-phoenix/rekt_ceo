@@ -14,6 +14,7 @@ const TIER_LABELS = {
 const AiGenerateModal = ({
   isOpen,
   onClose,
+  embedded = false,
   onGenerate,
   isLoading,
   isConnected,
@@ -41,6 +42,7 @@ const AiGenerateModal = ({
   onRemoveGeneration,
   onClearSessionHistory,
   onClearAllHistory,
+  hideConnectionBanner = false,
 }) => {
   const { open: openWalletModal } = useAppKit();
   const [modalView, setModalView] = useState('generate');
@@ -292,38 +294,39 @@ const AiGenerateModal = ({
     );
   };
 
-  return (
-    <div className="ai-modal-overlay" onClick={handleClose}>
-      <div
-        className={`ai-modal-content ai-modal-content--wide ${
-          showResults ? 'ai-modal-content--options' : ''
-        } ${modalView === 'history' ? 'ai-modal-content--history' : ''}`}
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="ai-modal-header ai-modal-header--slim">
-          <div className="ai-modal-tabs">
-            <button
-              type="button"
-              className={`ai-modal-tab ${modalView === 'generate' || showResults ? 'active' : ''}`}
-              onClick={() => {
-                if (showResults) setModalView('results');
-                else setModalView('generate');
-              }}
-            >
-              ✨ Generate
-            </button>
-            <button
-              type="button"
-              className={`ai-modal-tab ${modalView === 'history' ? 'active' : ''}`}
-              onClick={() => setModalView('history')}
-            >
-              📚 History{historyCount > 0 ? ` (${historyCount})` : ''}
-            </button>
-          </div>
+  const modalInner = (
+    <div
+      className={`ai-modal-content ai-modal-content--wide ${
+        showResults ? 'ai-modal-content--options' : ''
+      } ${modalView === 'history' ? 'ai-modal-content--history' : ''} ${embedded ? 'ai-modal-content--embedded' : ''}`}
+      onClick={embedded ? undefined : (e) => e.stopPropagation()}
+    >
+      <div className={`ai-modal-header ai-modal-header--slim ${embedded ? 'ai-modal-header--embedded' : ''}`}>
+        <div className="ai-modal-tabs">
+          <button
+            type="button"
+            className={`ai-modal-tab ${modalView === 'generate' || showResults ? 'active' : ''}`}
+            onClick={() => {
+              if (showResults) setModalView('results');
+              else setModalView('generate');
+            }}
+          >
+            ✨ Generate
+          </button>
+          <button
+            type="button"
+            className={`ai-modal-tab ${modalView === 'history' ? 'active' : ''}`}
+            onClick={() => setModalView('history')}
+          >
+            📚 History{historyCount > 0 ? ` (${historyCount})` : ''}
+          </button>
+        </div>
+        {!embedded && (
           <button className="ai-modal-close" onClick={handleClose} type="button" aria-label="Close">
             ✕
           </button>
-        </div>
+        )}
+      </div>
 
         {modalView === 'history' ? (
           <div className="ai-modal-body ai-history-body">
@@ -341,11 +344,20 @@ const AiGenerateModal = ({
             <div className="ai-modal-body">
               {renderPaymentStrip()}
 
-              {isApiOffline && (
+              {isApiOffline && !hideConnectionBanner && (
                 <div className="ai-inline-status ai-inline-status--offline">
                   <span>{connectionError || 'Meme API offline'}</span>
                   <button type="button" className="ai-error-action" onClick={onRefreshConnection}>
                     Retry
+                  </button>
+                </div>
+              )}
+
+              {isApiOffline && hideConnectionBanner && (
+                <div className="ai-assist-tab-offline-note">
+                  <span>Text service is offline.</span>
+                  <button type="button" className="ai-error-action" onClick={onRefreshConnection}>
+                    Retry connection
                   </button>
                 </div>
               )}
@@ -570,6 +582,13 @@ const AiGenerateModal = ({
           </>
         )}
       </div>
+  );
+
+  if (embedded) return modalInner;
+
+  return (
+    <div className="ai-modal-overlay" onClick={handleClose}>
+      {modalInner}
     </div>
   );
 };

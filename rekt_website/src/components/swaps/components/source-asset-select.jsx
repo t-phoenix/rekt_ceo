@@ -2,7 +2,7 @@
 import { useMemo, useState } from "react";
 import { Button } from "../../ui/button";
 import { useNexus } from "../../nexus/NexusProvider";
-import { CHAIN_METADATA } from "@avail-project/nexus-core";
+import { CHAIN_METADATA } from "../../../constants/nexusChains";
 import { TOKEN_IMAGES } from "../config/destination";
 import { Link2, Loader2, Search, X } from "lucide-react";
 import { DialogClose } from "../../ui/dialog";

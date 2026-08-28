@@ -33,13 +33,12 @@ const AmountInput = ({
   const onMaxClick = async () => {
     if (!nexusSDK || !inputs) return;
     const maxBalAvailable = await nexusSDK?.calculateMaxForBridge({
-      token: inputs?.token,
+      toTokenSymbol: inputs?.token,
       toChainId: inputs?.chain,
-      recipient: inputs?.recipient,
     });
     if (!maxBalAvailable) return;
-    onChange(maxBalAvailable.amount);
-    onCommit?.(maxBalAvailable.amount);
+    onChange(maxBalAvailable.maxAmount);
+    onCommit?.(maxBalAvailable.maxAmount);
   };
 
   useEffect(() => {

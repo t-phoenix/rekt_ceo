@@ -2,7 +2,7 @@ import React, { memo, useEffect, useMemo, useState, useCallback } from "react";
 import { Button } from "../../ui/button";
 import { Input } from "../../ui/input";
 import { Label } from "../../ui/label";
-import { CHAIN_METADATA } from "@avail-project/nexus-core";
+import { CHAIN_METADATA } from "../../../constants/nexusChains";
 import { useNexus } from "../../nexus/NexusProvider";
 
 const ALLOWANCE_CHOICES = [

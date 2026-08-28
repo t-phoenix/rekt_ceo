@@ -109,25 +109,35 @@ export function useMemeApiPayment(priceLabel = '$0.05') {
     }
   }, [isConnected, walletClient, chainId, switchChainAsync]);
 
-  const ensurePaymentReady = useCallback(async () => {
+  const ensurePaymentReady = useCallback(async (stepPriceLabel) => {
+    const requiredLabel = stepPriceLabel || priceLabel;
+    const requiredUsdc = parseUsdcPrice(requiredLabel);
+
     await ensureBaseChain();
     const result = await refetchUsdcBalance();
     const balanceRaw = result?.data;
 
     if (balanceRaw !== undefined) {
       const balance = Number(formatUnits(balanceRaw, 6));
-      if (balance < priceUsdc - 0.000001) {
+      if (balance < requiredUsdc - 0.000001) {
         throw new MemeApiError(
-          `Insufficient USDC on Base. You need at least ${priceLabel} to generate.`,
+          `Insufficient USDC on Base. You need at least ${requiredLabel} to continue.`,
           { code: MemeApiErrorCode.PAYMENT_FAILED }
         );
       }
       return;
     }
 
-    if (hasSufficientUsdc === false) {
+    if (hasSufficientUsdc === false && requiredUsdc <= priceUsdc + 0.000001) {
       throw new MemeApiError(
-        `Insufficient USDC on Base. You need at least ${priceLabel} to generate.`,
+        `Insufficient USDC on Base. You need at least ${requiredLabel} to continue.`,
+        { code: MemeApiErrorCode.PAYMENT_FAILED }
+      );
+    }
+
+    if (requiredUsdc > priceUsdc + 0.000001 && hasSufficientUsdc !== true) {
+      throw new MemeApiError(
+        `Insufficient USDC on Base. You need at least ${requiredLabel} to continue.`,
         { code: MemeApiErrorCode.PAYMENT_FAILED }
       );
     }

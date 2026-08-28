@@ -1,7 +1,7 @@
 import React from "react";
 import { Label } from "../../ui/label";
 import { cn } from "@/lib/utils";
-import { CHAIN_METADATA } from "@avail-project/nexus-core";
+import { CHAIN_METADATA } from "../../../constants/nexusChains";
 import { Button } from "../../ui/button";
 import { TokenIcon } from "./token-icon";
 import AmountInput from "./amount-input";

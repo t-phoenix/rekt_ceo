@@ -1,4 +1,4 @@
-import { NEXUS_EVENTS, SUPPORTED_CHAINS } from "@avail-project/nexus-core";
+import { SUPPORTED_CHAINS } from "../../../constants/nexusChains";
 import { useEffect, useMemo, useRef, useState, useReducer } from "react";
 import { isAddress } from "viem";
 import { useStopwatch, usePolling, useNexusError, useTransactionSteps } from "../../common";
@@ -6,13 +6,13 @@ import { useStopwatch, usePolling, useNexusError, useTransactionSteps } from "..
 const buildInitialInputs = (network, connectedAddress, prefill) => {
   return {
     chain:
-      (prefill?.chainId) ??
+      prefill?.chainId ??
       (network === "testnet"
         ? SUPPORTED_CHAINS.SEPOLIA
         : SUPPORTED_CHAINS.ETHEREUM),
-    token: (prefill?.token) ?? "USDC",
+    token: prefill?.token ?? "USDC",
     amount: prefill?.amount ?? undefined,
-    recipient: (prefill?.recipient) ?? connectedAddress,
+    recipient: prefill?.recipient ?? connectedAddress,
   };
 };
 
@@ -27,7 +27,7 @@ const useBridge = ({
   onStart,
   onError,
   fetchBalance,
-  allowance
+  allowance,
 }) => {
   const handleNexusError = useNexusError();
   const initialState = {
@@ -77,6 +77,27 @@ const useBridge = ({
     return hasToken && hasChain && hasAmount && hasValidrecipient;
   }, [inputs]);
 
+  const handleBridgeEvent = (event) => {
+    if (event.type === "plan_preview") {
+      onStepsList(event.plan?.steps ?? []);
+    }
+    if (event.type === "plan_progress") {
+      if (
+        event.stepType === "request_signing" &&
+        (event.state === "submitted" || event.state === "wallet_prompted")
+      ) {
+        stopwatch.start();
+      }
+      if (event.state === "confirmed" || event.state === "submitted") {
+        onStepComplete({
+          type: event.stepType?.toUpperCase(),
+          ...event.step,
+          explorerURL: event.explorerUrl,
+        });
+      }
+    }
+  };
+
   const handleTransaction = async () => {
     if (
       !inputs?.amount ||
@@ -96,33 +117,35 @@ const useBridge = ({
       if (!nexusSDK) {
         throw new Error("Nexus SDK not initialized");
       }
-      const formattedAmount = nexusSDK.convertTokenReadableAmountToBigInt(inputs?.amount, inputs?.token, inputs?.chain);
-      const bridgeTxn = await nexusSDK.bridge({
-        token: inputs?.token,
-        amount: formattedAmount,
-        toChainId: inputs?.chain,
-        recipient: inputs?.recipient ?? connectedAddress,
-      }, {
-        onEvent: (event) => {
-          if (event.name === NEXUS_EVENTS.STEPS_LIST) {
-            const list = Array.isArray(event.args) ? event.args : [];
-            onStepsList(list);
-          }
-          if (event.name === NEXUS_EVENTS.STEP_COMPLETE) {
-            if (event.args.type === "INTENT_HASH_SIGNED") {
-              stopwatch.start();
-            }
-            onStepComplete(event.args);
-          }
+      const formattedAmount = nexusSDK.convertTokenReadableAmountToBigInt(
+        inputs.amount,
+        inputs.token,
+        inputs.chain
+      );
+      const bridgeTxn = await nexusSDK.bridge(
+        {
+          toTokenSymbol: inputs.token,
+          toAmountRaw: formattedAmount,
+          toChainId: inputs.chain,
+          recipient: inputs.recipient ?? connectedAddress,
         },
-      });
+        {
+          hooks: {
+            onIntent: (data) => {
+              intent.current = data;
+            },
+            onAllowance: (data) => {
+              allowance.current = data;
+            },
+          },
+          onEvent: handleBridgeEvent,
+        }
+      );
       if (!bridgeTxn) {
         throw new Error("Transaction rejected by user");
       }
-      if (bridgeTxn) {
-        setLastExplorerUrl(bridgeTxn.explorerUrl);
-        await onSuccess();
-      }
+      setLastExplorerUrl(bridgeTxn.intentExplorerUrl);
+      await onSuccess();
     } catch (error) {
       const { message } = handleNexusError(error);
       intent.current?.deny();
@@ -136,7 +159,6 @@ const useBridge = ({
   };
 
   const onSuccess = async () => {
-    // Close dialog and stop timer on success
     stopwatch.stop();
     dispatch({ type: "setStatus", payload: "success" });
     onComplete?.();
@@ -175,7 +197,6 @@ const useBridge = ({
   };
 
   const startTransaction = () => {
-    // Reset timer for a fresh run
     intent.current?.allow();
     setIsDialogOpen(true);
     setTxError(null);
