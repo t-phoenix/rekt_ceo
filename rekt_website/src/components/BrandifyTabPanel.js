@@ -1,8 +1,21 @@
 import { useState, useCallback } from 'react';
-import { MdAnalytics, MdBrush, MdCheckCircle, MdThumbDown, MdThumbUp } from 'react-icons/md';
+import {
+  MdAnalytics,
+  MdBrush,
+  MdCheckCircle,
+  MdDownload,
+  MdEdit,
+  MdShare,
+  MdSkipNext,
+  MdTextFields,
+  MdThumbDown,
+  MdThumbUp,
+} from 'react-icons/md';
 import { useAppKit } from '@reown/appkit/react';
 import brandifyApiService from '../services/BrandifyApiService';
 import { getMemeApiUserMessage, MemeApiErrorCode } from '../services/memeApiErrors';
+
+const CUSTOM_IDEA = '__custom__';
 
 const STEPS = [
   { id: 'analyze', label: 'Analyze', icon: MdAnalytics, priceKey: 'sessionStart', fallback: '$0.19' },
@@ -65,6 +78,7 @@ const BrandifyTabPanel = ({
   const [strategy, setStrategy] = useState(null);
   const [originalImageUrl, setOriginalImageUrl] = useState(null);
   const [selections, setSelections] = useState({});
+  const [customIdeas, setCustomIdeas] = useState({});
   const [generatedImageUrl, setGeneratedImageUrl] = useState(null);
   const [engineUsed, setEngineUsed] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -174,8 +188,14 @@ const BrandifyTabPanel = ({
 
   const handleGenerate = async () => {
     const userCuratedChoices = Object.entries(selections)
-      .filter(([, idea]) => idea?.trim())
-      .map(([element, idea]) => ({ element, idea: idea.trim() }));
+      .map(([element, idea]) => {
+        if (idea === CUSTOM_IDEA) {
+          const custom = customIdeas[element]?.trim();
+          return custom ? { element, idea: custom } : null;
+        }
+        return idea?.trim() ? { element, idea: idea.trim() } : null;
+      })
+      .filter(Boolean);
 
     if (userCuratedChoices.length === 0) {
       setError({ message: 'Pick at least one brandify idea.' });
@@ -383,9 +403,13 @@ const BrandifyTabPanel = ({
 
       {step === 'customize' && strategy?.elements && (
         <div className="brandify-step-content">
-          <p className="brandify-hint">Pick creative ideas for each element. Uncheck by clearing selection.</p>
+          <p className="brandify-hint">
+            Pick a suggested idea for each element, or write your own custom design.
+          </p>
           <div className="brandify-elements">
-            {strategy.elements.map((el) => (
+            {strategy.elements.map((el) => {
+              const isCustomSelected = selections[el.name] === CUSTOM_IDEA;
+              return (
               <div key={el.name} className="brandify-element-card">
                 <div className="brandify-element-header">
                   <strong>{el.name}</strong>
@@ -394,29 +418,59 @@ const BrandifyTabPanel = ({
                 {el.reasoning && <p className="brandify-element-reason">{el.reasoning}</p>}
                 <div className="brandify-ideas">
                   {(el.ideas || []).map((idea) => (
-                    <label key={idea} className={`brandify-idea-option ${selections[el.name] === idea ? 'selected' : ''}`}>
+                    <label
+                      key={idea}
+                      className={`brandify-idea-option ${selections[el.name] === idea ? 'selected' : ''}`}
+                    >
                       <input
                         type="radio"
                         name={`idea-${el.name}`}
                         checked={selections[el.name] === idea}
                         onChange={() => setSelections((prev) => ({ ...prev, [el.name]: idea }))}
                       />
-                      <span>{idea}</span>
+                      <span className="brandify-idea-text">{idea}</span>
                     </label>
                   ))}
+                  <label
+                    className={`brandify-idea-option brandify-idea-option--custom ${isCustomSelected ? 'selected' : ''}`}
+                  >
+                    <input
+                      type="radio"
+                      name={`idea-${el.name}`}
+                      checked={isCustomSelected}
+                      onChange={() => setSelections((prev) => ({ ...prev, [el.name]: CUSTOM_IDEA }))}
+                    />
+                    <div className="brandify-idea-copy">
+                      <span className="brandify-idea-custom-label">
+                        <MdEdit aria-hidden="true" /> Write your own design
+                      </span>
+                      {isCustomSelected && (
+                        <textarea
+                          className="brandify-custom-input"
+                          placeholder="Describe exactly how you want this element branded…"
+                          value={customIdeas[el.name] || ''}
+                          onChange={(e) => setCustomIdeas((prev) => ({ ...prev, [el.name]: e.target.value }))}
+                          rows={3}
+                        />
+                      )}
+                    </div>
+                  </label>
                 </div>
               </div>
-            ))}
+            );
+            })}
           </div>
-          <div className="brandify-step-actions">
-            <button type="button" className="story-btn secondary" onClick={() => setStep('analyze')} disabled={isLoading}>
+          <div className="brandify-step-actions brandify-step-actions--split">
+            <button type="button" className="brandify-btn brandify-btn--ghost" onClick={() => setStep('analyze')} disabled={isLoading}>
               ← Back
             </button>
-            <button type="button" className="story-btn primary" onClick={handleGenerate} disabled={isLoading}>
+            <button type="button" className="brandify-btn brandify-btn--primary" onClick={handleGenerate} disabled={isLoading}>
               {isLoading ? (
                 <><span className="ai-modal-spinner" /> Generating…</>
-              ) : (
+              ) : paymentEnabled ? (
                 <>Pay & Generate · {brandifyPrices?.generate || '$0.49'}</>
+              ) : (
+                <>Generate branded meme</>
               )}
             </button>
           </div>
@@ -440,39 +494,47 @@ const BrandifyTabPanel = ({
 
           {!ratingSubmitted && (
             <div className="brandify-rating">
-              <p className="brandify-hint">Rate this generation ({brandifyPrices?.rate || '$0.01'}) or skip to apply</p>
-              <div className="brandify-rating-btns">
-                <button type="button" className="story-btn secondary brandify-rating-btn" onClick={() => handleRate('Like')}>
+              <p className="brandify-hint">
+                Rate this generation
+                {paymentEnabled ? ` (${brandifyPrices?.rate || '$0.01'})` : ''}
+              </p>
+              <div className="brandify-rating-grid">
+                <button type="button" className="brandify-btn brandify-btn--chip" onClick={() => handleRate('Like')}>
                   <MdThumbUp aria-hidden="true" /> Like
                 </button>
-                <button type="button" className="story-btn secondary brandify-rating-btn" onClick={() => handleRate('Neutral')}>
+                <button type="button" className="brandify-btn brandify-btn--chip" onClick={() => handleRate('Neutral')}>
                   Neutral
                 </button>
-                <button type="button" className="story-btn secondary brandify-rating-btn" onClick={() => handleRate('Dislike')}>
+                <button type="button" className="brandify-btn brandify-btn--chip" onClick={() => handleRate('Dislike')}>
                   <MdThumbDown aria-hidden="true" /> Dislike
                 </button>
               </div>
             </div>
           )}
 
-          <div className="brandify-step-actions">
-            <button type="button" className="story-btn secondary" onClick={handleDownload}>
-              Download PNG
+          <div className="brandify-result-actions">
+            <button type="button" className="brandify-btn brandify-btn--chip" onClick={handleDownload}>
+              <MdDownload aria-hidden="true" /> Download PNG
             </button>
-            <button type="button" className="story-btn secondary" onClick={handleShare}>
-              Share URL
+            <button type="button" className="brandify-btn brandify-btn--chip" onClick={handleShare}>
+              <MdShare aria-hidden="true" /> Share URL
             </button>
-            <button type="button" className="story-btn secondary" onClick={handleSkipRating}>
-              {ratingSubmitted ? 'Apply to canvas' : 'Skip rating & apply'}
-            </button>
-            {ratingSubmitted && (
-              <button type="button" className="story-btn primary" onClick={handleApply}>
-                Apply to canvas
+            {ratingSubmitted ? (
+              <button type="button" className="brandify-btn brandify-btn--primary brandify-btn--wide" onClick={handleApply}>
+                <MdCheckCircle aria-hidden="true" /> Apply to canvas
+              </button>
+            ) : (
+              <button type="button" className="brandify-btn brandify-btn--chip brandify-btn--wide" onClick={handleSkipRating}>
+                <MdSkipNext aria-hidden="true" /> Skip rating & apply
               </button>
             )}
             {onSwitchToText && (
-              <button type="button" className="story-btn secondary brandify-cross-flow" onClick={() => { handleApply(); onSwitchToText(); }}>
-                Add captions →
+              <button
+                type="button"
+                className="brandify-btn brandify-btn--accent brandify-btn--wide"
+                onClick={() => { handleApply(); onSwitchToText(); }}
+              >
+                <MdTextFields aria-hidden="true" /> Add captions
               </button>
             )}
           </div>

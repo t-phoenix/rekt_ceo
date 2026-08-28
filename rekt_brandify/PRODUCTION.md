@@ -25,5 +25,6 @@ REACT_APP_BRANDIFY_API_URL=https://rekt-ceo-brandification.onrender.com
 ## Notes
 
 - `x402.org` facilitator does **not** support Base mainnet (`eip155:8453`). Use CDP for production.
+- **CDP API keys are required** when `X402_FACILITATOR_URL` points to Coinbase CDP. Without them, payment middleware stays off and endpoints run in free mode.
 - Without `MONGODB_URI`, the service uses in-memory MongoDB (variations are lost on restart).
 - Without `X402_RECEIVER_ADDRESS`, all brandify endpoints run in free mode (no wallet payments).

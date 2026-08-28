@@ -489,15 +489,16 @@
 }
 
 .brandify-idea-option {
-  display: flex;
-  align-items: flex-start;
-  gap: 0.55rem;
-  padding: 0.65rem 0.75rem;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+  gap: 0.65rem;
+  padding: 0.75rem 0.85rem;
   border-radius: 10px;
   border: 1px solid rgba(255, 255, 255, 0.08);
   cursor: pointer;
   font-size: 0.86rem;
-  line-height: 1.4;
+  line-height: 1.45;
   transition: border-color 0.15s ease, background 0.15s ease;
 }
 
@@ -510,9 +511,54 @@
   background: rgba(248, 200, 38, 0.08);
 }
 
-.brandify-idea-option input {
-  margin-top: 0.2rem;
+.brandify-idea-option input[type='radio'] {
+  margin-top: 0.15rem;
   accent-color: var(--color-yellow, #f8c826);
+  flex-shrink: 0;
+}
+
+.brandify-idea-text {
+  text-align: left;
+}
+
+.brandify-idea-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  min-width: 0;
+  width: 100%;
+}
+
+.brandify-idea-custom-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.88);
+}
+
+.brandify-custom-input {
+  width: 100%;
+  min-height: 72px;
+  padding: 0.65rem 0.75rem;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(0, 0, 0, 0.28);
+  color: rgba(255, 255, 255, 0.92);
+  font-family: inherit;
+  font-size: 0.84rem;
+  line-height: 1.45;
+  resize: vertical;
+}
+
+.brandify-custom-input:focus {
+  outline: none;
+  border-color: rgba(248, 200, 38, 0.55);
+  box-shadow: 0 0 0 2px rgba(248, 200, 38, 0.12);
+}
+
+.brandify-custom-input::placeholder {
+  color: rgba(255, 255, 255, 0.38);
 }
 
 .brandify-step-actions {
@@ -520,6 +566,92 @@
   flex-wrap: wrap;
   gap: 0.55rem;
   margin-top: 0.35rem;
+}
+
+.brandify-step-actions--split {
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Brandify action buttons — scoped styles avoid story-btn margin overflow */
+.brandify-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  margin: 0;
+  padding: 0.65rem 1rem;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  line-height: 1.2;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease, transform 0.12s ease;
+  white-space: nowrap;
+}
+
+.brandify-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.brandify-btn--primary {
+  background: var(--color-yellow, #f8c826);
+  color: #111;
+  border-color: rgba(248, 200, 38, 0.85);
+}
+
+.brandify-btn--primary:hover:not(:disabled) {
+  background: #ffd84a;
+}
+
+.brandify-btn--ghost {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.14);
+  color: rgba(255, 255, 255, 0.88);
+}
+
+.brandify-btn--ghost:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.brandify-btn--chip {
+  background: rgba(248, 200, 38, 0.14);
+  border-color: rgba(248, 200, 38, 0.35);
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.brandify-btn--chip:hover:not(:disabled) {
+  background: rgba(248, 200, 38, 0.22);
+}
+
+.brandify-btn--accent {
+  background: rgba(231, 37, 94, 0.18);
+  border-color: rgba(231, 37, 94, 0.45);
+  color: #fff;
+}
+
+.brandify-btn--accent:hover:not(:disabled) {
+  background: rgba(231, 37, 94, 0.28);
+}
+
+.brandify-btn--wide {
+  grid-column: 1 / -1;
+}
+
+.brandify-rating-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.55rem;
+}
+
+.brandify-result-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.55rem;
+  margin-top: 0.25rem;
 }
 
 .brandify-comparison {
@@ -835,6 +967,19 @@
   .brandify-comparison-arrow {
     text-align: center;
     transform: rotate(90deg);
+  }
+
+  .brandify-rating-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .brandify-result-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .brandify-btn {
+    white-space: normal;
+    text-align: center;
   }
 
   .ai-assist-meme-preview {
