@@ -37,22 +37,29 @@ function parseVisionStrategyContent(content) {
 }
 
 function extractOpenAiContent(response) {
-  const content =
-    response?.choices?.[0]?.message?.content ??
-    response?.data?.choices?.[0]?.message?.content;
+  const message =
+    response?.choices?.[0]?.message ??
+    response?.data?.choices?.[0]?.message;
 
-  if (typeof content === 'string') {
+  if (message?.refusal) {
+    throw new Error(`Vision model declined: ${message.refusal}`);
+  }
+
+  const content = message?.content;
+
+  if (typeof content === 'string' && content.trim()) {
     return content;
   }
 
   if (Array.isArray(content)) {
-    return content
+    const text = content
       .map((part) => (typeof part?.text === 'string' ? part.text : ''))
       .join('\n')
       .trim();
+    if (text) return text;
   }
 
-  throw new Error(`Unexpected vision response shape: ${JSON.stringify(response).slice(0, 400)}`);
+  throw new Error('Vision model returned empty content');
 }
 
 export async function runVisionJsonRequest(payload, { timeout = VISION_TIMEOUT_MS } = {}) {
