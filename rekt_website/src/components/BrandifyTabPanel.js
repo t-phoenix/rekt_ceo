@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import {
   MdAnalytics,
   MdBrush,
@@ -14,6 +14,8 @@ import {
 import { useAppKit } from '@reown/appkit/react';
 import brandifyApiService from '../services/BrandifyApiService';
 import { getMemeApiUserMessage, MemeApiErrorCode } from '../services/memeApiErrors';
+import { useBrandifyWorkflowPersistence } from '../hooks/useBrandifyWorkflowPersistence';
+import { clearBrandifyWorkflow } from '../services/brandifySessionStorage';
 
 const CUSTOM_IDEA = '__custom__';
 
@@ -85,7 +87,60 @@ const BrandifyTabPanel = ({
   const [error, setError] = useState(null);
   const [ratingSubmitted, setRatingSubmitted] = useState(false);
 
+  const workflowSetters = useMemo(
+    () => ({
+      setStep,
+      setCustomTarget,
+      setSessionId,
+      setStrategy,
+      setOriginalImageUrl,
+      setSelections,
+      setCustomIdeas,
+      setGeneratedImageUrl,
+      setEngineUsed,
+      setRatingSubmitted,
+      setError,
+    }),
+    []
+  );
+
+  const workflowState = useMemo(
+    () => ({
+      step,
+      customTarget,
+      sessionId,
+      strategy,
+      originalImageUrl,
+      selections,
+      customIdeas,
+      generatedImageUrl,
+      engineUsed,
+      ratingSubmitted,
+    }),
+    [
+      step,
+      customTarget,
+      sessionId,
+      strategy,
+      originalImageUrl,
+      selections,
+      customIdeas,
+      generatedImageUrl,
+      engineUsed,
+      ratingSubmitted,
+    ]
+  );
+
+  const { resetWorkflow } = useBrandifyWorkflowPersistence({
+    templateId,
+    templateSrc,
+    state: workflowState,
+    setters: workflowSetters,
+    showToast,
+  });
+
   const paymentEnabled = Boolean(brandifyPaymentInfo?.protocol === 'x402');
+  const hasExistingAnalysis = Boolean(sessionId && strategy?.elements?.length);
 
   const formatUsdc = (value) => {
     if (value === null || value === undefined) return '—';
@@ -144,6 +199,13 @@ const BrandifyTabPanel = ({
   const handleAnalyze = async () => {
     if (!brandifyOnline) {
       setError({ message: brandifyError || 'Brandify API offline — try again.' });
+      return;
+    }
+
+    if (hasExistingAnalysis) {
+      setError(null);
+      setStep('customize');
+      showToast?.('Continuing your existing analysis — no additional charge.');
       return;
     }
 
@@ -240,6 +302,7 @@ const BrandifyTabPanel = ({
 
   const handleApply = () => {
     if (!generatedImageUrl) return;
+    clearBrandifyWorkflow();
     onApplyToCanvas(generatedImageUrl);
     showToast?.('Branded meme applied to canvas!');
   };
@@ -370,6 +433,26 @@ const BrandifyTabPanel = ({
       {step === 'analyze' && (
         <div className="brandify-step-content">
           <p className="brandify-hint">AI analyzes your meme and suggests brand placement ideas for Rekt CEO.</p>
+          {hasExistingAnalysis && (
+            <div className="brandify-resume-banner">
+              <p>You already paid for analysis on this meme. Continue where you left off or start fresh.</p>
+              <div className="brandify-resume-actions">
+                <button
+                  type="button"
+                  className="brandify-btn brandify-btn--primary"
+                  onClick={() => {
+                    if (generatedImageUrl) setStep('result');
+                    else if (strategy?.elements?.length) setStep('customize');
+                  }}
+                >
+                  Continue brandify
+                </button>
+                <button type="button" className="brandify-btn brandify-btn--ghost" onClick={resetWorkflow}>
+                  Start fresh
+                </button>
+              </div>
+            </div>
+          )}
           {!hideMemePreview && templateSrc && (
             <div className="brandify-preview-wrap">
               <img src={templateSrc} alt={templateName} className="brandify-preview-img" />
@@ -392,6 +475,8 @@ const BrandifyTabPanel = ({
           >
             {isLoading ? (
               <><span className="ai-modal-spinner" /> Analyzing… (up to 60s)</>
+            ) : hasExistingAnalysis ? (
+              <>Continue · already analyzed</>
             ) : paymentEnabled ? (
               <>Pay & Analyze · {brandifyPrices?.sessionStart || '$0.19'}</>
             ) : (

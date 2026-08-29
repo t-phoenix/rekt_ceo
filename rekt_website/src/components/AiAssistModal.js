@@ -199,7 +199,7 @@ const AiAssistModal = ({
         <MemePreviewStrip src={templateSrc} name={templateName} />
 
         <div className="ai-assist-body">
-          {activeTab === 'text' ? (
+          <div className="ai-assist-tab-panel" hidden={activeTab !== 'text'}>
             <div className="ai-assist-text-embed">
               {textAppliedOnce && (
                 <div className="ai-assist-cross-flow">
@@ -211,7 +211,7 @@ const AiAssistModal = ({
               )}
               <AiGenerateModal
                 embedded
-                isOpen={isOpen}
+                isOpen={isOpen && activeTab === 'text'}
                 onClose={handleTextClose}
                 onGenerate={onGenerate}
                 isLoading={isTextLoading}
@@ -243,7 +243,8 @@ const AiAssistModal = ({
                 hideConnectionBanner
               />
             </div>
-          ) : (
+          </div>
+          <div className="ai-assist-tab-panel" hidden={activeTab !== 'brandify'}>
             <BrandifyTabPanel
               templateSrc={templateSrc}
               templateName={templateName}
@@ -276,7 +277,7 @@ const AiAssistModal = ({
               hideConnectionBanner
               hideMemePreview
             />
-          )}
+          </div>
         </div>
       </div>
     </div>

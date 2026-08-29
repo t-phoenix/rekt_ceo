@@ -591,7 +591,7 @@ const MemeGen = () => {
     });
   };
 
-  if (screenWidth < 992) {
+  if (screenWidth < 992 && !isAiAssistOpen && !isVariationsOpen && !showMintConfirm && !showMintSuccess) {
     return <ResponsiveMessage screenWidth={screenWidth} />;
   }
 
