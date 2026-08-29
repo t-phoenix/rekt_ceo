@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef, useState } from 'react';
 import {
   MdAutoAwesome,
   MdCropSquare,
@@ -9,6 +9,7 @@ import {
   MdLayers,
 } from 'react-icons/md';
 import SocialShareFooter from '../page_components/SocialShareFooter.js';
+import GenerationsPanel from './GenerationsPanel.js';
 import '../../styles/aiAssistModal.css';
 
 const FRAME_OPTIONS = [
@@ -52,10 +53,19 @@ const MemeCanvas = ({
   setFrameVariant,
   onOpenAiAssist,
   aiAssistPriceLabel,
-  onOpenVariations,
+  onOpenBrandify,
   variationsCount,
   variationsLoading,
+  templateName,
+  templateGenerations,
+  sessionGenerations,
+  communityVariations,
+  onSelectGeneration,
 }) => {
+  const generationsAnchorRef = useRef(null);
+  const [generationsOpen, setGenerationsOpen] = useState(false);
+  const [generationsTab, setGenerationsTab] = useState('template');
+
   const getParsedRatio = () => {
     if (canvasFormat === 'square') return 1;
     if (canvasFormat === 'portrait') return 4 / 5;
@@ -65,14 +75,25 @@ const MemeCanvas = ({
 
   const currentRatio = getParsedRatio();
 
-  const variationsEnabled = Boolean(selectedTemplate && !variationsLoading && variationsCount > 0);
-  const variationsTooltip = !selectedTemplate
-    ? 'Variations available for templates only'
-    : variationsLoading
-      ? 'Loading community versions…'
-      : variationsCount > 0
-        ? `Community brandified versions (${variationsCount})`
-        : 'No community versions for this meme yet';
+  const sessionGenCount = sessionGenerations?.length || 0;
+  const templateGenCount = (templateGenerations?.length || 0) + (variationsCount || 0);
+  const totalGenerationsCount = sessionGenCount + (communityVariations?.total || variationsCount || 0);
+  const hasGenerations = totalGenerationsCount > 0 || sessionGenCount > 0 || templateGenCount > 0;
+
+  const generationsTooltip = variationsLoading
+    ? 'Loading generations…'
+    : hasGenerations
+      ? `Generations (${sessionGenCount} session · ${templateGenCount} this meme)`
+      : 'Review brandify generations for this meme and session';
+
+  const handleToggleGenerations = () => {
+    setGenerationsOpen((open) => !open);
+  };
+
+  const handleSelectGeneration = (item) => {
+    onSelectGeneration?.(item);
+    setGenerationsOpen(false);
+  };
 
   const aiAssistDisabled = !imageSrc;
   const aiAssistTooltip = aiAssistDisabled
@@ -106,7 +127,7 @@ const MemeCanvas = ({
               ))}
             </div>
 
-            <div className="meme-canvas-toolbar-group">
+            <div className="meme-canvas-toolbar-group meme-canvas-toolbar-group--generations">
               <button
                 type="button"
                 onClick={randomizeMemeTemplate}
@@ -116,17 +137,38 @@ const MemeCanvas = ({
               >
                 <MdShuffle size={18} />
               </button>
-              <button
-                type="button"
-                onClick={onOpenVariations}
-                className={`meme-canvas-icon-btn meme-canvas-icon-btn--variations ${variationsCount > 0 ? 'has-count' : ''}`}
-                disabled={!variationsEnabled}
-                title={variationsTooltip}
-                aria-label={variationsTooltip}
-                data-count={variationsCount > 99 ? '99+' : variationsCount}
-              >
-                <MdLayers size={18} />
-              </button>
+              <div className="meme-canvas-generations-anchor" ref={generationsAnchorRef}>
+                <button
+                  type="button"
+                  onClick={handleToggleGenerations}
+                  className={`meme-canvas-icon-btn meme-canvas-icon-btn--variations ${hasGenerations ? 'has-count' : ''} ${generationsOpen ? 'is-open' : ''}`}
+                  title={generationsTooltip}
+                  aria-label={generationsTooltip}
+                  aria-expanded={generationsOpen}
+                  data-count={
+                    (sessionGenCount + templateGenCount) > 99
+                      ? '99+'
+                      : sessionGenCount + templateGenCount || variationsCount || ''
+                  }
+                >
+                  <MdLayers size={18} />
+                </button>
+                <GenerationsPanel
+                  isOpen={generationsOpen}
+                  onClose={() => setGenerationsOpen(false)}
+                  activeTab={generationsTab}
+                  onTabChange={setGenerationsTab}
+                  templateName={templateName}
+                  templateGenerations={templateGenerations}
+                  sessionGenerations={sessionGenerations}
+                  communityVariations={communityVariations}
+                  variationsLoading={variationsLoading}
+                  activeImageSrc={imageSrc}
+                  onSelectGeneration={handleSelectGeneration}
+                  onCreateOwn={onOpenBrandify}
+                  anchorRef={generationsAnchorRef}
+                />
+              </div>
             </div>
 
             <button

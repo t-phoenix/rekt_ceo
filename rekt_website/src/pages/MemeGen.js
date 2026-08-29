@@ -16,8 +16,10 @@ import { useMemeApiPayment } from "../hooks/useMemeApiPayment.js";
 import { useMemeApiConnection } from "../hooks/useMemeApiConnection.js";
 import { useBrandifyConnection } from "../hooks/useBrandifyConnection.js";
 import { useBrandifyPayment } from "../hooks/useBrandifyPayment.js";
+import { useBrandifyGenerationMemory } from "../hooks/useBrandifyGenerationMemory.js";
 import { useAiSuggestionMemory } from "../hooks/useAiSuggestionMemory.js";
 import { markLlmFailed, clearLlmFailure } from "../hooks/useLlmPreflight.js";
+import { loadBrandifyWorkflow, buildBrandifyTemplateKey } from "../services/brandifySessionStorage.js";
 import { exportNodeToPng } from "../utils/exportImage.js";
 import { useAccount } from 'wagmi';
 import { useTierData, useUserData } from "../hooks/useNftData";
@@ -99,6 +101,14 @@ const MemeGen = () => {
   const [activeCategory, setActiveCategory] = useState(memeCategories[0] || "");
   const [selectedTemplate, setSelectedTemplate] = useState(null);
   const [screenWidth, setScreenWidth] = useState(window.innerWidth);
+
+  const {
+    sessionGenerations: brandifySessionGenerations,
+    templateGenerations: brandifyTemplateGenerations,
+    saveGeneration: saveBrandifyGeneration,
+    markApplied: markBrandifyApplied,
+    markAppliedByUrl: markBrandifyAppliedByUrl,
+  } = useBrandifyGenerationMemory(selectedTemplate);
 
   const getTemplateName = useCallback(() => {
     if (selectedTemplate) {
@@ -186,7 +196,37 @@ const MemeGen = () => {
     handleRotateEnd
   } = useMemeCanvasLogic(showToast);
 
-  // Function to get templates for selected category
+  // Sync in-progress brandify workflow result into session generations list
+  useEffect(() => {
+    if (!selectedTemplate && !imageSrc) return;
+    const templateKey = buildBrandifyTemplateKey(selectedTemplate, imageSrc);
+    if (!templateKey) return;
+
+    const workflow = loadBrandifyWorkflow(templateKey);
+    if (!workflow?.generatedImageUrl) return;
+
+    const alreadySaved = brandifySessionGenerations.some(
+      (g) => g.generatedImageUrl === workflow.generatedImageUrl
+    );
+    if (alreadySaved) return;
+
+    saveBrandifyGeneration({
+      brandifySessionId: workflow.sessionId,
+      templateId: selectedTemplate,
+      templateName: getTemplateName(),
+      originalImageUrl: workflow.originalImageUrl,
+      generatedImageUrl: workflow.generatedImageUrl,
+      engineUsed: workflow.engineUsed,
+      appliedToCanvas: imageSrc === workflow.generatedImageUrl,
+    });
+  }, [
+    selectedTemplate,
+    imageSrc,
+    brandifySessionGenerations,
+    saveBrandifyGeneration,
+    getTemplateName,
+  ]);
+
   const getTemplatesForCategory = (category) => {
     return (
       categorizedMemeTemplates[category] ||
@@ -418,7 +458,7 @@ const MemeGen = () => {
     }
   };
 
-  const applyImageToCanvas = useCallback((url) => {
+  const applyImageToCanvas = useCallback((url, { generationId } = {}) => {
     const img = new Image();
     img.onload = () => {
       setImageSrc(url);
@@ -427,10 +467,15 @@ const MemeGen = () => {
         height: img.naturalHeight,
         ratio: img.naturalWidth / img.naturalHeight,
       });
+      if (generationId) {
+        markBrandifyApplied(generationId);
+      } else {
+        markBrandifyAppliedByUrl(url);
+      }
     };
     img.onerror = () => showToast('Failed to load image.');
     img.src = url;
-  }, [showToast]);
+  }, [showToast, markBrandifyApplied, markBrandifyAppliedByUrl]);
 
   const handleUseVariation = (url) => {
     applyImageToCanvas(url);
@@ -438,11 +483,28 @@ const MemeGen = () => {
     showToast('Community version applied!');
   };
 
+  const handleSelectGeneration = (item) => {
+    if (!item?.generatedImageUrl) return;
+    applyImageToCanvas(item.generatedImageUrl, { generationId: item.kind === 'community' ? null : item.id });
+    showToast(item.kind === 'community' ? 'Community version applied!' : 'Generation applied to canvas!');
+  };
+
   const handleBrandifyApply = (url) => {
     applyImageToCanvas(url);
   };
 
-  const handleBrandifyGenerationComplete = () => {
+  const handleBrandifyGenerationComplete = (generation) => {
+    if (generation?.generatedImageUrl) {
+      saveBrandifyGeneration({
+        brandifySessionId: generation.brandifySessionId,
+        templateId: generation.templateId || selectedTemplate,
+        templateName: generation.templateName || getTemplateName(),
+        originalImageUrl: generation.originalImageUrl,
+        generatedImageUrl: generation.generatedImageUrl,
+        engineUsed: generation.engineUsed,
+        appliedToCanvas: false,
+      });
+    }
     if (selectedTemplate) {
       fetchVariationsForTemplate(selectedTemplate);
     }
@@ -688,9 +750,14 @@ const MemeGen = () => {
             setFrameVariant={setFrameVariant}
             onOpenAiAssist={() => handleOpenAiAssist('text')}
             aiAssistPriceLabel={aiAssistPriceLabel}
-            onOpenVariations={() => setIsVariationsOpen(true)}
+            onOpenBrandify={() => handleOpenAiAssist('brandify')}
             variationsCount={variationsCount}
             variationsLoading={variationsLoading}
+            templateName={getTemplateName()}
+            templateGenerations={brandifyTemplateGenerations}
+            sessionGenerations={brandifySessionGenerations}
+            communityVariations={variations}
+            onSelectGeneration={handleSelectGeneration}
           />
 
           {/* Right Column - Controls */}

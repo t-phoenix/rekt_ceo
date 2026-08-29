@@ -291,7 +291,14 @@ const BrandifyTabPanel = ({
       setGeneratedImageUrl(result.generatedImageUrl);
       setEngineUsed(result.engineUsed);
       setStep('result');
-      onGenerationComplete?.();
+      onGenerationComplete?.({
+        brandifySessionId: sessionId,
+        generatedImageUrl: result.generatedImageUrl,
+        originalImageUrl: originalImageUrl,
+        engineUsed: result.engineUsed,
+        templateId,
+        templateName,
+      });
     } catch (err) {
       setError({ message: getMemeApiUserMessage(err) });
     } finally {
