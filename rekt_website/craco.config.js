@@ -76,11 +76,16 @@ module.exports = {
                 })
             );
 
-            // Suppress warnings for unused optional wallet connectors
+            // Suppress known-safe third-party warnings (CI/Vercel treats warnings as errors)
             webpackConfig.ignoreWarnings = [
                 /Can't resolve '@gemini-wallet\/core'/,
                 /Can't resolve 'porto'/,
                 /Can't resolve 'porto\/internal'/,
+                // ox (viem dep) dynamically imports node:worker_threads for Node-only code paths
+                {
+                    module: /node_modules[/\\]ox/,
+                    message: /Critical dependency: the request of a dependency is an expression/,
+                },
             ];
 
             return webpackConfig;
