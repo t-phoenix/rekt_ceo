@@ -57,7 +57,25 @@ const corsOrigins = process.env.CORS_ORIGINS
   ? process.env.CORS_ORIGINS.split(',').map((o) => o.trim()).filter(Boolean)
   : null;
 
-app.use(cors(corsOrigins ? { origin: corsOrigins, credentials: true } : undefined));
+app.use(cors(corsOrigins ? {
+  origin: corsOrigins,
+  credentials: true,
+  exposedHeaders: [
+    'payment-required',
+    'payment-response',
+    'PAYMENT-REQUIRED',
+    'PAYMENT-RESPONSE',
+    'X-PAYMENT-RESPONSE',
+  ],
+} : {
+  exposedHeaders: [
+    'payment-required',
+    'payment-response',
+    'PAYMENT-REQUIRED',
+    'PAYMENT-RESPONSE',
+    'X-PAYMENT-RESPONSE',
+  ],
+}));
 app.use(express.json());
 
 // === x402 Paywall Configuration ===
@@ -140,9 +158,14 @@ const MONGODB_URI = process.env.MONGODB_URI;
 
 async function startServer() {
   if (MONGODB_URI) {
-    await mongoose.connect(MONGODB_URI)
-      .then(() => console.log('✅ Connected to MongoDB (Atlas)'))
-      .catch(err => console.error('❌ MongoDB connection error:', err));
+    try {
+      await mongoose.connect(MONGODB_URI);
+      console.log('✅ Connected to MongoDB (Atlas)');
+    } catch (err) {
+      console.error('❌ MongoDB connection error:', err.message);
+      console.error('   Fix MONGODB_URI on Render (credentials + Atlas IP allowlist).');
+      process.exit(1);
+    }
   } else {
     console.log('⚠️  No MONGODB_URI provided in .env. Starting in-memory MongoDB for testing...');
     const mongoServer = await MongoMemoryServer.create();
@@ -150,7 +173,6 @@ async function startServer() {
     console.log('✅ Connected to MongoDB (In-Memory)');
   }
 
-  // Start Server
   app.listen(PORT, () => {
     console.log(`🚀 Meme Lab Backend running on http://localhost:${PORT}`);
   });

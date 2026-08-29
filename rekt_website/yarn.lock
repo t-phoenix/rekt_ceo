@@ -7909,28 +7909,28 @@
     "@wormhole-foundation/sdk-sui-core" "4.10.0"
     "@wormhole-foundation/sdk-sui-tokenbridge" "4.10.0"
 
-"@x402/core@^2.16.0", "@x402/core@~2.16.0":
-  version "2.16.0"
-  resolved "https://registry.yarnpkg.com/@x402/core/-/core-2.16.0.tgz#861d38a115a1a11391c62b98ed16dc337a026c8b"
-  integrity sha512-7MjwOEiE6ICAYtOsK9vQl66Ho4jERDuuoRg/No2Nc2GQ7y/M/yu4DJ65LzeBycQE+Qrg2RqQG7KR51tyT+hzjQ==
+"@x402/core@^2.23.0", "@x402/core@~2.24.0":
+  version "2.24.0"
+  resolved "https://registry.yarnpkg.com/@x402/core/-/core-2.24.0.tgz#19cdae2a2b5766795a629a854aa607a00bca248f"
+  integrity sha512-zKFbG+RgUhBXT9RcBQZGPW1cZXL9xpiTv68XSSuO1SMoobudmVvxYgP/bhoxJuAoqJjjEceeAhT4/EcA/wolrQ==
   dependencies:
     zod "^3.24.2"
 
-"@x402/evm@^2.16.0":
-  version "2.16.0"
-  resolved "https://registry.yarnpkg.com/@x402/evm/-/evm-2.16.0.tgz#721c5c42a05a5618e495008117908f56106dd689"
-  integrity sha512-DGcwATWosIb3hmO/CfWASrn+xbxp7KQyzmMPcIW23XuDjo9YPVRElZWtHBur3euakdM021Hl8SPF1zR0G+W4hw==
+"@x402/evm@^2.23.0":
+  version "2.24.0"
+  resolved "https://registry.yarnpkg.com/@x402/evm/-/evm-2.24.0.tgz#70cebc7e7ec1f530a45398d1f3f7c60f8fddcf07"
+  integrity sha512-npH4A8P/HurcMOjIsri0VrHCb/TNbiIZgCrUrL2c+rbuwpyOtIT+6KT/yfwD53ckOttEE44yJqeK32MCvJ1Tug==
   dependencies:
-    "@x402/core" "~2.16.0"
+    "@x402/core" "~2.24.0"
     viem "^2.48.11"
     zod "^3.24.2"
 
-"@x402/fetch@^2.16.0":
-  version "2.16.0"
-  resolved "https://registry.yarnpkg.com/@x402/fetch/-/fetch-2.16.0.tgz#470b990004d25decbb7ee0574780e837b67dfdcc"
-  integrity sha512-skW0XsWzi4NIfqCrY6KxhO3UEJ8qh4nBIKIgwWFCXFHNqRKYWZ7qcCI/DHy7cy3jdYs1MV4PoXX24rP3Umca1Q==
+"@x402/fetch@^2.23.0":
+  version "2.24.0"
+  resolved "https://registry.yarnpkg.com/@x402/fetch/-/fetch-2.24.0.tgz#9e577b4f3fa827933f5b4036114db9fc27f2554b"
+  integrity sha512-jhopac/aRWh3CYpDFjMxIzo/raH0ncmdDK2op6RzMoWsH3wj9/ejJylTv+Q22epReWLZ9AI35LEymN66B0MqNw==
   dependencies:
-    "@x402/core" "~2.16.0"
+    "@x402/core" "~2.24.0"
 
 "@xrplf/isomorphic@^1.0.0", "@xrplf/isomorphic@^1.0.1":
   version "1.0.1"
