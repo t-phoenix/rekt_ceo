@@ -163,8 +163,11 @@ async function startServer() {
       console.log('✅ Connected to MongoDB (Atlas)');
     } catch (err) {
       console.error('❌ MongoDB connection error:', err.message);
-      console.error('   Fix MONGODB_URI on Render (credentials + Atlas IP allowlist).');
-      process.exit(1);
+      console.warn('⚠️  Falling back to in-memory MongoDB — sessions will not persist across restarts.');
+      console.warn('   To use Atlas: whitelist Render IPs in Network Access and verify MONGODB_URI.');
+      const mongoServer = await MongoMemoryServer.create();
+      await mongoose.connect(mongoServer.getUri());
+      console.log('✅ Connected to MongoDB (In-Memory fallback)');
     }
   } else {
     console.log('⚠️  No MONGODB_URI provided in .env. Starting in-memory MongoDB for testing...');

@@ -96,5 +96,9 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "resolutions": {
+    "viem": "2.50.3",
+    "ox": "0.14.34"
   }
 }
