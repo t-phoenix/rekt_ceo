@@ -487,7 +487,42 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  flex-wrap: wrap;
   margin-bottom: 0.35rem;
+}
+
+.brandify-element-status {
+  margin-left: auto;
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0.2rem 0.5rem;
+  border-radius: 999px;
+}
+
+.brandify-element-status.included {
+  background: rgba(248, 200, 38, 0.16);
+  color: var(--color-yellow, #f8c826);
+  border: 1px solid rgba(248, 200, 38, 0.35);
+}
+
+.brandify-element-status.skipped {
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.brandify-element-card.is-skipped {
+  opacity: 0.88;
+}
+
+.brandify-selection-summary {
+  margin: -0.35rem 0 0.85rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--color-yellow, #f8c826);
+  letter-spacing: 0.02em;
 }
 
 .brandify-element-type {
@@ -507,59 +542,131 @@
   line-height: 1.45;
 }
 
-.brandify-ideas {
+.brandify-choices {
   display: flex;
   flex-direction: column;
   gap: 0.45rem;
 }
 
-.brandify-idea-option {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  align-items: start;
+.brandify-choice-card {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
   gap: 0.65rem;
-  padding: 0.75rem 0.85rem;
+  width: 100%;
+  padding: 0.7rem 2.1rem 0.7rem 0.85rem;
   border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.18);
+  color: rgba(255, 255, 255, 0.9);
   cursor: pointer;
-  font-size: 0.86rem;
+  text-align: left;
+  font-family: inherit;
+  font-size: 0.84rem;
   line-height: 1.45;
-  transition: border-color 0.15s ease, background 0.15s ease;
+  transition: border-color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
 }
 
-.brandify-idea-option:hover {
-  border-color: rgba(255, 255, 255, 0.16);
+button.brandify-choice-card:hover,
+.brandify-choice-card-toggle:hover {
+  border-color: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.04);
 }
 
-.brandify-idea-option.selected {
-  border-color: var(--color-yellow, #f8c826);
-  background: rgba(248, 200, 38, 0.08);
+.brandify-choice-card.is-selected {
+  border-color: rgba(248, 200, 38, 0.55);
+  background: rgba(248, 200, 38, 0.09);
+  box-shadow: inset 3px 0 0 var(--color-yellow, #f8c826);
 }
 
-.brandify-idea-option input[type='radio'] {
-  margin-top: 0.15rem;
-  accent-color: var(--color-yellow, #f8c826);
+.brandify-choice-card--skip.is-selected {
+  border-color: rgba(255, 255, 255, 0.22);
+  background: rgba(255, 255, 255, 0.05);
+  box-shadow: inset 3px 0 0 rgba(255, 255, 255, 0.35);
+}
+
+.brandify-choice-card--custom {
+  flex-direction: column;
+  gap: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+.brandify-choice-card--custom.is-selected {
+  border-color: rgba(248, 200, 38, 0.55);
+  background: rgba(248, 200, 38, 0.06);
+}
+
+.brandify-choice-card-toggle {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.65rem;
+  width: 100%;
+  padding: 0.7rem 2.1rem 0.7rem 0.85rem;
+  border: none;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+}
+
+.brandify-choice-card--custom .brandify-custom-input {
+  margin: 0 0.85rem 0.85rem;
+  width: auto;
+  align-self: stretch;
+}
+
+.brandify-choice-icon {
+  flex-shrink: 0;
+  width: 1.15rem;
+  height: 1.15rem;
+  margin-top: 0.1rem;
+  color: rgba(255, 255, 255, 0.55);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.brandify-choice-card.is-selected .brandify-choice-icon {
+  color: var(--color-yellow, #f8c826);
+}
+
+.brandify-choice-card--skip.is-selected .brandify-choice-icon {
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.brandify-choice-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 0;
+  flex: 1;
+}
+
+.brandify-choice-title {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.brandify-choice-desc {
+  font-size: 0.84rem;
+  line-height: 1.45;
+  color: rgba(255, 255, 255, 0.78);
+}
+
+.brandify-choice-check {
+  position: absolute;
+  top: 0.65rem;
+  right: 0.7rem;
+  font-size: 1.05rem;
+  color: var(--color-yellow, #f8c826);
   flex-shrink: 0;
 }
 
-.brandify-idea-text {
-  text-align: left;
-}
-
-.brandify-idea-copy {
-  display: flex;
-  flex-direction: column;
-  gap: 0.55rem;
-  min-width: 0;
-  width: 100%;
-}
-
-.brandify-idea-custom-label {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  font-weight: 600;
-  color: rgba(255, 255, 255, 0.88);
+.brandify-choice-card--skip.is-selected .brandify-choice-check {
+  color: rgba(255, 255, 255, 0.75);
 }
 
 .brandify-custom-input {

@@ -2,9 +2,11 @@ import { useState, useCallback, useMemo } from 'react';
 import {
   MdAnalytics,
   MdBrush,
+  MdCheck,
   MdCheckCircle,
   MdDownload,
   MdEdit,
+  MdNotInterested,
   MdShare,
   MdSkipNext,
   MdTextFields,
@@ -18,6 +20,18 @@ import { useBrandifyWorkflowPersistence } from '../hooks/useBrandifyWorkflowPers
 import { clearBrandifyWorkflow } from '../services/brandifySessionStorage';
 
 const CUSTOM_IDEA = '__custom__';
+const SKIP_IDEA = '__skip__';
+
+function isElementIncluded(elementName, selections, customIdeas) {
+  const choice = selections[elementName];
+  if (!choice || choice === SKIP_IDEA) return false;
+  if (choice === CUSTOM_IDEA) return Boolean(customIdeas[elementName]?.trim());
+  return Boolean(choice.trim());
+}
+
+function countIncludedElements(elements, selections, customIdeas) {
+  return (elements || []).filter((el) => isElementIncluded(el.name, selections, customIdeas)).length;
+}
 
 const STEPS = [
   { id: 'analyze', label: 'Analyze', icon: MdAnalytics, priceKey: 'sessionStart', fallback: '$0.19' },
@@ -237,8 +251,9 @@ const BrandifyTabPanel = ({
 
       const initial = {};
       result.strategy.elements.forEach((el) => {
-        initial[el.name] = el.ideas?.[0] || '';
+        initial[el.name] = SKIP_IDEA;
       });
+      setCustomIdeas({});
       setSelections(initial);
       setStep('customize');
     } catch (err) {
@@ -251,16 +266,17 @@ const BrandifyTabPanel = ({
   const handleGenerate = async () => {
     const userCuratedChoices = Object.entries(selections)
       .map(([element, idea]) => {
+        if (!idea || idea === SKIP_IDEA) return null;
         if (idea === CUSTOM_IDEA) {
           const custom = customIdeas[element]?.trim();
           return custom ? { element, idea: custom } : null;
         }
-        return idea?.trim() ? { element, idea: idea.trim() } : null;
+        return idea.trim() ? { element, idea: idea.trim() } : null;
       })
       .filter(Boolean);
 
     if (userCuratedChoices.length === 0) {
-      setError({ message: 'Pick at least one brandify idea.' });
+      setError({ message: 'Pick at least one element to brandify, or skip all to go back.' });
       return;
     }
 
@@ -489,57 +505,88 @@ const BrandifyTabPanel = ({
       {step === 'customize' && strategy?.elements && (
         <div className="brandify-step-content">
           <p className="brandify-hint">
-            Pick a suggested idea for each element, or write your own custom design.
+            Choose ideas only for elements you want branded — skip the rest to leave them unchanged.
+          </p>
+          <p className="brandify-selection-summary">
+            {countIncludedElements(strategy.elements, selections, customIdeas)} of {strategy.elements.length} elements selected
           </p>
           <div className="brandify-elements">
             {strategy.elements.map((el) => {
               const isCustomSelected = selections[el.name] === CUSTOM_IDEA;
+              const isSkipped = selections[el.name] === SKIP_IDEA || !selections[el.name];
+              const isIncluded = isElementIncluded(el.name, selections, customIdeas);
               return (
-              <div key={el.name} className="brandify-element-card">
+              <div key={el.name} className={`brandify-element-card ${isIncluded ? 'is-included' : 'is-skipped'}`}>
                 <div className="brandify-element-header">
                   <strong>{el.name}</strong>
                   <span className="brandify-element-type">{el.type}</span>
+                  <span className={`brandify-element-status ${isIncluded ? 'included' : 'skipped'}`}>
+                    {isIncluded ? 'Branding' : 'Skipped'}
+                  </span>
                 </div>
                 {el.reasoning && <p className="brandify-element-reason">{el.reasoning}</p>}
-                <div className="brandify-ideas">
-                  {(el.ideas || []).map((idea) => (
-                    <label
-                      key={idea}
-                      className={`brandify-idea-option ${selections[el.name] === idea ? 'selected' : ''}`}
-                    >
-                      <input
-                        type="radio"
-                        name={`idea-${el.name}`}
-                        checked={selections[el.name] === idea}
-                        onChange={() => setSelections((prev) => ({ ...prev, [el.name]: idea }))}
-                      />
-                      <span className="brandify-idea-text">{idea}</span>
-                    </label>
-                  ))}
-                  <label
-                    className={`brandify-idea-option brandify-idea-option--custom ${isCustomSelected ? 'selected' : ''}`}
+                <div className="brandify-choices" role="radiogroup" aria-label={`Choices for ${el.name}`}>
+                  <button
+                    type="button"
+                    role="radio"
+                    aria-checked={isSkipped}
+                    className={`brandify-choice-card brandify-choice-card--skip ${isSkipped ? 'is-selected' : ''}`}
+                    onClick={() => setSelections((prev) => ({ ...prev, [el.name]: SKIP_IDEA }))}
                   >
-                    <input
-                      type="radio"
-                      name={`idea-${el.name}`}
-                      checked={isCustomSelected}
-                      onChange={() => setSelections((prev) => ({ ...prev, [el.name]: CUSTOM_IDEA }))}
-                    />
-                    <div className="brandify-idea-copy">
-                      <span className="brandify-idea-custom-label">
-                        <MdEdit aria-hidden="true" /> Write your own design
+                    <span className="brandify-choice-icon" aria-hidden="true">
+                      <MdNotInterested />
+                    </span>
+                    <span className="brandify-choice-body">
+                      <span className="brandify-choice-title">Leave unchanged</span>
+                      <span className="brandify-choice-desc">Skip this element — it won&apos;t be modified</span>
+                    </span>
+                    {isSkipped && <MdCheck className="brandify-choice-check" aria-hidden="true" />}
+                  </button>
+                  {(el.ideas || []).map((idea) => {
+                    const isSelected = selections[el.name] === idea;
+                    return (
+                      <button
+                        key={idea}
+                        type="button"
+                        role="radio"
+                        aria-checked={isSelected}
+                        className={`brandify-choice-card ${isSelected ? 'is-selected' : ''}`}
+                        onClick={() => setSelections((prev) => ({ ...prev, [el.name]: idea }))}
+                      >
+                        <span className="brandify-choice-body">
+                          <span className="brandify-choice-desc">{idea}</span>
+                        </span>
+                        {isSelected && <MdCheck className="brandify-choice-check" aria-hidden="true" />}
+                      </button>
+                    );
+                  })}
+                  <div className={`brandify-choice-card brandify-choice-card--custom ${isCustomSelected ? 'is-selected' : ''}`}>
+                    <button
+                      type="button"
+                      role="radio"
+                      aria-checked={isCustomSelected}
+                      className="brandify-choice-card-toggle"
+                      onClick={() => setSelections((prev) => ({ ...prev, [el.name]: CUSTOM_IDEA }))}
+                    >
+                      <span className="brandify-choice-icon" aria-hidden="true">
+                        <MdEdit />
                       </span>
-                      {isCustomSelected && (
-                        <textarea
-                          className="brandify-custom-input"
-                          placeholder="Describe exactly how you want this element branded…"
-                          value={customIdeas[el.name] || ''}
-                          onChange={(e) => setCustomIdeas((prev) => ({ ...prev, [el.name]: e.target.value }))}
-                          rows={3}
-                        />
-                      )}
-                    </div>
-                  </label>
+                      <span className="brandify-choice-body">
+                        <span className="brandify-choice-title">Write your own</span>
+                        <span className="brandify-choice-desc">Describe a custom design for this element</span>
+                      </span>
+                      {isCustomSelected && <MdCheck className="brandify-choice-check" aria-hidden="true" />}
+                    </button>
+                    {isCustomSelected && (
+                      <textarea
+                        className="brandify-custom-input"
+                        placeholder="Describe exactly how you want this element branded…"
+                        value={customIdeas[el.name] || ''}
+                        onChange={(e) => setCustomIdeas((prev) => ({ ...prev, [el.name]: e.target.value }))}
+                        rows={3}
+                      />
+                    )}
+                  </div>
                 </div>
               </div>
             );
