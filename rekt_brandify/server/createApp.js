@@ -1,6 +1,8 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { paymentMiddleware, x402ResourceServer } from '@x402/express';
 import { ExactEvmScheme } from '@x402/evm/exact/server';
 import { HTTPFacilitatorClient } from '@x402/core/server';
@@ -10,6 +12,9 @@ import discoveryRoute from './x402-discovery.js';
 import { buildOpenApiDocument } from './openapi.js';
 
 dotenv.config();
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const FAVICON_PATH = path.join(__dirname, '..', 'public', 'favicon.ico');
 
 const FACILITATOR_URL = process.env.X402_FACILITATOR_URL || 'https://x402.org/facilitator';
 const USES_X402_ORG = FACILITATOR_URL.includes('x402.org');
@@ -124,6 +129,11 @@ export function createApp() {
         ? { protocol: 'x402', network: X402_NETWORK_ID }
         : null,
     });
+  });
+
+  app.get('/favicon.ico', (_req, res) => {
+    res.type('image/x-icon');
+    res.sendFile(FAVICON_PATH);
   });
 
   app.get('/openapi.json', (_req, res) => {

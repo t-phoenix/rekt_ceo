@@ -21,6 +21,14 @@ describe('brandify smoke (free mode)', () => {
     assert.equal(body.payment, null);
   });
 
+  it('GET /favicon.ico returns Rekt CEO icon', async () => {
+    const res = await fetch(`${baseUrl}/favicon.ico`);
+    assert.equal(res.status, 200);
+    assert.match(res.headers.get('content-type') || '', /image\/(x-icon|vnd\.microsoft\.icon)/);
+    const buf = Buffer.from(await res.arrayBuffer());
+    assert.ok(buf.length > 0);
+  });
+
   it('GET /.well-known/x402 returns legacy discovery doc', async () => {
     const { res, body } = await jsonFetch(baseUrl, '/.well-known/x402');
     assert.equal(res.status, 200);
