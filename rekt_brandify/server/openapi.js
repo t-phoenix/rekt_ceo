@@ -54,6 +54,7 @@ export function buildOpenApiDocument(options = {}) {
           operationId: 'healthCheck',
           summary: 'Service health check',
           tags: ['Meta'],
+          security: [],
           responses: {
             200: {
               description: 'Service is healthy',
@@ -86,6 +87,7 @@ export function buildOpenApiDocument(options = {}) {
           operationId: 'listTemplateVariations',
           summary: 'List public brandified variations for a meme template',
           tags: ['Templates'],
+          security: [],
           parameters: [
             {
               name: 'templateId',

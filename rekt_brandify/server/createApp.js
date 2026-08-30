@@ -81,6 +81,7 @@ export function getPaymentRouteConfig(networkId) {
  */
 export function createApp() {
   const app = express();
+  app.set('trust proxy', 1);
   const X402_NETWORK_ID = resolveX402NetworkId();
   const X402_NETWORK_LABEL = X402_NETWORK_ID === 'eip155:84532' ? 'Base Sepolia' : 'Base';
 

@@ -35,6 +35,10 @@ describe('OpenAPI document', () => {
     const startBody = doc.paths['/api/sessions/start'].post.requestBody.content['multipart/form-data'];
     assert.ok(startBody?.schema?.properties?.image);
     assert.ok(startBody.schema.required.includes('image'));
+
+    assert.deepEqual(doc.paths['/health'].get.security, []);
+    assert.deepEqual(doc.paths['/api/templates/{templateId}/variations'].get.security, []);
+    assert.equal(doc.paths['/api/templates/{templateId}/variations'].get.parameters[0].required, true);
   });
 
   it('GET /openapi.json serves the live document', async () => {
