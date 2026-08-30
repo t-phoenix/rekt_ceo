@@ -53,6 +53,7 @@ Those are unchanged.
 |---|---|---|---|
 | `VITE_API_URL` | recommended | `http://localhost:3000` | Same backend used by the website. Do **not** add a trailing `/` — combined with `/api/...` paths it becomes `//api/...` and Express returns `Cannot GET //api/...` (fixed in code by normalizing the base URL, but still avoid slashes for clarity). |
 | `VITE_ADMIN_API_KEY` | no | _none_ | Optional convenience: same value as backend `ADMIN_API_KEY`. Without the `VITE_` prefix, a variable **is not visible** to Vite/React in the browser — `ADMIN_API_KEY` alone in `.env` does nothing. When set, the admin app seeds `localStorage` once if empty; operators can still paste/rotate via the Campaigns yellow bar. **Do not ship this to a public CDN** if your build bundles the secret; use only in local/staging or rely on manual paste. |
+| `VITE_WORKFLOWS_API_URL` | yes (AI Workflows tab) | `http://localhost:8000/api` (dev only) | Base URL for the **LangGraph / automations FastAPI** service (`GET /data/runs`, `POST /workflows/*`). Must include `/api` suffix. **Not** the meme text API at `rekt-automations.onrender.com`. If unset in production builds, AI Workflows calls localhost and fails. |
 
 Admin key is normally entered at runtime via the Campaigns page yellow bar and
 stored in `localStorage` as `rekt_admin_key`. Rotate it on the backend and

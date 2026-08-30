@@ -85,6 +85,11 @@ standalone from `rekt_backend`:
    - **Publish Directory**: `dist`
 2. **Environment Variables**:
    - `VITE_API_URL` → `https://<your-backend>.onrender.com`
+   - `VITE_CAMPAIGN_API_URL` → `https://<your-campaigns-service>.onrender.com` (if split)
+   - **`VITE_WORKFLOWS_API_URL`** → `https://<your-workflows-automations-service>/api`  
+     Required for **Admin → AI Workflows**. Without it, the built admin app calls
+     `http://localhost:8000` and fails in the browser with `ERR_CONNECTION_REFUSED`.
+     This is **not** `rekt-automations.onrender.com` (that host only serves `/api/meme/*`).
 3. Restrict access at the network layer if possible (Render password
    protection on Pro plans, or a Cloudflare Access policy in front of the
    admin domain). Combined with `ADMIN_API_KEY`, this gives two factors:
