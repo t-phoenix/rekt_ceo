@@ -13,6 +13,24 @@ Before enabling live x402 payments on Render (`rekt-ceo-brandification`):
 | `CDP_API_KEY_SECRET` | CDP API secret |
 | `CORS_ORIGINS` | Comma-separated origins, e.g. `https://www.rektceo.club,http://localhost:3000` |
 | `AGENTCASH_WALLET_BASE64` | AgentCash wallet for StableStudio / vision calls |
+| `X402_PUBLIC_ORIGIN` | Public URL in `/openapi.json` (e.g. `https://rekt-ceo-brandification.onrender.com`) |
+| `X402_CONTACT_EMAIL` | Contact email in OpenAPI for x402scan ownership verification |
+
+## Agent discovery (x402 registry)
+
+The server exposes:
+
+- `GET /openapi.json` — canonical OpenAPI 3.1 document for x402scan / AgentCash discovery
+- `GET /.well-known/x402` — legacy compatibility manifest (links to OpenAPI)
+
+**Before registering on x402scan**, run:
+
+```bash
+npm test
+npm run test:discovery
+```
+
+Full manual steps (custom domain, x402scan registration, verification): see [docs/X402_REGISTRY.md](docs/X402_REGISTRY.md).
 
 ## Frontend (rekt_website)
 

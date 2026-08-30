@@ -10,6 +10,10 @@
     "interactive": "node scripts/brandify-interactive.js",
     "start": "node server/setup-wallet.js && node server/server.js",
     "start-server": "node server/setup-wallet.js && node server/server.js",
+    "test": "node --test tests/*.test.js",
+    "test:smoke": "node --test tests/smoke.test.js",
+    "test:openapi": "node --test tests/openapi.test.js",
+    "test:discovery": "node scripts/verify-discovery.js",
     "status": "node scripts/status.js",
     "preview": "node scripts/preview-server.js"
   },
