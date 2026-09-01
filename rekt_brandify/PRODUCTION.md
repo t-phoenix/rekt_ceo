@@ -6,7 +6,7 @@ Before enabling live x402 payments on Render (`rekt-ceo-brandification`):
 
 | Variable | Purpose |
 |----------|---------|
-| `MONGODB_URI` | Atlas connection string — whitelist Render outbound IPs |
+| `DATABASE_URL` | Supabase Postgres — brandify sessions + caption pipeline (required for persistence) |
 | `X402_RECEIVER_ADDRESS` | Base wallet to receive USDC |
 | `X402_FACILITATOR_URL` | Use Coinbase CDP facilitator for Base mainnet (not `x402.org`) |
 | `CDP_API_KEY_ID` | Coinbase Developer Platform API key |
@@ -45,7 +45,7 @@ REACT_APP_BRANDIFY_API_URL=https://rekt-ceo-brandification.onrender.com
 - `x402.org` facilitator does **not** support Base mainnet (`eip155:8453`). Use CDP for production.
 - **CDP API keys are required** when `X402_FACILITATOR_URL` points to Coinbase CDP. Without them, payment middleware stays off and endpoints run in free mode.
 - **CORS** must include your frontend origin in `CORS_ORIGINS`. The server exposes `payment-required` headers so browsers can read x402 payment info cross-origin.
-- **MongoDB Atlas** must allow Render’s outbound IPs (or `0.0.0.0/0` temporarily). If connection fails, the service falls back to in-memory MongoDB (sessions lost on restart).
-- Set `X402_FACILITATOR_URL` to the CDP URL above — do **not** override with `x402.org` on Render when using mainnet.
-- Without `MONGODB_URI`, the service uses in-memory MongoDB (variations are lost on restart).
+- **Postgres (Supabase)** is the primary datastore. Set `DATABASE_URL` on Render. Run `npm run db:migrate` once against the production database.
+- Use the Supabase **transaction pooler** (port 6543) on Render to avoid connection limits.
+- Without `DATABASE_URL`, read endpoints return empty results and write endpoints return 503.
 - Without `X402_RECEIVER_ADDRESS`, all brandify endpoints run in free mode (no wallet payments).

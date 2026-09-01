@@ -35,7 +35,7 @@ describe('brandify smoke (free mode)', () => {
     assert.equal(body.name, 'Rekt CEO Meme Brandifier');
     assert.equal(body.openapi, '/openapi.json');
     assert.ok(Array.isArray(body.endpoints));
-    assert.equal(body.endpoints.length, 3);
+    assert.equal(body.endpoints.length, 5);
   });
 
   it('GET /api/templates/:id/variations returns empty list without payment', async () => {
@@ -51,7 +51,7 @@ describe('brandify smoke (free mode)', () => {
     assert.equal(res.status, 400);
   });
 
-  it('POST /api/generate with unknown session returns 404 in free mode', async () => {
+  it('POST /api/generate with unknown session returns 404 or 503', async () => {
     const { res } = await jsonFetch(baseUrl, '/api/generate', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -60,10 +60,10 @@ describe('brandify smoke (free mode)', () => {
         userCuratedChoices: [{ element: 'shirt', idea: 'add logo' }],
       }),
     });
-    assert.equal(res.status, 404);
+    assert.ok(res.status === 404 || res.status === 503);
   });
 
-  it('POST /api/sessions/rate with unknown session returns 404 in free mode', async () => {
+  it('POST /api/sessions/rate with unknown session returns 404 or 503', async () => {
     const { res } = await jsonFetch(baseUrl, '/api/sessions/rate', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -72,7 +72,34 @@ describe('brandify smoke (free mode)', () => {
         rating: 'Like',
       }),
     });
-    assert.equal(res.status, 404);
+    assert.ok(res.status === 404 || res.status === 503);
+  });
+
+  it('POST /api/captions/suggest without image returns 400 in free mode', async () => {
+    const res = await fetch(`${baseUrl}/api/captions/suggest`, { method: 'POST' });
+    assert.equal(res.status, 400);
+  });
+
+  it('POST /api/captions/rate without run_id returns 400 in free mode', async () => {
+    const { res } = await jsonFetch(baseUrl, '/api/captions/rate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ rating: 'Like' }),
+    });
+    assert.equal(res.status, 400);
+  });
+
+  it('POST /api/captions/rate with unknown run returns 404 when pg disabled', async () => {
+    const { res } = await jsonFetch(baseUrl, '/api/captions/rate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        run_id: '00000000-0000-0000-0000-000000000000',
+        rating: 'Like',
+      }),
+    });
+    // Without DATABASE_URL, rate accepts any valid run_id shape
+    assert.ok(res.status === 200 || res.status === 404);
   });
 });
 

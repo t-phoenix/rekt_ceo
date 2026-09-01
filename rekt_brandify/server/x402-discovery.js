@@ -12,6 +12,8 @@ router.get('/.well-known/x402', (_req, res) => {
     sessionStart: process.env.X402_PRICE_SESSION_START || '0.19',
     generate: process.env.X402_PRICE_GENERATE || '0.49',
     rate: process.env.X402_PRICE_RATE || '0.01',
+    captionSuggest: process.env.X402_PRICE_CAPTION_SUGGEST || '0.10',
+    captionRate: process.env.X402_PRICE_CAPTION_RATE || '0.01',
   };
 
   res.json({
@@ -40,9 +42,25 @@ router.get('/.well-known/x402', (_req, res) => {
         path: '/api/sessions/rate',
         method: 'POST',
         price: `$${prices.rate}`,
-        description: 'Rate a generation',
+        description: 'Rate a brandify generation',
         input: "{ sessionId, rating: 'Like'|'Dislike'|'Neutral' }",
         output: '{ success, session }',
+      },
+      {
+        path: '/api/captions/suggest',
+        method: 'POST',
+        price: `$${prices.captionSuggest}`,
+        description: 'Generate top 3 meme captions from template + context',
+        input: "multipart/form-data with 'template_image' and 'context' (or 'topic')",
+        output: '{ run_id, options: [{ top_text, bottom_text, humor_tag, ranking_score }], metadata }',
+      },
+      {
+        path: '/api/captions/rate',
+        method: 'POST',
+        price: `$${prices.captionRate}`,
+        description: 'Rate a caption suggestion run',
+        input: "{ run_id, rating: 'Like'|'Dislike'|'Neutral', optional selected_candidate_id }",
+        output: '{ success, run_id, rating }',
       },
     ],
   });

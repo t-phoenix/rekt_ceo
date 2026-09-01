@@ -1,21 +1,21 @@
-import mongoose from 'mongoose';
-import { MongoMemoryServer } from 'mongodb-memory-server';
+import dotenv from 'dotenv';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import { createApp } from '../server/createApp.js';
 
-let mongoServer = null;
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+dotenv.config({ path: path.join(__dirname, '..', '.env') });
+
 let httpServer = null;
 
 /**
- * Start in-memory Mongo + Express on a random port for integration tests.
- * Clears X402_RECEIVER_ADDRESS unless enablePayment is true.
+ * Start Express on a random port for integration tests.
+ * Uses DATABASE_URL from env when set; otherwise read endpoints return empty.
  */
 export async function startTestServer({ enablePayment = false } = {}) {
   if (!enablePayment) {
     delete process.env.X402_RECEIVER_ADDRESS;
   }
-
-  mongoServer = await MongoMemoryServer.create();
-  await mongoose.connect(mongoServer.getUri());
 
   const { app, paymentMiddlewareEnabled, x402NetworkId } = createApp();
   await new Promise((resolve) => {
@@ -34,13 +34,6 @@ export async function stopTestServer() {
       httpServer.close((err) => (err ? reject(err) : resolve()));
     });
     httpServer = null;
-  }
-  if (mongoose.connection.readyState !== 0) {
-    await mongoose.disconnect();
-  }
-  if (mongoServer) {
-    await mongoServer.stop();
-    mongoServer = null;
   }
 }
 

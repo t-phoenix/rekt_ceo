@@ -1,10 +1,21 @@
 const path = require("path");
 
-const MEME_API_PROXY_TARGET =
-  process.env.REACT_APP_MEME_API_URL || "https://rekt-automations.onrender.com";
+const PROD_BRANDIFY_URL = "https://rekt-ceo-brandification.onrender.com";
+const LOCAL_BRANDIFY_URL = "http://localhost:3001";
 
-const BRANDIFY_API_PROXY_TARGET =
-  process.env.REACT_APP_BRANDIFY_API_URL || "https://rekt-ceo-brandification.onrender.com";
+function resolveBrandifyProxyTarget() {
+  if (process.env.REACT_APP_BRANDIFY_API_URL) {
+    return process.env.REACT_APP_BRANDIFY_API_URL;
+  }
+  if (process.env.REACT_APP_MEME_API_URL) {
+    return process.env.REACT_APP_MEME_API_URL;
+  }
+  // Local dev: default to local rekt_brandify server (npm start in rekt_brandify/)
+  return process.env.NODE_ENV === "development" ? LOCAL_BRANDIFY_URL : PROD_BRANDIFY_URL;
+}
+
+const BRANDIFY_API_PROXY_TARGET = resolveBrandifyProxyTarget();
+const MEME_API_PROXY_TARGET = BRANDIFY_API_PROXY_TARGET;
 
 module.exports = {
     style: {
@@ -21,6 +32,7 @@ module.exports = {
                 changeOrigin: true,
                 secure: true,
             },
+            // Alias: caption API now lives on brandify service
             "/brandify-api": {
                 target: BRANDIFY_API_PROXY_TARGET,
                 pathRewrite: { "^/brandify-api": "" },

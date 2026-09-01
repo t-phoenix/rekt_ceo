@@ -23,15 +23,15 @@ const ERC20_BALANCE_ABI = [
   },
 ];
 
-export function parseUsdcPrice(priceLabel = '$0.05') {
+export function parseUsdcPrice(priceLabel = '$0.10') {
   const numeric = Number(String(priceLabel).replace(/[^0-9.]/g, ''));
-  return Number.isFinite(numeric) ? numeric : 0.05;
+  return Number.isFinite(numeric) ? numeric : 0.10;
 }
 
 /**
  * x402-enabled fetch + USDC balance checks for AI Suggest payments on Base.
  */
-export function useMemeApiPayment(priceLabel = '$0.05') {
+export function useMemeApiPayment(priceLabel = '$0.10') {
   const { isConnected, address } = useAccount();
   const chainId = useChainId();
   const { data: walletClient } = useWalletClient();

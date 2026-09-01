@@ -13,7 +13,7 @@ services:
         value: production
       - key: PORT
         value: 3001
-      - key: MONGODB_URI
+      - key: DATABASE_URL
         sync: false
       - key: AGENTCASH_WALLET_BASE64
         sync: false
@@ -26,6 +26,10 @@ services:
       - key: X402_PRICE_GENERATE
         value: "0.49"
       - key: X402_PRICE_RATE
+        value: "0.01"
+      - key: X402_PRICE_CAPTION_SUGGEST
+        value: "0.10"
+      - key: X402_PRICE_CAPTION_RATE
         value: "0.01"
       - key: X402_NETWORK
         value: base

@@ -1,5 +1,77 @@
 # Rekt CEO Brandify Pipeline
 
+AI-powered meme brandification and caption API for the Rekt CEO ($CEO) brand. Includes a batch CLI for offline template processing and an Express API server with x402 payments.
+
+## API Server (local dev)
+
+### Prerequisites
+
+1. Copy env file and fill in values (see [`.env.example`](.env.example)):
+   ```bash
+   cp .env.example .env
+   ```
+
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+3. Apply database migrations (Supabase Postgres):
+   ```bash
+   npm run db:migrate
+   ```
+
+### Run the server
+
+```bash
+npm start
+```
+
+Server runs at **http://localhost:3001** (override with `PORT` in `.env`).
+
+Equivalent alias:
+
+```bash
+npm run start-server
+```
+
+### Verify it's up
+
+```bash
+curl http://localhost:3001/health
+```
+
+Expected: `{ "status": "ok", "service": "rekt-brandify", "database": { "status": "connected" }, ... }`
+
+Other useful endpoints:
+
+| URL | Purpose |
+|-----|---------|
+| `GET /health` | Health + database status |
+| `GET /openapi.json` | OpenAPI 3.1 (x402 / agent discovery) |
+| `GET /.well-known/x402` | Legacy payment manifest |
+| `POST /api/sessions/start` | Brandify: upload meme + vision strategy |
+| `POST /api/generate` | Brandify: generate branded image |
+| `POST /api/captions/suggest` | Caption API: top 3 meme captions |
+
+### Database & tests
+
+```bash
+npm run db:test       # ping Supabase connection
+npm run db:session    # brandify_sessions round-trip
+npm test              # full test suite
+```
+
+### Website integration
+
+Point `rekt_website` at the local API via craco proxy (dev default):
+
+- `/brandify-api` → `http://localhost:3001` (set `REACT_APP_BRANDIFY_API_URL=http://localhost:3001` if not using the proxy)
+
+---
+
+## Batch CLI (offline brandify)
+
 ## What This Is
 AI-powered batch processor that takes generic meme templates from the rekt_website and generates Rekt CEO branded versions using GPT Image 2 (via StableStudio / AgentCash).
 
@@ -70,10 +142,17 @@ node scripts/preview-server.js
 ```
 
 ## Environment Setup
-Create `.env`:
+
+Copy `.env.example` to `.env` and configure:
+
+- `DATABASE_URL` — Supabase Postgres (required for API persistence)
+- `AGENTCASH_WALLET_BASE64` — pays upstream vision/image APIs
+- `X402_RECEIVER_ADDRESS` + CDP keys — incoming x402 payments (optional locally; omit for free mode)
+
+For batch CLI only (legacy), you may also need AgentCash wallet setup:
+
 ```
-AGENTCASH_WALLET_KEY=your_wallet_private_key
-STABLESTUDIO_BASE_URL=https://stablestudio.io
+AGENTCASH_WALLET_BASE64=...
 ```
 
 Run: `npx agentcash@latest accounts` to get your wallet key.

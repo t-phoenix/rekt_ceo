@@ -1,34 +1,32 @@
 import dotenv from 'dotenv';
-import mongoose from 'mongoose';
-import { MongoMemoryServer } from 'mongodb-memory-server';
 import { createApp } from './createApp.js';
+import { isPgEnabled, getPool } from './db/pg.js';
 
 dotenv.config();
 
 const PORT = process.env.PORT || 3001;
-const MONGODB_URI = process.env.MONGODB_URI;
+
+async function verifyDatabase() {
+  if (!isPgEnabled()) {
+    console.warn('⚠️  No DATABASE_URL — brandify sessions and caption analytics will not persist.');
+    console.warn('   Set DATABASE_URL to your Supabase Postgres connection string.');
+    return;
+  }
+
+  try {
+    const pool = getPool();
+    await pool.query('SELECT 1');
+    console.log('✅ Connected to Postgres (Supabase)');
+  } catch (err) {
+    console.error('❌ Postgres connection error:', err.message);
+    console.warn('⚠️  API will return 503 for write operations until DATABASE_URL is fixed.');
+  }
+}
 
 async function startServer() {
-  const { app } = createApp();
+  await verifyDatabase();
 
-  if (MONGODB_URI) {
-    try {
-      await mongoose.connect(MONGODB_URI);
-      console.log('✅ Connected to MongoDB (Atlas)');
-    } catch (err) {
-      console.error('❌ MongoDB connection error:', err.message);
-      console.warn('⚠️  Falling back to in-memory MongoDB — sessions will not persist across restarts.');
-      console.warn('   To use Atlas: whitelist Render IPs in Network Access and verify MONGODB_URI.');
-      const mongoServer = await MongoMemoryServer.create();
-      await mongoose.connect(mongoServer.getUri());
-      console.log('✅ Connected to MongoDB (In-Memory fallback)');
-    }
-  } else {
-    console.log('⚠️  No MONGODB_URI provided in .env. Starting in-memory MongoDB for testing...');
-    const mongoServer = await MongoMemoryServer.create();
-    await mongoose.connect(mongoServer.getUri());
-    console.log('✅ Connected to MongoDB (In-Memory)');
-  }
+  const { app } = createApp();
 
   app.listen(PORT, () => {
     console.log(`🚀 Meme Lab Backend running on http://localhost:${PORT}`);

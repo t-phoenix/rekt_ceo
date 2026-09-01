@@ -1,47 +1,70 @@
 /**
- * MemeApiService - Client for the meme generation API (LLM picker + x402 payments).
+ * MemeApiService - Client for caption suggestion API on rekt_brandify (x402 payments).
  */
 
 import { MemeApiError, MemeApiErrorCode } from './memeApiErrors';
 
-const DEFAULT_PROD_URL = 'https://rekt-automations.onrender.com';
+const DEFAULT_PROD_URL = 'https://rekt-ceo-brandification.onrender.com';
 
-/**
- * In local dev, use same-origin /api/meme (craco proxy → Render) to avoid CORS.
- * In production, call the meme API directly (requires CORS_ORIGINS on the server).
- */
 function resolveMemeApiBaseUrl() {
+  // Local dev: same-origin proxy avoids CORS (especially x402 402 responses).
+  if (process.env.NODE_ENV === 'development') {
+    return '/brandify-api';
+  }
+  if (process.env.REACT_APP_BRANDIFY_API_URL) {
+    return process.env.REACT_APP_BRANDIFY_API_URL.replace(/\/$/, '');
+  }
   if (process.env.REACT_APP_MEME_API_URL) {
     return process.env.REACT_APP_MEME_API_URL.replace(/\/$/, '');
-  }
-  if (process.env.NODE_ENV === 'development') {
-    return '/meme-api';
   }
   return DEFAULT_PROD_URL;
 }
 
 const API_BASE_URL = resolveMemeApiBaseUrl();
 
+const DEFAULT_CAPTION_PRICE = '$0.10';
+
 class MemeApiService {
   get baseUrl() {
     return API_BASE_URL;
+  }
+
+  async fetchX402Discovery() {
+    try {
+      const res = await fetch(`${API_BASE_URL}/.well-known/x402`);
+      if (!res.ok) return null;
+      return res.json();
+    } catch {
+      return null;
+    }
+  }
+
+  parseCaptionPrice(discovery) {
+    const endpoint = discovery?.endpoints?.find(
+      (e) => e.path === '/api/captions/suggest'
+    );
+    return endpoint?.price || DEFAULT_CAPTION_PRICE;
   }
 
   /**
    * Fetch API info including x402 payment metadata when enabled.
    */
   async fetchApiInfo() {
-    try {
-      const res = await fetch(`${API_BASE_URL}/`);
-      if (!res.ok) return { payment: null };
-      return res.json();
-    } catch {
-      return { payment: null };
-    }
+    const discovery = await this.fetchX402Discovery();
+    const price = this.parseCaptionPrice(discovery);
+    return {
+      payment: discovery
+        ? {
+            protocol: 'x402',
+            price_per_call: price,
+            network: 'eip155:8453',
+          }
+        : null,
+    };
   }
 
   /**
-   * Combined health + payment + supported LLM presets for the AI Suggest modal.
+   * Combined health + payment for the AI Suggest modal.
    */
   async fetchConnectionStatus() {
     let health = null;
@@ -51,7 +74,7 @@ class MemeApiService {
     try {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 15000);
-      const healthRes = await fetch(`${API_BASE_URL}/api/meme/health`, {
+      const healthRes = await fetch(`${API_BASE_URL}/health`, {
         signal: controller.signal,
       });
       clearTimeout(timeoutId);
@@ -63,55 +86,52 @@ class MemeApiService {
       }
     } catch (err) {
       connectionError =
-        err?.name === 'TimeoutError'
-          ? 'Meme API timed out — the server may be waking up. Try again.'
-          : 'Could not reach the meme API.';
+        err?.name === 'TimeoutError' || err?.name === 'AbortError'
+          ? 'Caption API timed out — the server may be waking up. Try again.'
+          : 'Could not reach the caption API.';
     }
 
     const info = online ? await this.fetchApiInfo() : {};
-    let llmPresets = [];
-    let defaultLlm = null;
+    const discovery = online ? await this.fetchX402Discovery() : null;
+    const hasCaptionRoute = Boolean(
+      discovery?.endpoints?.some((e) => e.path === '/api/captions/suggest')
+    );
 
-    if (online) {
-      try {
-        const llms = await this.fetchAvailableLLMs();
-        llmPresets = llms.presets || [];
-        defaultLlm = llms.default || llms.presets?.[0]?.id || null;
-      } catch {
-        connectionError = connectionError || 'Connected, but failed to load AI models.';
-      }
+    if (online && !hasCaptionRoute) {
+      return {
+        online: false,
+        health,
+        paymentInfo: null,
+        llmPresets: [],
+        defaultLlm: null,
+        error:
+          'Caption API not found on this server. Start local rekt_brandify (npm start on port 3001) or deploy the latest code to Render.',
+      };
     }
 
     return {
       online,
       health,
       paymentInfo: info?.payment || null,
-      llmPresets,
-      defaultLlm,
+      llmPresets: [],
+      defaultLlm: null,
       error: connectionError,
     };
   }
 
   /**
-   * Fetch available LLM presets from the server.
+   * @deprecated Model selection is server-side on brandify caption API.
    */
-  async fetchAvailableLLMs(fetchFn = fetch) {
-    const res = await fetchFn(`${API_BASE_URL}/api/meme/llms`);
-    if (!res.ok) {
-      throw new MemeApiError('Failed to load AI model options.', {
-        status: res.status,
-        code: MemeApiErrorCode.NETWORK,
-      });
-    }
-    return res.json();
+  async fetchAvailableLLMs() {
+    return { presets: [], default: null };
   }
 
   /**
-   * Generate meme text options based on topic and template image.
-   * @param {string} topic
+   * Generate meme caption options from template image and context.
+   * @param {string} topic - Context text (tweet, one-liner, or topic)
    * @param {boolean} isTwitterPost
    * @param {File} templateImage
-   * @param {Object} options - { tone, humor_type, llm, llmModel, fetchFn, paymentRequired }
+   * @param {Object} options - { tone, humor_type, intensity, fetchFn, paymentRequired }
    */
   async generateMemeText(
     topic,
@@ -122,8 +142,7 @@ class MemeApiService {
     const {
       tone,
       humor_type: humorType,
-      llm,
-      llmModel,
+      intensity,
       fetchFn = fetch,
       paymentRequired = false,
     } = options;
@@ -136,17 +155,17 @@ class MemeApiService {
     }
 
     const formData = new FormData();
+    formData.append('context', topic);
     formData.append('topic', topic);
     formData.append('is_twitter_post', isTwitterPost.toString());
     formData.append('template_image', templateImage);
-    if (tone) formData.append('tone', tone);
-    if (humorType) formData.append('humor_type', humorType);
-    if (llm) formData.append('llm', llm);
-    if (llmModel) formData.append('llm_model', llmModel);
+    if (intensity) formData.append('intensity', intensity);
+    if (humorType) formData.append('humor_palette', humorType);
+    if (tone) formData.append('audience', tone === 'normie' ? 'normie' : 'ct');
 
     let response;
     try {
-      response = await fetchFn(`${API_BASE_URL}/api/meme/generate`, {
+      response = await fetchFn(`${API_BASE_URL}/api/captions/suggest`, {
         method: 'POST',
         body: formData,
       });
@@ -157,7 +176,7 @@ class MemeApiService {
         err?.name === 'TypeError';
       throw new MemeApiError(
         isNetworkFailure
-          ? 'Could not reach the meme API. This is often a CORS issue when calling Render directly from localhost — restart the dev server to use the local proxy, or redeploy the meme API with CORS middleware fixed.'
+          ? 'Could not reach the caption API. Restart the dev server to use the brandify proxy, or check CORS settings.'
           : err?.message || 'Network error while generating meme text.',
         { code: MemeApiErrorCode.NETWORK }
       );
@@ -186,11 +205,13 @@ class MemeApiService {
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
       const detail =
-        typeof errorData.detail === 'string'
-          ? errorData.detail
-          : Array.isArray(errorData.detail)
-            ? errorData.detail.map((d) => d.msg || d).join(', ')
-            : null;
+        typeof errorData.error === 'string'
+          ? errorData.error
+          : typeof errorData.detail === 'string'
+            ? errorData.detail
+            : Array.isArray(errorData.detail)
+              ? errorData.detail.map((d) => d.msg || d).join(', ')
+              : null;
 
       if (response.status === 400) {
         throw new MemeApiError(detail || 'Invalid request.', {
@@ -198,6 +219,18 @@ class MemeApiService {
           code: MemeApiErrorCode.VALIDATION,
           detail,
         });
+      }
+
+      if (response.status === 404) {
+        throw new MemeApiError(
+          detail ||
+            'Caption API endpoint not found. Ensure rekt_brandify is running locally (npm start) or deploy the latest version to Render.',
+          {
+            status: 404,
+            code: MemeApiErrorCode.NETWORK,
+            detail,
+          }
+        );
       }
 
       if (response.status >= 500) {
@@ -217,19 +250,28 @@ class MemeApiService {
     const data = await response.json();
 
     if (!data.options || !Array.isArray(data.options) || data.options.length === 0) {
-      throw new MemeApiError('Invalid response from meme API — no options returned.', {
+      throw new MemeApiError('Invalid response from caption API — no options returned.', {
         code: MemeApiErrorCode.SERVER_ERROR,
       });
     }
 
+    const optionsNormalized = data.options.map((opt) => ({
+      ...opt,
+      humor_pattern_used: opt.humor_pattern_used || opt.humor_tag || 'observational',
+    }));
+
     return {
-      options: data.options,
-      metadata: data.metadata,
+      options: optionsNormalized,
+      metadata: {
+        ...data.metadata,
+        run_id: data.run_id || data.metadata?.run_id,
+        all_candidates_count: data.all_candidates_count,
+      },
     };
   }
 
   /**
-   * Generate AI-branded meme template (no x402 on this route yet).
+   * @deprecated Branded template generation remains on legacy automations service.
    */
   async generateBrandedTemplate(
     templateImage,
@@ -239,6 +281,10 @@ class MemeApiService {
     secondaryColor = null,
     logoImage = null
   ) {
+    const legacyUrl =
+      process.env.REACT_APP_MEME_API_URL?.replace(/\/$/, '') ||
+      'https://rekt-automations.onrender.com';
+
     const formData = new FormData();
     formData.append('template_image', templateImage);
     formData.append('brand_name', brandName);
@@ -247,7 +293,7 @@ class MemeApiService {
     if (secondaryColor) formData.append('secondary_color', secondaryColor);
     if (logoImage) formData.append('logo_image', logoImage);
 
-    const response = await fetch(`${API_BASE_URL}/api/meme/template/brand`, {
+    const response = await fetch(`${legacyUrl}/api/meme/template/brand`, {
       method: 'POST',
       body: formData,
     });

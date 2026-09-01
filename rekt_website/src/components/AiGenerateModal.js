@@ -1,15 +1,14 @@
 import { useState, useEffect } from 'react';
 import { useAppKit } from '@reown/appkit/react';
 import { MemeApiErrorCode } from '../services/memeApiErrors';
-import { useLlmPreflight } from '../hooks/useLlmPreflight';
 import AiSuggestionHistory from './AiSuggestionHistory';
 import './AiGenerateModal.css';
 
-const TIER_LABELS = {
-  budget: 'Budget',
-  balanced: 'Balanced',
-  premium: 'Premium',
-};
+const INTENSITY_OPTIONS = [
+  { value: 'mild', label: 'Mild — playful nudge' },
+  { value: 'medium', label: 'Medium — classic CT banter' },
+  { value: 'savage', label: 'Savage — full send' },
+];
 
 const AiGenerateModal = ({
   isOpen,
@@ -32,7 +31,7 @@ const AiGenerateModal = ({
   hasSufficientUsdc,
   shortAddress,
   onSwitchToBase,
-  priceLabel = '$0.05',
+  priceLabel = '$0.10',
   templateSrc,
   templateName = 'Template',
   sessionsGrouped,
@@ -53,23 +52,10 @@ const AiGenerateModal = ({
   const [generationMeta, setGenerationMeta] = useState(null);
   const [lastTopic, setLastTopic] = useState('');
 
-  const [selectedLlm, setSelectedLlm] = useState('');
-  const [llmModel, setLlmModel] = useState('');
+  const [intensity, setIntensity] = useState('medium');
 
   const [error, setError] = useState(null);
   const [retryAfterMs, setRetryAfterMs] = useState(null);
-
-  const {
-    verifiedPresets,
-    resolvedDefault,
-    isChecking: isPreflighting,
-    checkError: preflightError,
-    recheck: recheckModels,
-  } = useLlmPreflight({
-    enabled: isOpen,
-    initialPresets: llmPresets,
-    defaultLlm,
-  });
 
   const paymentEnabled = Boolean(paymentInfo?.protocol === 'x402');
   const needsWallet = paymentEnabled && !isConnected;
@@ -85,15 +71,6 @@ const AiGenerateModal = ({
   }, [isOpen]);
 
   useEffect(() => {
-    if (!isOpen || llmsLoading || isPreflighting) return;
-    if (resolvedDefault) {
-      setSelectedLlm(resolvedDefault);
-    } else if (verifiedPresets.length > 0) {
-      setSelectedLlm(verifiedPresets[0].id);
-    }
-  }, [isOpen, resolvedDefault, verifiedPresets, llmsLoading, isPreflighting]);
-
-  useEffect(() => {
     if (!retryAfterMs || retryAfterMs <= 0) return undefined;
 
     const timer = setInterval(() => {
@@ -105,8 +82,6 @@ const AiGenerateModal = ({
 
     return () => clearInterval(timer);
   }, [retryAfterMs]);
-
-  const selectedPreset = verifiedPresets.find((p) => p.id === selectedLlm);
 
   const handleSubmit = async () => {
     const inputValue = inputMode === 'topic' ? topic : content;
@@ -144,20 +119,11 @@ const AiGenerateModal = ({
       return;
     }
 
-    if (selectedLlm === 'openrouter' && !llmModel.trim()) {
-      setError({
-        code: MemeApiErrorCode.VALIDATION,
-        message: 'Enter an OpenRouter model id (e.g. google/gemini-2.5-flash).',
-      });
-      return;
-    }
-
     setError(null);
 
     const isTwitterPost = inputMode === 'content';
     const result = await onGenerate(inputValue.trim(), isTwitterPost, {
-      llm: selectedLlm || undefined,
-      llmModel: selectedLlm === 'openrouter' ? llmModel.trim() : undefined,
+      intensity,
     });
 
     if (result?.error) {
@@ -198,7 +164,6 @@ const AiGenerateModal = ({
     setContent('');
     setError(null);
     setRetryAfterMs(null);
-    setLlmModel('');
     setModalView('generate');
   };
 
@@ -230,17 +195,14 @@ const AiGenerateModal = ({
     return value.toFixed(4);
   };
 
-  const modelsLoading = llmsLoading || connectionStatus === 'loading' || isPreflighting;
-
   const isGenerateDisabled =
     (inputMode === 'topic' && !topic.trim()) ||
     (inputMode === 'content' && !content.trim()) ||
     isLoading ||
     isSwitchingChain ||
     Boolean(retryAfterMs) ||
-    modelsLoading ||
-    isApiOffline ||
-    verifiedPresets.length === 0;
+    connectionStatus === 'loading' ||
+    isApiOffline;
 
   if (!isOpen) return null;
 
@@ -362,15 +324,6 @@ const AiGenerateModal = ({
                 </div>
               )}
 
-              {preflightError && !isApiOffline && (
-                <div className="ai-inline-status ai-inline-status--warn">
-                  <span>{preflightError}</span>
-                  <button type="button" className="ai-error-action" onClick={recheckModels}>
-                    Recheck
-                  </button>
-                </div>
-              )}
-
               {error && (
                 <div className={`ai-error-banner ai-error-banner--${error.code || 'generic'}`}>
                   <span>{error.message}</span>
@@ -425,62 +378,28 @@ const AiGenerateModal = ({
               )}
 
               <div className="ai-llm-section">
-                <div className="ai-llm-header">
-                  <label htmlFor="ai-model-select" className="ai-modal-label">
-                    AI Model
-                  </label>
-                  {!modelsLoading && verifiedPresets.length > 0 && (
-                    <span className="ai-llm-ready">
-                      {verifiedPresets.length} ready
-                    </span>
-                  )}
-                </div>
-
-                {modelsLoading ? (
-                  <div className="ai-model-select-wrap ai-model-select-wrap--loading">
-                    <span className="ai-modal-spinner" />
-                    <span>Verifying available models…</span>
-                  </div>
-                ) : verifiedPresets.length === 0 ? (
-                  <p className="ai-modal-hint ai-modal-hint--warn">
-                    No working models found — check server API keys or retry.
-                  </p>
-                ) : (
-                  <>
-                    <div className="ai-model-select-wrap">
-                      <select
-                        id="ai-model-select"
-                        className="ai-model-select"
-                        value={selectedLlm}
-                        onChange={(e) => setSelectedLlm(e.target.value)}
-                        disabled={isLoading}
-                      >
-                        {verifiedPresets.map((preset) => (
-                          <option key={preset.id} value={preset.id}>
-                            {preset.label}
-                            {preset.tier ? ` · ${TIER_LABELS[preset.tier] || preset.tier}` : ''}
-                            {preset.supports_vision ? ' · Vision' : ''}
-                          </option>
-                        ))}
-                      </select>
-                      <span className="ai-model-select-chevron" aria-hidden="true">▾</span>
-                    </div>
-                    {selectedPreset?.description && (
-                      <p className="ai-modal-hint ai-model-desc">{selectedPreset.description}</p>
-                    )}
-                  </>
-                )}
-
-                {selectedLlm === 'openrouter' && (
-                  <input
-                    type="text"
-                    className="ai-modal-input ai-openrouter-input"
-                    placeholder="google/gemini-2.5-flash"
-                    value={llmModel}
-                    onChange={(e) => setLlmModel(e.target.value)}
+                <label htmlFor="ai-intensity-select" className="ai-modal-label">
+                  Roast intensity
+                </label>
+                <div className="ai-model-select-wrap">
+                  <select
+                    id="ai-intensity-select"
+                    className="ai-model-select"
+                    value={intensity}
+                    onChange={(e) => setIntensity(e.target.value)}
                     disabled={isLoading}
-                  />
-                )}
+                  >
+                    {INTENSITY_OPTIONS.map((opt) => (
+                      <option key={opt.value} value={opt.value}>
+                        {opt.label}
+                      </option>
+                    ))}
+                  </select>
+                  <span className="ai-model-select-chevron" aria-hidden="true">▾</span>
+                </div>
+                <p className="ai-modal-hint ai-model-desc">
+                  AI drafts 10 captions, judges them, and returns the top 3.
+                </p>
               </div>
             </div>
 
@@ -556,8 +475,13 @@ const AiGenerateModal = ({
                             🎯 {(option.ranking_score * 100).toFixed(0)}%
                           </span>
                           <span className="ai-option-meta-item">
-                            😄 {option.humor_pattern_used.replace(/_/g, ' ')}
+                            😄 {(option.humor_pattern_used || option.humor_tag || 'meme').replace(/_/g, ' ')}
                           </span>
+                          {option.intensity && (
+                            <span className="ai-option-meta-item">
+                              🔥 {option.intensity}
+                            </span>
+                          )}
                         </div>
                       </button>
                     ))}

@@ -7,6 +7,7 @@ import { paymentMiddleware, x402ResourceServer } from '@x402/express';
 import { ExactEvmScheme } from '@x402/evm/exact/server';
 import { HTTPFacilitatorClient } from '@x402/core/server';
 import { createCdpFacilitatorClient } from '@coinbase/cdp-sdk/x402';
+import { isPgEnabled, getPool } from './db/pg.js';
 import apiRoutes from './routes/api.js';
 import discoveryRoute from './x402-discovery.js';
 import { buildOpenApiDocument } from './openapi.js';
@@ -78,6 +79,24 @@ export function getPaymentRouteConfig(networkId) {
       },
       description: 'Rate a branded meme generation (Like/Dislike/Neutral)',
     },
+    'POST /api/captions/suggest': {
+      accepts: {
+        scheme: 'exact',
+        price: `$${process.env.X402_PRICE_CAPTION_SUGGEST || '0.10'}`,
+        network: networkId,
+        payTo: process.env.X402_RECEIVER_ADDRESS,
+      },
+      description: 'Generate top 3 meme captions from template image + context',
+    },
+    'POST /api/captions/rate': {
+      accepts: {
+        scheme: 'exact',
+        price: `$${process.env.X402_PRICE_CAPTION_RATE || '0.01'}`,
+        network: networkId,
+        payTo: process.env.X402_RECEIVER_ADDRESS,
+      },
+      description: 'Rate a caption suggestion run (Like/Dislike/Neutral)',
+    },
   };
 }
 
@@ -121,10 +140,24 @@ export function createApp() {
 
   let paymentMiddlewareEnabled = false;
 
-  app.get('/health', (_req, res) => {
+  app.get('/health', async (_req, res) => {
+    let database = null;
+    if (isPgEnabled()) {
+      try {
+        const pool = getPool();
+        await pool.query('SELECT 1');
+        database = { status: 'connected', provider: 'postgres' };
+      } catch (err) {
+        database = { status: 'error', message: err.message };
+      }
+    } else {
+      database = { status: 'disabled' };
+    }
+
     res.json({
       status: 'ok',
       service: 'rekt-brandify',
+      database,
       payment: paymentMiddlewareEnabled
         ? { protocol: 'x402', network: X402_NETWORK_ID }
         : null,
@@ -156,7 +189,7 @@ export function createApp() {
       console.log(`   Facilitator: ${FACILITATOR_URL}${usesCdpFacilitator() ? ' (CDP auth)' : ''}`);
       console.log(`   Network:     ${X402_NETWORK_LABEL} (${X402_NETWORK_ID})`);
       console.log(
-        `   Pricing:     $${process.env.X402_PRICE_SESSION_START || '0.19'} (start) + $${process.env.X402_PRICE_GENERATE || '0.49'} (generate) + $${process.env.X402_PRICE_RATE || '0.01'} (rate) = $0.69 per flow`
+        `   Pricing:     $${process.env.X402_PRICE_SESSION_START || '0.19'} (start) + $${process.env.X402_PRICE_GENERATE || '0.49'} (generate) + $${process.env.X402_PRICE_RATE || '0.01'} (rate) + $${process.env.X402_PRICE_CAPTION_SUGGEST || '0.10'} (captions)`
       );
     } catch (err) {
       console.error('❌ x402 payment middleware DISABLED:', err.message);

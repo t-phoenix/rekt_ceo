@@ -7,6 +7,8 @@ const PAID_PATHS = [
   '/api/sessions/start',
   '/api/generate',
   '/api/sessions/rate',
+  '/api/captions/suggest',
+  '/api/captions/rate',
 ];
 
 describe('OpenAPI document', () => {
@@ -36,6 +38,12 @@ describe('OpenAPI document', () => {
     assert.ok(startBody?.schema?.properties?.image);
     assert.ok(startBody.schema.required.includes('image'));
 
+    const captionBody = doc.paths['/api/captions/suggest'].post.requestBody.content['multipart/form-data'];
+    assert.ok(captionBody?.schema?.properties?.template_image);
+    assert.ok(captionBody.schema.required.includes('template_image'));
+
+    assert.ok(doc.info['x-guidance'].includes('/api/captions/suggest'));
+
     assert.deepEqual(doc.paths['/health'].get.security, []);
     assert.deepEqual(doc.paths['/api/templates/{templateId}/variations'].get.security, []);
     assert.equal(doc.paths['/api/templates/{templateId}/variations'].get.parameters[0].required, true);
@@ -63,17 +71,23 @@ describe('OpenAPI x-payment-info prices', () => {
       start: process.env.X402_PRICE_SESSION_START,
       generate: process.env.X402_PRICE_GENERATE,
       rate: process.env.X402_PRICE_RATE,
+      captionSuggest: process.env.X402_PRICE_CAPTION_SUGGEST,
+      captionRate: process.env.X402_PRICE_CAPTION_RATE,
     };
 
     process.env.X402_PRICE_SESSION_START = '0.25';
     process.env.X402_PRICE_GENERATE = '0.55';
     process.env.X402_PRICE_RATE = '0.02';
+    process.env.X402_PRICE_CAPTION_SUGGEST = '0.12';
+    process.env.X402_PRICE_CAPTION_RATE = '0.02';
 
     try {
       const doc = buildOpenApiDocument();
       assert.equal(doc.paths['/api/sessions/start'].post['x-payment-info'].price.amount, '0.25');
       assert.equal(doc.paths['/api/generate'].post['x-payment-info'].price.amount, '0.55');
       assert.equal(doc.paths['/api/sessions/rate'].post['x-payment-info'].price.amount, '0.02');
+      assert.equal(doc.paths['/api/captions/suggest'].post['x-payment-info'].price.amount, '0.12');
+      assert.equal(doc.paths['/api/captions/rate'].post['x-payment-info'].price.amount, '0.02');
     } finally {
       if (prev.start === undefined) delete process.env.X402_PRICE_SESSION_START;
       else process.env.X402_PRICE_SESSION_START = prev.start;
@@ -81,6 +95,10 @@ describe('OpenAPI x-payment-info prices', () => {
       else process.env.X402_PRICE_GENERATE = prev.generate;
       if (prev.rate === undefined) delete process.env.X402_PRICE_RATE;
       else process.env.X402_PRICE_RATE = prev.rate;
+      if (prev.captionSuggest === undefined) delete process.env.X402_PRICE_CAPTION_SUGGEST;
+      else process.env.X402_PRICE_CAPTION_SUGGEST = prev.captionSuggest;
+      if (prev.captionRate === undefined) delete process.env.X402_PRICE_CAPTION_RATE;
+      else process.env.X402_PRICE_CAPTION_RATE = prev.captionRate;
     }
   });
 });

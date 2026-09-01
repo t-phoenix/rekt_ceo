@@ -17,6 +17,8 @@ This guide covers making the Rekt CEO Brandify API discoverable and listed in x4
 | `POST /api/sessions/start` | x402 ($0.19) | Upload meme + vision strategy |
 | `POST /api/generate` | x402 ($0.49) | Generate branded image |
 | `POST /api/sessions/rate` | x402 ($0.01) | Rate a generation |
+| `POST /api/captions/suggest` | x402 ($0.10) | Caption suggest (top 3 from 10) |
+| `POST /api/captions/rate` | x402 ($0.01) | Rate a caption run |
 
 Runtime payment uses **USDC on Base mainnet** (`eip155:8453`) via Coinbase CDP facilitator.
 

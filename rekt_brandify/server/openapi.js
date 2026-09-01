@@ -21,6 +21,39 @@ const strategyElementSchema = {
   required: ['name', 'type', 'ideas'],
 };
 
+const humorTagEnum = [
+  'sarcasm', 'casual_roast', 'savage_roast', 'self_deprecation', 'absurdist',
+  'deadpan', 'reversal', 'callback', 'wholesome_twist', 'observational', 'inside_baseball',
+];
+
+const captionCandidateSchema = {
+  type: 'object',
+  properties: {
+    id: { type: 'string' },
+    top_text: { type: 'string' },
+    bottom_text: { type: 'string' },
+    humor_tag: { type: 'string', enum: humorTagEnum },
+    humor_pattern_used: { type: 'string', enum: humorTagEnum },
+    intensity: { type: 'string', enum: ['mild', 'medium', 'savage'] },
+    memetic_devices: { type: 'array', items: { type: 'string' } },
+    ranking_score: { type: 'number', minimum: 0, maximum: 1 },
+    scores: {
+      type: 'object',
+      properties: {
+        template_fit: { type: 'number' },
+        context_relevance: { type: 'number' },
+        surprise: { type: 'number' },
+        relatability: { type: 'number' },
+        brevity: { type: 'number' },
+        originality: { type: 'number' },
+      },
+    },
+    why_funny: { type: 'string' },
+    rank: { type: 'integer' },
+  },
+  required: ['top_text', 'bottom_text', 'ranking_score'],
+};
+
 export function buildOpenApiDocument(options = {}) {
   const {
     publicOrigin = process.env.X402_PUBLIC_ORIGIN || 'https://rekt-ceo-brandification.onrender.com',
@@ -28,6 +61,8 @@ export function buildOpenApiDocument(options = {}) {
     priceSessionStart = process.env.X402_PRICE_SESSION_START || '0.19',
     priceGenerate = process.env.X402_PRICE_GENERATE || '0.49',
     priceRate = process.env.X402_PRICE_RATE || '0.01',
+    priceCaptionSuggest = process.env.X402_PRICE_CAPTION_SUGGEST || '0.10',
+    priceCaptionRate = process.env.X402_PRICE_CAPTION_RATE || '0.01',
   } = options;
 
   return {
@@ -36,13 +71,16 @@ export function buildOpenApiDocument(options = {}) {
       title: 'Rekt CEO Meme Brandifier',
       version: '1.0.0',
       description:
-        'AI-powered meme template brandification for the Rekt CEO ($CEO) crypto brand. Upload a meme, get creative direction, generate branded versions, and rate results.',
+        'AI-powered meme tools for the Rekt CEO ($CEO) crypto brand: brandify meme templates, generate captions from context, and rate results.',
       contact: { email: contactEmail },
       'x-guidance': [
-        'Three-step paid workflow on Base USDC via x402:',
+        'Brandify workflow (image brandification) on Base USDC via x402:',
         '1. POST /api/sessions/start — multipart upload with field "image" (required). Returns sessionId, imageUrl, and strategy.elements[].',
         '2. POST /api/generate — JSON body with sessionId and userCuratedChoices [{ element, idea }]. Returns generatedImageUrl.',
         '3. POST /api/sessions/rate — JSON body with sessionId and rating (Like|Dislike|Neutral).',
+        'Caption workflow (meme text suggestions):',
+        '4. POST /api/captions/suggest — multipart: template_image + context (or topic). Returns top 3 captions from 10 candidates with humor tags and scores.',
+        '5. POST /api/captions/rate — JSON: run_id, selected_candidate_id, rating (Like|Dislike|Neutral), optional feedback_text.',
         'Free: GET /api/templates/{templateId}/variations — public community brandified versions.',
         'Pay with USDC on Base (eip155:8453). Send unauthenticated request first to receive HTTP 402 + payment-required header, then retry with x402 payment.',
       ].join('\n'),
@@ -288,6 +326,151 @@ export function buildOpenApiDocument(options = {}) {
             },
             402: { description: 'Payment Required' },
             404: { description: 'Session not found' },
+          },
+        },
+      },
+      '/api/captions/suggest': {
+        post: {
+          operationId: 'suggestMemeCaptions',
+          summary: 'Generate top 3 meme captions from template image and context',
+          tags: ['Captions'],
+          'x-payment-info': fixedPayment(priceCaptionSuggest),
+          requestBody: {
+            required: true,
+            content: {
+              'multipart/form-data': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    template_image: {
+                      type: 'string',
+                      format: 'binary',
+                      description: 'Meme template image file',
+                    },
+                    context: {
+                      type: 'string',
+                      description: 'Tweet, one-liner, or topic seed (max 2000 chars)',
+                    },
+                    topic: {
+                      type: 'string',
+                      description: 'Alias for context (legacy compatibility)',
+                    },
+                    context_type: {
+                      type: 'string',
+                      enum: ['topic', 'tweet', 'headline', 'quote', 'auto'],
+                      default: 'auto',
+                    },
+                    is_twitter_post: {
+                      type: 'string',
+                      enum: ['true', 'false'],
+                      description: 'Hint that context is a tweet',
+                    },
+                    intensity: {
+                      type: 'string',
+                      enum: ['mild', 'medium', 'savage'],
+                      default: 'medium',
+                    },
+                    humor_palette: {
+                      type: 'string',
+                      description: 'Comma-separated humor tags or JSON array',
+                    },
+                    audience: {
+                      type: 'string',
+                      enum: ['ct', 'normie', 'mixed'],
+                      default: 'ct',
+                    },
+                    template_id: { type: 'string' },
+                    category: { type: 'string' },
+                    creator_wallet: { type: 'string' },
+                  },
+                  required: ['template_image'],
+                },
+              },
+            },
+          },
+          responses: {
+            200: {
+              description: 'Top 3 ranked caption options',
+              content: {
+                'application/json': {
+                  schema: {
+                    type: 'object',
+                    properties: {
+                      run_id: { type: 'string', format: 'uuid' },
+                      options: {
+                        type: 'array',
+                        minItems: 1,
+                        maxItems: 3,
+                        items: captionCandidateSchema,
+                      },
+                      all_candidates_count: { type: 'integer', default: 10 },
+                      metadata: {
+                        type: 'object',
+                        properties: {
+                          run_id: { type: 'string', format: 'uuid' },
+                          pipeline_persona: { type: 'array', items: { type: 'string' } },
+                          context_type: { type: 'string' },
+                          intensity: { type: 'string' },
+                          audience: { type: 'string' },
+                          humor_palette: { type: 'array', items: { type: 'string' } },
+                          template_guess: { type: 'string', nullable: true },
+                          llm: { type: 'object' },
+                        },
+                      },
+                    },
+                    required: ['run_id', 'options', 'all_candidates_count', 'metadata'],
+                  },
+                },
+              },
+            },
+            402: { description: 'Payment Required' },
+            400: { description: 'Missing template_image or invalid request' },
+          },
+        },
+      },
+      '/api/captions/rate': {
+        post: {
+          operationId: 'rateCaptionRun',
+          summary: 'Rate a caption suggestion run',
+          tags: ['Captions'],
+          'x-payment-info': fixedPayment(priceCaptionRate),
+          requestBody: {
+            required: true,
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    run_id: { type: 'string', format: 'uuid' },
+                    selected_candidate_id: { type: 'string' },
+                    rating: { type: 'string', enum: ['Like', 'Dislike', 'Neutral'] },
+                    feedback_text: { type: 'string' },
+                    creator_wallet: { type: 'string' },
+                  },
+                  required: ['run_id', 'rating'],
+                },
+              },
+            },
+          },
+          responses: {
+            200: {
+              description: 'Rating saved',
+              content: {
+                'application/json': {
+                  schema: {
+                    type: 'object',
+                    properties: {
+                      success: { type: 'boolean' },
+                      run_id: { type: 'string', format: 'uuid' },
+                      rating: { type: 'string' },
+                    },
+                    required: ['success', 'run_id', 'rating'],
+                  },
+                },
+              },
+            },
+            402: { description: 'Payment Required' },
+            404: { description: 'Caption run not found' },
           },
         },
       },

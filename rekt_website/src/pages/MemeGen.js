@@ -18,7 +18,6 @@ import { useBrandifyConnection } from "../hooks/useBrandifyConnection.js";
 import { useBrandifyPayment } from "../hooks/useBrandifyPayment.js";
 import { useBrandifyGenerationMemory } from "../hooks/useBrandifyGenerationMemory.js";
 import { useAiSuggestionMemory } from "../hooks/useAiSuggestionMemory.js";
-import { markLlmFailed, clearLlmFailure } from "../hooks/useLlmPreflight.js";
 import { loadBrandifyWorkflow, buildBrandifyTemplateKey } from "../services/brandifySessionStorage.js";
 import { exportNodeToPng } from "../utils/exportImage.js";
 import { useAccount } from 'wagmi';
@@ -47,7 +46,7 @@ const MemeGen = () => {
     refresh: refreshConnection,
   } = useMemeApiConnection({ enabled: true });
 
-  const priceLabel = paymentInfo?.price_per_call || '$0.05';
+  const priceLabel = paymentInfo?.price_per_call || '$0.10';
 
   const {
     status: brandifyConnectionStatus,
@@ -587,19 +586,16 @@ const MemeGen = () => {
       const file = new File([blob], 'template.jpg', { type: 'image/jpeg' });
 
       const result = await memeApiService.generateMemeText(topic, isTwitterPost, file, {
-        llm: llmOptions.llm,
-        llmModel: llmOptions.llmModel,
+        intensity: llmOptions.intensity,
         fetchFn: paymentRequired ? paidFetch : fetch,
         paymentRequired,
       });
 
       if (result?.options) {
-        if (llmOptions.llm) clearLlmFailure(llmOptions.llm);
         await saveAiGeneration({
           topic,
           isTwitterPost,
-          llm: llmOptions.llm,
-          llmModel: llmOptions.llmModel,
+          intensity: llmOptions.intensity,
           templateId: selectedTemplate,
           templateName: getTemplateName(),
           templateSrc: imageSrc,
@@ -613,9 +609,6 @@ const MemeGen = () => {
       console.error('Error generating meme:', error);
 
       const message = getMemeApiUserMessage(error);
-      if (llmOptions.llm && error instanceof MemeApiError && error.status >= 500) {
-        markLlmFailed(llmOptions.llm);
-      }
       const errorPayload = {
         message,
         code: error instanceof MemeApiError ? error.code : undefined,
