@@ -1,5 +1,16 @@
-const BRANDIFY_API_URL =
-  import.meta.env.VITE_BRANDIFY_API_URL || 'http://localhost:3001';
+const BRANDIFY_API_URL = (
+  import.meta.env.VITE_BRANDIFY_API_URL || 'http://localhost:3001'
+).replace(/\/$/, '');
+
+if (
+  import.meta.env.PROD
+  && /localhost|127\.0\.0\.1/.test(BRANDIFY_API_URL)
+) {
+  console.error(
+    '[cmoApi] VITE_BRANDIFY_API_URL is missing or still points at localhost. '
+      + 'Set it in Vercel (e.g. https://rekt-ceo-brandification.onrender.com) and redeploy.',
+  );
+}
 
 export type PaidFetch = typeof fetch;
 

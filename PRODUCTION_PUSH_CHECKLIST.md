@@ -128,7 +128,7 @@ Deploy admin **after** Brandify migrations + paid routes are live.
 |----------|---------|
 | `VITE_API_URL` | Main backend |
 | `VITE_CAMPAIGN_API_URL` | Campaigns service |
-| `VITE_BRANDIFY_API_URL` | Same Brandify origin as website |
+| `VITE_BRANDIFY_API_URL` | **Required on Vercel** — same Brandify origin as website, e.g. `https://rekt-ceo-brandification.onrender.com`. If unset, the build falls back to `http://localhost:3001` and production will show `ERR_CONNECTION_REFUSED`. Vite bakes this at **build** time → set env, then **Redeploy**. |
 | `VITE_ADMIN_API_KEY` | Same value as Brandify `ADMIN_API_KEY` (or enter key in UI) |
 | `VITE_WALLETCONNECT_PROJECT_ID` | Wagmi / Web3Modal |
 | `VITE_BASE_RPC_HTTP_URL` / `VITE_BASE_USDC_ADDRESS` | CMO x402 USDC on Base |
