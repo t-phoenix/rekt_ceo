@@ -1,0 +1,14 @@
+# Keep Cursor / SCM noise down — dependencies & abandoned trees
+node_modules/
+**/node_modules/
+rekt_cmo/
+**/dist/
+**/build/
+.DS_Store
+.env
+.env.*
+rekt_brandify/brand_assets/meme_templates/
+rekt_brandify/server/uploads/
+rekt_brandify/output/
+rekt_brandify/logs/
+**/.agentcash/
