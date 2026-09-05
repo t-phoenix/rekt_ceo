@@ -42,11 +42,11 @@ async function main() {
       SELECT table_name
       FROM information_schema.tables
       WHERE table_schema = 'public'
-        AND (table_name LIKE 'brandify_%')
+        AND (table_name LIKE 'brandify_%' OR table_name LIKE 'cmo_%')
       ORDER BY table_name
     `);
 
-    console.log('\nBrandify tables:');
+    console.log('\nBrandify + CMO tables:');
     for (const row of tables.rows) {
       console.log('  -', row.table_name);
     }

@@ -6,46 +6,64 @@ Before enabling live x402 payments on Render (`rekt-ceo-brandification`):
 
 | Variable | Purpose |
 |----------|---------|
-| `DATABASE_URL` | Supabase Postgres — brandify sessions + caption pipeline (required for persistence) |
-| `X402_RECEIVER_ADDRESS` | Base wallet to receive USDC |
-| `X402_FACILITATOR_URL` | Use Coinbase CDP facilitator for Base mainnet (not `x402.org`) |
-| `CDP_API_KEY_ID` | Coinbase Developer Platform API key |
-| `CDP_API_KEY_SECRET` | CDP API secret |
-| `CORS_ORIGINS` | Comma-separated origins, e.g. `https://www.rektceo.club,http://localhost:3000` |
-| `AGENTCASH_WALLET_BASE64` | AgentCash wallet for StableStudio / vision calls |
-| `X402_PUBLIC_ORIGIN` | Public URL in `/openapi.json` (e.g. `https://rekt-ceo-brandification.onrender.com`) |
-| `X402_CONTACT_EMAIL` | Contact email in OpenAPI for x402scan ownership verification |
+| `DATABASE_URL` | Supabase Postgres — brandify sessions + caption + CMO (required) |
+| `X402_RECEIVER_ADDRESS` | Base wallet to **receive** USDC from callers (merchant) |
+| `X402_FACILITATOR_URL` | Coinbase CDP facilitator for Base mainnet (not `x402.org`) |
+| `CDP_API_KEY_ID` / `CDP_API_KEY_SECRET` | CDP API credentials |
+| `CORS_ORIGINS` | Website + admin origins, e.g. `https://www.rektceo.club,https://admin…` |
+| `AGENTCASH_WALLET_BASE64` | AgentCash **spend** wallet for StableStudio / StableSocial / StableEnrich |
+| `X402_PUBLIC_ORIGIN` | Public URL in `/openapi.json` |
+| `X402_CONTACT_EMAIL` | OpenAPI contact for x402scan ownership verification |
+| `ADMIN_API_KEY` | Protects CMO admin mutate routes (`x-admin-key`) |
+
+**Wallet separation:** `X402_RECEIVER_ADDRESS` ≠ AgentCash spend wallet. Never commit either.
+
+## Migrations
+
+```bash
+cd rekt_brandify
+npm run db:migrate   # applies 001–007 including CMO content stage indexes
+```
+
+Use Supabase **transaction pooler** (port 6543) on Render.
 
 ## Agent discovery (x402 registry)
 
-The server exposes:
+- `GET /openapi.json` — OpenAPI 3.1 (Brandify + captions + templates + **CMO research/content stages**)
+- `GET /.well-known/x402` — legacy manifest
+- Paid routes include **Bazaar** `declareDiscoveryExtension` (`server/x402-bazaar.js`) so 402 challenges carry input/output schemas (required for clean AgentCash / x402scan indexing)
 
-- `GET /openapi.json` — canonical OpenAPI 3.1 document for x402scan / AgentCash discovery
-- `GET /.well-known/x402` — legacy compatibility manifest (links to OpenAPI)
-
-**Before registering on x402scan**, run:
+Before registering on x402scan:
 
 ```bash
 npm test
 npm run test:discovery
 ```
 
-Full manual steps (custom domain, x402scan registration, verification): see [docs/X402_REGISTRY.md](docs/X402_REGISTRY.md).
+`test:discovery` fails if `SCHEMA_INPUT_MISSING` / `SCHEMA_OUTPUT_MISSING` appear.
 
-## Frontend (rekt_website)
+Full steps: [docs/X402_REGISTRY.md](docs/X402_REGISTRY.md).  
+Cross-package push order: [../PRODUCTION_PUSH_CHECKLIST.md](../PRODUCTION_PUSH_CHECKLIST.md).
 
-Set in production deploy:
+## Security checklist
 
-```
-REACT_APP_BRANDIFY_API_URL=https://rekt-ceo-brandification.onrender.com
-```
+- [ ] Payment middleware runs before route validation (402 not 400 on unpaid paid routes)
+- [ ] Admin routes require `ADMIN_API_KEY`
+- [ ] CORS restricted; `payment-required` exposed for browser x402
+- [ ] Post-pay failures persist via `createFailedStrategyRun`
+- [ ] Soft-fail AgentCash sources in research intel (partial results)
+- [ ] Compose/schedule not listed as public paid routes
+
+## Frontend
+
+**rekt_website:** `REACT_APP_BRANDIFY_API_URL=https://…`
+
+**rekt_admin:** `VITE_BRANDIFY_API_URL=https://…` and `VITE_ADMIN_API_KEY` matching Render `ADMIN_API_KEY`.
 
 ## Notes
 
-- `x402.org` facilitator does **not** support Base mainnet (`eip155:8453`). Use CDP for production.
-- **CDP API keys are required** when `X402_FACILITATOR_URL` points to Coinbase CDP. Without them, payment middleware stays off and endpoints run in free mode.
-- **CORS** must include your frontend origin in `CORS_ORIGINS`. The server exposes `payment-required` headers so browsers can read x402 payment info cross-origin.
-- **Postgres (Supabase)** is the primary datastore. Set `DATABASE_URL` on Render. Run `npm run db:migrate` once against the production database.
-- Use the Supabase **transaction pooler** (port 6543) on Render to avoid connection limits.
-- Without `DATABASE_URL`, read endpoints return empty results and write endpoints return 503.
-- Without `X402_RECEIVER_ADDRESS`, all brandify endpoints run in free mode (no wallet payments).
+- `x402.org` facilitator does **not** support Base mainnet — use CDP.
+- Without `X402_RECEIVER_ADDRESS`, paid endpoints run in free mode.
+- Without `DATABASE_URL`, reads empty / writes 503.
+- After deploy: verify `/health`, `/openapi.json` path keys, unauthenticated POST → **402**.
+- Then register origin on https://x402scan.com/resources/register (see X402_REGISTRY.md Part 3).

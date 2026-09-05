@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react'
-import { Header, CEOPriceCard, NFTPricingCard, UserInfoLookup, MintButton, LiquidityPoolPage, ContractManagerPage, WorkflowsPage, ArbitrageBotPage, CampaignsPage } from './components'
+import { Header, CEOPriceCard, NFTPricingCard, UserInfoLookup, MintButton, LiquidityPoolPage, ContractManagerPage, CMOWorkshopPage, ArbitrageBotPage, CampaignsPage } from './components'
 import { useApiHealth, useCeoPrice, useNftPricing, useUserInfo, useAuth } from './hooks'
 
-type Page = 'home' | 'liquidity' | 'contracts' | 'workflows' | 'arbitrage' | 'campaigns'
+type Page = 'home' | 'liquidity' | 'contracts' | 'cmo' | 'arbitrage' | 'campaigns'
 
 function App() {
   const [currentPage, setCurrentPage] = useState<Page>('home')
@@ -27,8 +27,8 @@ function App() {
           <LiquidityPoolPage />
         ) : currentPage === 'contracts' ? (
           <ContractManagerPage />
-        ) : currentPage === 'workflows' ? (
-          <WorkflowsPage />
+        ) : currentPage === 'cmo' ? (
+          <CMOWorkshopPage />
         ) : currentPage === 'arbitrage' ? (
           <ArbitrageBotPage />
         ) : currentPage === 'campaigns' ? (

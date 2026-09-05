@@ -3,9 +3,11 @@ export { useApiHealth } from './useApiHealth'
 export { useCeoPrice } from './useCeoPrice'
 export { useNftPricing } from './useNftPricing'
 export { useUserInfo } from './useUserInfo'
-export { useWorkflows } from './useWorkflows'
-export type { TableName } from './useWorkflows'
 export { useArbBot } from './useArbBot'
+export { useCmoPayment, CMO_PRICES, formatUsd } from './useCmoPayment'
+export type { CmoPaidAction } from './useCmoPayment'
+export { useCmoPipeline, estimatePipelineCostUsd } from './useCmoPipeline'
+
 
 // Auth hooks
 export { useAuth } from './useAuth'

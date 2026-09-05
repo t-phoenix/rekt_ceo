@@ -11,7 +11,21 @@ import { isPgEnabled, getPool } from './db/pg.js';
 import apiRoutes from './routes/api.js';
 import discoveryRoute from './x402-discovery.js';
 import { buildOpenApiDocument } from './openapi.js';
-
+import {
+  dayPackagePriceUsd,
+  curatePriceUsd,
+  selectTemplatePriceUsd,
+  brandifyStagePriceUsd,
+  brandifyVisionPriceUsd,
+  brandifyGeneratePriceUsd,
+  captionStagePriceUsd,
+  topicsResearchPriceUsd,
+  socialPulsePriceUsd,
+  newsEventsPriceUsd,
+  intelPackPriceUsd,
+  stageChainPriceUsd,
+} from '../cmo/services/paid-run.js';
+import { applyBazaarExtensions } from './x402-bazaar.js';
 dotenv.config();
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -51,7 +65,32 @@ function createFacilitatorClient() {
 }
 
 export function getPaymentRouteConfig(networkId) {
-  return {
+  // Day package = 2× estimated AgentCash internal cost (volume play); override with X402_PRICE_CMO_DAY_PACKAGE.
+  const dayUnit = () => `$${dayPackagePriceUsd().toFixed(2)}`;
+  const batchPrice = (context) => {
+    const header = context?.adapter?.getHeader?.('x-cmo-day-count')
+      || context?.adapter?.getHeader?.('X-CMO-Day-Count');
+    let n = Number(header);
+    if (!Number.isFinite(n) || n < 1) {
+      try {
+        const url = context?.adapter?.getUrl?.() || '';
+        const q = new URL(url, 'http://localhost').searchParams.get('days');
+        n = Number(q);
+      } catch {
+        n = 1;
+      }
+    }
+    if (!Number.isFinite(n) || n < 1) n = 1;
+    return `$${(n * dayPackagePriceUsd()).toFixed(2)}`;
+  };
+  const fromStagePrice = (context) => {
+    const header = context?.adapter?.getHeader?.('x-cmo-from-stage')
+      || context?.adapter?.getHeader?.('X-CMO-From-Stage')
+      || 'curate';
+    return `$${stageChainPriceUsd(header).toFixed(2)}`;
+  };
+
+  return applyBazaarExtensions({
     'POST /api/sessions/start': {
       accepts: {
         scheme: 'exact',
@@ -97,7 +136,232 @@ export function getPaymentRouteConfig(networkId) {
       },
       description: 'Rate a caption suggestion run (Like/Dislike/Neutral)',
     },
-  };
+    'GET /api/templates': {
+      accepts: {
+        scheme: 'exact',
+        price: `$${process.env.X402_PRICE_TEMPLATES_LIST || '0.01'}`,
+        network: networkId,
+        payTo: process.env.X402_RECEIVER_ADDRESS,
+      },
+      description: 'List Rekt CEO meme templates from the Brandify catalog',
+    },
+    'GET /api/templates/:templateId': {
+      accepts: {
+        scheme: 'exact',
+        price: `$${process.env.X402_PRICE_TEMPLATES_DETAIL || '0.01'}`,
+        network: networkId,
+        payTo: process.env.X402_RECEIVER_ADDRESS,
+      },
+      description: 'Get a single meme template metadata record',
+    },
+    'GET /api/templates/:templateId/image': {
+      accepts: {
+        scheme: 'exact',
+        price: `$${process.env.X402_PRICE_TEMPLATES_IMAGE || '0.02'}`,
+        network: networkId,
+        payTo: process.env.X402_RECEIVER_ADDRESS,
+      },
+      description: 'Download a meme template image',
+    },
+    'POST /api/cmo/research/competition': {
+      accepts: {
+        scheme: 'exact',
+        price: `$${process.env.X402_PRICE_CMO_COMPETITION || '0.25'}`,
+        network: networkId,
+        payTo: process.env.X402_RECEIVER_ADDRESS,
+      },
+      description: 'Competition intelligence playbook for engagement and meme UGC',
+    },
+    'POST /api/cmo/research/kol': {
+      accepts: {
+        scheme: 'exact',
+        price: `$${process.env.X402_PRICE_CMO_KOL || '0.15'}`,
+        network: networkId,
+        payTo: process.env.X402_RECEIVER_ADDRESS,
+      },
+      description: 'KOL discovery and engagement strategy',
+    },
+    'POST /api/cmo/research/trends': {
+      accepts: {
+        scheme: 'exact',
+        price: `$${process.env.X402_PRICE_CMO_TRENDS || '0.06'}`,
+        network: networkId,
+        payTo: process.env.X402_RECEIVER_ADDRESS,
+      },
+      description: 'Social trends research via Lightreel',
+    },
+    'POST /api/cmo/research/content-draft': {
+      accepts: {
+        scheme: 'exact',
+        price: `$${process.env.X402_PRICE_CMO_CONTENT_DRAFT || '0.05'}`,
+        network: networkId,
+        payTo: process.env.X402_RECEIVER_ADDRESS,
+      },
+      description: 'Engagement-optimized social post draft',
+    },
+    'POST /api/cmo/research/brand-mentions': {
+      accepts: {
+        scheme: 'exact',
+        price: `$${process.env.X402_PRICE_CMO_BRAND_MENTIONS || '0.08'}`,
+        network: networkId,
+        payTo: process.env.X402_RECEIVER_ADDRESS,
+      },
+      description: 'Brand mention scan via AgentCash / Lightreel',
+    },
+    'POST /api/cmo/research/kol-opportunities': {
+      accepts: {
+        scheme: 'exact',
+        price: `$${process.env.X402_PRICE_CMO_KOL_OPPS || '0.12'}`,
+        network: networkId,
+        payTo: process.env.X402_RECEIVER_ADDRESS,
+      },
+      description: 'KOL engagement opportunities from watchlist',
+    },
+    'POST /api/cmo/research/topics': {
+      accepts: {
+        scheme: 'exact',
+        price: `$${topicsResearchPriceUsd().toFixed(2)}`,
+        network: networkId,
+        payTo: process.env.X402_RECEIVER_ADDRESS,
+      },
+      description: 'Topic determination + SEO/GEO keyword packs via AgentCash',
+    },
+    'POST /api/cmo/research/social-pulse': {
+      accepts: {
+        scheme: 'exact',
+        price: `$${socialPulsePriceUsd().toFixed(2)}`,
+        network: networkId,
+        payTo: process.env.X402_RECEIVER_ADDRESS,
+      },
+      description: 'Twitter + Reddit + optional LinkedIn social pulse',
+    },
+    'POST /api/cmo/research/news-events': {
+      accepts: {
+        scheme: 'exact',
+        price: `$${newsEventsPriceUsd().toFixed(2)}`,
+        network: networkId,
+        payTo: process.env.X402_RECEIVER_ADDRESS,
+      },
+      description: 'News, events, and research references for content topics',
+    },
+    'POST /api/cmo/research/intel-pack': {
+      accepts: {
+        scheme: 'exact',
+        price: `$${intelPackPriceUsd().toFixed(2)}`,
+        network: networkId,
+        payTo: process.env.X402_RECEIVER_ADDRESS,
+      },
+      description: 'One-shot research intel: topics + social + news/events',
+    },
+    'POST /api/cmo/strategy/campaign-brief': {
+      accepts: {
+        scheme: 'exact',
+        price: `$${process.env.X402_PRICE_CMO_CAMPAIGN_BRIEF || '0.10'}`,
+        network: networkId,
+        payTo: process.env.X402_RECEIVER_ADDRESS,
+      },
+      description: 'N-day campaign brief with AgentCash calendar assist',
+    },
+    'POST /api/cmo/content/day-package': {
+      accepts: {
+        scheme: 'exact',
+        price: dayUnit(),
+        network: networkId,
+        payTo: process.env.X402_RECEIVER_ADDRESS,
+      },
+      description: 'Full day content package: ideate, brandify meme, caption, save draft',
+    },
+    'POST /api/cmo/content/batch-package': {
+      accepts: {
+        scheme: 'exact',
+        price: batchPrice,
+        network: networkId,
+        payTo: process.env.X402_RECEIVER_ADDRESS,
+      },
+      description: 'Batch day packages — price = dayCount × day package (send X-CMO-Day-Count)',
+    },
+    'POST /api/cmo/content/curate': {
+      accepts: {
+        scheme: 'exact',
+        price: `$${curatePriceUsd().toFixed(2)}`,
+        network: networkId,
+        payTo: process.env.X402_RECEIVER_ADDRESS,
+      },
+      description: 'Curate research-aware social copy + CTA for one campaign day',
+    },
+    'POST /api/cmo/content/select-template': {
+      accepts: {
+        scheme: 'exact',
+        price: `$${selectTemplatePriceUsd().toFixed(2)}`,
+        network: networkId,
+        payTo: process.env.X402_RECEIVER_ADDRESS,
+      },
+      description: 'Select meme template from curated ideate output',
+    },
+    'POST /api/cmo/content/brandify': {
+      accepts: {
+        scheme: 'exact',
+        price: `$${brandifyStagePriceUsd().toFixed(2)}`,
+        network: networkId,
+        payTo: process.env.X402_RECEIVER_ADDRESS,
+      },
+      description: 'Auto brandify (vision + first ideas + generate) — prefer interactive vision/generate for operators',
+    },
+    'POST /api/cmo/content/brandify-vision': {
+      accepts: {
+        scheme: 'exact',
+        price: `$${brandifyVisionPriceUsd().toFixed(2)}`,
+        network: networkId,
+        payTo: process.env.X402_RECEIVER_ADDRESS,
+      },
+      description: 'Analyze meme template and return branding options for curator selection',
+    },
+    'POST /api/cmo/content/brandify-generate': {
+      accepts: {
+        scheme: 'exact',
+        price: `$${brandifyGeneratePriceUsd().toFixed(2)}`,
+        network: networkId,
+        payTo: process.env.X402_RECEIVER_ADDRESS,
+      },
+      description: 'Generate branded meme from curated element choices',
+    },
+    'POST /api/cmo/content/caption': {
+      accepts: {
+        scheme: 'exact',
+        price: `$${captionStagePriceUsd().toFixed(2)}`,
+        network: networkId,
+        payTo: process.env.X402_RECEIVER_ADDRESS,
+      },
+      description: 'Generate meme captions for a branded image',
+    },
+    'POST /api/cmo/content/run-from-stage': {
+      accepts: {
+        scheme: 'exact',
+        price: fromStagePrice,
+        network: networkId,
+        payTo: process.env.X402_RECEIVER_ADDRESS,
+      },
+      description: 'Pay once and run remaining day stages from X-CMO-From-Stage through compose',
+    },
+    'POST /api/cmo/brand/analyze': {
+      accepts: {
+        scheme: 'exact',
+        price: `$${process.env.X402_PRICE_CMO_BRAND_ANALYZE || '0.45'}`,
+        network: networkId,
+        payTo: process.env.X402_RECEIVER_ADDRESS,
+      },
+      description: 'AgentCash brand-agency analysis from website URL; persists guidelines + features',
+    },
+    'POST /api/cmo/features/enrich': {
+      accepts: {
+        scheme: 'exact',
+        price: `$${process.env.X402_PRICE_CMO_FEATURE_ENRICH || '0.18'}`,
+        network: networkId,
+        payTo: process.env.X402_RECEIVER_ADDRESS,
+      },
+      description: 'Enrich a product feature from its URL via AgentCash',
+    },
+  });
 }
 
 /**
@@ -181,6 +445,8 @@ export function createApp() {
       const resourceServer = new x402ResourceServer(facilitatorClient)
         .register(X402_NETWORK_ID, new ExactEvmScheme());
 
+      // CMO research/strategy AI routes are x402 for both admin wallet payers and external agents.
+      // Admin-only free routes (wallet status, content CRUD, calendar, launch-context) are not priced.
       app.use(paymentMiddleware(getPaymentRouteConfig(X402_NETWORK_ID), resourceServer));
       paymentMiddlewareEnabled = true;
 

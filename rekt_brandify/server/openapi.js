@@ -3,6 +3,8 @@
  * Served at GET /openapi.json — does not replace runtime 402 behavior.
  */
 
+import { buildCmoOpenApiPaths, cmoXGuidance } from './openapi-cmo.js';
+
 function fixedPayment(amount) {
   return {
     price: { mode: 'fixed', currency: 'USD', amount: String(amount) },
@@ -68,10 +70,10 @@ export function buildOpenApiDocument(options = {}) {
   return {
     openapi: '3.1.0',
     info: {
-      title: 'Rekt CEO Meme Brandifier',
-      version: '1.0.0',
+      title: 'Rekt CEO Meme Brandifier + CMO Workshop',
+      version: '1.1.0',
       description:
-        'AI-powered meme tools for the Rekt CEO ($CEO) crypto brand: brandify meme templates, generate captions from context, and rate results.',
+        'AI-powered meme brandification, captions, template catalog, and CMO research/content pipelines for Rekt CEO ($CEO). Pay per call with USDC on Base via x402.',
       contact: { email: contactEmail },
       'x-guidance': [
         'Brandify workflow (image brandification) on Base USDC via x402:',
@@ -82,11 +84,13 @@ export function buildOpenApiDocument(options = {}) {
         '4. POST /api/captions/suggest — multipart: template_image + context (or topic). Returns top 3 captions from 10 candidates with humor tags and scores.',
         '5. POST /api/captions/rate — JSON: run_id, selected_candidate_id, rating (Like|Dislike|Neutral), optional feedback_text.',
         'Free: GET /api/templates/{templateId}/variations — public community brandified versions.',
+        cmoXGuidance(),
         'Pay with USDC on Base (eip155:8453). Send unauthenticated request first to receive HTTP 402 + payment-required header, then retry with x402 payment.',
       ].join('\n'),
     },
     servers: [{ url: publicOrigin.replace(/\/$/, '') }],
     paths: {
+      ...buildCmoOpenApiPaths(options),
       '/health': {
         get: {
           operationId: 'healthCheck',

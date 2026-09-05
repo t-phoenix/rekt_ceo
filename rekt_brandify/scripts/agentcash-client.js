@@ -72,20 +72,80 @@ export async function runVisionJsonRequest(payload, { timeout = VISION_TIMEOUT_M
   return parseVisionStrategyContent(content);
 }
 
+function isVisionRefusal(text = '') {
+  const t = String(text).toLowerCase();
+  return (
+    t.includes('cannot assist')
+    || t.includes("can't assist")
+    || t.includes("i'm sorry")
+    || t.includes('i am sorry')
+    || t.includes('not able to')
+    || t.includes('refuse')
+    || t.includes('declined')
+  );
+}
+
+function fallbackBrandifyStrategy(customTarget = '') {
+  const elements = [
+    {
+      name: 'character clothing / main subject',
+      type: 'existing',
+      reasoning: 'Default branding target when vision analysis is unavailable',
+      ideas: [
+        'Shift clothing accents to Rekt navy (#0D0E1A) and add a small gold $CEO chest mark',
+        'Add subtle gold (#F5C518) trim only — keep face and pose untouched',
+        'Leave clothing unchanged; rely on corner badge branding instead',
+      ],
+    },
+    {
+      name: 'corner brand mark',
+      type: 'new',
+      reasoning: 'Safe dead-space placement that works on most meme templates',
+      ideas: [
+        'Small gold Rekt CEO coin logo in the bottom-right (~12% width)',
+        'Tiny low-opacity $CEO mark in the bottom-left corner',
+        'Gold circular REKT badge in the top-right corner',
+      ],
+    },
+  ];
+
+  const brief = String(customTarget || '').trim();
+  if (brief) {
+    elements.unshift({
+      name: brief.slice(0, 72) || 'operator brief',
+      type: 'existing',
+      reasoning: 'Operator branding brief',
+      ideas: [
+        `Apply this brief subtly: ${brief.slice(0, 220)}`,
+        `Same brief but smaller / less saturated: ${brief.slice(0, 160)}`,
+        'Interpret the brief with gold (#F5C518) accents only — no large overlays',
+      ],
+    });
+  }
+
+  return { elements, fallback: true };
+}
+
 /**
  * Analyze a meme image and return brandify element strategy JSON.
+ * Retries with a safer prompt on model refusal; falls back to category-agnostic options
+ * so CMO analyze never hard-fails after a successful upload.
  */
 export async function getVisionInteractiveStrategy(imageUrl, customTarget = '') {
-  const systemPrompt = `
-You are a highly creative Art Director for the "Rekt CEO" crypto brand ($CEO).
-BRAND COLORS: Rekt Red (#e7255e), CEO Yellow (#F8C826), Deep Magenta (#3B1C32), Off White (#FFFFFF)
-BRAND STYLE: High-fashion (like Gucci, Louis Vuitton monograms), neon signs, stylish streetwear.
+  const brief = String(customTarget || '').trim();
 
-Analyze the image and find up to 3 existing elements to brandify.
-Also, suggest 1 or 2 NEW elements to superimpose/add.
-For EACH element, provide 2 or 3 distinct, highly creative ideas on how to brandify it.
-${customTarget ? `\nCRITICAL INSTRUCTION: The user specifically requested to brandify: "${customTarget}". You MUST include this exact element in your 'elements' array as an 'existing' element and provide creative ideas for it.\n` : ''}
-Return ONLY valid JSON in this exact shape:
+  const primarySystem = `
+You are an Art Director for the "Rekt CEO" crypto brand ($CEO).
+This is a commercial brand-design task on a meme template image (UGC marketing).
+BRAND COLORS: Rekt Red (#e7255e), CEO Yellow (#F8C826), Deep Magenta (#3B1C32), Off White (#FFFFFF)
+BRAND STYLE: subtle high-fashion brand marks, neon accents, stylish streetwear details.
+
+Task: suggest tasteful ways to add Rekt CEO branding WITHOUT changing the meme's joke, faces, or composition.
+Find up to 3 existing scene elements to brand, plus 1–2 NEW small brand marks (badges/logos) in dead space.
+For EACH element, provide 2 or 3 distinct creative ideas.
+Do not refuse ordinary meme/cartoon templates — treat them as stock creative assets.
+${brief ? `\nOPERATOR BRIEF (must include as an existing element): "${brief.slice(0, 400)}"\n` : ''}
+Return ONLY valid JSON:
 {
   "elements": [
     {
@@ -97,28 +157,58 @@ Return ONLY valid JSON in this exact shape:
   ]
 }`;
 
-  const payload = {
+  const retrySystem = `
+You output ONLY JSON for brand placement options on a marketing meme template.
+Never apologize. Never refuse ordinary cartoons/memes used as stock creatives.
+Suggest 2-4 brandable elements for Rekt CEO ($CEO) with 2-3 ideas each.
+${brief ? `Include element for: "${brief.slice(0, 200)}".` : ''}
+Schema: {"elements":[{"name":"string","type":"existing"|"new","reasoning":"string","ideas":["string"]}]}`;
+
+  const buildPayload = (systemPrompt) => ({
     model: 'gpt-4o',
     messages: [
       { role: 'system', content: systemPrompt },
       {
         role: 'user',
         content: [
-          { type: 'text', text: 'Analyze this image and return the interactive JSON strategy.' },
+          {
+            type: 'text',
+            text: 'Analyze this meme template for commercial Rekt CEO brand placements. Return interactive JSON strategy only.',
+          },
           { type: 'image_url', image_url: { url: imageUrl } },
         ],
       },
     ],
     response_format: { type: 'json_object' },
-  };
+  });
 
-  const response = await runVisionJsonRequest(payload);
+  try {
+    const response = await runVisionJsonRequest(buildPayload(primarySystem));
+    if (!Array.isArray(response?.elements) || !response.elements.length) {
+      throw new Error('Vision model response missing elements array');
+    }
+    return response;
+  } catch (err) {
+    const msg = String(err?.message || err);
+    console.warn('[brandify-vision] primary analyze failed:', msg.slice(0, 240));
 
-  if (!Array.isArray(response?.elements)) {
-    throw new Error('Vision model response missing elements array');
+    if (!isVisionRefusal(msg) && !msg.includes('non-JSON') && !msg.includes('missing elements')) {
+      // Network / payment / upload-style failures should still bubble.
+      if (!msg.includes('Vision model') && !msg.includes('empty content')) throw err;
+    }
+
+    try {
+      const retry = await runVisionJsonRequest(buildPayload(retrySystem));
+      if (Array.isArray(retry?.elements) && retry.elements.length) {
+        return { ...retry, retried: true };
+      }
+    } catch (retryErr) {
+      console.warn('[brandify-vision] retry analyze failed:', String(retryErr?.message || retryErr).slice(0, 240));
+    }
+
+    console.warn('[brandify-vision] using fallback strategy options');
+    return fallbackBrandifyStrategy(brief);
   }
-
-  return response;
 }
 
 /**
@@ -213,6 +303,8 @@ export async function submitEditJob(imageUrl, prompt, endpoint = API_CONFIG.edit
 
 /**
  * Poll a StableStudio job URL until it completes or times out.
+ * Permanent job failures (sensitive / failed status) throw immediately so callers
+ * can fall back to gpt-image-2 — do not keep retrying the same dead job.
  */
 export async function pollJobUntilComplete(pollUrl, jobId, onProgress = () => {}) {
   const { maxPollAttempts } = API_CONFIG;
@@ -245,10 +337,22 @@ export async function pollJobUntilComplete(pollUrl, jobId, onProgress = () => {}
       }
 
       if (job.status === 'failed' || job.status === 'error') {
-        throw new Error(`Job failed: ${job.error || job.message || JSON.stringify(job)}`);
+        const detail = String(job.error || job.message || JSON.stringify(job));
+        const err = new Error(`Job failed: ${detail}`);
+        // Permanent — do not retry this job id
+        err.permanent = true;
+        throw err;
       }
     } catch (err) {
-      console.warn(`Poll attempt ${attempt} errored (retrying): ${(err.message || '').slice(0, 200)}`);
+      const msg = String(err?.message || err);
+      const permanent = Boolean(err?.permanent)
+        || /sensitive|E005|moderation|flagged/i.test(msg)
+        || /^Job failed:/i.test(msg)
+        || /^Job complete but no imageUrl/i.test(msg);
+
+      if (permanent) throw err;
+
+      console.warn(`Poll attempt ${attempt} errored (retrying): ${msg.slice(0, 200)}`);
     }
   }
 
