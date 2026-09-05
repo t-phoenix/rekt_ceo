@@ -11,16 +11,24 @@ This guide covers making the Rekt CEO Brandify API discoverable and listed in x4
 | Endpoint | Auth | Purpose |
 |----------|------|---------|
 | `GET /health` | Free | Health check |
-| `GET /openapi.json` | Free | **Canonical** agent discovery document (OpenAPI 3.1) |
+| `GET /openapi.json` | Free | **Canonical** agent discovery (OpenAPI 3.1) |
 | `GET /.well-known/x402` | Free | Legacy compatibility discovery |
 | `GET /api/templates/{templateId}/variations` | Free | Public community variations |
-| `POST /api/sessions/start` | x402 ($0.19) | Upload meme + vision strategy |
-| `POST /api/generate` | x402 ($0.49) | Generate branded image |
-| `POST /api/sessions/rate` | x402 ($0.01) | Rate a generation |
-| `POST /api/captions/suggest` | x402 ($0.10) | Caption suggest (top 3 from 10) |
-| `POST /api/captions/rate` | x402 ($0.01) | Rate a caption run |
+| `POST /api/sessions/start` | x402 | Upload meme + vision strategy |
+| `POST /api/generate` | x402 | Generate branded image |
+| `POST /api/sessions/rate` | x402 | Rate a generation |
+| `POST /api/captions/suggest` | x402 | Caption suggest |
+| `POST /api/captions/rate` | x402 | Rate a caption run |
+| `GET /api/templates` (+ detail/image) | x402 | Meme template catalog |
+| `POST /api/cmo/research/*` | x402 | Competition, KOL, trends, **topics, social-pulse, news-events, intel-pack**, … |
+| `POST /api/cmo/strategy/campaign-brief` | x402 | N-day campaign brief |
+| `POST /api/cmo/content/day-package` / `batch-package` | x402 | Bundled day content (~2×) |
+| `POST /api/cmo/content/curate` / `select-template` / `brandify` / `caption` | x402 | Content stages (~3×) |
 
 Runtime payment uses **USDC on Base mainnet** (`eip155:8453`) via Coinbase CDP facilitator.
+
+Admin-only (not public paid listing): content compose/CRUD, calendar schedule, pipeline mutations — require `x-admin-key`.
+
 
 ---
 
@@ -128,9 +136,12 @@ x402scan is the main ecosystem explorer. AgentCash search indexes origins regist
   - `x-payment-info` on each paid route
   - Request + response schemas on paid routes
   - `responses.402` on paid routes
+  - Version **≥ 1.1.0** and CMO/template paths present (not the old 7-route-only doc)
 - [ ] Unauthenticated `POST` to paid routes returns **402** (not 400) with parseable x402 challenge
-- [ ] `npm run test:discovery` shows no **errors**
+- [ ] 402 `PAYMENT-REQUIRED` includes **Bazaar** extension (`extensions.bazaar` via `server/x402-bazaar.js`) — AgentCash must not report `SCHEMA_INPUT_MISSING` / `SCHEMA_OUTPUT_MISSING`
+- [ ] `npm run test:discovery` shows no **errors** (including SCHEMA_*)
 - [ ] CDP facilitator + receiver wallet configured (payments settle on Base)
+- [ ] After OpenAPI or paid-route changes: **re-register** origin on x402scan (old listing will stay stale otherwise)
 
 ### Step-by-step registration
 
@@ -149,6 +160,9 @@ npx -y @agentcash/discovery@latest discover "https://rekt-ceo-brandification.onr
 npx -y @agentcash/discovery@latest check "https://rekt-ceo-brandification.onrender.com/api/sessions/start"
 npx -y @agentcash/discovery@latest check "https://rekt-ceo-brandification.onrender.com/api/generate"
 npx -y @agentcash/discovery@latest check "https://rekt-ceo-brandification.onrender.com/api/sessions/rate"
+npx -y @agentcash/discovery@latest check "https://rekt-ceo-brandification.onrender.com/api/cmo/research/intel-pack"
+npx -y @agentcash/discovery@latest check "https://rekt-ceo-brandification.onrender.com/api/cmo/content/day-package"
+npx -y @agentcash/discovery@latest check "https://rekt-ceo-brandification.onrender.com/api/cmo/content/curate"
 ```
 
 #### 3. Register via x402scan UI (easiest)

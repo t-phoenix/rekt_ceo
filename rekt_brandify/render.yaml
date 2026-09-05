@@ -39,3 +39,35 @@ services:
         sync: false
       - key: CDP_API_KEY_SECRET
         sync: false
+      - key: ADMIN_API_KEY
+        sync: false
+      - key: X402_PUBLIC_ORIGIN
+        sync: false
+      - key: X402_CONTACT_EMAIL
+        sync: false
+      - key: CMO_DAY_MARKUP
+        value: "2"
+      - key: CMO_STAGE_MARKUP
+        value: "3"
+      - key: X402_PRICE_CMO_TOPICS
+        value: "0.21"
+      - key: X402_PRICE_CMO_SOCIAL_PULSE
+        value: "0.36"
+      - key: X402_PRICE_CMO_NEWS_EVENTS
+        value: "0.18"
+      - key: X402_PRICE_CMO_INTEL_PACK
+        value: "0.75"
+      - key: X402_PRICE_CMO_CURATE
+        value: "0.18"
+      - key: X402_PRICE_CMO_SELECT_TEMPLATE
+        value: "0.03"
+      - key: X402_PRICE_CMO_BRANDIFY
+        value: "0.48"
+      - key: X402_PRICE_CMO_CAPTION
+        value: "0.24"
+      - key: X402_PRICE_TEMPLATES_LIST
+        value: "0.01"
+      - key: X402_PRICE_TEMPLATES_DETAIL
+        value: "0.01"
+      - key: X402_PRICE_TEMPLATES_IMAGE
+        value: "0.02"

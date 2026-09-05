@@ -1,2 +1,46 @@
-# Cursor debug logs
+# Dependencies
+node_modules/
+**/node_modules/
+
+# Environment (never commit secrets)
+.env
+.env.*
+!.env.example
+**/.env
+**/.env.*
+!**/.env.example
+
+# Build / cache
+dist/
+build/
+.cache/
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-error.log*
+
+# OS / IDE
+.DS_Store
+**/.DS_Store
 .cursor/
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Uploads & local output
+rekt_brandify/server/uploads/
+rekt_brandify/output/
+rekt_brandify/logs/
+rekt_brandify/.live-tests/
+rekt_admin/dist/
+rekt_website/build/
+
+# Large synced meme template library (regenerate via: cd rekt_brandify && npm run sync:templates)
+rekt_brandify/brand_assets/meme_templates/
+
+# AgentCash local wallet dump (written by setup-wallet.js)
+**/.agentcash/
+
+# Legacy / abandoned
+rekt_cmo/

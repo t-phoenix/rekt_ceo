@@ -28,11 +28,14 @@ import {
   summarizeResponseBody,
 } from '../utils/audit.js';
 import captionsRouter from './captions.js';
+import templatesRouter from './templates.js';
+import { cmoRouter } from '../../cmo/index.js';
 
 const router = express.Router();
 const upload = multer({ dest: 'server/uploads/' });
 
 router.use('/captions', captionsRouter);
+router.use('/cmo', cmoRouter);
 
 function dbUnavailable(res) {
   return res.status(503).json({
@@ -99,7 +102,7 @@ async function runTimedStage(sessionId, stage, attempt, fn, input) {
   }
 }
 
-// GET public brandified variations for a meme template
+// Public community variations (free) — register before paid /templates router
 router.get('/templates/:templateId/variations', async (req, res) => {
   const startedAt = Date.now();
   const routeKey = 'GET /api/templates/:templateId/variations';
@@ -150,6 +153,9 @@ router.get('/templates/:templateId/variations', async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+
+// Paid template catalog / detail / image (x402)
+router.use('/templates', templatesRouter);
 
 // 1. START SESSION (Upload Image & Get Vision Strategy)
 router.post('/sessions/start', upload.single('image'), async (req, res) => {

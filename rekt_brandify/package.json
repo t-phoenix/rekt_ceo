@@ -19,6 +19,7 @@
     "db:test": "node scripts/test-db-connection.js",
     "db:roundtrip": "node scripts/test-db-roundtrip.js",
     "db:session": "node scripts/test-session-roundtrip.js",
+    "sync:templates": "node scripts/sync-meme-templates.js",
     "status": "node scripts/status.js",
     "preview": "node scripts/preview-server.js"
   },

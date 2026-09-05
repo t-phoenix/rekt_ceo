@@ -32,10 +32,14 @@ describe('brandify smoke (free mode)', () => {
   it('GET /.well-known/x402 returns legacy discovery doc', async () => {
     const { res, body } = await jsonFetch(baseUrl, '/.well-known/x402');
     assert.equal(res.status, 200);
-    assert.equal(body.name, 'Rekt CEO Meme Brandifier');
+    assert.equal(body.name, 'Rekt CEO Meme Brandifier + CMO Workshop');
     assert.equal(body.openapi, '/openapi.json');
     assert.ok(Array.isArray(body.endpoints));
-    assert.equal(body.endpoints.length, 5);
+    assert.ok(body.endpoints.length >= 20, `expected expanded CMO discovery list, got ${body.endpoints.length}`);
+    const paths = body.endpoints.map((e) => e.path);
+    assert.ok(paths.includes('/api/cmo/research/intel-pack'));
+    assert.ok(paths.includes('/api/cmo/content/curate'));
+    assert.ok(paths.includes('/api/cmo/content/day-package'));
   });
 
   it('GET /api/templates/:id/variations returns empty list without payment', async () => {

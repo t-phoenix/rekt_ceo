@@ -53,8 +53,11 @@ Other useful endpoints:
 | `POST /api/sessions/start` | Brandify: upload meme + vision strategy |
 | `POST /api/generate` | Brandify: generate branded image |
 | `POST /api/captions/suggest` | Caption API: top 3 meme captions |
+| `POST /api/cmo/research/intel-pack` | CMO research: topics + social + news (x402) |
+| `POST /api/cmo/content/day-package` | CMO day: curate → brandify → caption (x402) |
+| `POST /api/cmo/content/curate` | CMO content stage (also select-template, brandify, caption) |
 
-### Database & tests
+See [PRODUCTION.md](PRODUCTION.md) and [docs/X402_REGISTRY.md](docs/X402_REGISTRY.md) for deploy + x402scan listing.
 
 ```bash
 npm run db:test       # ping Supabase connection

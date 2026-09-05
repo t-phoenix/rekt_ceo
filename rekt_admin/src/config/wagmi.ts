@@ -1,5 +1,5 @@
 import { http, createConfig } from 'wagmi'
-import { sepolia } from 'wagmi/chains'
+import { sepolia, base } from 'wagmi/chains'
 import { walletConnect, injected, coinbaseWallet } from 'wagmi/connectors'
 
 // Get projectId from https://cloud.walletconnect.com
@@ -18,12 +18,16 @@ export const metadata = {
   icons: ['https://avatars.githubusercontent.com/u/37784886']
 }
 
-// Create wagmiConfig
+const baseRpc =
+  import.meta.env.VITE_BASE_RPC_HTTP_URL
+  || (alchemyApiKey ? `https://base-mainnet.g.alchemy.com/v2/${alchemyApiKey}` : 'https://mainnet.base.org')
+
+// Sepolia for existing mint/liquidity tooling; Base for CMO x402 USDC payments
 export const config = createConfig({
-  chains: [sepolia],
+  chains: [sepolia, base],
   connectors: [
-    walletConnect({ 
-      projectId, 
+    walletConnect({
+      projectId,
       metadata,
       showQrModal: false // We'll use Web3Modal's UI
     }),
@@ -34,6 +38,6 @@ export const config = createConfig({
   ],
   transports: {
     [sepolia.id]: http(`https://eth-sepolia.g.alchemy.com/v2/${alchemyApiKey}`),
+    [base.id]: http(baseRpc),
   },
 })
-

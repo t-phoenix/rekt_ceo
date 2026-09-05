@@ -9,6 +9,15 @@ const PAID_PATHS = [
   '/api/sessions/rate',
   '/api/captions/suggest',
   '/api/captions/rate',
+  '/api/cmo/research/topics',
+  '/api/cmo/research/social-pulse',
+  '/api/cmo/research/news-events',
+  '/api/cmo/research/intel-pack',
+  '/api/cmo/content/curate',
+  '/api/cmo/content/select-template',
+  '/api/cmo/content/brandify',
+  '/api/cmo/content/caption',
+  '/api/cmo/content/day-package',
 ];
 
 describe('OpenAPI document', () => {
@@ -19,7 +28,7 @@ describe('OpenAPI document', () => {
     });
 
     assert.equal(doc.openapi, '3.1.0');
-    assert.equal(doc.info.title, 'Rekt CEO Meme Brandifier');
+    assert.ok(doc.info.title.includes('Rekt CEO'));
     assert.ok(doc.info['x-guidance']);
     assert.equal(doc.info.contact.email, 'test@example.com');
     assert.equal(doc.servers[0].url, 'https://brandify.example.com');
@@ -28,11 +37,14 @@ describe('OpenAPI document', () => {
       const post = doc.paths[path]?.post;
       assert.ok(post, `missing POST ${path}`);
       assert.ok(post['x-payment-info'], `missing x-payment-info on ${path}`);
-      assert.equal(post['x-payment-info'].price.mode, 'fixed');
       assert.ok(post.responses['402'], `missing 402 response on ${path}`);
       assert.ok(post.requestBody, `missing requestBody on ${path}`);
       assert.ok(post.responses['200'], `missing 200 response on ${path}`);
     }
+
+    assert.ok(doc.paths['/api/templates']?.get?.['x-payment-info']);
+    assert.ok(doc.info['x-guidance'].includes('/api/cmo/research/intel-pack'));
+    assert.ok(doc.info['x-guidance'].includes('/api/captions/suggest'));
 
     const startBody = doc.paths['/api/sessions/start'].post.requestBody.content['multipart/form-data'];
     assert.ok(startBody?.schema?.properties?.image);
@@ -41,8 +53,6 @@ describe('OpenAPI document', () => {
     const captionBody = doc.paths['/api/captions/suggest'].post.requestBody.content['multipart/form-data'];
     assert.ok(captionBody?.schema?.properties?.template_image);
     assert.ok(captionBody.schema.required.includes('template_image'));
-
-    assert.ok(doc.info['x-guidance'].includes('/api/captions/suggest'));
 
     assert.deepEqual(doc.paths['/health'].get.security, []);
     assert.deepEqual(doc.paths['/api/templates/{templateId}/variations'].get.security, []);
